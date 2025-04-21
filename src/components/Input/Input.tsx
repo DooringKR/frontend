@@ -37,7 +37,7 @@ export default function Input({
         {...register}
         disabled={disabled}
         onKeyDown={onKeyDown}
-        className={`h-10 w-full rounded-lg bg-white px-4 py-3 outline-none ${effectiveError && "border-red-500"} border`}
+        className={`h-10 w-full rounded-lg bg-white px-4 py-3 outline-none ${effectiveError && "border-[#900B09]"} border`}
       />
       {effectiveError && (
         <p className="text-base font-normal leading-[1.4] text-[#900B09]">
