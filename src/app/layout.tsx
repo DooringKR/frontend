@@ -19,7 +19,7 @@ function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body>
+      <body className="max-w-[500px]">
         <ReactQueryProviders>
           {children}
           <ReactQueryDevtools />
