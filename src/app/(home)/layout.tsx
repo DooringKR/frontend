@@ -3,5 +3,7 @@ export default function Layout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <div>{children}</div>;
+  return <div>{children}
+  <footer></footer>
+  </div>;
 }
