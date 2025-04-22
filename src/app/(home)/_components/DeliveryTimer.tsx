@@ -35,7 +35,7 @@ export default function DeliveryTimer() {
       }
     };
 
-    update(); // 첫 실행
+    update();
     const timer = setInterval(update, 1000);
 
     return () => clearInterval(timer);
@@ -44,14 +44,14 @@ export default function DeliveryTimer() {
   if (remaining === null) return null;
 
   return (
-    <section className="rounded-xl border bg-[#F9F9F9] px-4 py-3 text-sm">
-      <p>
-        <span className="font-semibold text-[#FF5757]">{formatTime(remaining)}</span> 안에 주문하면
-        오늘 안에 배송돼요.
-      </p>
-      <p className="text-xs text-gray-500">
-        일부 <span className="text-[#FF5757]">지역은</span> 더 빨리 주문해야 해요.
-      </p>
+    <section className="flex h-[98px] w-full items-center justify-center rounded-lg border border-[#d9d9d9]">
+      <div className="flex flex-col gap-2">
+        <p className="text-base font-normal leading-[1.4] text-[#757575]">
+          <span className="font-semibold text-[#EC221F]">{formatTime(remaining)}</span> 안에
+          주문하면 오늘 안에 배송돼요.
+        </p>
+        <p className="text-sm font-semibold text-[#b3b3b3]">일부 지역은 더 빨리 주문해야 해요.</p>
+      </div>
     </section>
   );
 }

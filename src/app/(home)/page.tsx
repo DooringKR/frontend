@@ -1,6 +1,8 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+import DeliveryTimer from "./_components/DeliveryTimer";
+
 export default async function Page() {
   const cookieStore = await cookies();
   const token = cookieStore.get("token");
@@ -9,5 +11,9 @@ export default async function Page() {
     redirect("/login");
   }
 
-  return <div>메인 페이지</div>;
+  return (
+    <div>
+      <DeliveryTimer />
+    </div>
+  );
 }
