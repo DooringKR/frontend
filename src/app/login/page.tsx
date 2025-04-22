@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 
@@ -12,6 +13,7 @@ import handlePhoneKeyDown from "@/utils/handlePhoneKeyDown";
 import baseSchema, { PhoneFormData } from "@/utils/schema";
 
 export default function PhoneLoginPage() {
+  const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const {
     register,
@@ -30,6 +32,10 @@ export default function PhoneLoginPage() {
 
   const onSubmit = (data: PhoneFormData) => {
     console.log("전송된 데이터:", data);
+
+    const fakeToken = "temporary-token-1234";
+    document.cookie = `token=${fakeToken}; path=/; max-age=3600`;
+    router.push("/");
   };
 
   useEffect(() => {
