@@ -24,7 +24,7 @@ async function Page() {
   }
 
   const user = null
-  
+
   return (
     <div className="mx-5 flex flex-col gap-4 py-9">
       <div className="flex items-center justify-between">
@@ -36,7 +36,7 @@ async function Page() {
         </div>
         <Image src="/icons/Headphones.svg" width={24} height={24} alt="문의하기 버튼" />
       </div>
-      <DeliveryTimer />
+      <DeliveryTimer user={user}/>
       <section className="grid grid-cols-2 gap-2">
         {CATEGORY_LIST.map(item => (
           <Card key={item.name} title={item.name} href={item.href} />
