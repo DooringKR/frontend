@@ -19,7 +19,7 @@ function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className="max-w-[500px]">
+      <body className="mx-auto max-w-[500px]">
         <ReactQueryProviders>
           {children}
           <ReactQueryDevtools />
