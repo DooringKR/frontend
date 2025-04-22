@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-import DeliveryTimer from "./_components/DeliveryTimer";
+import Card from "@/components/Card/Card";
 
 export default async function Page() {
   const cookieStore = await cookies();
@@ -13,7 +13,6 @@ export default async function Page() {
 
   return (
     <div>
-      <DeliveryTimer />
     </div>
   );
 }
