@@ -42,9 +42,12 @@ export default function PhoneLoginPage() {
     const subscription = watch((value, { name }) => {
       if (name === "user_phoneNumber" && typeof value.user_phoneNumber === "string") {
         const formatted = formatPhoneNumber(value.user_phoneNumber);
-        setValue("user_phoneNumber", formatted, {
-          shouldValidate: false,
-        });
+
+        if (formatted !== value.user_phoneNumber) {
+          setValue("user_phoneNumber", formatted, {
+            shouldValidate: false,
+          });
+        }
       }
     });
 
