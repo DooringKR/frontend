@@ -11,7 +11,7 @@ export const getCoordinatesFromAddress = async (address: string) => {
   });
 
   if (!response.ok) throw new Error("주소 변환 실패");
-  return await response.json(); // { lat, lon }
+  return await response.json(); 
 };
 
 export const getTravelTimeInMinutes = async (

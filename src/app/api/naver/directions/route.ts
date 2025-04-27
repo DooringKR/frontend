@@ -16,7 +16,7 @@ export async function POST(req: Request) {
 
   try {
     const durationInMs = data.route.traoptimal[0].summary.duration;
-    const durationInMinutes = Math.round(durationInMs / 1000 / 60); // 분 단위로 변환
+    const durationInMinutes = Math.round(durationInMs / 1000 / 60);
     return Response.json({ minutes: durationInMinutes });
   } catch (e) {
     return new Response(JSON.stringify({ error: "경로 데이터를 파싱할 수 없습니다." }), {
