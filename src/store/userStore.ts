@@ -2,23 +2,23 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 interface UserStore {
-  name: string | null;
-  user_phoneNumber: number | null;
-  setUser: (user: Partial<UserStore>) => void;
+  userType: "company" | "factory" | null;
+  user_phoneNumber: string | null; 
+  setUserPhoneNumber: (userData: Partial<UserStore>) => void;
 }
 
 const useUserStore = create<UserStore>()(
   persist(
-    set => ({
-      name: null,
+    (set) => ({
+      userType: null,
       user_phoneNumber: null,
-      setUser: user => set(state => ({ ...state, ...user })),
+      setUserPhoneNumber: (userData) => set((state) => ({ ...state, ...userData })),
     }),
     {
       name: "userData",
       storage: createJSONStorage(() => localStorage),
-    },
-  ),
+    }
+  )
 );
 
 export default useUserStore;
