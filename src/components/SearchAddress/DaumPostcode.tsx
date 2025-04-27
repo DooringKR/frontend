@@ -1,7 +1,8 @@
 "use client";
 
 import Script from "next/script";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Button from '../Button/Button';
 
 interface DaumPostcodeData {
   address: string;
@@ -36,12 +37,15 @@ declare global {
 
 const DaumPostcodePopup = ({ onComplete }: DaumPostcodePopupProps) => {
   const scriptLoadedRef = useRef(false);
+  const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
 
   const openPostcodePopup = useCallback(() => {
     if (typeof window === "undefined" || !window.daum?.Postcode) return;
 
     new window.daum.Postcode({
       oncomplete: data => {
+        const address = data.roadAddress || data.address;
+        setSelectedAddress(address);
         onComplete(data);
       },
     }).open();
@@ -59,14 +63,13 @@ const DaumPostcodePopup = ({ onComplete }: DaumPostcodePopupProps) => {
 
   return (
     <>
-      <button
+      <Button
         type="button"
         onClick={openPostcodePopup}
-        className="rounded"
+        className="w-full cursor-pointer rounded-lg border border-gray-300 bg-white px-4 py-3 text-left text-base text-[#1e1e1e] shadow-sm"
       >
-        우편번호 검색
-      </button>
-
+        {selectedAddress || "건물, 지번 또는 도로명 검색"}
+      </Button>
       <Script
         src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
         strategy="afterInteractive"
