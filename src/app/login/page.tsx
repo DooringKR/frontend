@@ -11,9 +11,11 @@ import Input from "@/components/Input/Input";
 import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 import handlePhoneKeyDown from "@/utils/handlePhoneKeyDown";
 import baseSchema, { PhoneFormData } from "@/utils/schema";
+import useUserStore from "@/store/userStore";
 
 export default function PhoneLoginPage() {
   const router = useRouter();
+  const { setUserPhoneNumber } = useUserStore();
   const inputRef = useRef<HTMLInputElement>(null);
   const {
     register,
@@ -35,7 +37,12 @@ export default function PhoneLoginPage() {
 
     const fakeToken = "temporary-token-1234";
     document.cookie = `token=${fakeToken}; path=/; max-age=3600`;
-    router.push("/");
+    if(true){
+      setUserPhoneNumber(data.user_phoneNumber);
+      router.push("/login/step1");
+    }else{
+      router.push("/");
+    }
   };
 
   useEffect(() => {

@@ -3,8 +3,9 @@ import { createJSONStorage, persist } from "zustand/middleware";
 
 interface UserStore {
   userType: "company" | "factory" | null;
-  user_phoneNumber: string | null; 
-  setUserPhoneNumber: (userData: Partial<UserStore>) => void;
+  user_phoneNumber: string | null;
+  setUserType: (userType: "company" | "factory") => void;
+  setUserPhoneNumber: (phone: string) => void;
 }
 
 const useUserStore = create<UserStore>()(
@@ -12,7 +13,8 @@ const useUserStore = create<UserStore>()(
     (set) => ({
       userType: null,
       user_phoneNumber: null,
-      setUserPhoneNumber: (userData) => set((state) => ({ ...state, ...userData })),
+      setUserType: (userType) => set({ userType }),
+      setUserPhoneNumber: (phone) => set({ user_phoneNumber: phone }),
     }),
     {
       name: "userData",
