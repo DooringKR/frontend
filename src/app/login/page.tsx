@@ -11,6 +11,7 @@ import Input from "@/components/Input/Input";
 import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 import handlePhoneKeyDown from "@/utils/handlePhoneKeyDown";
 import baseSchema, { PhoneFormData } from "@/utils/schema";
+import Button from "@/components/Button/Button";
 
 export default function PhoneLoginPage() {
   const router = useRouter();
@@ -81,14 +82,14 @@ export default function PhoneLoginPage() {
           error={errors.user_phoneNumber}
           onKeyDown={handlePhoneKeyDown}
         />
-        <button
+        <Button
           type="submit"
-          className={`w-full rounded-md bg-black py-3 text-white transition-opacity duration-200 ${
+          className={`w-full rounded-md bg-black text-white transition-opacity duration-200 ${
             isPhoneEntered ? "opacity-100" : "pointer-events-none opacity-0"
           }`}
         >
           시작하기
-        </button>
+        </Button>
       </form>
     </div>
   );
