@@ -52,7 +52,7 @@ function Page() {
           type="button"
           onClick={() => router.back()}
         >
-          {"<"}
+        <Image src="/icons/Arrow_Left.svg" width={24} height={24} alt="뒤로가기" />
         </button>
         <Image src="/icons/Headphones.svg" width={24} height={24} alt="문의하기 버튼" />
       </div>
