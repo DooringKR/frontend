@@ -33,13 +33,11 @@ export default function PhoneLoginPage() {
   }, []);
 
   const onSubmit = (data: PhoneFormData) => {
-    console.log("전송된 데이터:", data);
-
     const fakeToken = "temporary-token-1234";
     document.cookie = `token=${fakeToken}; path=/; max-age=3600`;
     if(true){
       setUserPhoneNumber(data.user_phoneNumber);
-      router.push("/login/step1");
+      router.push("/login/step");
     }else{
       router.push("/");
     }
