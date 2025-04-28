@@ -1,43 +1,23 @@
 "use client";
 
 import Script from "next/script";
-import { useCallback, useEffect, useRef, useState } from "react";
-import Button from '../Button/Button';
-
-interface DaumPostcodeData {
-  address: string;
-  addressType: "R" | "J";
-  bname: string;
-  buildingName: string;
-  zonecode: string;
-  roadAddress: string;
-  roadname: string;
-  jibunAddress: string;
-  sido: string;
-  sigungu: string;
-  userSelectedType: "R" | "J";
-}
+import { useCallback, useEffect, useRef } from "react";
 
 interface DaumPostcodePopupProps {
-  onComplete: (data: DaumPostcodeData) => void;
+  selectedAddress: string;
+  onComplete: (address: string) => void;
 }
 
 declare global {
   interface Window {
     daum: {
-      Postcode: new (config: {
-        oncomplete: (data: DaumPostcodeData) => void;
-        onclose?: () => void;
-      }) => {
-        open: () => void;
-      };
+      Postcode: new (config: { oncomplete: (data: any) => void }) => { open: () => void };
     };
   }
 }
 
-const DaumPostcodePopup = ({ onComplete }: DaumPostcodePopupProps) => {
+export default function DaumPostcodePopup({ selectedAddress, onComplete }: DaumPostcodePopupProps) {
   const scriptLoadedRef = useRef(false);
-  const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
 
   const openPostcodePopup = useCallback(() => {
     if (typeof window === "undefined" || !window.daum?.Postcode) return;
@@ -45,8 +25,7 @@ const DaumPostcodePopup = ({ onComplete }: DaumPostcodePopupProps) => {
     new window.daum.Postcode({
       oncomplete: data => {
         const address = data.roadAddress || data.address;
-        setSelectedAddress(address);
-        onComplete(data);
+        onComplete(address); // ✅ 부모한테 선택된 주소만 넘긴다
       },
     }).open();
   }, [onComplete]);
@@ -63,13 +42,16 @@ const DaumPostcodePopup = ({ onComplete }: DaumPostcodePopupProps) => {
 
   return (
     <>
-      <Button
+      <button
         type="button"
         onClick={openPostcodePopup}
-        className="w-full cursor-pointer rounded-lg border border-gray-300 bg-white px-4 py-3 text-left text-base text-[#1e1e1e] shadow-sm"
+        className="min-h-[40px] w-full cursor-pointer rounded-lg border border-gray-300 bg-white px-4 py-3 text-left text-base shadow-sm"
       >
-        {selectedAddress || "건물, 지번 또는 도로명 검색"}
-      </Button>
+        <span className={selectedAddress ? "text-black" : "text-gray-400"}>
+          {selectedAddress || "건물, 지번 또는 도로명 검색"}
+        </span>
+      </button>
+
       <Script
         src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
         strategy="afterInteractive"
@@ -77,6 +59,4 @@ const DaumPostcodePopup = ({ onComplete }: DaumPostcodePopupProps) => {
       />
     </>
   );
-};
-
-export default DaumPostcodePopup;
+}

@@ -29,10 +29,7 @@ export const getTravelTimeInMinutes = async (
   return data.minutes;
 };
 
-export const DeliverTime = async (address: string): Promise<{
-  expectedArrivalMinutes: number;
-  travelTime: number;
-}> => {
+export const DeliverTime = async (address: string): Promise<{ expectedArrivalMinutes: number }> => {
   const goal = await getCoordinatesFromAddress(address);
   const travelTime = await getTravelTimeInMinutes(warehouseLocation, goal);
 
@@ -40,5 +37,5 @@ export const DeliverTime = async (address: string): Promise<{
   const nowMinutes = now.getHours() * 60 + now.getMinutes();
   const expectedArrivalMinutes = nowMinutes + travelTime + 30;
 
-  return { expectedArrivalMinutes, travelTime };
+  return { expectedArrivalMinutes };
 };

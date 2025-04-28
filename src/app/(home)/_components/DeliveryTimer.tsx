@@ -1,7 +1,8 @@
 "use client";
 
-import formatTime from "@/utils/formatTime";
 import { useEffect, useState } from "react";
+
+import formatTime from "@/utils/formatTime";
 
 export default function DeliveryTimer({ user }: { user: null | object }) {
   const [remaining, setRemaining] = useState<number | null>(null);
