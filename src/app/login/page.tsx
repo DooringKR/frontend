@@ -11,9 +11,11 @@ import Input from "@/components/Input/Input";
 import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 import handlePhoneKeyDown from "@/utils/handlePhoneKeyDown";
 import baseSchema, { PhoneFormData } from "@/utils/schema";
+import useUserStore from "@/store/userStore";
 
 export default function PhoneLoginPage() {
   const router = useRouter();
+  const { setUserPhoneNumber } = useUserStore();
   const inputRef = useRef<HTMLInputElement>(null);
   const {
     register,
@@ -31,11 +33,14 @@ export default function PhoneLoginPage() {
   }, []);
 
   const onSubmit = (data: PhoneFormData) => {
-    console.log("전송된 데이터:", data);
-
     const fakeToken = "temporary-token-1234";
     document.cookie = `token=${fakeToken}; path=/; max-age=3600`;
-    router.push("/");
+    if(true){
+      setUserPhoneNumber(data.user_phoneNumber);
+      router.push("/login/step");
+    }else{
+      router.push("/");
+    }
   };
 
   useEffect(() => {
