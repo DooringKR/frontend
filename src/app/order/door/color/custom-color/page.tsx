@@ -1,11 +1,11 @@
 "use client";
 
+import { DOOR_CATEGORY_LIST } from "@/constants/category";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-import { DOOR_CATEGORY_LIST } from "@/constants/category";
-import Input from "@/components/Input/Input";
 import Button from "@/components/Button/Button";
+import Input from "@/components/Input/Input";
 
 export default function ManualColorInputPage() {
   const [color, setColor] = useState("");
@@ -35,7 +35,7 @@ export default function ManualColorInputPage() {
         <button
           type="button"
           onClick={() => router.back()}
-          className="text-[#3578ff] text-sm font-medium"
+          className="text-sm font-medium text-[#3578ff]"
         >
           목록에서 선택
         </button>
@@ -53,7 +53,7 @@ export default function ManualColorInputPage() {
         size="large"
         disabled={!color.trim()}
         onClick={handleNext}
-        className="mt-auto w-full"
+        className="absolute bottom-5 left-5 right-5 rounded-md"
       >
         다음
       </Button>
