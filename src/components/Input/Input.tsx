@@ -1,18 +1,22 @@
 import { FieldError, UseFormRegisterReturn } from "react-hook-form";
 
 interface InputProps extends React.PropsWithChildren {
-  register: UseFormRegisterReturn;
+  value?: string;
+  onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  register?: UseFormRegisterReturn;
   type: "text" | "email" | "password" | "number";
   name: string;
   label?: string;
   placeholder: string;
-  error: FieldError | undefined;
+  error?: FieldError | undefined;
   disabled?: boolean;
   onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
 }
 
 export default function Input({
   register,
+  value,
+  onChange,
   type,
   name,
   label,
@@ -35,6 +39,8 @@ export default function Input({
         type={type}
         placeholder={placeholder}
         {...register}
+        value={value}
+        onChange={onChange} 
         disabled={disabled}
         onKeyDown={onKeyDown}
         className={`h-10 w-full rounded-lg bg-white px-4 py-3 outline-none ${effectiveError && "border-[#900B09]"} border`}

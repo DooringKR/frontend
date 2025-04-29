@@ -1,0 +1,62 @@
+"use client";
+
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+
+import { DOOR_CATEGORY_LIST } from "@/constants/category";
+import Input from "@/components/Input/Input";
+import Button from "@/components/Button/Button";
+
+export default function ManualColorInputPage() {
+  const [color, setColor] = useState("");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const slug = searchParams.get("slug");
+
+  const headerTitle = DOOR_CATEGORY_LIST.find(item => item.slug === slug)?.header || "";
+
+  const handleNext = () => {
+    if (color.trim()) {
+      const encodedColor = encodeURIComponent(color.trim());
+      router.push(`/order/door/select?slug=${slug}&color=${encodedColor}`);
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-6 p-5">
+      <h1 className="text-2xl font-bold">
+        <span className="text-[#AD46FF]">{headerTitle}</span> 색상을
+        <br /> 직접 입력해주세요
+      </h1>
+
+      <div className="flex items-center justify-between text-sm text-black">
+        <label className="text-sm font-medium">색상</label>
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="text-[#3578ff] text-sm font-medium"
+        >
+          목록에서 선택
+        </button>
+      </div>
+
+      <Input
+        type="text"
+        name="color"
+        placeholder="색상을 입력해주세요"
+        value={color}
+        onChange={e => setColor(e.target.value)}
+      />
+
+      <Button
+        size="large"
+        disabled={!color.trim()}
+        onClick={handleNext}
+        className="mt-auto w-full"
+      >
+        다음
+      </Button>
+    </div>
+  );
+}

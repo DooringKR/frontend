@@ -13,18 +13,23 @@ export default function CategorySection() {
   const router = useRouter();
   const { cartItems } = useCartStore();
 
-  const handleCategoryClick = (category: string) => {
+  const handleCategoryClick = (slug: string) => {
     if (cartItems.length === 0) {
-      router.push(`/address-check?category=${category}`);
+      router.push(`/address-check?category=${slug}`);
     } else {
-      router.push(`/order/${category}`);
+      router.push(`/order/${slug}`);
     }
   };
 
   return (
     <section className="grid grid-cols-2 gap-2">
       {CATEGORY_LIST.map(item => (
-        <Card key={item.name} title={item.name} onClick={() => handleCategoryClick(item.name)} />
+        <Card
+          key={item.name}
+          image={item.image}
+          title={item.name}
+          onClick={() => handleCategoryClick(item.slug)}
+        />
       ))}
 
       {/* 찾는게 없어요 */}

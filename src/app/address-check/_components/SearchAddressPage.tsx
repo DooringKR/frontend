@@ -1,6 +1,6 @@
 "use client";
 
-import { categoryMap } from "@/constants/category";
+import { CATEGORY_LIST } from "@/constants/category";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -12,9 +12,14 @@ import { DeliverTime } from "@/utils/CheckDeliveryTime";
 
 function Page() {
   const searchParams = useSearchParams();
-  const category = searchParams.get("category");
   const router = useRouter();
   const { setAddress } = useAddressStore();
+
+  const categorySlug = searchParams.get("category") || "etc";
+  const matchedCategory = CATEGORY_LIST.find(item => item.slug === categorySlug);
+  const categoryName = matchedCategory?.name || "기타";
+  const englishCategory = matchedCategory?.slug || "etc";
+
   const [selectedAddress, setSelectedAddress] = useState<string>("");
   const [detailAddress, setDetailAddress] = useState<string>("");
   const [deliveryMessage, setDeliveryMessage] = useState<string | null>(null);
@@ -41,23 +46,19 @@ function Page() {
     console.log("선택된 도로명 주소:", selectedAddress);
     console.log("입력된 상세주소:", detailAddress);
     setAddress(selectedAddress, detailAddress);
-    const englishCategory = categoryMap[category || ""] || "etc";
     router.push(`/order/${englishCategory}`);
   };
 
   return (
     <div className="flex flex-col gap-5 p-4">
       <div className="mb-3 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={() => router.back()}
-        >
-        <Image src="/icons/Arrow_Left.svg" width={24} height={24} alt="뒤로가기" />
+        <button type="button" onClick={() => router.back()}>
+          <Image src="/icons/Arrow_Left.svg" width={24} height={24} alt="뒤로가기" />
         </button>
         <Image src="/icons/Headphones.svg" width={24} height={24} alt="문의하기 버튼" />
       </div>
       <h1 className="text-2xl font-semibold">
-        <span className="font-bold">{category}</span>을 배송받을 주소를 <br />
+        <span className="font-bold">{categoryName}</span>을 배송받을 주소를 <br />
         입력해주세요.
       </h1>
       <div className="flex flex-col gap-[10px]">
