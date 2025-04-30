@@ -38,7 +38,7 @@ function SelectPage() {
   });
 
   const renderHingeComponent = () => {
-    if (!hingeCount) return null;
+
     if (slug === "normal") {
       return (
         <Normal

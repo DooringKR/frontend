@@ -8,7 +8,7 @@ import Input from "@/components/Input/Input";
 import Modal from "@/components/Modal/Modal";
 
 interface NormalProps {
-  hingeCount: number;
+  hingeCount: number | null;
   hingeDirection: "left" | "right" | null;
   height: string;
   width: string;
@@ -31,11 +31,14 @@ export default function Normal({
   type HingeKey = keyof typeof hingeValues;
 
   const hingeInputs: readonly HingeKey[] =
-    {
-      2: ["topHinge", "bottomHinge"] as const,
-      3: ["topHinge", "middleHinge", "bottomHinge"] as const,
-      4: ["topHinge", "middleTopHinge", "middleBottomHinge", "bottomHinge"] as const,
-    }[hingeCount] || [];
+  hingeCount !== null
+    ? {
+        2: ["topHinge", "bottomHinge"] as const,
+        3: ["topHinge", "middleHinge", "bottomHinge"] as const,
+        4: ["topHinge", "middleTopHinge", "middleBottomHinge", "bottomHinge"] as const,
+      }[hingeCount] ?? []
+    : [];
+
   const [isModalOpen, setIsModalOpen] = useState(true);
 
   const handleInputChange = (key: HingeKey, value: string) => {
