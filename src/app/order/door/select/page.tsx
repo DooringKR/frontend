@@ -38,7 +38,7 @@ function SelectPage() {
   });
 
   const renderHingeComponent = () => {
-
+    if (!height) return null;
     if (slug === "normal") {
       return (
         <Normal
