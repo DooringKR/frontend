@@ -9,16 +9,15 @@ import { useState } from "react";
 import Input from "@/components/Input/Input";
 
 export default function ColorList() {
+  if (typeof window === "undefined") return null;
   const router = useRouter();
   const searchParams = useSearchParams();
   const slug = searchParams.get("slug"); // 쿼리스트링에서 slug 가져오기
   const [searchKeyword, setSearchKeyword] = useState("");
 
-  // 현재 slug에 맞는 header 찾기
   const currentCategory = DOOR_CATEGORY_LIST.find(item => item.slug === slug);
   const header = currentCategory?.header || "문짝";
 
-  // 검색 필터링
   const filteredColors = COLOR_LIST.filter(item =>
     item.name.toLowerCase().includes(searchKeyword.toLowerCase()),
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { DOOR_CATEGORY_LIST } from "@/constants/category";
+import type { HingeValues } from "@/types/hinge";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -11,9 +12,9 @@ import Input from "@/components/Input/Input";
 import Drawer from "./_components/Drawer";
 import Flap from "./_components/Flap";
 import Normal from "./_components/Normal";
-import type { HingeValues } from "@/types/hinge";
 
 function SelectPage() {
+  if (typeof window === "undefined") return null;
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -25,7 +26,7 @@ function SelectPage() {
 
   const [width, setWidth] = useState<string>("");
   const [height, setHeight] = useState<string>("");
-  const [hingeCount, setHingeCount] = useState<number | null >(null);
+  const [hingeCount, setHingeCount] = useState<number | null>(null);
   const [hingeDirection, setHingeDirection] = useState<"left" | "right">("right");
   const [hingeValues, setHingeValues] = useState<HingeValues>({
     topHinge: undefined,
@@ -133,9 +134,11 @@ function SelectPage() {
         </div>
       )}
       {renderHingeComponent()}
-      <Button size="large" className="fixed bottom-5 left-5 right-5 rounded-md">
-        다음
-      </Button>
+      <div className="fixed bottom-0 left-0 right-0 z-10 h-20 w-full bg-white">
+        <Button size="large" className="fixed bottom-5 left-5 right-5 rounded-md text-white">
+          다음
+        </Button>
+      </div>
     </div>
   );
 }

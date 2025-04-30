@@ -1,18 +1,19 @@
 "use client";
 
+import { HingeValues } from "@/types/hinge";
+import { useState } from "react";
+
 import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
-import { HingeValues } from "@/types/hinge";
+import Modal from "@/components/Modal/Modal";
 
 interface NormalProps {
   hingeCount: number;
   hingeDirection: "left" | "right";
   height: string;
   width: string;
-  hingeValues: HingeValues
-  setHingeValues: React.Dispatch<
-    React.SetStateAction<HingeValues>
-  >;
+  hingeValues: HingeValues;
+  setHingeValues: React.Dispatch<React.SetStateAction<HingeValues>>;
   setHingeDirection: (direction: "left" | "right") => void;
 }
 
@@ -25,18 +26,15 @@ export default function Normal({
   setHingeValues,
   setHingeDirection,
 }: NormalProps) {
-
   type HingeKey = keyof typeof hingeValues;
 
   const hingeInputs: readonly HingeKey[] =
-  {
-    2: ["topHinge", "bottomHinge"] as const,
-    3: ["topHinge", "middleHinge", "bottomHinge"] as const,
-    4: ["topHinge", "middleTopHinge", "middleBottomHinge", "bottomHinge"] as const,
-  }[hingeCount] || [];
-
-
-
+    {
+      2: ["topHinge", "bottomHinge"] as const,
+      3: ["topHinge", "middleHinge", "bottomHinge"] as const,
+      4: ["topHinge", "middleTopHinge", "middleBottomHinge", "bottomHinge"] as const,
+    }[hingeCount] || [];
+  const [isModalOpen, setIsModalOpen] = useState(true);
 
   const handleInputChange = (key: HingeKey, value: string) => {
     setHingeValues({ ...hingeValues, [key]: value });
@@ -111,6 +109,36 @@ export default function Normal({
         )}
       </div>
       <p className="text-center text-sm text-gray-600">{width}</p>
+      {width > height && (
+        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+          <div className="flex flex-col gap-4">
+            <div className="flex justify-between">
+              <span className="flex items-center">
+                <h2 className="text-2xl font-semibold">가로가 세로보다 긴 게 맞나요?</h2>
+              </span>
+              <button onClick={() => setIsModalOpen(false)} className="text-sm text-neutral-500">
+                닫기
+              </button>
+            </div>
+            <div>
+              <p className="text-base text-[#757575]">
+                {" "}
+                가로 길이를 세로 길이보다 크게 입력하셨어요. <br /> 일반문으로 주문하는게 맞는지
+                확인해주세요.
+              </p>
+            </div>
+            <p>플랩문 주문으로 바꾸기</p>
+            <div className="flex w-full flex-grow gap-4">
+              <Button type="button" onClick={() => setIsModalOpen(true)} className="w-full">
+                닫기
+              </Button>
+              <Button type="button" onClick={() => setIsModalOpen(true)} className="w-full">
+                네 맞아요
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </>
   );
 }

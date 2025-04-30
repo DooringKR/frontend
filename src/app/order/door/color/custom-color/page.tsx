@@ -8,6 +8,7 @@ import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
 
 export default function ManualColorInputPage() {
+  if (typeof window === "undefined") return null;
   const [color, setColor] = useState("");
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -53,7 +54,7 @@ export default function ManualColorInputPage() {
         size="large"
         disabled={!color.trim()}
         onClick={handleNext}
-        className="absolute bottom-5 left-5 right-5 rounded-md"
+        className="absolute bottom-5 left-5 right-5 text-white rounded-md"
       >
         다음
       </Button>
