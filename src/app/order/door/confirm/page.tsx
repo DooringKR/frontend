@@ -59,7 +59,7 @@ export default function ConfirmPage() {
         <p>가로 길이: {doorItem.width}mm</p>
         <p>세로 길이: {doorItem.height}mm</p>
         <p>경첩 개수: {doorItem.hinge.hingeCount}</p>
-        <p>경첩 방향: {doorItem.hinge.hingePosition === "left" ? "좌경" : "우경"}</p>
+        {doorItem.hinge.hingePosition && <p>경첩 방향: {doorItem.hinge.hingePosition === "left" ? "좌경" : "우경"}</p>}
         <p>
           보링 치수: 상{doorItem.hinge.topHinge}
           {doorItem.hinge.middleHinge ? `, 중${doorItem.hinge.middleHinge}` : ""}

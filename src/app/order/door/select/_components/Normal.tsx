@@ -9,7 +9,7 @@ import Modal from "@/components/Modal/Modal";
 
 interface NormalProps {
   hingeCount: number;
-  hingeDirection: "left" | "right";
+  hingeDirection: "left" | "right"| null;
   height: string;
   width: string;
   hingeValues: HingeValues;

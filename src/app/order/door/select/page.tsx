@@ -29,7 +29,7 @@ function SelectPage() {
   const [width, setWidth] = useState<string>("");
   const [height, setHeight] = useState<string>("");
   const [hingeCount, setHingeCount] = useState<number | null>(null);
-  const [hingeDirection, setHingeDirection] = useState<"left" | "right">("right");
+  const [hingeDirection, setHingeDirection] = useState<"left" | "right" | null>(null);
   const [hingeValues, setHingeValues] = useState<HingeValues>({
     topHinge: "",
     bottomHinge: "",
@@ -53,7 +53,12 @@ function SelectPage() {
         />
       );
     }
-    if (slug === "flap") return <Flap />;
+    if (slug === "flap") return <Flap 
+    hingeCount={hingeCount}
+    hingeValues={hingeValues}
+    setHingeValues={setHingeValues}
+    width={width}
+    height={height}/>;
     if (slug === "drawer") return <Drawer />;
     return null;
   };
@@ -85,7 +90,7 @@ function SelectPage() {
       },
     };
     console.log(payload);
-    
+
 
     try {
       // const res = await fetch("/api/checkcash/door", {

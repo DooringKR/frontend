@@ -30,7 +30,7 @@ interface DoorStore {
     height: number;
     hinge: {
       hingeCount: number;
-      hingePosition: "left" | "right";
+      hingePosition: "left" | "right"|null;
       topHinge: number;
       bottomHinge: number;
       middleHinge?: number | null;
