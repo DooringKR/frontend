@@ -29,15 +29,15 @@ interface DoorStore {
     width: number;
     height: number;
     hinge: {
-      hingeCount: number;
-      hingePosition: "left" | "right"|null;
+      hingeCount: number | null;
+      hingePosition: "left" | "right" | null;
       topHinge: number;
       bottomHinge: number;
       middleHinge?: number | null;
       middleTopHinge?: number | null;
       middleBottomHinge?: number | null;
     };
-    price:number;
+    price: number;
   }) => void;
   updatePriceAndCount: (price: number, count: number) => void;
   resetDoorItem: () => void;

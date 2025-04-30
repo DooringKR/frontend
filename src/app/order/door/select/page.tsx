@@ -11,7 +11,6 @@ import Input from "@/components/Input/Input";
 
 import useDoorStore from "@/store/doorStore";
 
-import Drawer from "./_components/Drawer";
 import Flap from "./_components/Flap";
 import Normal from "./_components/Normal";
 
@@ -47,24 +46,29 @@ function SelectPage() {
           hingeDirection={hingeDirection}
           setHingeDirection={setHingeDirection}
           hingeValues={hingeValues}
+          setHingeCount={setHingeCount}
           setHingeValues={setHingeValues}
           width={width}
           height={height}
         />
       );
     }
-    if (slug === "flap") return <Flap 
-    hingeCount={hingeCount}
-    hingeValues={hingeValues}
-    setHingeValues={setHingeValues}
-    width={width}
-    height={height}/>;
-    if (slug === "drawer") return <Drawer />;
+    if (slug === "flap")
+      return (
+        <Flap
+          hingeCount={hingeCount}
+          hingeValues={hingeValues}
+          setHingeValues={setHingeValues}
+          setHingeCount={setHingeCount}
+          width={width}
+          height={height}
+        />
+      );
     return null;
   };
 
   const handleNext = async () => {
-    if (!slug || !color || !width || !height || !hingeCount) return;
+    if (!slug || !color || !width || !height) return;
     const topHinge = Number(hingeValues.topHinge);
     const bottomHinge = Number(hingeValues.bottomHinge);
     const middleHinge = hingeValues.middleHinge ? Number(hingeValues.middleHinge) : null;
@@ -84,13 +88,13 @@ function SelectPage() {
         hingePosition: hingeDirection,
         topHinge: Number(hingeValues.topHinge),
         bottomHinge: Number(hingeValues.bottomHinge),
-        middleHinge: hingeCount >= 3 ? Number(hingeValues.middleHinge) : null,
+        middleHinge:
+          hingeCount !== null && hingeCount >= 3 ? Number(hingeValues.middleHinge) : null,
         middleTopHinge: hingeCount === 4 ? Number(hingeValues.middleTopHinge) : null,
         middleBottomHinge: hingeCount === 4 ? Number(hingeValues.middleBottomHinge) : null,
       },
     };
     console.log(payload);
-
 
     try {
       // const res = await fetch("/api/checkcash/door", {
@@ -182,26 +186,6 @@ function SelectPage() {
               />
             </div>
             <span className="mr-20">mm</span>
-          </div>
-        </div>
-      )}
-      {height && (
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium">경첩 개수</label>
-          <div className="flex gap-2">
-            {[2, 3, 4].map(num => (
-              <Button
-                key={num}
-                type="button"
-                size="large"
-                onClick={() => setHingeCount(num)}
-                className={`flex-grow border border-[#767676] ${
-                  hingeCount === num ? "bg-[#E8b931]" : "bg-[#d9d9d9]"
-                } text-black`}
-              >
-                {num}개
-              </Button>
-            ))}
           </div>
         </div>
       )}

@@ -1,18 +1,20 @@
 "use client";
 
-import useDoorStore from "@/store/doorStore";
+import { DOOR_CATEGORY_LIST } from "@/constants/category";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import Button from "@/components/Button/Button";
 
+import useDoorStore from "@/store/doorStore";
+
 export default function ConfirmPage() {
   const router = useRouter();
   const { doorItem, updatePriceAndCount } = useDoorStore();
   const [count, setCount] = useState(1);
 
-  if (!doorItem.slug || !doorItem.width || !doorItem.height || !doorItem.hinge.hingeCount || doorItem.price === null) {
+  if (!doorItem.slug || !doorItem.width || !doorItem.height || doorItem.price === null) {
     return <p className="p-5">잘못된 접근입니다.</p>;
   }
 
@@ -32,6 +34,9 @@ export default function ConfirmPage() {
   const handlePurchase = () => {
     alert("구매 기능은 준비 중입니다.");
   };
+
+  const currentCategory = DOOR_CATEGORY_LIST.find(item => item.slug === doorItem.slug);
+  const header = currentCategory?.header || "문짝";
 
   return (
     <div className="flex flex-col gap-6 p-5">
@@ -54,17 +59,20 @@ export default function ConfirmPage() {
       <hr />
 
       <div className="text-sm leading-relaxed">
-        <p className="font-semibold">문짝</p>
+        <p className="font-semibold">{header}</p>
         <p>색상: {doorItem.color}</p>
         <p>가로 길이: {doorItem.width}mm</p>
         <p>세로 길이: {doorItem.height}mm</p>
-        <p>경첩 개수: {doorItem.hinge.hingeCount}</p>
-        {doorItem.hinge.hingePosition && <p>경첩 방향: {doorItem.hinge.hingePosition === "left" ? "좌경" : "우경"}</p>}
+        {doorItem.hinge.hingeCount && <p>경첩 개수: {doorItem.hinge.hingeCount}</p>}
+        {doorItem.hinge.hingePosition && (
+          <p>경첩 방향: {doorItem.hinge.hingePosition === "left" ? "좌경" : "우경"}</p>
+        )}
         <p>
           보링 치수: 상{doorItem.hinge.topHinge}
           {doorItem.hinge.middleHinge ? `, 중${doorItem.hinge.middleHinge}` : ""}
           {doorItem.hinge.middleTopHinge ? `, 중상${doorItem.hinge.middleTopHinge}` : ""}
-          {doorItem.hinge.middleBottomHinge ? `, 중하${doorItem.hinge.middleBottomHinge}` : ""}, 하{doorItem.hinge.bottomHinge}
+          {doorItem.hinge.middleBottomHinge ? `, 중하${doorItem.hinge.middleBottomHinge}` : ""}, 하
+          {doorItem.hinge.bottomHinge}
         </p>
       </div>
 

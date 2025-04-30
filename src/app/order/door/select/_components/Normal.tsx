@@ -9,10 +9,11 @@ import Modal from "@/components/Modal/Modal";
 
 interface NormalProps {
   hingeCount: number;
-  hingeDirection: "left" | "right"| null;
+  hingeDirection: "left" | "right" | null;
   height: string;
   width: string;
   hingeValues: HingeValues;
+  setHingeCount: (count: number) => void;
   setHingeValues: React.Dispatch<React.SetStateAction<HingeValues>>;
   setHingeDirection: (direction: "left" | "right") => void;
 }
@@ -23,6 +24,7 @@ export default function Normal({
   height,
   width,
   hingeValues,
+  setHingeCount,
   setHingeValues,
   setHingeDirection,
 }: NormalProps) {
@@ -42,6 +44,26 @@ export default function Normal({
 
   return (
     <>
+      {height && (
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium">경첩 개수</label>
+          <div className="flex gap-2">
+            {[2, 3, 4].map(num => (
+              <Button
+                key={num}
+                type="button"
+                size="large"
+                onClick={() => setHingeCount(num)}
+                className={`flex-grow border border-[#767676] ${
+                  hingeCount === num ? "bg-[#E8b931]" : "bg-[#d9d9d9]"
+                } text-black`}
+              >
+                {num}개
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="flex h-8 w-full overflow-hidden rounded-lg border-[2px] border-[#d9d9d9] bg-[#d9d9d9]">
         {(["left", "right"] as const).map(dir => (
           <Button
@@ -129,10 +151,18 @@ export default function Normal({
             </div>
             <p>플랩문 주문으로 바꾸기</p>
             <div className="flex w-full flex-grow gap-4">
-              <Button type="button" onClick={() => setIsModalOpen(false)} className="w-full bg-[#d9d9d9]">
+              <Button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="w-full bg-[#d9d9d9]"
+              >
                 닫기
               </Button>
-              <Button type="button" onClick={() => setIsModalOpen(false)} className="w-full text-white">
+              <Button
+                type="button"
+                onClick={() => setIsModalOpen(false)}
+                className="w-full text-white"
+              >
                 네 맞아요
               </Button>
             </div>
