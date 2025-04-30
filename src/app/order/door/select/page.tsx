@@ -85,7 +85,7 @@ function SelectPage() {
       },
     };
     console.log(payload);
-
+    
 
     try {
       // const res = await fetch("/api/checkcash/door", {
@@ -157,7 +157,7 @@ function SelectPage() {
               name="width"
               placeholder="가로 길이 입력"
               value={width}
-              onChange={e => setWidth(e.target.value)}
+              onChange={e => setWidth(e.target.value.replace(/\D/g, ""))}
             />
           </div>
           <span className="mr-20">mm</span>
@@ -173,7 +173,7 @@ function SelectPage() {
                 name="height"
                 placeholder="세로 길이 입력"
                 value={height}
-                onChange={e => setHeight(e.target.value)}
+                onChange={e => setHeight(e.target.value.replace(/\D/g, ""))}
               />
             </div>
             <span className="mr-20">mm</span>

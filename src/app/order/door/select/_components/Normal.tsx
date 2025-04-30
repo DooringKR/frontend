@@ -68,12 +68,12 @@ export default function Normal({
             {hingeInputs.map(key => (
               <Input
                 key={key}
-                type="text"
+                type="number"
                 name={key}
                 placeholder="보링"
                 value={hingeValues[key] ?? ""}
                 onChange={e => handleInputChange(key, e.target.value)}
-                className="mr-3 h-10 w-[63px]"
+                className="mr-3 h-10 w-20 text-center"
               />
             ))}
           </div>
@@ -93,12 +93,12 @@ export default function Normal({
             {hingeInputs.map(key => (
               <Input
                 key={key}
-                type="text"
+                type="number"
                 name={key}
                 placeholder="보링"
                 value={hingeValues[key]}
                 onChange={e => handleInputChange(key, e.target.value)}
-                className="ml-3 h-10 w-[63px]"
+                className="ml-3 h-10 w-20 text-center"
               />
             ))}
           </div>
@@ -129,10 +129,10 @@ export default function Normal({
             </div>
             <p>플랩문 주문으로 바꾸기</p>
             <div className="flex w-full flex-grow gap-4">
-              <Button type="button" onClick={() => setIsModalOpen(true)} className="w-full">
+              <Button type="button" onClick={() => setIsModalOpen(false)} className="w-full bg-[#d9d9d9]">
                 닫기
               </Button>
-              <Button type="button" onClick={() => setIsModalOpen(true)} className="w-full">
+              <Button type="button" onClick={() => setIsModalOpen(false)} className="w-full text-white">
                 네 맞아요
               </Button>
             </div>

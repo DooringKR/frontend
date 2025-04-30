@@ -25,7 +25,7 @@ export default function PhoneLoginPage() {
     formState: { errors },
   } = useForm<PhoneFormData>({
     resolver: zodResolver(baseSchema),
-    mode: "onChange",
+    mode: "onBlur",
   });
 
   useEffect(() => {
