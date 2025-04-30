@@ -25,7 +25,7 @@ export default function PhoneLoginPage() {
     formState: { errors },
   } = useForm<PhoneFormData>({
     resolver: zodResolver(baseSchema),
-    mode: "onBlur",
+    mode: "onChange",
   });
 
   useEffect(() => {
@@ -42,22 +42,6 @@ export default function PhoneLoginPage() {
       router.push("/");
     }
   };
-
-  useEffect(() => {
-    const subscription = watch((value, { name }) => {
-      if (name === "user_phoneNumber" && typeof value.user_phoneNumber === "string") {
-        const formatted = formatPhoneNumber(value.user_phoneNumber);
-
-        if (formatted !== value.user_phoneNumber) {
-          setValue("user_phoneNumber", formatted, {
-            shouldValidate: false,
-          });
-        }
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [watch, setValue]);
 
   const phoneRegister = register("user_phoneNumber");
 
@@ -76,16 +60,18 @@ export default function PhoneLoginPage() {
           label="휴대폰 번호"
           name="user_phoneNumber"
           placeholder="휴대폰 번호를 입력해주세요"
-          register={{
-            ...phoneRegister,
-            ref: el => {
-              phoneRegister.ref(el);
-              inputRef.current = el;
-            },
-          }}
+          register={phoneRegister}
           error={errors.user_phoneNumber}
+          onChange={e => {
+            const formatted = formatPhoneNumber(e.target.value);
+            setValue("user_phoneNumber", formatted, {
+              shouldValidate: true,
+              shouldDirty: true,
+            });
+          }}
           onKeyDown={handlePhoneKeyDown}
         />
+
         <button
           type="submit"
           className={`w-full rounded-md bg-black py-3 text-white transition-opacity duration-200 ${
