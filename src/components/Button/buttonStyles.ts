@@ -1,6 +1,6 @@
 export const getButtonStyle = (disabled?: boolean) => {
   if (disabled) return "bg-[#d9d9d9] text-[#b3b3b3] border border-[#b3b3b3] cursor-not-allowed";
-  return "bg-[#2c2c2c] text-white";
+  return "bg-[#2c2c2c] ";
 };
 
 export const getSizeClasses = (size: string) => {

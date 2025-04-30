@@ -11,6 +11,7 @@ interface InputProps extends React.PropsWithChildren {
   error?: FieldError | undefined;
   disabled?: boolean;
   onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
+  className?: string; // ✅ 외부에서 주입받을 className
 }
 
 export default function Input({
@@ -24,6 +25,7 @@ export default function Input({
   error,
   disabled,
   onKeyDown,
+  className = "", // 기본값 빈 문자열
 }: InputProps) {
   const effectiveError = disabled ? undefined : error;
 
@@ -40,10 +42,12 @@ export default function Input({
         placeholder={placeholder}
         {...register}
         value={value}
-        onChange={onChange} 
+        onChange={onChange}
         disabled={disabled}
         onKeyDown={onKeyDown}
-        className={`h-10 w-full rounded-lg bg-white px-4 py-3 outline-none ${effectiveError && "border-[#900B09]"} border`}
+        className={`h-10 w-full rounded-lg bg-white px-4 py-3 outline-none border ${
+          effectiveError ? "border-[#900B09]" : ""
+        } ${className}`}
       />
       {effectiveError && (
         <p className="text-base font-normal leading-[1.4] text-[#900B09]">
