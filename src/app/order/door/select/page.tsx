@@ -9,6 +9,8 @@ import { useState } from "react";
 import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
 
+import useDoorStore from "@/store/doorStore";
+
 import Drawer from "./_components/Drawer";
 import Flap from "./_components/Flap";
 import Normal from "./_components/Normal";
@@ -18,8 +20,8 @@ function SelectPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const slug = searchParams.get("slug");
-  const color = searchParams.get("color");
+  const slug = searchParams.get("slug") as "normal" | "flap" | "drawer";
+  const color = searchParams.get("color") ?? "";
 
   const currentCategory = DOOR_CATEGORY_LIST.find(item => item.slug === slug);
   const header = currentCategory?.header || "문짝";
@@ -29,11 +31,11 @@ function SelectPage() {
   const [hingeCount, setHingeCount] = useState<number | null>(null);
   const [hingeDirection, setHingeDirection] = useState<"left" | "right">("right");
   const [hingeValues, setHingeValues] = useState<HingeValues>({
-    topHinge: undefined,
-    bottomHinge: undefined,
-    middleHinge: undefined,
-    middleTopHinge: undefined,
-    middleBottomHinge: undefined,
+    topHinge: "",
+    bottomHinge: "",
+    middleHinge: "",
+    middleTopHinge: "",
+    middleBottomHinge: "",
   });
 
   const renderHingeComponent = () => {
@@ -54,6 +56,71 @@ function SelectPage() {
     if (slug === "flap") return <Flap />;
     if (slug === "drawer") return <Drawer />;
     return null;
+  };
+
+  const handleNext = async () => {
+    if (!slug || !color || !width || !height || !hingeCount) return;
+    const topHinge = Number(hingeValues.topHinge);
+    const bottomHinge = Number(hingeValues.bottomHinge);
+    const middleHinge = hingeValues.middleHinge ? Number(hingeValues.middleHinge) : null;
+    const middleTopHinge = hingeValues.middleTopHinge ? Number(hingeValues.middleTopHinge) : null;
+    const middleBottomHinge = hingeValues.middleBottomHinge
+      ? Number(hingeValues.middleBottomHinge)
+      : null;
+
+    const payload = {
+      category: "door",
+      slug: header,
+      color,
+      width: Number(width),
+      height: Number(height),
+      hinge: {
+        hingeCount,
+        hingePosition: hingeDirection,
+        topHinge: Number(hingeValues.topHinge),
+        bottomHinge: Number(hingeValues.bottomHinge),
+        middleHinge: hingeCount >= 3 ? Number(hingeValues.middleHinge) : null,
+        middleTopHinge: hingeCount === 4 ? Number(hingeValues.middleTopHinge) : null,
+        middleBottomHinge: hingeCount === 4 ? Number(hingeValues.middleBottomHinge) : null,
+      },
+    };
+    console.log(payload);
+
+
+    try {
+      // const res = await fetch("/api/checkcash/door", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify(payload),
+      // });
+
+      // if (!res.ok) throw new Error("가격 확인 실패");
+
+      // const data = await res.json();
+
+      useDoorStore.getState().updateItem({
+        slug,
+        color,
+        width: Number(width),
+        height: Number(height),
+        hinge: {
+          hingeCount,
+          hingePosition: hingeDirection,
+          topHinge,
+          bottomHinge,
+          middleHinge,
+          middleTopHinge,
+          middleBottomHinge,
+        },
+        price: 10000,
+      });
+
+      router.push("/order/door/confirm");
+    } catch (err) {
+      alert("가격 확인 중 오류가 발생했습니다.");
+    }
   };
 
   return (
@@ -135,7 +202,11 @@ function SelectPage() {
       )}
       {renderHingeComponent()}
       <div className="fixed bottom-0 left-0 right-0 z-10 h-20 w-full bg-white">
-        <Button size="large" className="fixed bottom-5 left-5 right-5 rounded-md text-white">
+        <Button
+          size="large"
+          className="fixed bottom-5 left-5 right-5 rounded-md text-white"
+          onClick={handleNext}
+        >
           다음
         </Button>
       </div>

@@ -8,10 +8,10 @@ import { useForm } from "react-hook-form";
 
 import Input from "@/components/Input/Input";
 
+import useUserStore from "@/store/userStore";
 import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 import handlePhoneKeyDown from "@/utils/handlePhoneKeyDown";
 import baseSchema, { PhoneFormData } from "@/utils/schema";
-import useUserStore from "@/store/userStore";
 
 export default function PhoneLoginPage() {
   const router = useRouter();
@@ -25,7 +25,7 @@ export default function PhoneLoginPage() {
     formState: { errors },
   } = useForm<PhoneFormData>({
     resolver: zodResolver(baseSchema),
-    mode: "onBlur",
+    mode: "onChange",
   });
 
   useEffect(() => {
@@ -35,10 +35,10 @@ export default function PhoneLoginPage() {
   const onSubmit = (data: PhoneFormData) => {
     const fakeToken = "temporary-token-1234";
     document.cookie = `token=${fakeToken}; path=/; max-age=3600`;
-    if(true){
+    if (true) {
       setUserPhoneNumber(data.user_phoneNumber);
       router.push("/login/step");
-    }else{
+    } else {
       router.push("/");
     }
   };
@@ -68,7 +68,7 @@ export default function PhoneLoginPage() {
     <div className="flex h-screen w-full flex-col justify-center gap-6 bg-white px-5">
       <Image src="/img/Logo.png" alt="도어링 메인 로고" width={60} height={60} />
       <h1 className="text-2xl font-semibold leading-[1.2] text-[#000000]">
-        휴대폰번호로 <br /> 도어링 시작하기
+        휴대폰번호로 <br /> 바로가구 시작하기
       </h1>
       <form onSubmit={handleSubmit(onSubmit)} className="w-[272px] space-y-6">
         <Input

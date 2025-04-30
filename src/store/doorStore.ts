@@ -10,6 +10,7 @@ export type DoorItem = {
   height: number | null;
   hinge: {
     hingeCount: number | null;
+    hingePosition: "left" | "right" | null;
     topHinge: number | null;
     bottomHinge: number | null;
     middleHinge: number | null;
@@ -22,19 +23,21 @@ export type DoorItem = {
 
 interface DoorStore {
   doorItem: DoorItem;
-  updateSlug: (slug: DoorSlug) => void;
-  updateColor: (color: string) => void;
-  updateSizeAndHinge: (payload: {
+  updateItem: (payload: {
+    slug: DoorSlug;
+    color: string;
     width: number;
     height: number;
     hinge: {
       hingeCount: number;
+      hingePosition: "left" | "right";
       topHinge: number;
       bottomHinge: number;
       middleHinge?: number | null;
       middleTopHinge?: number | null;
       middleBottomHinge?: number | null;
     };
+    price:number;
   }) => void;
   updatePriceAndCount: (price: number, count: number) => void;
   resetDoorItem: () => void;
@@ -48,6 +51,7 @@ const initialState: DoorItem = {
   height: null,
   hinge: {
     hingeCount: null,
+    hingePosition: null,
     topHinge: null,
     bottomHinge: null,
     middleHinge: null,
@@ -60,24 +64,16 @@ const initialState: DoorItem = {
 
 const useDoorStore = create<DoorStore>(set => ({
   doorItem: initialState,
-
-  updateSlug: slug =>
-    set(state => ({
-      doorItem: { ...state.doorItem, slug },
-    })),
-
-  updateColor: color =>
-    set(state => ({
-      doorItem: { ...state.doorItem, color },
-    })),
-
-  updateSizeAndHinge: ({ width, height, hinge }) =>
+  updateItem: ({ slug, color, width, height, hinge, price }) =>
     set(state => ({
       doorItem: {
         ...state.doorItem,
+        slug,
+        color,
         width,
         height,
         hinge: { ...state.doorItem.hinge, ...hinge },
+        price,
       },
     })),
 

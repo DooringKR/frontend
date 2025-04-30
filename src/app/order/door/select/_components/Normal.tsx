@@ -71,7 +71,7 @@ export default function Normal({
                 type="text"
                 name={key}
                 placeholder="보링"
-                value={hingeValues[key]}
+                value={hingeValues[key] ?? ""}
                 onChange={e => handleInputChange(key, e.target.value)}
                 className="mr-3 h-10 w-[63px]"
               />
