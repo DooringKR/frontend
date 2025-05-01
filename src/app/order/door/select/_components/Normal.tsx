@@ -18,7 +18,7 @@ interface NormalProps {
   setHingeDirection: (direction: "left" | "right") => void;
 }
 
-export default function Normal({
+function Normal({
   hingeCount,
   hingeDirection,
   height,
@@ -31,13 +31,13 @@ export default function Normal({
   type HingeKey = keyof typeof hingeValues;
 
   const hingeInputs: readonly HingeKey[] =
-  hingeCount !== null
-    ? {
-        2: ["topHinge", "bottomHinge"] as const,
-        3: ["topHinge", "middleHinge", "bottomHinge"] as const,
-        4: ["topHinge", "middleTopHinge", "middleBottomHinge", "bottomHinge"] as const,
-      }[hingeCount] ?? []
-    : [];
+    hingeCount !== null
+      ? ({
+          2: ["topHinge", "bottomHinge"] as const,
+          3: ["topHinge", "middleHinge", "bottomHinge"] as const,
+          4: ["topHinge", "middleTopHinge", "middleBottomHinge", "bottomHinge"] as const,
+        }[hingeCount] ?? [])
+      : [];
 
   const [isModalOpen, setIsModalOpen] = useState(true);
 
@@ -175,3 +175,4 @@ export default function Normal({
     </>
   );
 }
+export default Normal;

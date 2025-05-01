@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import formatTime from "@/utils/formatTime";
 
-export default function DeliveryTimer({ user }: { user: null | object }) {
+function DeliveryTimer({ user }: { user: null | object }) {
   const [remaining, setRemaining] = useState<number | null>(null);
 
   useEffect(() => {
@@ -54,3 +54,6 @@ export default function DeliveryTimer({ user }: { user: null | object }) {
     </section>
   );
 }
+
+
+export default DeliveryTimer

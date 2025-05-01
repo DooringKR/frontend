@@ -16,6 +16,7 @@ import Normal from "./_components/Normal";
 
 function SelectPage() {
   if (typeof window === "undefined") return null;
+
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -25,8 +26,8 @@ function SelectPage() {
   const currentCategory = DOOR_CATEGORY_LIST.find(item => item.slug === slug);
   const header = currentCategory?.header || "문짝";
 
-  const [width, setWidth] = useState<string>("");
-  const [height, setHeight] = useState<string>("");
+  const [width, setWidth] = useState("");
+  const [height, setHeight] = useState("");
   const [hingeCount, setHingeCount] = useState<number | null>(null);
   const [hingeDirection, setHingeDirection] = useState<"left" | "right" | null>(null);
   const [hingeValues, setHingeValues] = useState<HingeValues>({
@@ -36,6 +37,7 @@ function SelectPage() {
     middleTopHinge: "",
     middleBottomHinge: "",
   });
+  const [doorRequest, setDoorRequest] = useState<string | null>(null);
 
   const renderHingeComponent = () => {
     if (!height) return null;
@@ -53,7 +55,7 @@ function SelectPage() {
         />
       );
     }
-    if (slug === "flap")
+    if (slug === "flap") {
       return (
         <Flap
           hingeCount={hingeCount}
@@ -64,11 +66,21 @@ function SelectPage() {
           height={height}
         />
       );
+    }
     return null;
+  };
+
+  const getInputStatusText = () => {
+    if (!width) return "가로 길이를";
+    if (!height) return "세로 길이를";
+    if (!hingeCount || !hingeValues.topHinge || !hingeValues.bottomHinge) return "경첩 정보를";
+    if (doorRequest === null) return "요청 사항을";
+    return "정보를";
   };
 
   const handleNext = async () => {
     if (!slug || !color || !width || !height) return;
+
     const topHinge = Number(hingeValues.topHinge);
     const bottomHinge = Number(hingeValues.bottomHinge);
     const middleHinge = hingeValues.middleHinge ? Number(hingeValues.middleHinge) : null;
@@ -86,29 +98,17 @@ function SelectPage() {
       hinge: {
         hingeCount,
         hingePosition: hingeDirection,
-        topHinge: Number(hingeValues.topHinge),
-        bottomHinge: Number(hingeValues.bottomHinge),
-        middleHinge:
-          hingeCount !== null && hingeCount >= 3 ? Number(hingeValues.middleHinge) : null,
-        middleTopHinge: hingeCount === 4 ? Number(hingeValues.middleTopHinge) : null,
-        middleBottomHinge: hingeCount === 4 ? Number(hingeValues.middleBottomHinge) : null,
+        topHinge,
+        bottomHinge,
+        middleHinge: hingeCount !== null && hingeCount >= 3 ? middleHinge : null,
+        middleTopHinge: hingeCount === 4 ? middleTopHinge : null,
+        middleBottomHinge: hingeCount === 4 ? middleBottomHinge : null,
       },
+      doorRequest,
     };
     console.log(payload);
 
     try {
-      // const res = await fetch("/api/checkcash/door", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify(payload),
-      // });
-
-      // if (!res.ok) throw new Error("가격 확인 실패");
-
-      // const data = await res.json();
-
       useDoorStore.getState().updateItem({
         slug,
         color,
@@ -123,6 +123,7 @@ function SelectPage() {
           middleTopHinge,
           middleBottomHinge,
         },
+        doorRequest,
         price: 10000,
       });
 
@@ -132,13 +133,28 @@ function SelectPage() {
     }
   };
 
+  const handleSkipRequest = () => {
+    setDoorRequest("");
+  };
+
   return (
     <div className="flex flex-col gap-6 p-5 pb-24">
       <h1 className="text-2xl font-bold leading-snug">
-        <span className="text-[#AD46FF]">{header}</span> 경첩 정보를
-        <br />
-        입력해주세요
+        {doorRequest !== null ? (
+          <>
+            입력한 <span className="text-[#AD46FF]">{header}</span> 정보를
+            <br />
+            확인해주세요
+          </>
+        ) : (
+          <>
+            <span className="text-[#AD46FF]">{header}</span> {getInputStatusText()}
+            <br />
+            입력해주세요
+          </>
+        )}
       </h1>
+
       {color ? (
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -172,6 +188,7 @@ function SelectPage() {
           <span className="mr-20">mm</span>
         </div>
       </div>
+
       {width && (
         <div className="flex w-full flex-col gap-2">
           <label className="text-sm font-medium">세로 길이</label>
@@ -190,15 +207,40 @@ function SelectPage() {
         </div>
       )}
       {renderHingeComponent()}
-      <div className="fixed bottom-0 left-0 right-0 z-10 h-20 w-full bg-white">
-        <Button
-          size="large"
-          className="fixed bottom-5 left-5 right-5 rounded-md text-white"
-          onClick={handleNext}
-        >
-          다음
-        </Button>
-      </div>
+      {hingeValues.topHinge && hingeValues.bottomHinge && (
+        <>
+          <div>
+            <p>요청사항</p>
+            <Input
+              type="text"
+              name="doorRequest"
+              placeholder="요청사항을 입력해주세요"
+              value={doorRequest ?? ""}
+              onChange={e => setDoorRequest(e.target.value)}
+            />
+          </div>
+
+          <div className="fixed bottom-0 left-0 right-0 z-10 h-20 w-full bg-white">
+            {doorRequest === null ? (
+              <Button
+                size="large"
+                className="fixed bottom-5 left-5 right-5 mt-16 rounded-md text-white"
+                onClick={handleSkipRequest}
+              >
+                요청사항 생략하기
+              </Button>
+            ) : (
+              <Button
+                size="large"
+                className="fixed bottom-5 left-5 right-5 rounded-md text-white"
+                onClick={handleNext}
+              >
+                다음
+              </Button>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }

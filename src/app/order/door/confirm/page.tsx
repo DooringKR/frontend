@@ -9,7 +9,7 @@ import Button from "@/components/Button/Button";
 
 import useDoorStore from "@/store/doorStore";
 
-export default function ConfirmPage() {
+function ConfirmPage() {
   const router = useRouter();
   const { doorItem, updatePriceAndCount } = useDoorStore();
   const [count, setCount] = useState(1);
@@ -25,6 +25,7 @@ export default function ConfirmPage() {
     const newItem = {
       ...doorItem,
       count,
+      price: total,
     };
     localStorage.setItem("cartItems", JSON.stringify([...existing, newItem]));
     alert("장바구니에 담았습니다.");
@@ -32,14 +33,15 @@ export default function ConfirmPage() {
   };
 
   const handlePurchase = () => {
-    alert("구매 기능은 준비 중입니다.");
+    updatePriceAndCount(total, count); // count, price 업데이트
+    router.push("/cart/now"); // /cart/now로 이동
   };
 
   const currentCategory = DOOR_CATEGORY_LIST.find(item => item.slug === doorItem.slug);
   const header = currentCategory?.header || "문짝";
 
   return (
-    <div className="flex flex-col gap-6 p-5">
+    <div className="flex flex-col gap-6 p-5 pb-20">
       <h1 className="text-xl font-bold">문짝 주문 개수를 선택해주세요</h1>
 
       <div className="flex items-center justify-between">
@@ -74,6 +76,7 @@ export default function ConfirmPage() {
           {doorItem.hinge.middleBottomHinge ? `, 중하${doorItem.hinge.middleBottomHinge}` : ""}, 하
           {doorItem.hinge.bottomHinge}
         </p>
+        {doorItem.doorRequest && <p>요청사항: {doorItem.doorRequest}</p>}
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 z-10 flex gap-2 bg-white p-5">
@@ -87,3 +90,5 @@ export default function ConfirmPage() {
     </div>
   );
 }
+
+export default ConfirmPage;
