@@ -10,7 +10,7 @@ const NAV_ITEMS = [
   { href: "/mypage", label: "마이페이지", key: "user" },
 ];
 
-export default function Layout({
+function Layout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -45,3 +45,5 @@ export default function Layout({
     </div>
   );
 }
+
+export default Layout;

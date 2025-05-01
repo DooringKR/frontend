@@ -17,6 +17,7 @@ export type DoorItem = {
     middleTopHinge: number | null;
     middleBottomHinge: number | null;
   };
+  doorRequest: string | null;
   count: number | null;
   price: number | null;
 };
@@ -37,6 +38,7 @@ interface DoorStore {
       middleTopHinge?: number | null;
       middleBottomHinge?: number | null;
     };
+    doorRequest: string | null;
     price: number;
   }) => void;
   updatePriceAndCount: (price: number, count: number) => void;
@@ -58,13 +60,14 @@ const initialState: DoorItem = {
     middleTopHinge: null,
     middleBottomHinge: null,
   },
+  doorRequest: null,
   count: null,
   price: null,
 };
 
 const useDoorStore = create<DoorStore>(set => ({
   doorItem: initialState,
-  updateItem: ({ slug, color, width, height, hinge, price }) =>
+  updateItem: ({ slug, color, width, height, hinge, doorRequest, price }) =>
     set(state => ({
       doorItem: {
         ...state.doorItem,
@@ -73,6 +76,7 @@ const useDoorStore = create<DoorStore>(set => ({
         width,
         height,
         hinge: { ...state.doorItem.hinge, ...hinge },
+        doorRequest,
         price,
       },
     })),

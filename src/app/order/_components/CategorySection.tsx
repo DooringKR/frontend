@@ -1,11 +1,11 @@
 "use client";
 
 import { DOOR_CATEGORY_LIST } from "@/constants/category";
-
 import { useRouter } from "next/navigation";
 
 import Card from "@/components/Card/Card";
-export default function CategorySection() {
+
+function CategorySection() {
   const router = useRouter();
 
   const handleCategoryClick = (slug: string) => {
@@ -15,8 +15,14 @@ export default function CategorySection() {
   return (
     <section className="grid grid-cols-2 gap-2">
       {DOOR_CATEGORY_LIST.map(item => (
-        <Card image={item.image} key={item.name} title={item.name} onClick={() => handleCategoryClick(item.slug)}/>
+        <Card
+          image={item.image}
+          key={item.name}
+          title={item.name}
+          onClick={() => handleCategoryClick(item.slug)}
+        />
       ))}
     </section>
   );
 }
+export default CategorySection;

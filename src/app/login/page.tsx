@@ -13,7 +13,7 @@ import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 import handlePhoneKeyDown from "@/utils/handlePhoneKeyDown";
 import baseSchema, { PhoneFormData } from "@/utils/schema";
 
-export default function PhoneLoginPage() {
+function PhoneLoginPage() {
   const router = useRouter();
   const { setUserPhoneNumber } = useUserStore();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -84,3 +84,5 @@ export default function PhoneLoginPage() {
     </div>
   );
 }
+
+export default PhoneLoginPage;
