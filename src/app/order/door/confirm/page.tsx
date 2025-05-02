@@ -7,7 +7,7 @@ import { useState } from "react";
 
 import Button from "@/components/Button/Button";
 
-import useDoorStore from "@/store/doorStore";
+import useDoorStore from "@/store/Items/doorStore";
 
 function ConfirmPage() {
   const router = useRouter();

@@ -4,7 +4,7 @@ export type DoorSlug = "normal" | "flap" | "drawer";
 
 export type DoorItem = {
   category: "door";
-  slug: DoorSlug | null; // 초기엔 null
+  slug: DoorSlug | null;
   color: string;
   width: number | null;
   height: number | null;
@@ -24,23 +24,7 @@ export type DoorItem = {
 
 interface DoorStore {
   doorItem: DoorItem;
-  updateItem: (payload: {
-    slug: DoorSlug;
-    color: string;
-    width: number;
-    height: number;
-    hinge: {
-      hingeCount: number | null;
-      hingePosition: "left" | "right" | null;
-      topHinge: number;
-      bottomHinge: number;
-      middleHinge?: number | null;
-      middleTopHinge?: number | null;
-      middleBottomHinge?: number | null;
-    };
-    doorRequest: string | null;
-    price: number;
-  }) => void;
+  updateItem: (payload: Partial<Omit<DoorItem, "category">>) => void;
   updatePriceAndCount: (price: number, count: number) => void;
   resetDoorItem: () => void;
 }
@@ -67,17 +51,16 @@ const initialState: DoorItem = {
 
 const useDoorStore = create<DoorStore>(set => ({
   doorItem: initialState,
-  updateItem: ({ slug, color, width, height, hinge, doorRequest, price }) =>
+
+  updateItem: payload =>
     set(state => ({
       doorItem: {
         ...state.doorItem,
-        slug,
-        color,
-        width,
-        height,
-        hinge: { ...state.doorItem.hinge, ...hinge },
-        doorRequest,
-        price,
+        ...payload,
+        hinge: {
+          ...state.doorItem.hinge,
+          ...(payload.hinge || {}),
+        },
       },
     })),
 
@@ -86,7 +69,7 @@ const useDoorStore = create<DoorStore>(set => ({
       doorItem: { ...state.doorItem, price, count },
     })),
 
-  resetDoorItem: () => set({ doorItem: initialState }),
+  resetDoorItem: () => set(() => ({ doorItem: initialState })),
 }));
 
 export default useDoorStore;

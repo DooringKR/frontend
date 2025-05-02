@@ -9,7 +9,7 @@ import { useState } from "react";
 import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
 
-import useDoorStore from "@/store/doorStore";
+import useDoorStore from "@/store/Items/doorStore";
 
 import Flap from "./_components/Flap";
 import Normal from "./_components/Normal";

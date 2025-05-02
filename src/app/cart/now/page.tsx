@@ -1,6 +1,6 @@
 "use client";
 
-import useDoorStore from "@/store/doorStore";
+import useDoorStore from "@/store/Items/doorStore";
 
 function CartNowPage() {
   const { doorItem } = useDoorStore();
@@ -10,4 +10,4 @@ function CartNowPage() {
     </div>
   );
 }
-export default CartNowPage
+export default CartNowPage;
