@@ -6,7 +6,7 @@ export async function createOrder(order: OrderRequest): Promise<OrderResponse> {
     headers: {
       "Content-Type": "application/json",
     },
-    credentials: "include", // 쿠키 필요할 때
+    credentials: "include",
     body: JSON.stringify(order),
   });
 

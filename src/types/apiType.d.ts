@@ -10,8 +10,6 @@ export type SignupUser = Pick<User, "userType" | "phoneNumber">
 
 export type SigninUser = Pick<User, "phoneNumber"> 
 
-
-
 // door type
 
 export type Hinge = {
@@ -38,8 +36,6 @@ export type DoorResponse = DoorRequest & {
   price: number;
 };
 
-
-
 // finish type
 
 export type FinishRequest = {
@@ -59,8 +55,6 @@ export type FinishRequest = {
 export type FinishResponse = FinishRequest & {
   price: number;
 };
-
-
 
 // cabinet type
 
@@ -87,8 +81,6 @@ export type CabinetResponse = CabinetRequest & {
   price: number;
 };
 
-
-
 // accessory type
 
 export type AccessoryRequest = {
@@ -102,8 +94,6 @@ export type AccessoryRequest = {
 export type AccessoryResponse = AccessoryRequest & {
   price: number;
 };
-
-
 
 // hardware type
 
@@ -119,9 +109,7 @@ export type HardwareResponse = HardwareRequest & {
   price: number;
 };
 
-
-
-//order type
+// order type
 
 export type CartItem =
   | (DoorRequest & { count: number; price: number })
