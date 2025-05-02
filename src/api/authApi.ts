@@ -1,5 +1,5 @@
 import useUserStore from "@/store/userStore";
-import { SigninUser, SignupUser, User } from "@/types/authApi";
+import { SigninUser, SignupUser, User } from "@/types/apiType";
 
 
 // 로그인 & 기존 유저 체크
