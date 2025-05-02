@@ -4,7 +4,7 @@ export async function GET(request: NextRequest) {
   const accessToken = request.cookies.get("access-token")?.value;
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
-  const res = await fetch(`${baseUrl}/api/user`, {
+  const res = await fetch(`${baseUrl}/auth/user`, {
     method: "GET",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
   });
@@ -19,7 +19,7 @@ export async function PUT(request: NextRequest) {
   const body = await request.json();
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
-  const res = await fetch(`${baseUrl}/api/user`, {
+  const res = await fetch(`${baseUrl}/auth/user`, {
     method: "PUT",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
     body: JSON.stringify(body),
