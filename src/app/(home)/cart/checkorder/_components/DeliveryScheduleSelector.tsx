@@ -73,22 +73,19 @@ export default function DeliveryScheduleSelector({
       <h2 className="mb-2 font-medium">배송일정 선택</h2>
 
       <div
-  onClick={() => isTodayDeliveryAvailable && setDeliveryType("today")}
-  className={`border p-3 ${deliveryType === "today" ? "border-blue-500" : "border-gray-300"} ${!isTodayDeliveryAvailable ? "opacity-50 cursor-not-allowed" : ""}`}
->
-  <div className="flex justify-between">
-    <span>바로배송</span>
-    <span className="text-blue-500">
-      {expectedArrivalMinutes !== null ? `약 ${expectedArrivalMinutes}분` : "계산 중..."}
-    </span>
-  </div>
-  <p>
-    {isTodayDeliveryAvailable
-      ? "오늘 오후 6시 전으로 배송돼요."
-      : "바로 배송이 불가능해요."}
-  </p>
-</div>
-
+        onClick={() => isTodayDeliveryAvailable && setDeliveryType("today")}
+        className={`border p-3 ${deliveryType === "today" ? "border-blue-500" : "border-gray-300"} ${!isTodayDeliveryAvailable ? "cursor-not-allowed opacity-50" : ""}`}
+      >
+        <div className="flex justify-between">
+          <span>바로배송</span>
+          <span className="text-blue-500">
+            {expectedArrivalMinutes !== null ? `약 ${expectedArrivalMinutes}분` : "계산 중..."}
+          </span>
+        </div>
+        <p>
+          {isTodayDeliveryAvailable ? "오늘 오후 6시 전으로 배송돼요." : "바로 배송이 불가능해요."}
+        </p>
+      </div>
 
       <div
         onClick={() => setDeliveryType("tomorrow")}

@@ -9,6 +9,7 @@ import { DeliverTime } from "@/utils/CheckDeliveryTime";
 
 import DeliveryAddressCard from "./_components/DeliveryAddressCard";
 import DeliveryScheduleSelector from "./_components/DeliveryScheduleSelector";
+import RecipientPhoneNumber from "./_components/RecipientPhoneNumber";
 
 function CheckOrder() {
   const { currentItem } = useCurrentOrderStore();
@@ -17,6 +18,7 @@ function CheckOrder() {
   const [deliveryDate, setDeliveryDate] = useState<string | null>(null);
   const [address, setAddress] = useState({ address1: "", address2: "" });
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [recipientPhoneNumber, setRecipientPhoneNumber] = useState("");
   const [deliveryMessage, setDeliveryMessage] = useState("");
   const [deliveryMessageColor, setDeliveryMessageColor] = useState("text-black");
   const [requestMessage, setRequestMessage] = useState("");
@@ -34,7 +36,10 @@ function CheckOrder() {
     const userRaw = localStorage.getItem("userData");
     const selectedAddress = saved.state?.selectedAddress || "주소 없음";
     if (saved.state) setAddress(saved.state);
-    if (userRaw) setPhoneNumber(JSON.parse(userRaw).state?.user_phoneNumber || "");
+    if (userRaw) {
+      setPhoneNumber(JSON.parse(userRaw).state?.user_phoneNumber || "")
+      setRecipientPhoneNumber(JSON.parse(userRaw).state?.user_phoneNumber || "")
+    }
 
     const fetchDeliveryTime = async () => {
       if (selectedAddress !== "주소 없음") {
@@ -87,10 +92,7 @@ function CheckOrder() {
           setRequestMessage={setRequestMessage}
           setAddress={setAddress}
         />
-
-        <button onClick={() => router.push("/request/delivery")} className="text-blue-500">
-          배송기사 요청사항 선택
-        </button>
+    <RecipientPhoneNumber recipientPhoneNumber={recipientPhoneNumber} setRecipientPhoneNumber={setRecipientPhoneNumber}/>
         <button onClick={() => router.push("/request/phone")} className="text-blue-500">
           받는 분 휴대폰 번호 수정
         </button>

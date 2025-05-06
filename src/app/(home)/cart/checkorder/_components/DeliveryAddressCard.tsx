@@ -70,7 +70,6 @@ export default function DeliveryAddressCard({
 
   return (
     <div className="rounded border bg-gray-50 p-4">
-      {/* 배송주소 섹션 */}
       <div className="mb-2 flex items-center justify-between">
         <div className="flex w-full justify-between">
           <div className="flex flex-col gap-2">
