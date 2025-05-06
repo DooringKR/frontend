@@ -7,6 +7,7 @@ import { set } from "zod";
 import { useCurrentOrderStore } from "@/store/Items/currentOrderStore";
 import { DeliverTime } from "@/utils/CheckDeliveryTime";
 
+import CustomerRequest from "./_components/CostomerRequest";
 import DeliveryAddressCard from "./_components/DeliveryAddressCard";
 import DeliveryScheduleSelector from "./_components/DeliveryScheduleSelector";
 import RecipientPhoneNumber from "./_components/RecipientPhoneNumber";
@@ -22,6 +23,7 @@ function CheckOrder() {
   const [deliveryMessage, setDeliveryMessage] = useState("");
   const [deliveryMessageColor, setDeliveryMessageColor] = useState("text-black");
   const [requestMessage, setRequestMessage] = useState("");
+  const [customerRequest, setCustomerRequest] = useState("");
 
   const [foyerAccessType, setFoyerAccessType] = useState<{
     type: "gate" | "call" | "doorfront";
@@ -37,8 +39,8 @@ function CheckOrder() {
     const selectedAddress = saved.state?.selectedAddress || "주소 없음";
     if (saved.state) setAddress(saved.state);
     if (userRaw) {
-      setPhoneNumber(JSON.parse(userRaw).state?.user_phoneNumber || "")
-      setRecipientPhoneNumber(JSON.parse(userRaw).state?.user_phoneNumber || "")
+      setPhoneNumber(JSON.parse(userRaw).state?.user_phoneNumber || "");
+      setRecipientPhoneNumber(JSON.parse(userRaw).state?.user_phoneNumber || "");
     }
 
     const fetchDeliveryTime = async () => {
@@ -92,13 +94,14 @@ function CheckOrder() {
           setRequestMessage={setRequestMessage}
           setAddress={setAddress}
         />
-    <RecipientPhoneNumber recipientPhoneNumber={recipientPhoneNumber} setRecipientPhoneNumber={setRecipientPhoneNumber}/>
-        <button onClick={() => router.push("/request/phone")} className="text-blue-500">
-          받는 분 휴대폰 번호 수정
-        </button>
-        <button onClick={() => router.push("/request/door")} className="text-blue-500">
-          도어링 요청사항 입력
-        </button>
+        <RecipientPhoneNumber
+          recipientPhoneNumber={recipientPhoneNumber}
+          setRecipientPhoneNumber={setRecipientPhoneNumber}
+        />
+        <CustomerRequest
+          customerRequest={customerRequest}
+          setCustomerRequest={setCustomerRequest}
+        />
       </section>
 
       <button

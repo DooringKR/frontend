@@ -75,8 +75,8 @@ export default function RecipientPhoneNumber({
             </h1>
 
             <div>
-              <p className="mb-2 text-sm">휴대폰 번호</p>
               <Input
+                label="휴대폰 번호"
                 type="text"
                 name="수령자 전화번호"
                 value={formatPhoneNumber(tempPhoneNumber)}
