@@ -34,11 +34,11 @@ export default function PurchasePage() {
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("address-storage") || "{}");
-    const selectedAddress = saved.state?.selectedAddress || "주소 없음";
+    const address1 = saved.state?.address1 || "주소 없음";
 
     const fetchDeliveryTime = async () => {
-      if (selectedAddress !== "주소 없음") {
-        const { expectedArrivalMinutes } = await DeliverTime(selectedAddress);
+      if (address1 !== "주소 없음") {
+        const { expectedArrivalMinutes } = await DeliverTime(address1);
         const cutoff = 18 * 60;
         const hours = Math.floor(expectedArrivalMinutes / 60)
           .toString()
@@ -77,7 +77,7 @@ export default function PurchasePage() {
     const item = getCurrentItemByCategory(category);
     console.log(item);
     setCurrentItem(item);
-    router.push("/cart/checkorder");
+    router.push("/cart/checkorder?current=now");
   };
 
   return (

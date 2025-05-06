@@ -2,19 +2,19 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 interface AddressState {
-  selectedAddress: string;
-  detailAddress: string;
-  setAddress: (selectedAddress: string, detailAddress: string) => void;
+  address1: string;
+  address2: string;
+  setAddress: (address1: string, address2: string) => void;
   clearAddress: () => void;
 }
 
 const useAddressStore = create<AddressState>()(
   persist(
     (set) => ({
-      selectedAddress: "",
-      detailAddress: "",
-      setAddress: (selectedAddress, detailAddress) => set({ selectedAddress, detailAddress }),
-      clearAddress: () => set({ selectedAddress: "", detailAddress: "" }),
+      address1: "",
+      address2: "",
+      setAddress: (address1, address2) => set({ address1, address2 }),
+      clearAddress: () => set({ address1: "", address2: "" }),
     }),
     {
       name: "address-storage", // localStorage 키

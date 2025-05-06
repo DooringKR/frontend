@@ -2,23 +2,23 @@
 
 import { CATEGORY_LIST } from "@/constants/category";
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
+import { DeliverTime } from "@/utils/CheckDeliveryTime";
 import DaumPostcodePopup from "@/components/SearchAddress/DaumPostcode";
 
-import useAddressStore from "@/store/addressStore";
-import { DeliverTime } from "@/utils/CheckDeliveryTime";
+interface AddressModalProps {
+  onClose: () => void;
+  onAddressSelect: (address1: string, address2: string) => void;
+}
 
-function Page() {
+export default function AddressModal({ onClose, onAddressSelect }: AddressModalProps) {
   const searchParams = useSearchParams();
-  const router = useRouter();
-  const { setAddress } = useAddressStore();
 
   const categorySlug = searchParams.get("category") || "etc";
   const matchedCategory = CATEGORY_LIST.find(item => item.slug === categorySlug);
   const categoryName = matchedCategory?.name || "기타";
-  const englishCategory = matchedCategory?.slug || "etc";
 
   const [address1, setAddress1] = useState<string>("");
   const [address2, setAddress2] = useState<string>("");
@@ -42,26 +42,29 @@ function Page() {
 
   const isButtonDisabled = !address1 || !address2;
 
-  const handleAddressComplete = () => { 
-    setAddress(address1, address2);
-    router.push(`/order/${englishCategory}`);
+  const handleAddressComplete = () => {
+    onAddressSelect(address1, address2);
+    onClose();
   };
 
   return (
-    <div className="flex flex-col gap-5 p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <button type="button" onClick={() => router.back()}>
-          <Image src="/icons/Arrow_Left.svg" width={24} height={24} alt="뒤로가기" />
+    <div className="fixed inset-0 z-30 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="relative w-full max-w-lg h-full bg-white p-6">
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-5 top-5 text-gray-500"
+        >
+          ✕
         </button>
-        <Image src="/icons/Headphones.svg" width={24} height={24} alt="문의하기 버튼" />
-      </div>
-      <h1 className="text-2xl font-semibold">
-        <span className="font-bold">{categoryName}</span>을 배송받을 주소를 <br />
-        입력해주세요.
-      </h1>
-      <div className="flex flex-col gap-[10px]">
-        <label>주소</label>x
-        <div>
+
+        <h1 className="text-2xl font-semibold mb-4">
+          <span className="font-bold">자재</span>를 배송받을 주소를 <br />
+          입력해주세요.
+        </h1>
+
+        <div className="flex flex-col gap-[10px] mb-4">
+          <label>주소</label>
           <DaumPostcodePopup address1={address1} onComplete={handleComplete} />
 
           {deliveryMessage && (
@@ -71,26 +74,25 @@ function Page() {
               {deliveryMessage}
             </p>
           )}
-        </div>
-        <input
-          type="text"
-          value={address2}
-          onChange={e => setAddress2(e.target.value)}
-          placeholder="상세주소 (예: 101동 501호 / 단독주택)"
-          className="w-full rounded-md border border-gray-300 px-4 py-3 text-base"
-        />
-      </div>
 
-      <button
-        type="button"
-        onClick={handleAddressComplete}
-        disabled={isButtonDisabled}
-        className={`absolute bottom-5 left-5 right-5 rounded-md py-3 text-white ${isButtonDisabled ? "bg-gray-300" : "bg-black"}`}
-      >
-        다음
-      </button>
+          <input
+            type="text"
+            value={address2}
+            onChange={e => setAddress2(e.target.value)}
+            placeholder="상세주소 (예: 101동 501호 / 단독주택)"
+            className="w-full rounded-md border border-gray-300 px-4 py-3 text-base"
+          />
+        </div>
+
+        <button
+          type="button"
+          onClick={handleAddressComplete}
+          disabled={isButtonDisabled}
+          className={`w-full rounded-md py-3 text-white ${isButtonDisabled ? "bg-gray-300" : "bg-black"}`}
+        >
+          다음
+        </button>
+      </div>
     </div>
   );
 }
-
-export default Page;

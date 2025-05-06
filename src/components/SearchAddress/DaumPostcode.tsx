@@ -4,7 +4,7 @@ import Script from "next/script";
 import { useCallback, useEffect, useRef } from "react";
 
 interface DaumPostcodePopupProps {
-  selectedAddress: string;
+  address1: string;
   onComplete: (address: string) => void;
 }
 
@@ -16,7 +16,7 @@ declare global {
   }
 }
 
-export default function DaumPostcodePopup({ selectedAddress, onComplete }: DaumPostcodePopupProps) {
+export default function DaumPostcodePopup({ address1, onComplete }: DaumPostcodePopupProps) {
   const scriptLoadedRef = useRef(false);
 
   const openPostcodePopup = useCallback(() => {
@@ -25,7 +25,7 @@ export default function DaumPostcodePopup({ selectedAddress, onComplete }: DaumP
     new window.daum.Postcode({
       oncomplete: data => {
         const address = data.roadAddress || data.address;
-        onComplete(address); // ✅ 부모한테 선택된 주소만 넘긴다
+        onComplete(address);
       },
     }).open();
   }, [onComplete]);
@@ -47,8 +47,8 @@ export default function DaumPostcodePopup({ selectedAddress, onComplete }: DaumP
         onClick={openPostcodePopup}
         className="min-h-[40px] w-full cursor-pointer rounded-lg border border-gray-300 bg-white px-4 py-3 text-left text-base shadow-sm"
       >
-        <span className={selectedAddress ? "text-black" : "text-gray-400"}>
-          {selectedAddress || "건물, 지번 또는 도로명 검색"}
+        <span className={address1 ? "text-black" : "text-gray-400"}>
+          {address1 || "건물, 지번 또는 도로명 검색"}
         </span>
       </button>
 
