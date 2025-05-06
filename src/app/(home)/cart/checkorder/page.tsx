@@ -1,8 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { set } from "zod";
 
 import { useCurrentOrderStore } from "@/store/Items/currentOrderStore";
 import { DeliverTime } from "@/utils/CheckDeliveryTime";
@@ -15,6 +14,8 @@ import RecipientPhoneNumber from "./_components/RecipientPhoneNumber";
 function CheckOrder() {
   const { currentItem } = useCurrentOrderStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [expectedArrivalMinutes, setExpectedArrivalMinutes] = useState<number | null>(null);
   const [deliveryDate, setDeliveryDate] = useState<string | null>(null);
   const [address, setAddress] = useState({ address1: "", address2: "" });
@@ -24,23 +25,33 @@ function CheckOrder() {
   const [deliveryMessageColor, setDeliveryMessageColor] = useState("text-black");
   const [requestMessage, setRequestMessage] = useState("");
   const [customerRequest, setCustomerRequest] = useState("");
-
   const [foyerAccessType, setFoyerAccessType] = useState<{
     type: "gate" | "call" | "doorfront";
     gatePassword: string | null;
   }>({
-    type: "call", // 기본값은 "call"
-    gatePassword: null, // 기본값 null
+    type: "call",
+    gatePassword: null,
   });
+
+  const [cartItems, setCartItems] = useState<any[]>([]);
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("address-storage") || "{}");
     const userRaw = localStorage.getItem("userData");
     const selectedAddress = saved.state?.selectedAddress || "주소 없음";
+
     if (saved.state) setAddress(saved.state);
     if (userRaw) {
-      setPhoneNumber(JSON.parse(userRaw).state?.user_phoneNumber || "");
-      setRecipientPhoneNumber(JSON.parse(userRaw).state?.user_phoneNumber || "");
+      const user = JSON.parse(userRaw).state;
+      setPhoneNumber(user?.user_phoneNumber || "");
+      setRecipientPhoneNumber(user?.user_phoneNumber || "");
+    }
+
+    if (searchParams.get("current") === "now") {
+      setCartItems([currentItem]);
+    } else {
+      const localCart = JSON.parse(localStorage.getItem("cartItems") || "[]");
+      setCartItems(localCart);
     }
 
     const fetchDeliveryTime = async () => {
@@ -69,7 +80,38 @@ function CheckOrder() {
     };
 
     fetchDeliveryTime();
-  }, []);
+  }, [currentItem, searchParams]);
+
+  const handleOrderSubmit = async () => {
+    const userRaw = JSON.parse(localStorage.getItem("userData") || "{}");
+    const user = userRaw.state || {};
+
+    const totalPrice = cartItems.reduce((sum, item) => sum + item.price, 0);
+
+    const payload = {
+      user: {
+        id: user.user_id || 0,
+        userType: user.userType || "company",
+        phoneNumber: phoneNumber,
+      },
+      recipientPhoneNumber: recipientPhoneNumber,
+      address1: address.address1,
+      address2: address.address2,
+      foyerAccessType: foyerAccessType,
+      deliveryDate: deliveryDate,
+      deliveryRequest: requestMessage,
+      otherRequests: customerRequest,
+      description: "",
+      cartItems: cartItems,
+      totalPrice: totalPrice,
+    };
+
+    try {
+      console.log(payload);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <div className="flex flex-col p-5 pb-20">
@@ -104,10 +146,7 @@ function CheckOrder() {
         />
       </section>
 
-      <button
-        className="w-full rounded bg-black py-3 text-white"
-        onClick={() => alert("결제 요청 처리")}
-      >
+      <button className="w-full rounded bg-black py-3 text-white" onClick={handleOrderSubmit}>
         주문하기
       </button>
     </div>
