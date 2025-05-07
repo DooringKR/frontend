@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const accessToken = request.cookies.get("access-token")?.value;
+    // const accessToken = request.cookies.get("access-token")?.value;
     const body = await request.json();
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
-    const res = await fetch(`${baseUrl}/api/order`, {
+    const res = await fetch(`${baseUrl}/order`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
+      headers: { "Content-Type": "application/json"},
+      //Authorization: `Bearer ${accessToken}` },
       body: JSON.stringify(body),
     });
 

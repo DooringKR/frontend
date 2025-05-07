@@ -60,7 +60,7 @@ function Page() {
         입력해주세요.
       </h1>
       <div className="flex flex-col gap-[10px]">
-        <label>주소</label>x
+        <label>주소</label>
         <div>
           <DaumPostcodePopup address1={address1} onComplete={handleComplete} />
 

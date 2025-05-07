@@ -120,19 +120,17 @@ export type CartItem =
 
 
 export type OrderRequest = {
-  id: number;
   user: User;
-  phoneNumber: string;
+  recipientPhoneNumber: string | null;
   address1: string;
   address2: string;
   foyerAccessType: {
     type: "gate" | "call" | "doorfront";
     gatePassword: string | null;
   };
-  deliveryDate: string; // ISO8601
+  deliveryDate: string|null; // ISO8601
   deliveryRequest: string;
   otherRequests: string;
-  description: string;
   cartItems: CartItem[];
   totalPrice: number;
 };

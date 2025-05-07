@@ -1,7 +1,10 @@
 "use client";
 
+import { createOrder } from "@/api/orderApi";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+
+import Button from "@/components/Button/Button";
 
 import { useCurrentOrderStore } from "@/store/Items/currentOrderStore";
 import { DeliverTime } from "@/utils/CheckDeliveryTime";
@@ -38,7 +41,7 @@ function CheckOrder() {
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("address-storage") || "{}");
     const userRaw = localStorage.getItem("userData");
-    const selectedAddress = saved.state?.selectedAddress || "주소 없음";
+    const selectedAddress = saved.state?.address1 || "주소 없음";
 
     if (saved.state) setAddress(saved.state);
     if (userRaw) {
@@ -101,13 +104,15 @@ function CheckOrder() {
       deliveryDate: deliveryDate,
       deliveryRequest: requestMessage,
       otherRequests: customerRequest,
-      description: "",
       cartItems: cartItems,
       totalPrice: totalPrice,
     };
 
     try {
       console.log(payload);
+      const response = await createOrder(payload);
+      console.log(response);
+      router.push("/");
     } catch (error) {
       console.error(error);
     }
@@ -146,9 +151,9 @@ function CheckOrder() {
         />
       </section>
 
-      <button className="w-full rounded bg-black py-3 text-white" onClick={handleOrderSubmit}>
+      <Button className="w-full bg-black text-white" onClick={handleOrderSubmit}>
         주문하기
-      </button>
+      </Button>
     </div>
   );
 }
