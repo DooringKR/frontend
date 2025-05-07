@@ -109,9 +109,13 @@ function CheckOrder() {
     };
 
     try {
-      console.log(payload);
-      const response = await createOrder(payload);
-      console.log(response);
+      await createOrder(payload);
+      localStorage.removeItem("cartItems");
+
+      const { currentItem } = useCurrentOrderStore.getState();
+      if (currentItem) {
+        useCurrentOrderStore.getState().clearCurrentItem();
+      }
       router.push("/");
     } catch (error) {
       console.error(error);
