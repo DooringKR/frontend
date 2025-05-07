@@ -20,13 +20,13 @@ function Page() {
   const categoryName = matchedCategory?.name || "기타";
   const englishCategory = matchedCategory?.slug || "etc";
 
-  const [selectedAddress, setSelectedAddress] = useState<string>("");
-  const [detailAddress, setDetailAddress] = useState<string>("");
+  const [address1, setAddress1] = useState<string>("");
+  const [address2, setAddress2] = useState<string>("");
   const [deliveryMessage, setDeliveryMessage] = useState<string | null>(null);
   const [deliveryMessageColor, setDeliveryMessageColor] = useState<string>("text-[#14ae5c]");
 
   const handleComplete = async (address: string) => {
-    setSelectedAddress(address);
+    setAddress1(address);
 
     const { expectedArrivalMinutes } = await DeliverTime(address);
 
@@ -40,12 +40,10 @@ function Page() {
     }
   };
 
-  const isButtonDisabled = !selectedAddress || !detailAddress;
+  const isButtonDisabled = !address1 || !address2;
 
-  const handleAddressComplete = () => {
-    console.log("선택된 도로명 주소:", selectedAddress);
-    console.log("입력된 상세주소:", detailAddress);
-    setAddress(selectedAddress, detailAddress);
+  const handleAddressComplete = () => { 
+    setAddress(address1, address2);
     router.push(`/order/${englishCategory}`);
   };
 
@@ -64,7 +62,7 @@ function Page() {
       <div className="flex flex-col gap-[10px]">
         <label>주소</label>
         <div>
-          <DaumPostcodePopup selectedAddress={selectedAddress} onComplete={handleComplete} />
+          <DaumPostcodePopup address1={address1} onComplete={handleComplete} />
 
           {deliveryMessage && (
             <p
@@ -76,8 +74,8 @@ function Page() {
         </div>
         <input
           type="text"
-          value={detailAddress}
-          onChange={e => setDetailAddress(e.target.value)}
+          value={address2}
+          onChange={e => setAddress2(e.target.value)}
           placeholder="상세주소 (예: 101동 501호 / 단독주택)"
           className="w-full rounded-md border border-gray-300 px-4 py-3 text-base"
         />

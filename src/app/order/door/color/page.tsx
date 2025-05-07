@@ -8,7 +8,7 @@ import { useState } from "react";
 
 import Input from "@/components/Input/Input";
 
-export default function ColorList() {
+function ColorList() {
   if (typeof window === "undefined") return null;
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -73,3 +73,5 @@ export default function ColorList() {
     </div>
   );
 }
+
+export default ColorList;

@@ -9,7 +9,7 @@ import Card from "@/components/Card/Card";
 
 import useCartStore from "@/store/cartStore";
 
-export default function CategorySection() {
+function CategorySection() {
   const router = useRouter();
   const { cartItems } = useCartStore();
 
@@ -43,3 +43,4 @@ export default function CategorySection() {
     </section>
   );
 }
+export default CategorySection;

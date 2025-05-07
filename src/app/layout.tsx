@@ -1,5 +1,3 @@
-import ReactQueryProviders from "@/providers/ReactQueryProviders";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import type { Metadata } from "next";
 
 import "./globals.css";
@@ -24,10 +22,7 @@ function RootLayout({
   return (
     <html lang="ko">
       <body className="mx-auto max-w-[500px]">
-        <ReactQueryProviders>
           {children}
-          <ReactQueryDevtools />
-        </ReactQueryProviders>
       </body>
     </html>
   );

@@ -4,7 +4,7 @@ export type DoorSlug = "normal" | "flap" | "drawer";
 
 export type DoorItem = {
   category: "door";
-  slug: DoorSlug | null; // 초기엔 null
+  slug: DoorSlug | null;
   color: string;
   width: number | null;
   height: number | null;
@@ -17,28 +17,14 @@ export type DoorItem = {
     middleTopHinge: number | null;
     middleBottomHinge: number | null;
   };
+  doorRequest: string | null;
   count: number | null;
   price: number | null;
 };
 
 interface DoorStore {
   doorItem: DoorItem;
-  updateItem: (payload: {
-    slug: DoorSlug;
-    color: string;
-    width: number;
-    height: number;
-    hinge: {
-      hingeCount: number | null;
-      hingePosition: "left" | "right" | null;
-      topHinge: number;
-      bottomHinge: number;
-      middleHinge?: number | null;
-      middleTopHinge?: number | null;
-      middleBottomHinge?: number | null;
-    };
-    price: number;
-  }) => void;
+  updateItem: (payload: Partial<Omit<DoorItem, "category">>) => void;
   updatePriceAndCount: (price: number, count: number) => void;
   resetDoorItem: () => void;
 }
@@ -58,22 +44,23 @@ const initialState: DoorItem = {
     middleTopHinge: null,
     middleBottomHinge: null,
   },
+  doorRequest: null,
   count: null,
   price: null,
 };
 
 const useDoorStore = create<DoorStore>(set => ({
   doorItem: initialState,
-  updateItem: ({ slug, color, width, height, hinge, price }) =>
+
+  updateItem: payload =>
     set(state => ({
       doorItem: {
         ...state.doorItem,
-        slug,
-        color,
-        width,
-        height,
-        hinge: { ...state.doorItem.hinge, ...hinge },
-        price,
+        ...payload,
+        hinge: {
+          ...state.doorItem.hinge,
+          ...(payload.hinge || {}),
+        },
       },
     })),
 
@@ -82,7 +69,7 @@ const useDoorStore = create<DoorStore>(set => ({
       doorItem: { ...state.doorItem, price, count },
     })),
 
-  resetDoorItem: () => set({ doorItem: initialState }),
+  resetDoorItem: () => set(() => ({ doorItem: initialState })),
 }));
 
 export default useDoorStore;
