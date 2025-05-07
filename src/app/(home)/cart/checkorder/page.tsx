@@ -112,12 +112,9 @@ function CheckOrder() {
     try {
       await createOrder(payload);
       localStorage.removeItem("cartItems");
-
-      const { currentItem } = useCurrentOrderStore.getState();
-      if (currentItem) {
-        useCurrentOrderStore.getState().clearCurrentItem();
-      }
-      router.push("/");
+      useCurrentOrderStore.getState().clearCurrentItem();
+      localStorage.setItem("recentOrder", JSON.stringify(payload));
+      router.push("/cart/confirm");
     } catch (error) {
       console.error(error);
     }
