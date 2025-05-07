@@ -7,7 +7,7 @@ import { useState } from "react";
 
 import Button from "@/components/Button/Button";
 
-import useDoorStore from "@/store/doorStore";
+import useDoorStore from "@/store/Items/doorStore";
 
 function ConfirmPage() {
   const router = useRouter();
@@ -33,8 +33,8 @@ function ConfirmPage() {
   };
 
   const handlePurchase = () => {
-    updatePriceAndCount(total, count); // count, price 업데이트
-    router.push("/cart/now"); // /cart/now로 이동
+    updatePriceAndCount(total, count);
+    router.push("/cart/now?category=door");
   };
 
   const currentCategory = DOOR_CATEGORY_LIST.find(item => item.slug === doorItem.slug);

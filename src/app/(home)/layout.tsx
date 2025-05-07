@@ -18,10 +18,10 @@ function Layout({
   const pathname = usePathname();
 
   return (
-    <div className="relative min-h-screen pb-10">
+    <div className="relative min-h-screen pb-17">
       {children}
 
-      <footer className="fixed bottom-0 left-0 right-0 z-50 border-t bg-white text-sm font-semibold">
+      <footer className="fixed bottom-0 left-0 right-0 z-10 border-t bg-white text-sm font-semibold">
         <nav className="flex h-[68px] items-center justify-around px-4">
           {NAV_ITEMS.map(({ href, label, key }) => {
             const isActive = pathname === href;
