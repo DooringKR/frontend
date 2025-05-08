@@ -20,3 +20,14 @@ export const DOOR_CATEGORY_LIST: Category[] = [
   { name: "서랍 마에다", image: "/img/Checker.png", slug: "drawer", header:"서랍문" },
 ];
 
+export const ACCESSORY_CATEGORY_LIST: Category[] = [
+  { name: "싱크볼", image: "/img/Checker.png", slug: "sinkbowl", header: "싱크볼" },
+  { name: "쿡탑", image: "/img/Checker.png", slug: "cooktop" ,header: "쿡탑" },
+  { name: "후드", image: "/img/Checker.png", slug: "hood", header:"후드" },
+]
+
+export const HARDWARE_CATEGORY_LIST: Category[] = [
+  { name: "경첩", image: "/img/Checker.png", slug: "hinge", header: "경첩" },
+  { name: "레일", image: "/img/Checker.png", slug: "rail" ,header: "레일" },
+  { name: "피스", image: "/img/Checker.png", slug: "bolt", header:"피스" },
+]

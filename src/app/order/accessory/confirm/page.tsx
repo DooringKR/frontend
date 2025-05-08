@@ -1,28 +1,27 @@
 "use client";
 
-import { DOOR_CATEGORY_LIST } from "@/constants/category"
+import { ACCESSORY_CATEGORY_LIST } from "@/constants/category";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import Button from "@/components/Button/Button";
-
-import useDoorStore from "@/store/Items/doorStore";
+import useAccessoryStore from "@/store/Items/accessoryStore";
 
 function ConfirmPage() {
   const router = useRouter();
-  const { doorItem, updatePriceAndCount } = useDoorStore();
+  const { accessoryItem, updatePriceAndCount } = useAccessoryStore();
   const [count, setCount] = useState(1);
 
-  if (!doorItem.slug || !doorItem.width || !doorItem.height || doorItem.price === null) {
+  if (!accessoryItem.slug || !accessoryItem.madeBy || !accessoryItem.model || accessoryItem.price === null) {
     return <p className="p-5">잘못된 접근입니다.</p>;
   }
 
-  const total = doorItem.price * count;
+  const total = accessoryItem.price * count;
 
   const handleAddToCart = () => {
     const existing = JSON.parse(localStorage.getItem("cartItems") || "[]");
     const newItem = {
-      ...doorItem,
+      ...accessoryItem,
       count,
       price: total,
     };
@@ -33,15 +32,15 @@ function ConfirmPage() {
 
   const handlePurchase = () => {
     updatePriceAndCount(total, count);
-    router.push("/cart/now?category=door");
+    router.push("/cart/now?category=accessory");
   };
 
-  const currentCategory = DOOR_CATEGORY_LIST.find(item => item.slug === doorItem.slug);
-  const header = currentCategory?.header || "문짝";
+  const currentCategory = ACCESSORY_CATEGORY_LIST.find(item => item.slug === accessoryItem.slug);
+  const header = currentCategory?.header || "부속";
 
   return (
     <div className="flex flex-col gap-6 p-5 pb-20">
-      <h1 className="text-xl font-bold">문짝 주문 개수를 선택해주세요</h1>
+      <h1 className="text-xl font-bold"><span>{header}</span> 주문 개수를 선택해주세요</h1>
 
       <div className="flex items-center justify-between">
         <span className="text-base font-medium">주문 개수</span>
@@ -61,23 +60,10 @@ function ConfirmPage() {
 
       <div className="text-sm leading-relaxed">
         <p className="font-semibold">{header}</p>
-        <p>색상: {doorItem.color}</p>
-        <p>가로 길이: {doorItem.width}mm</p>
-        <p>세로 길이: {doorItem.height}mm</p>
-        {doorItem.hinge.hingeCount && <p>경첩 개수: {doorItem.hinge.hingeCount}</p>}
-        {doorItem.hinge.hingePosition && (
-          <p>경첩 방향: {doorItem.hinge.hingePosition === "left" ? "좌경" : "우경"}</p>
-        )}
-        <p>
-          보링 치수: 상{doorItem.hinge.topHinge}
-          {doorItem.hinge.middleHinge ? `, 중${doorItem.hinge.middleHinge}` : ""}
-          {doorItem.hinge.middleTopHinge ? `, 중상${doorItem.hinge.middleTopHinge}` : ""}
-          {doorItem.hinge.middleBottomHinge ? `, 중하${doorItem.hinge.middleBottomHinge}` : ""}, 하
-          {doorItem.hinge.bottomHinge}
-        </p>
-        {doorItem.doorRequest && <p>요청사항: {doorItem.doorRequest}</p>}
+        <p>제조사: {accessoryItem.madeBy}</p>
+        <p>모델명: {accessoryItem.model}</p>
+        <p>요청 사항: {accessoryItem.accessoryRequests}</p>
       </div>
-
       <div className="fixed bottom-0 left-0 right-0 z-10 flex gap-2 bg-white p-5">
         <Button className="flex-1 bg-gray-200 text-black" onClick={handleAddToCart}>
           장바구니 담기

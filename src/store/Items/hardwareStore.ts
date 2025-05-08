@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 export type HardwareItem = {
   category: "hardware";
-  slug: "hinge" | "rail" | "screw" | null;
+  slug: "hinge" | "rail" | "bolt" | null;
   madeBy: string;
   model: string;
   hardwareRequests: string | null;

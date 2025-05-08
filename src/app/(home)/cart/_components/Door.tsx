@@ -24,6 +24,7 @@ function Door({ item }: { item: DoorItem }) {
                 {item.hinge?.middleHinge ? `, 중${item.hinge.middleHinge}` : ""}
                 {item.hinge?.bottomHinge ? `, 하${item.hinge.bottomHinge}` : ""}
               </p>
+              {item.doorRequest && (<p>요청 사항 {item.doorRequest}</p>) }
             </div>
           </div>
           <div className="flex justify-between">
