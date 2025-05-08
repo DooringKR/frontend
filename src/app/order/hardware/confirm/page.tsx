@@ -38,7 +38,7 @@ function ConfirmPage() {
 
   const handlePurchase = () => {
     updatePriceAndCount(total, count);
-    router.push("/cart/now?category=accessory");
+    router.push("/cart/now?category=hardware");
   };
 
   const currentCategory = HARDWARE_CATEGORY_LIST.find(item => item.slug === hardwareItem.slug);
