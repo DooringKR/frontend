@@ -1,33 +1,27 @@
 "use client";
 
-import { HARDWARE_CATEGORY_LIST } from "@/constants/category";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import Button from "@/components/Button/Button";
 
-import useHardwareStore from "@/store/Items/hardwareStore";
+import useFinishStore from "@/store/Items/finishStore";
 
 function ConfirmPage() {
   const router = useRouter();
-  const { hardwareItem, updatePriceAndCount } = useHardwareStore();
+  const { finishItem, updatePriceAndCount } = useFinishStore();
   const [count, setCount] = useState(1);
 
-  if (
-    !hardwareItem.slug ||
-    !hardwareItem.madeBy ||
-    !hardwareItem.model ||
-    hardwareItem.price === null
-  ) {
+  if (!finishItem.depth.baseDepth || !finishItem.height.baseHeight || finishItem.price === null) {
     return <p className="p-5">잘못된 접근입니다.</p>;
   }
 
-  const total = hardwareItem.price * count;
+  const total = finishItem.price * count;
 
   const handleAddToCart = () => {
     const existing = JSON.parse(localStorage.getItem("cartItems") || "[]");
     const newItem = {
-      ...hardwareItem,
+      ...finishItem,
       count,
       price: total,
     };
@@ -38,18 +32,12 @@ function ConfirmPage() {
 
   const handlePurchase = () => {
     updatePriceAndCount(total, count);
-    router.push("/cart/now?category=hardware");
+    router.push("/cart/now?category=finish");
   };
-
-  const currentCategory = HARDWARE_CATEGORY_LIST.find(item => item.slug === hardwareItem.slug);
-  const header = currentCategory?.header || "부속";
 
   return (
     <div className="flex flex-col gap-6 p-5 pb-20">
-      <h1 className="text-xl font-bold">
-        <span>{header}</span> 주문 개수를 선택해주세요
-      </h1>
-
+      <h1 className="text-xl font-bold">마감재 주문 개수를 선택해주세요</h1>
       <div className="flex items-center justify-between">
         <span className="text-base font-medium">주문 개수</span>
         <div className="flex items-center border">
@@ -67,10 +55,16 @@ function ConfirmPage() {
       <hr />
 
       <div className="text-sm leading-relaxed">
-        <p className="font-semibold">{header}</p>
-        <p>제조사: {hardwareItem.madeBy}</p>
-        <p>모델명: {hardwareItem.model}</p>
-        <p>요청 사항: {hardwareItem.hardwareRequests}</p>
+        <p>색상 : {finishItem.color}</p>
+        <p>깊이 : {finishItem.depth.baseDepth?.toLocaleString()}mm</p>
+        {finishItem.depth.additionalDepth && (
+          <p>⤷ 깊이 키움 : {finishItem.depth.additionalDepth?.toLocaleString()}mm</p>
+        )}
+        <p>높이 : {finishItem.height.baseHeight?.toLocaleString()}mm</p>
+        {finishItem.height.additionalHeight && (
+          <p>⤷ 높이 키움 : {finishItem.height.additionalHeight?.toLocaleString()}mm</p>
+        )}
+        {finishItem.finishRequest && <p>요청 사항 : {finishItem.finishRequest}</p>}
       </div>
       <div className="fixed bottom-0 left-0 right-0 z-10 flex gap-2 bg-white p-5">
         <Button className="flex-1 bg-gray-200 text-black" onClick={handleAddToCart}>
