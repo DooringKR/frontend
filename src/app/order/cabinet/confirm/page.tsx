@@ -7,6 +7,7 @@ import { useState } from "react";
 import Button from "@/components/Button/Button";
 
 import useCabinetStore from "@/store/Items/cabinetStore";
+import { CABINET_ITEMS_NAME } from "@/constants/modelList";
 
 function ConfirmPage() {
   const router = useRouter();
@@ -48,13 +49,7 @@ function ConfirmPage() {
   const currentCategory = CABINET_CATEGORY_LIST.find(item => item.slug === cabinetItem.slug);
   const header = currentCategory?.header || "부분장";
 
-  const ItemsName = {
-    channel: "찬넬",
-    outer: "겉손잡이",
-    "pull-down": "내리기",
-    makura: "막우라",
-    urahome: "우라홈",
-  };
+
 
   return (
     <div className="flex flex-col gap-6 p-5 pb-20">
@@ -79,7 +74,7 @@ function ConfirmPage() {
       <div className="text-sm leading-relaxed">
         <p className="pb-2 font-semibold">{header}</p>
         <p>부분장 종류: {header}</p>
-        {cabinetItem.handleType && <p>손잡이 종류: {ItemsName[cabinetItem.handleType]}</p>}
+        {cabinetItem.handleType && <p>손잡이 종류: {CABINET_ITEMS_NAME[cabinetItem.handleType]}</p>}
         {cabinetItem.compartmentCount !== 0 && <p>구성 칸 수: {cabinetItem.compartmentCount}</p>}
         {cabinetItem.flapStayType && <p>쇼바 종류: {cabinetItem.flapStayType}</p>}
         <p>색상: {cabinetItem.color}</p>
@@ -87,7 +82,7 @@ function ConfirmPage() {
         <p>너비: {cabinetItem.width}mm</p>
         <p>깊이: {cabinetItem.depth}mm</p>
         <p>높이: {cabinetItem.height}mm</p>
-        <p>마감 방식: {ItemsName[cabinetItem.finishType]}</p>
+        <p>마감 방식: {CABINET_ITEMS_NAME[cabinetItem.finishType]}</p>
         <p>서랍 종류: {cabinetItem.drawerType}</p>
         <p>레일 종류: {cabinetItem.railType}</p>
         {cabinetItem.cabinetRequests && <p>기타 요청 사항: {cabinetItem.cabinetRequests}</p>}

@@ -37,3 +37,11 @@ export const CABINET_FLAPSTAY_LIST = [
 export const CABINET_MATERIAL_LIST = [
   "소재 1" , "소재 2", "소재 3", "소재 4"
 ]
+
+export const CABINET_ITEMS_NAME = {
+  channel: "찬넬",
+  outer: "겉손잡이",
+  "pull-down": "내리기",
+  makura: "막우라",
+  urahome: "우라홈",
+};
