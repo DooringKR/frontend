@@ -16,7 +16,7 @@ export type CabinetItem = {
   finishType: "makura" | "urahome" | null;
   drawerType: string | null;
   railType: string | null;
-  orderRequests: string | null;
+  cabinetRequests: string | null;
   count: number | null;
   price: number | null;
 };
@@ -44,7 +44,7 @@ const initialState: CabinetItem = {
   finishType: null,
   drawerType: null,
   railType: null,
-  orderRequests: null,
+  cabinetRequests: null,
   count: null,
   price: null,
 };
