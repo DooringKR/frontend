@@ -13,6 +13,7 @@ import useDoorStore from "@/store/Items/doorStore";
 
 import Flap from "./_components/Flap";
 import Normal from "./_components/Normal";
+import { checkDoorPrice } from "@/api/checkcash";
 
 function SelectPage() {
   if (typeof window === "undefined") return null;
@@ -78,6 +79,67 @@ function SelectPage() {
     return "정보를";
   };
 
+  // const handleNext = async () => {
+  //   if (!slug || !color || !width || !height) return;
+  
+  //   const topHinge = Number(hingeValues.topHinge);
+  //   const bottomHinge = Number(hingeValues.bottomHinge);
+  //   const middleHinge = hingeValues.middleHinge ? Number(hingeValues.middleHinge) : null;
+  //   const middleTopHinge = hingeValues.middleTopHinge ? Number(hingeValues.middleTopHinge) : null;
+  //   const middleBottomHinge = hingeValues.middleBottomHinge
+  //     ? Number(hingeValues.middleBottomHinge)
+  //     : null;
+  
+  //   const payload = {
+  //     category: "door",
+  //     slug,
+  //     color,
+  //     width: Number(width),
+  //     height: Number(height),
+  //     hinge: {
+  //       hingeCount: hingeCount ? hingeCount : 0,
+  //       hingePosition: hingeDirection ?? "left",
+  //       topHinge,
+  //       bottomHinge,
+  //       middleHinge: hingeCount !== null && hingeCount >= 3 ? middleHinge : null,
+  //       middleTopHinge: hingeCount === 4 ? middleTopHinge : null,
+  //       middleBottomHinge: hingeCount === 4 ? middleBottomHinge : null,
+  //     },
+  //     doorRequest: doorRequest ? doorRequest : "",
+  //   } as const ;
+  
+  //   console.log("보내는 payload:", payload);
+  
+  //   try {
+  //     const data = await checkDoorPrice(payload);
+  
+  //     console.log("응답 data:", data);
+  
+  //     useDoorStore.getState().updateItem({
+  //       slug: data.slug,
+  //       color: data.color,
+  //       width: data.width,
+  //       height: data.height,
+  //       hinge: {
+  //         hingeCount: data.hinge.hingeCount,
+  //         hingePosition: data.hinge.hingePosition,
+  //         topHinge: data.hinge.topHinge,
+  //         bottomHinge: data.hinge.bottomHinge,
+  //         middleHinge: data.hinge.middleHinge ?? null,
+  //         middleTopHinge: data.hinge.middleTopHinge ?? null,
+  //         middleBottomHinge: data.hinge.middleBottomHinge ?? null,
+  //       },
+  //       doorRequest: data.doorRequest,
+  //       price: data.price,
+  //     });
+  
+  //     router.push("/order/door/confirm");
+  //   } catch (err) {
+  //     console.error("에러 발생:", err);
+  //     alert("가격 확인 중 오류가 발생했습니다.");
+  //   }
+  // };
+
   const handleNext = async () => {
     if (!slug || !color || !width || !height) return;
 
@@ -104,7 +166,7 @@ function SelectPage() {
         middleTopHinge: hingeCount === 4 ? middleTopHinge : null,
         middleBottomHinge: hingeCount === 4 ? middleBottomHinge : null,
       },
-      doorRequest,
+      doorRequest: doorRequest ? doorRequest : 0,
     };
     console.log(payload);
 

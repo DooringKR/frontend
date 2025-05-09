@@ -1,6 +1,8 @@
 "use client";
 
+import { checkCabinetPrice } from "@/api/checkcash";
 import { CABINET_CATEGORY_LIST } from "@/constants/category";
+import { CabinetRequest } from "@/types/apiType";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -92,6 +94,62 @@ function SelectPage() {
     return "확인해주세요";
   }
 
+  // const handleNext = async () => {
+  //   if (!slug || !color || !width || !height) return;
+
+  //   const payload : CabinetRequest = {
+  //     category: "cabinet",
+  //     slug,
+  //     color,
+  //     handleType,
+  //     compartmentCount: Number(compartmentCount),
+  //     flapStayType,
+  //     material,
+  //     thickness,
+  //     width: Number(width),
+  //     height: Number(height),
+  //     depth: Number(depth),
+  //     option: [],
+  //     finishType,
+  //     drawerType,
+  //     railType,
+  //     cabinetRequests: cabinetRequests ? cabinetRequests : "",
+  //   }
+
+  //   console.log("보내는 payload:", payload);
+
+  //   try {
+  //     const data = await checkCabinetPrice(payload);
+
+  //     console.log("응답 data:", data);
+
+  //     useCabinetStore.getState().updateItem({
+  //       category: "cabinet",
+  //       slug: data.slug,
+  //       color: data.color,
+  //       handleType: data.handleType,
+  //       compartmentCount: data.compartmentCount,
+  //       flapStayType: data.flapStayType,
+  //       material: data.material,
+  //       thickness: data.thickness,
+  //       width: data.width,
+  //       height: data.height,
+  //       depth: data.depth,
+  //       option: data.option ?? [],  // 혹시 옵션도 올 수 있다면 대비
+  //       finishType: data.finishType,
+  //       drawerType: data.drawerType,
+  //       railType: data.railType,
+  //       cabinetRequests: data.cabinetRequests,
+  //       price: data.price,
+  //     });
+
+  //     router.push("/order/cabinet/confirm");
+  //   } catch (err) {
+  //     console.error("에러 발생:", err);
+  //     alert("가격 확인 중 오류가 발생했습니다.");
+  //   }
+  // };
+
   const handleNext = async () => {
     if (!slug || !color || !width || !height) return;
 
@@ -147,7 +205,8 @@ function SelectPage() {
   return (
     <div className="flex flex-col gap-6 p-5 pb-24">
       <h1 className="text-2xl font-bold leading-snug">
-        {cabinetRequests !== null && (<span>입력한 </span>)}<span className="text-[#AD46FF]">{header}</span> {getInputStatusText1()}
+        {cabinetRequests !== null && <span>입력한 </span>}
+        <span className="text-[#AD46FF]">{header}</span> {getInputStatusText1()}
         <br />
         {getInputStatusText2()}
       </h1>
@@ -205,7 +264,7 @@ function SelectPage() {
       {finishType && <Drawer drawerType={drawerType} setDrawerType={setDrawerType} />}
       {drawerType && <Rail railType={railType} setRailType={setRailType} />}
       {railType && (
-        <>   
+        <>
           <div>
             <p>요청사항</p>
             <Input
