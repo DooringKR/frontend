@@ -62,7 +62,7 @@ export type CabinetRequest = {
   category: "cabinet";
   slug: "lower" | "upper" | "open" | "flap";
   color: string;
-  handleType: "channel" | "outer" | "pull-down";
+  handleType: "channel" | "outer" | "pull-down" | null;
   compartmentCount: number | null;
   flapStayType: string | null;
   material: string;
@@ -71,7 +71,7 @@ export type CabinetRequest = {
   height: number;
   depth: number;
   option: string[];
-  finishType: "makura" | "urahome";
+  finishType: "makura" | "urahome" | null;
   drawerType: string | null;
   railType: string | null;
   cabinetRequests: string;
@@ -99,7 +99,7 @@ export type AccessoryResponse = AccessoryRequest & {
 
 export type HardwareRequest = {
   category: "hardware";
-  slug: "hinge" | "rail" | "screw";
+  slug: "hinge" | "rail" | "bolt";
   madeBy: string;
   model: string;
   hardwareRequests: string;

@@ -12,6 +12,7 @@ import useUserStore from "@/store/userStore";
 import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 import handlePhoneKeyDown from "@/utils/handlePhoneKeyDown";
 import baseSchema, { PhoneFormData } from "@/utils/schema";
+import { signin } from "@/api/authApi";
 
 function PhoneLoginPage() {
   const router = useRouter();
@@ -31,6 +32,24 @@ function PhoneLoginPage() {
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
+
+  // const onSubmit = async (data: PhoneFormData) => {
+  //   try {
+  //     const result = await signin({
+  //       phoneNumber: data.user_phoneNumber,
+  //     });
+  
+  //     if (result.isRegistered) {
+  //       router.push("/");
+  //     } else {
+  //       setUserPhoneNumber(data.user_phoneNumber);
+  //       router.push("/login/step");
+  //     }
+  //   } catch (error) {
+  //     console.error("로그인 요청 실패:", error);
+  //     alert("로그인 중 오류가 발생했습니다.");
+  //   }
+  // };
 
   const onSubmit = (data: PhoneFormData) => {
     const fakeToken = "temporary-token-1234";
