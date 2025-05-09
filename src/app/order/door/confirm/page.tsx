@@ -1,6 +1,6 @@
 "use client";
 
-import { DOOR_CATEGORY_LIST } from "@/constants/category"
+import { DOOR_CATEGORY_LIST } from "@/constants/category";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -68,13 +68,15 @@ function ConfirmPage() {
         {doorItem.hinge.hingePosition && (
           <p>경첩 방향: {doorItem.hinge.hingePosition === "left" ? "좌경" : "우경"}</p>
         )}
-        <p>
-          보링 치수: 상{doorItem.hinge.topHinge}
-          {doorItem.hinge.middleHinge ? `, 중${doorItem.hinge.middleHinge}` : ""}
-          {doorItem.hinge.middleTopHinge ? `, 중상${doorItem.hinge.middleTopHinge}` : ""}
-          {doorItem.hinge.middleBottomHinge ? `, 중하${doorItem.hinge.middleBottomHinge}` : ""}, 하
-          {doorItem.hinge.bottomHinge}
-        </p>
+        {doorItem.slug !== "drawer" && (
+          <p>
+            보링 치수: 상{doorItem.hinge.topHinge}
+            {doorItem.hinge.middleHinge ? `, 중${doorItem.hinge.middleHinge}` : ""}
+            {doorItem.hinge.middleTopHinge ? `, 중상${doorItem.hinge.middleTopHinge}` : ""}
+            {doorItem.hinge.middleBottomHinge ? `, 중하${doorItem.hinge.middleBottomHinge}` : ""},
+            하{doorItem.hinge.bottomHinge}
+          </p>
+        )}
         {doorItem.doorRequest && <p>요청사항: {doorItem.doorRequest}</p>}
       </div>
 

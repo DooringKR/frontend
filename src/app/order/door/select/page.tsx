@@ -74,7 +74,7 @@ function SelectPage() {
   const getInputStatusText = () => {
     if (!width) return "가로 길이를";
     if (!height) return "세로 길이를";
-    if (!hingeCount || !hingeValues.topHinge || !hingeValues.bottomHinge) return "경첩 정보를";
+    if (slug !== "drawer" && (!hingeCount || !hingeValues.topHinge || !hingeValues.bottomHinge)) return "경첩 정보를";
     if (doorRequest === null) return "요청 사항을";
     return "정보를";
   };
@@ -269,7 +269,7 @@ function SelectPage() {
         </div>
       )}
       {renderHingeComponent()}
-      {hingeValues.topHinge && hingeValues.bottomHinge && (
+      {(hingeValues.topHinge && hingeValues.bottomHinge) || slug === "drawer" && height && (
         <>
           <div>
             <p>요청사항</p>
