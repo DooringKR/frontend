@@ -31,3 +31,10 @@ export const HARDWARE_CATEGORY_LIST: Category[] = [
   { name: "레일", image: "/img/Checker.png", slug: "rail" ,header: "레일" },
   { name: "피스", image: "/img/Checker.png", slug: "bolt", header:"피스" },
 ]
+
+export const CABINET_CATEGORY_LIST: Category[] = [
+  { name: "하부장", image: "/img/Checker.png", slug: "lower", header: "하부장" },
+  { name: "상부장", image: "/img/Checker.png", slug: "upper" ,header: "상부장" },
+  { name: "오픈장", image: "/img/Checker.png", slug: "open", header:"오픈장" },
+  { name: "플랩장", image: "/img/Checker.png", slug: "flap", header:"플랩장" },
+]

@@ -19,7 +19,7 @@ const CATEGORY_MAP: Record<string, string> = {
   finish: "마감재",
   accessory: "부속품",
   hardware: "하드웨어",
-  cabinet: "캐비닛",
+  cabinet: "부분장",
 };
 
 type OrderItem = DoorItem | FinishItem | CabinetItem | AccessoryItem | HardwareItem | null;
