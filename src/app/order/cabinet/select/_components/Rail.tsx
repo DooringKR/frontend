@@ -1,17 +1,17 @@
 "use client";
 
-import { CABINET_DRAWER_LIST } from "@/constants/modelList";
+import { CABINET_RAIL_LIST } from "@/constants/modelList";
 import Image from "next/image";
 import { useState } from "react";
 
 import Modal from "@/components/Modal/Modal";
 
-interface DrawerProps {
+interface RailProps {
   railType: string;
   setRailType: (value: string) => void;
 }
 
-function Rail({ setRailType, railType }: DrawerProps) {
+function Rail({ setRailType, railType }: RailProps) {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const handleSelectRailType = (railType: string) => {
     setRailType(railType);
@@ -48,7 +48,7 @@ function Rail({ setRailType, railType }: DrawerProps) {
             >
               레일 없음
             </button>
-            {CABINET_DRAWER_LIST.map((rail, idx) => (
+            {CABINET_RAIL_LIST.map((rail, idx) => (
               <button
                 key={idx}
                 onClick={() => handleSelectRailType(rail)}

@@ -1,28 +1,37 @@
 "use client";
 
-import { DOOR_CATEGORY_LIST } from "@/constants/category"
+import { CABINET_CATEGORY_LIST } from "@/constants/category";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import Button from "@/components/Button/Button";
 
-import useDoorStore from "@/store/Items/doorStore";
+import useCabinetStore from "@/store/Items/cabinetStore";
 
 function ConfirmPage() {
   const router = useRouter();
-  const { doorItem, updatePriceAndCount } = useDoorStore();
+  const { cabinetItem, updatePriceAndCount } = useCabinetStore();
   const [count, setCount] = useState(1);
 
-  if (!doorItem.slug || !doorItem.width || !doorItem.height || doorItem.price === null) {
+  if (
+    !cabinetItem.slug ||
+    !cabinetItem.width ||
+    !cabinetItem.height ||
+    !cabinetItem.depth ||
+    !cabinetItem.finishType ||
+    !cabinetItem.drawerType ||
+    !cabinetItem.railType ||
+    cabinetItem.price === null
+  ) {
     return <p className="p-5">잘못된 접근입니다.</p>;
   }
 
-  const total = doorItem.price * count;
+  const total = cabinetItem.price * count;
 
   const handleAddToCart = () => {
     const existing = JSON.parse(localStorage.getItem("cartItems") || "[]");
     const newItem = {
-      ...doorItem,
+      ...cabinetItem,
       count,
       price: total,
     };
@@ -33,15 +42,23 @@ function ConfirmPage() {
 
   const handlePurchase = () => {
     updatePriceAndCount(total, count);
-    router.push("/cart/now?category=door");
+    router.push("/cart/now?category=cabinet");
   };
 
-  const currentCategory = DOOR_CATEGORY_LIST.find(item => item.slug === doorItem.slug);
-  const header = currentCategory?.header || "문짝";
+  const currentCategory = CABINET_CATEGORY_LIST.find(item => item.slug === cabinetItem.slug);
+  const header = currentCategory?.header || "부분장";
+
+  const ItemsName = {
+    channel: "찬넬",
+    outer: "겉손잡이",
+    "pull-down": "내리기",
+    makura: "막우라",
+    urahome: "우라홈",
+  };
 
   return (
     <div className="flex flex-col gap-6 p-5 pb-20">
-      <h1 className="text-xl font-bold">문짝 주문 개수를 선택해주세요</h1>
+      <h1 className="text-xl font-bold">부분장 주문 개수를 선택해주세요</h1>
 
       <div className="flex items-center justify-between">
         <span className="text-base font-medium">주문 개수</span>
@@ -60,22 +77,20 @@ function ConfirmPage() {
       <hr />
 
       <div className="text-sm leading-relaxed">
-        <p className="font-semibold">{header}</p>
-        <p>색상: {doorItem.color}</p>
-        <p>가로 길이: {doorItem.width}mm</p>
-        <p>세로 길이: {doorItem.height}mm</p>
-        {doorItem.hinge.hingeCount && <p>경첩 개수: {doorItem.hinge.hingeCount}</p>}
-        {doorItem.hinge.hingePosition && (
-          <p>경첩 방향: {doorItem.hinge.hingePosition === "left" ? "좌경" : "우경"}</p>
-        )}
-        <p>
-          보링 치수: 상{doorItem.hinge.topHinge}
-          {doorItem.hinge.middleHinge ? `, 중${doorItem.hinge.middleHinge}` : ""}
-          {doorItem.hinge.middleTopHinge ? `, 중상${doorItem.hinge.middleTopHinge}` : ""}
-          {doorItem.hinge.middleBottomHinge ? `, 중하${doorItem.hinge.middleBottomHinge}` : ""}, 하
-          {doorItem.hinge.bottomHinge}
-        </p>
-        {doorItem.doorRequest && <p>요청사항: {doorItem.doorRequest}</p>}
+        <p className="pb-2 font-semibold">{header}</p>
+        <p>부분장 종류: {header}</p>
+        {cabinetItem.handleType && <p>손잡이 종류: {ItemsName[cabinetItem.handleType]}</p>}
+        {cabinetItem.compartmentCount !== 0 && <p>구성 칸 수: {cabinetItem.compartmentCount}</p>}
+        {cabinetItem.flapStayType && <p>쇼바 종류: {cabinetItem.flapStayType}</p>}
+        <p>색상: {cabinetItem.color}</p>
+        <p>두께: {cabinetItem.thickness}</p>
+        <p>너비: {cabinetItem.width}mm</p>
+        <p>깊이: {cabinetItem.depth}mm</p>
+        <p>높이: {cabinetItem.height}mm</p>
+        <p>마감 방식: {ItemsName[cabinetItem.finishType]}</p>
+        <p>서랍 종류: {cabinetItem.drawerType}</p>
+        <p>레일 종류: {cabinetItem.railType}</p>
+        {cabinetItem.cabinetRequests && <p>기타 요청 사항: {cabinetItem.cabinetRequests}</p>}
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 z-10 flex gap-2 bg-white p-5">
