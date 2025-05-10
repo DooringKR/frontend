@@ -14,7 +14,10 @@ function CategorySection() {
   const { cartItems } = useCartStore();
 
   const handleCategoryClick = (slug: string) => {
-    if (cartItems.length === 0) {
+    const addressStorage = localStorage.getItem("address-storage");
+  
+    if (!addressStorage) {
+      // 장바구니 비어있고, address-storage도 없을 때만 address-check로 이동
       router.push(`/address-check?category=${slug}`);
     } else {
       router.push(`/order/${slug}`);

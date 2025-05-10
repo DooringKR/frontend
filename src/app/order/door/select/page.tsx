@@ -1,5 +1,6 @@
 "use client";
 
+import { checkDoorPrice } from "@/api/checkcash";
 import { DOOR_CATEGORY_LIST } from "@/constants/category";
 import type { HingeValues } from "@/types/hinge";
 import Image from "next/image";
@@ -13,7 +14,6 @@ import useDoorStore from "@/store/Items/doorStore";
 
 import Flap from "./_components/Flap";
 import Normal from "./_components/Normal";
-import { checkDoorPrice } from "@/api/checkcash";
 
 function SelectPage() {
   if (typeof window === "undefined") return null;
@@ -28,6 +28,7 @@ function SelectPage() {
   const header = currentCategory?.header || "문짝";
 
   const [width, setWidth] = useState("");
+  const [heightInput, setHeightInput] = useState("");
   const [height, setHeight] = useState("");
   const [hingeCount, setHingeCount] = useState<number | null>(null);
   const [hingeDirection, setHingeDirection] = useState<"left" | "right" | null>(null);
@@ -74,14 +75,15 @@ function SelectPage() {
   const getInputStatusText = () => {
     if (!width) return "가로 길이를";
     if (!height) return "세로 길이를";
-    if (!hingeCount || !hingeValues.topHinge || !hingeValues.bottomHinge) return "경첩 정보를";
+    if (slug !== "drawer" && (!hingeCount || !hingeValues.topHinge || !hingeValues.bottomHinge))
+      return "경첩 정보를";
     if (doorRequest === null) return "요청 사항을";
     return "정보를";
   };
 
   // const handleNext = async () => {
   //   if (!slug || !color || !width || !height) return;
-  
+
   //   const topHinge = Number(hingeValues.topHinge);
   //   const bottomHinge = Number(hingeValues.bottomHinge);
   //   const middleHinge = hingeValues.middleHinge ? Number(hingeValues.middleHinge) : null;
@@ -89,7 +91,7 @@ function SelectPage() {
   //   const middleBottomHinge = hingeValues.middleBottomHinge
   //     ? Number(hingeValues.middleBottomHinge)
   //     : null;
-  
+
   //   const payload = {
   //     category: "door",
   //     slug,
@@ -107,14 +109,14 @@ function SelectPage() {
   //     },
   //     doorRequest: doorRequest ? doorRequest : "",
   //   } as const ;
-  
+
   //   console.log("보내는 payload:", payload);
-  
+
   //   try {
   //     const data = await checkDoorPrice(payload);
-  
+
   //     console.log("응답 data:", data);
-  
+
   //     useDoorStore.getState().updateItem({
   //       slug: data.slug,
   //       color: data.color,
@@ -132,7 +134,7 @@ function SelectPage() {
   //       doorRequest: data.doorRequest,
   //       price: data.price,
   //     });
-  
+
   //     router.push("/order/door/confirm");
   //   } catch (err) {
   //     console.error("에러 발생:", err);
@@ -244,7 +246,8 @@ function SelectPage() {
               name="width"
               placeholder="가로 길이 입력"
               value={width}
-              onChange={e => setWidth(e.target.value.replace(/\D/g, ""))}
+              onChange={e => setWidth(e.target.value)}
+              onBlur={e => setWidth(e.target.value.replace(/\D/g, ""))}
             />
           </div>
           <span className="mr-20">mm</span>
@@ -260,8 +263,12 @@ function SelectPage() {
                 type="number"
                 name="height"
                 placeholder="세로 길이 입력"
-                value={height}
-                onChange={e => setHeight(e.target.value.replace(/\D/g, ""))}
+                value={heightInput}
+                onChange={e => setHeightInput(e.target.value)}
+                onBlur={e => {
+                  const cleaned = e.target.value.replace(/\D/g, "");
+                  setHeight(cleaned);
+                }}
               />
             </div>
             <span className="mr-20">mm</span>
@@ -269,40 +276,45 @@ function SelectPage() {
         </div>
       )}
       {renderHingeComponent()}
-      {hingeValues.topHinge && hingeValues.bottomHinge && (
-        <>
-          <div>
-            <p>요청사항</p>
-            <Input
-              type="text"
-              name="doorRequest"
-              placeholder="요청사항을 입력해주세요"
-              value={doorRequest ?? ""}
-              onChange={e => setDoorRequest(e.target.value)}
-            />
-          </div>
+      {
+  (
+    (hingeValues.topHinge != null && hingeValues.bottomHinge != null) ||
+    (slug === "drawer" && !!height)
+  ) && (
+    <>
+      <div>
+        <p>요청사항</p>
+        <Input
+          type="text"
+          name="doorRequest"
+          placeholder="요청사항을 입력해주세요"
+          value={doorRequest ?? ""}
+          onChange={e => setDoorRequest(e.target.value)}
+        />
+      </div>
 
-          <div className="fixed bottom-0 left-0 right-0 z-10 h-20 w-full bg-white">
-            {doorRequest === null ? (
-              <Button
-                size="large"
-                className="fixed bottom-5 left-5 right-5 mt-16 rounded-md text-white"
-                onClick={handleSkipRequest}
-              >
-                요청사항 생략하기
-              </Button>
-            ) : (
-              <Button
-                size="large"
-                className="fixed bottom-5 left-5 right-5 rounded-md text-white"
-                onClick={handleNext}
-              >
-                다음
-              </Button>
-            )}
-          </div>
-        </>
-      )}
+      <div className="fixed bottom-0 left-0 right-0 z-10 h-20 w-full bg-white">
+        {doorRequest === null ? (
+          <Button
+            size="large"
+            className="fixed bottom-5 left-5 right-5 mt-16 rounded-md text-white"
+            onClick={handleSkipRequest}
+          >
+            요청사항 생략하기
+          </Button>
+        ) : (
+          <Button
+            size="large"
+            className="fixed bottom-5 left-5 right-5 rounded-md text-white"
+            onClick={handleNext}
+          >
+            다음
+          </Button>
+        )}
+      </div>
+    </>
+  )
+}
     </div>
   );
 }
