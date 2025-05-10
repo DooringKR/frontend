@@ -276,41 +276,45 @@ function SelectPage() {
         </div>
       )}
       {renderHingeComponent()}
-      {(hingeValues.topHinge && hingeValues.bottomHinge) ||
-        (slug === "drawer" && height && (
-          <>
-            <div>
-              <p>요청사항</p>
-              <Input
-                type="text"
-                name="doorRequest"
-                placeholder="요청사항을 입력해주세요"
-                value={doorRequest ?? ""}
-                onChange={e => setDoorRequest(e.target.value)}
-              />
-            </div>
+      {
+  (
+    (hingeValues.topHinge != null && hingeValues.bottomHinge != null) ||
+    (slug === "drawer" && !!height)
+  ) && (
+    <>
+      <div>
+        <p>요청사항</p>
+        <Input
+          type="text"
+          name="doorRequest"
+          placeholder="요청사항을 입력해주세요"
+          value={doorRequest ?? ""}
+          onChange={e => setDoorRequest(e.target.value)}
+        />
+      </div>
 
-            <div className="fixed bottom-0 left-0 right-0 z-10 h-20 w-full bg-white">
-              {doorRequest === null ? (
-                <Button
-                  size="large"
-                  className="fixed bottom-5 left-5 right-5 mt-16 rounded-md text-white"
-                  onClick={handleSkipRequest}
-                >
-                  요청사항 생략하기
-                </Button>
-              ) : (
-                <Button
-                  size="large"
-                  className="fixed bottom-5 left-5 right-5 rounded-md text-white"
-                  onClick={handleNext}
-                >
-                  다음
-                </Button>
-              )}
-            </div>
-          </>
-        ))}
+      <div className="fixed bottom-0 left-0 right-0 z-10 h-20 w-full bg-white">
+        {doorRequest === null ? (
+          <Button
+            size="large"
+            className="fixed bottom-5 left-5 right-5 mt-16 rounded-md text-white"
+            onClick={handleSkipRequest}
+          >
+            요청사항 생략하기
+          </Button>
+        ) : (
+          <Button
+            size="large"
+            className="fixed bottom-5 left-5 right-5 rounded-md text-white"
+            onClick={handleNext}
+          >
+            다음
+          </Button>
+        )}
+      </div>
+    </>
+  )
+}
     </div>
   );
 }
