@@ -85,6 +85,24 @@ export default function CartPage() {
       }, 0);
   };
 
+  // ✅ 여기 추가: count 변경 핸들러
+  const handleCountChange = (category: string, index: number, newCount: number) => {
+    setCartGroups(prev => {
+      const newGroups = { ...prev };
+      const updatedItems = [...(newGroups[category] || [])];
+
+      if (updatedItems[index]) {
+        updatedItems[index] = {
+          ...updatedItems[index],
+          count: newCount,
+        };
+      }
+
+      newGroups[category] = updatedItems;
+      return newGroups;
+    });
+  };
+
   if (!hasItems) {
     return (
       <div className="flex h-[80vh] flex-col items-center justify-center p-5">
@@ -108,15 +126,26 @@ export default function CartPage() {
       <div className={`mb-4 p-2 text-center font-medium ${deliveryMessageColor}`}>
         {deliveryMessage}
       </div>
+
       {Object.entries(cartGroups).map(([category, items], groupIdx) => (
         <div key={category + groupIdx} className="mb-4 flex flex-col gap-3">
           {items.map((item, i) => {
             if (!item) return null;
-            return <CartItemDetail key={`${category}-${i}`} item={item} />;
+            return (
+              <CartItemDetail
+                key={`${category}-${i}`}
+                item={item}
+                onCountChange={(newCount) => handleCountChange(category, i, newCount)}
+              />
+            );
           })}
         </div>
       ))}
-      <Button className="mb-3 border border-black bg-gray-200">상품 추가</Button>
+
+      <Button className="mb-3 border border-black bg-gray-200" onClick={handleAddProduct}>
+        상품 추가
+      </Button>
+
       <div className="my-6">
         <p className="mb-2 text-lg font-semibold">결제금액을 확인해주세요</p>
 
