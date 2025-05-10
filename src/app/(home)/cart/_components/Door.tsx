@@ -4,10 +4,6 @@ import { DoorItem } from "@/store/Items/doorStore";
 import { useState } from "react";
 
 function Door({ item }: { item: DoorItem }) {
-  const [count, setCount] = useState(item?.count ?? 1);
-  if (!item) return null;
-
-  const total = (item.price ?? 0) * count;
 
   return (
     <>
@@ -27,23 +23,7 @@ function Door({ item }: { item: DoorItem }) {
               {item.doorRequest && (<p>요청 사항 {item.doorRequest}</p>) }
             </div>
           </div>
-          <div className="flex justify-between">
-            <div className="mt-4 text-lg font-bold">{total.toLocaleString()}원</div>
-            <div className="mt-4 flex justify-between">
-              <div className="flex items-center rounded border border-black bg-white">
-                <button
-                  className="px-3 py-1"
-                  onClick={() => setCount(prev => Math.max(1, prev - 1))}
-                >
-                  －
-                </button>
-                <span className="px-4">{count}</span>
-                <button className="px-3 py-1" onClick={() => setCount(prev => prev + 1)}>
-                  ＋
-                </button>
-              </div>
-            </div>
-          </div>
+        
         </>
   );
 }

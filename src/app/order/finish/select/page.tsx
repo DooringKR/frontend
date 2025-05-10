@@ -1,5 +1,6 @@
 "use client";
 
+import { checkFinishPrice } from "@/api/checkcash";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -44,17 +45,65 @@ function SelectPage() {
     return "정보를";
   };
 
+  // const handleNext = async () => {
+  //   if (!color || depth.baseDepth === null || height.baseHeight === null) return;
+
+  //   const payload = {
+  //     category: "finish",
+  //     color,
+  //     depth: {
+  //       baseDepth: depth.baseDepth ? Number(depth.baseDepth) : 0,
+  //       additionalDepth: depth.additionalDepth ? Number(depth.additionalDepth) : 0,
+  //     },
+  //     height: {
+  //       baseHeight: height.baseHeight ? Number(height.baseHeight) : 0,
+  //       additionalHeight: height.additionalHeight ? Number(height.additionalHeight) : 0,
+  //     },
+  //     finishRequest: finishRequest ? finishRequest: "",
+  //   } as const;
+
+  //   try {
+  // const data = await checkFinishPrice(payload);
+
+  // console.log("응답 data:", data);
+
+  // useFinishStore.getState().updateItem({
+  //   category: "finish",
+  //   color: data.color,
+  //   depth: {
+  //     baseDepth: data.depth.baseDepth ?? null,
+  //     additionalDepth: data.depth.additionalDepth ?? null,
+  //   },
+  //   height: {
+  //     baseHeight: data.height.baseHeight ?? null,
+  //     additionalHeight: data.height.additionalHeight ?? null,
+  //   },
+  //   finishRequest: data.finishRequest,
+  //   price: data.price,
+  // });
+
+  // router.push("/order/finish/confirm");
+  //   } catch (err) {
+  //     alert("가격 확인 중 오류가 발생했습니다.");
+  //   }
+  // };
+
   const handleNext = async () => {
     if (!color || depth.baseDepth === null || height.baseHeight === null) return;
 
     const payload = {
       category: "finish",
       color,
-      depth,
-      height,
-      finishRequest,
-    };
-    console.log(payload);
+      depth: {
+        baseDepth: depth.baseDepth ? Number(depth.baseDepth) : 0,
+        additionalDepth: depth.additionalDepth ? Number(depth.additionalDepth) : 0,
+      },
+      height: {
+        baseHeight: height.baseHeight ? Number(height.baseHeight) : 0,
+        additionalHeight: height.additionalHeight ? Number(height.additionalHeight) : 0,
+      },
+      finishRequest: finishRequest ? finishRequest : "",
+    } as const;
 
     try {
       useFinishStore.getState().updateItem({

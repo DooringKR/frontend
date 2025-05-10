@@ -1,16 +1,17 @@
 "use client";
 
+import { checkHardWarePrice } from "@/api/checkcash";
 import { ACCESSORY_CATEGORY_LIST } from "@/constants/category";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import Button from "@/components/Button/Button";
+import Input from "@/components/Input/Input";
 
 import useHardwareStore from "@/store/Items/hardwareStore";
 
 import MadeBy from "./_components/MadeBy";
 import Model from "./_components/Model";
-import Input from "@/components/Input/Input";
 
 function SelectPage() {
   if (typeof window === "undefined") return null;
@@ -32,6 +33,40 @@ function SelectPage() {
     if (!model) return "모델명을";
     if (hardwareRequests === null) return "요청 사항을";
   };
+
+  // const handleNext = async () => {
+  //   if (!slug || !madeBy || !model) return;
+
+  //   const payload = {
+  //     category: "hardware",
+  //     slug,
+  //     madeBy,
+  //     model,
+  //     hardwareRequests: hardwareRequests ? hardwareRequests: "",
+  //   } as const;
+
+  //   console.log("보내는 payload:", payload);
+
+  //   try {
+  //     const data = await checkHardWarePrice(payload);
+
+  //     console.log("응답 data:", data);
+
+  //     useHardwareStore.getState().updateItem({
+  //       category: "hardware",
+  //       slug: data.slug,
+  //       madeBy: data.madeBy,
+  //       model: data.model,
+  //       hardwareRequests: data.hardwareRequests,
+  //       price: data.price,
+  //     });
+
+  //     router.push("/order/hardware/confirm");
+  //   } catch (err) {
+  //     console.error("에러 발생:", err);
+  //     alert("가격 확인 중 오류가 발생했습니다.");
+  //   }
+  // };
 
   const handleNext = async () => {
     if (!slug || !madeBy || !model) return;

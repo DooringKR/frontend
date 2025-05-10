@@ -134,7 +134,7 @@ function Normal({
         )}
       </div>
       <p className="text-center text-sm text-gray-600">{width}</p>
-      {width > height && (
+      {Number(width || 0) > Number(height || 0) && (
         <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
           <div className="flex flex-col gap-4">
             <div className="flex justify-between">

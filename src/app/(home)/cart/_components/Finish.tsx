@@ -5,10 +5,6 @@ import { useState } from "react";
 import { FinishItem } from "@/store/Items/finishStore";
 
 function Finish({ item }: { item: FinishItem }) {
-  const [count, setCount] = useState(item?.count ?? 1);
-  if (!item) return null;
-
-  const total = (item.price ?? 0) * count;
 
   return (
     <>
@@ -27,20 +23,7 @@ function Finish({ item }: { item: FinishItem }) {
           {item.finishRequest && <p>요청 사항 : {item.finishRequest}</p>}
         </div>
       </div>
-      <div className="flex justify-between">
-        <div className="mt-4 text-lg font-bold">{total.toLocaleString()}원</div>
-        <div className="mt-4 flex justify-between">
-          <div className="flex items-center rounded border border-black bg-white">
-            <button className="px-3 py-1" onClick={() => setCount(prev => Math.max(1, prev - 1))}>
-              －
-            </button>
-            <span className="px-4">{count}</span>
-            <button className="px-3 py-1" onClick={() => setCount(prev => prev + 1)}>
-              ＋
-            </button>
-          </div>
-        </div>
-      </div>
+      
     </>
   );
 }
