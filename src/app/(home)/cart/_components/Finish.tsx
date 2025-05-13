@@ -1,11 +1,6 @@
-"use client";
-
-import { useState } from "react";
-
 import { FinishItem } from "@/store/Items/finishStore";
 
 function Finish({ item }: { item: FinishItem }) {
-
   return (
     <>
       <h2 className="mb-3 text-lg font-semibold">마감재</h2>
@@ -23,7 +18,6 @@ function Finish({ item }: { item: FinishItem }) {
           {item.finishRequest && <p>요청 사항 : {item.finishRequest}</p>}
         </div>
       </div>
-      
     </>
   );
 }

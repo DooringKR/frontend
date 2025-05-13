@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  ACCESSORY_CATEGORY_LIST,
+  CABINET_CATEGORY_LIST,
+  DOOR_CATEGORY_LIST,
+  HARDWARE_CATEGORY_LIST,
+} from "@/constants/category";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -13,12 +19,25 @@ export default function OrderConfirmPage() {
   const [order, setOrder] = useState<any>(null);
   const [showDetails, setShowDetails] = useState(true);
 
+  const ALL_CATEGORIES = [
+    ...DOOR_CATEGORY_LIST,
+    ...ACCESSORY_CATEGORY_LIST,
+    ...HARDWARE_CATEGORY_LIST,
+    ...CABINET_CATEGORY_LIST,
+  ];
+
   useEffect(() => {
     const recentOrderRaw = localStorage.getItem("recentOrder");
     if (recentOrderRaw) {
       const orderData = JSON.parse(recentOrderRaw);
       setOrder(orderData);
     }
+
+    return () => {
+      localStorage.removeItem("cartItems");
+      localStorage.removeItem("recentOrder");
+      useCurrentOrderStore.getState().clearCurrentItem();
+    };
   }, []);
 
   const handleCopyAccount = () => {
@@ -31,6 +50,26 @@ export default function OrderConfirmPage() {
     localStorage.removeItem("recentOrder");
     useCurrentOrderStore.getState().clearCurrentItem();
     router.push("/");
+  };
+
+  const getHeaderFromSlug = (slug: string): string => {
+    const found = ALL_CATEGORIES.find(item => item.slug === slug);
+    return found?.header ?? slug;
+  };
+
+  const getDeliveryLabel = (deliveryDate: string) => {
+    const date = new Date(deliveryDate);
+    const now = new Date();
+
+    const isSameDay = date.toDateString() === now.toDateString();
+
+    const tomorrow = new Date();
+    tomorrow.setDate(now.getDate() + 1);
+    const isTomorrow = date.toDateString() === tomorrow.toDateString();
+
+    if (isSameDay) return "당일배송";
+    if (isTomorrow) return "익일배송";
+    return date.toLocaleDateString();
   };
 
   if (!order) {
@@ -101,7 +140,7 @@ export default function OrderConfirmPage() {
                 case "door":
                   return (
                     <div key={idx} className="mb-3 border-b border-black pb-2">
-                      <p className="font-semibold">문짝</p>
+                      <p className="font-semibold">{getHeaderFromSlug(item.slug)}</p>
                       <p>색상 : {item.color}</p>
                       <p>가로 길이 : {item.width?.toLocaleString()}mm</p>
                       <p>세로 길이 : {item.height?.toLocaleString()}mm</p>
@@ -118,16 +157,64 @@ export default function OrderConfirmPage() {
                   );
 
                 case "finish":
-                  return <div key={idx} className="mb-3 border-b border-black pb-2"></div>;
+                  return (
+                    <div key={idx} className="mb-3 border-b border-black pb-2">
+                      <p className="font-semibold">마감재</p>
+                      <p>색상 : {item.color}</p>
+                      <p>깊이 : {item.depth.baseDepth?.toLocaleString()}mm</p>
+                      {item.depth.additionalDepth && (
+                        <p>⤷ 깊이 키움 : {item.depth.additionalDepth?.toLocaleString()}mm</p>
+                      )}
+                      <p>높이 : {item.height.baseHeight?.toLocaleString()}mm</p>
+                      {item.height.additionalHeight && (
+                        <p>⤷ 높이 키움 : {item.height.additionalHeight?.toLocaleString()}mm</p>
+                      )}
+                      {item.finishRequest && <p>요청 사항 : {item.finishRequest}</p>}
+                      {commonPrice}
+                    </div>
+                  );
 
                 case "hardware":
-                  return <div key={idx} className="mb-3 border-b border-black pb-2"></div>;
+                  return (
+                    <div key={idx} className="mb-3 border-b border-black pb-2">
+                      <p className="font-semibold">{getHeaderFromSlug(item.slug)}</p>
+                      <p>제조사 : {item.madeBy}</p>
+                      <p>모델명 : {item.model}</p>
+                      {item.hardwareRequests && <p>요청 사항 : {item.hardwareRequests}</p>}
+                      {commonPrice}
+                    </div>
+                  );
 
                 case "cabinet":
-                  return <div key={idx} className="mb-3 border-b border-black pb-2"></div>;
+                  return (
+                    <div key={idx} className="mb-3 border-b border-black pb-2">
+                      <p className="font-semibold">{getHeaderFromSlug(item.slug)}</p>
+                      {item.handleType && <p>손잡이 종류: {item.handleType}</p>}
+                      {item.compartmentCount !== 0 && <p>구성 칸 수: {item.compartmentCount}</p>}
+                      {item.flapStayType && <p>쇼바 종류: {item.flapStayType}</p>}
+                      <p>색상: {item.color}</p>
+                      <p>두께: {item.thickness}</p>
+                      <p>너비: {item.width}mm</p>
+                      <p>깊이: {item.depth}mm</p>
+                      <p>높이: {item.height}mm</p>
+                      <p>마감 방식: {item.finishType ? item.finishType : "선택 안됨"}</p>
+                      <p>서랍 종류: {item.drawerType}</p>
+                      <p>레일 종류: {item.railType}</p>
+                      {item.cabinetRequests && <p>기타 요청 사항: {item.cabinetRequests}</p>}
+                      {commonPrice}
+                    </div>
+                  );
 
                 case "accessory":
-                  return <div key={idx} className="mb-3 border-b border-black pb-2"></div>;
+                  return (
+                    <div key={idx} className="mb-3 border-b border-black pb-2">
+                      <p className="font-semibold">{getHeaderFromSlug(item.slug)}</p>
+                      <p>제조사 : {item.madeBy}</p>
+                      <p>모델명 : {item.model}</p>
+                      {item.accessoryRequests && <p>요청 사항 : {item.accessoryRequests}</p>}
+                      {commonPrice}
+                    </div>
+                  );
 
                 default:
                   return null;
@@ -135,7 +222,7 @@ export default function OrderConfirmPage() {
             })}
             <div className="mb-2 mt-3 border-b border-black pb-3">
               <p className="font-semibold">배송일정</p>
-              <p>당일배송</p>
+              <p>{getDeliveryLabel(order.deliveryDate)}</p>
             </div>
             <div className="mb-2 border-b border-black pb-3">
               <p className="font-semibold">배송주소</p>
@@ -161,8 +248,6 @@ export default function OrderConfirmPage() {
           </div>
         )}
       </div>
-
-      {/* 하단 버튼 */}
       <div className="flex gap-3">
         <Button className="flex-1" onClick={handleGoHome}>
           홈으로
