@@ -55,11 +55,9 @@ function Normal({
               <Button
                 key={num}
                 type="button"
-                size="large"
                 onClick={() => setHingeCount(num)}
-                className={`flex-grow border border-[#767676] ${
-                  hingeCount === num ? "bg-[#E8b931]" : "bg-[#d9d9d9]"
-                } text-black`}
+                selected={hingeCount === num}
+                className="flex-grow"
               >
                 {num}개
               </Button>
@@ -67,16 +65,14 @@ function Normal({
           </div>
         </div>
       )}
-      <div className="flex h-8 w-full overflow-hidden rounded-lg border-[2px] border-[#d9d9d9] bg-[#d9d9d9]">
+      <div className="flex h-8 w-full overflow-hidden rounded-lg border-[2px] border-gray-100 bg-gray-100">
         {(["left", "right"] as const).map(dir => (
           <Button
             key={dir}
             type="button"
-            size="large"
             onClick={() => setHingeDirection(dir)}
-            className={`h-7 w-1/2 text-center font-medium ${
-              hingeDirection === dir ? "bg-white font-semibold shadow-xl" : "bg-transparent"
-            }`}
+            selected={hingeDirection === dir}
+            className="h-7 w-1/2 text-center font-medium"
           >
             {dir === "left" ? "좌경" : "우경"}
           </Button>
@@ -89,7 +85,7 @@ function Normal({
             <p className="text-center text-sm text-gray-600">{height || "0"}</p>
           </div>
         ) : (
-          <div className="relative flex h-[300px] w-1/3 flex-col items-end justify-between py-5">
+          <div className="relative mr-5 flex h-[300px] w-1/3 flex-col items-end justify-between py-5">
             {hingeInputs.map(key => (
               <Input
                 key={key}
@@ -98,7 +94,7 @@ function Normal({
                 placeholder="보링"
                 value={hingeValues[key] ?? ""}
                 onChange={e => handleInputChange(key, e.target.value)}
-                className="mr-3 h-10 w-20 text-center"
+                className="w-[80px] text-center"
               />
             ))}
           </div>
@@ -164,7 +160,8 @@ function Normal({
               <Button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="w-full text-white"
+                selected={true}
+                className="w-full"
               >
                 네 맞아요
               </Button>

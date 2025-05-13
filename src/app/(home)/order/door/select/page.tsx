@@ -237,84 +237,76 @@ function SelectPage() {
         <p className="text-sm text-gray-400">색상이 선택되지 않았습니다.</p>
       )}
 
-      <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium">가로 길이</label>
-        <div className="flex items-center gap-2">
-          <div className="flex-grow">
-            <Input
-              type="number"
-              name="width"
-              placeholder="가로 길이 입력"
-              value={width}
-              onChange={e => setWidth(e.target.value)}
-              onBlur={e => setWidth(e.target.value.replace(/\D/g, ""))}
-            />
-          </div>
-          <span className="mr-20">mm</span>
+      <div className="flex items-center gap-2">
+        <div className="flex-grow">
+          <Input
+            label="가로 길이"
+            type="number"
+            name="width"
+            placeholder="가로 길이 입력"
+            value={width}
+            onChange={e => setWidth(e.target.value)}
+            onBlur={e => setWidth(e.target.value.replace(/\D/g, ""))}
+          />
         </div>
+        <span className="mr-20 pt-6">mm</span>
       </div>
 
       {width && (
-        <div className="flex w-full flex-col gap-2">
-          <label className="text-sm font-medium">세로 길이</label>
-          <div className="flex items-center gap-2">
-            <div className="flex-grow">
-              <Input
-                type="number"
-                name="height"
-                placeholder="세로 길이 입력"
-                value={heightInput}
-                onChange={e => setHeightInput(e.target.value)}
-                onBlur={e => {
-                  const cleaned = e.target.value.replace(/\D/g, "");
-                  setHeight(cleaned);
-                }}
-              />
-            </div>
-            <span className="mr-20">mm</span>
+        <div className="flex items-center gap-2">
+          <div className="flex-grow">
+            <Input
+              label="세로 길이"
+              type="number"
+              name="height"
+              placeholder="세로 길이 입력"
+              value={heightInput}
+              onChange={e => setHeightInput(e.target.value)}
+              onBlur={e => {
+                const cleaned = e.target.value.replace(/\D/g, "");
+                setHeight(cleaned);
+              }}
+            />
           </div>
+          <span className="mr-20 pt-6">mm</span>
         </div>
       )}
       {renderHingeComponent()}
-      {
-  (
-    (hingeValues.topHinge != null && hingeValues.bottomHinge != null) ||
-    (slug === "drawer" && !!height)
-  ) && (
-    <>
-      <div>
-        <p>요청사항</p>
-        <Input
-          type="text"
-          name="doorRequest"
-          placeholder="요청사항을 입력해주세요"
-          value={doorRequest ?? ""}
-          onChange={e => setDoorRequest(e.target.value)}
-        />
-      </div>
+      {((slug === "drawer" && !!height) ||
+        (slug !== "drawer" &&
+          hingeValues.topHinge?.trim() !== "" &&
+          hingeValues.bottomHinge?.trim() !== "")) && (
+        <>
+          <Input
+            label="요청사항"
+            type="text"
+            name="doorRequest"
+            placeholder="요청사항을 입력해주세요"
+            value={doorRequest ?? ""}
+            onChange={e => setDoorRequest(e.target.value)}
+          />
 
-      <div className="fixed bottom-0 left-0 right-0 z-10 h-20 w-full bg-white">
-        {doorRequest === null ? (
-          <Button
-            size="large"
-            className="fixed bottom-5 left-5 right-5 mt-16 rounded-md text-white"
-            onClick={handleSkipRequest}
-          >
-            요청사항 생략하기
-          </Button>
-        ) : (
-          <Button
-            size="large"
-            className="fixed bottom-5 left-5 right-5 rounded-md text-white"
-            onClick={handleNext}
-          >
-            다음
-          </Button>
-        )}
-      </div>
-    </>
-  )
-}
+          <div className="fixed bottom-[68px] left-0 right-0 z-10 h-20 w-full bg-white">
+            {doorRequest === null ? (
+              <Button
+                selected={true}
+                className="fixed bottom-[88px] left-5 right-5 mt-16 rounded-md text-white"
+                onClick={handleSkipRequest}
+              >
+                요청사항 생략하기
+              </Button>
+            ) : (
+              <Button
+                selected={true}
+                className="fixed bottom-[88px] left-5 right-5 rounded-md text-white"
+                onClick={handleNext}
+              >
+                다음
+              </Button>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }

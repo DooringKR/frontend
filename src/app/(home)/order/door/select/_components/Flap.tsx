@@ -27,13 +27,13 @@ function Flap({
   type HingeKey = keyof typeof hingeValues;
 
   const hingeInputs: readonly HingeKey[] =
-  hingeCount !== null
-    ? {
-        2: ["topHinge", "bottomHinge"] as const,
-        3: ["topHinge", "middleHinge", "bottomHinge"] as const,
-        4: ["topHinge", "middleTopHinge", "middleBottomHinge", "bottomHinge"] as const,
-      }[hingeCount] ?? []
-    : [];
+    hingeCount !== null
+      ? ({
+          2: ["topHinge", "bottomHinge"] as const,
+          3: ["topHinge", "middleHinge", "bottomHinge"] as const,
+          4: ["topHinge", "middleTopHinge", "middleBottomHinge", "bottomHinge"] as const,
+        }[hingeCount] ?? [])
+      : [];
 
   const [isModalOpen, setIsModalOpen] = useState(true);
 
@@ -51,11 +51,9 @@ function Flap({
               <Button
                 key={num}
                 type="button"
-                size="large"
                 onClick={() => setHingeCount(num)}
-                className={`flex-grow border border-[#767676] ${
-                  hingeCount === num ? "bg-[#E8b931]" : "bg-[#d9d9d9]"
-                } text-black`}
+                selected={hingeCount === num}
+                className="flex-grow"
               >
                 {num}개
               </Button>
@@ -63,7 +61,7 @@ function Flap({
           </div>
         </div>
       )}
-      <div className="mb-5 flex w-full justify-between pr-5">
+      <div className="my-5 flex w-full justify-between pr-5">
         {hingeInputs.map(key => (
           <Input
             key={key}
@@ -72,7 +70,7 @@ function Flap({
             placeholder="보링"
             value={hingeValues[key] ?? ""}
             onChange={e => handleInputChange(key, e.target.value)}
-            className="h-10 w-20 text-center"
+            className="w-[80px] text-center"
           />
         ))}
       </div>
@@ -115,7 +113,8 @@ function Flap({
               <Button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="w-full text-white"
+                selected={true}
+                className="w-full"
               >
                 네 맞아요
               </Button>

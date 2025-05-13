@@ -6,7 +6,7 @@ interface ButtonStyleOptions {
 
 export function getButtonStyle({ disabled, selected, loading }: ButtonStyleOptions): string {
   if (disabled) {
-    return "bg-brand-100 text-gray-300 cursor-not-allowed rounded-xl";
+    return "bg-gray-100 text-gray-300 cursor-not-allowed rounded-xl";
   }
 
   if (loading) {

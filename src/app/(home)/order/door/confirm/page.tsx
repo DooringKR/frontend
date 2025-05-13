@@ -40,7 +40,7 @@ function ConfirmPage() {
   const header = currentCategory?.header || "문짝";
 
   return (
-    <div className="flex flex-col gap-6 p-5 pb-20">
+    <div className="flex flex-col gap-6 p-5 pb-[100px]">
       <h1 className="text-xl font-bold">문짝 주문 개수를 선택해주세요</h1>
 
       <div className="flex items-center justify-between">
@@ -80,11 +80,11 @@ function ConfirmPage() {
         {doorItem.doorRequest && <p>요청사항: {doorItem.doorRequest}</p>}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 z-10 flex gap-2 bg-white p-5">
+      <div className="fixed bottom-[68px] left-0 right-0 z-10 flex gap-2 bg-white p-5">
         <Button className="flex-1 bg-gray-200 text-black" onClick={handleAddToCart}>
           장바구니 담기
         </Button>
-        <Button className="flex-1 bg-black text-white" onClick={handlePurchase}>
+        <Button selected={true} className="flex-1 bg-black text-white" onClick={handlePurchase}>
           바로 구매
         </Button>
       </div>
