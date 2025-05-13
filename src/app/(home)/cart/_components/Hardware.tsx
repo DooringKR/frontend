@@ -1,14 +1,10 @@
-"use client";
-
-import { useState } from "react";
+import { HARDWARE_CATEGORY_LIST } from "@/constants/category";
 
 import { HardwareItem } from "@/store/Items/hardwareStore";
-import { HARDWARE_CATEGORY_LIST } from "@/constants/category";
 
 function Hardware({ item }: { item: HardwareItem }) {
   const currentCategory = HARDWARE_CATEGORY_LIST.find(item => item.slug === item.slug);
   const header = currentCategory?.header || "부속";
-
 
   return (
     <>
