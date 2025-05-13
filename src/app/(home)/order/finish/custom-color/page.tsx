@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import Button from "@/components/Button/Button";
@@ -13,13 +13,14 @@ function ManualColorInputPage() {
   const handleNext = () => {
     if (color.trim()) {
       const encodedColor = encodeURIComponent(color.trim());
-      router.push(`/order/finish/select&color=${encodedColor}`);
+      router.push(`/order/finish/select?color=${encodedColor}`);
     }
   };
 
   return (
     <div className="flex flex-col gap-6 p-5">
-      <h1 className="text-2xl font-bold"> 마감재 색상을
+      <h1 className="text-2xl font-bold">
+        마감재 색상을
         <br /> 직접 입력해주세요
       </h1>
 
@@ -43,10 +44,10 @@ function ManualColorInputPage() {
       />
 
       <Button
-        size="large"
+        selected={!!color.trim()}
         disabled={!color.trim()}
         onClick={handleNext}
-        className="absolute bottom-5 left-5 right-5 rounded-md text-white"
+        className="absolute bottom-[88px] left-5 right-5"
       >
         다음
       </Button>

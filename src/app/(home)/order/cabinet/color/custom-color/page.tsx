@@ -20,7 +20,7 @@ function ManualColorInputPage() {
   const handleNext = () => {
     if (color.trim()) {
       const encodedColor = encodeURIComponent(color.trim());
-      router.push(`/order/cabinet/select?slug=${slug}&color=${encodedColor}`);
+      router.push(`/order/cabinet/select?slug=${slug}?color=${encodedColor}`);
     }
   };
 
@@ -51,10 +51,10 @@ function ManualColorInputPage() {
       />
 
       <Button
-        size="large"
+        selected={!!color.trim()}
         disabled={!color.trim()}
         onClick={handleNext}
-        className="absolute bottom-5 left-5 right-5 rounded-md text-white"
+        className="absolute bottom-[88px] left-5 right-5"
       >
         다음
       </Button>
