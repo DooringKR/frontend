@@ -36,7 +36,6 @@ function SelectPage() {
     additionalHeight: null,
   });
   const [finishRequest, setFinishRequest] = useState<string | null>(null);
-  const [isDepthExtended, setIsDepthExtended] = useState(false);
 
   const getInputStatusText = () => {
     if (!depth.baseDepth) return "깊이를";
@@ -173,22 +172,22 @@ function SelectPage() {
               onChange={e => setFinishRequest(e.target.value)}
             />
           </div>
-          <div className="fixed bottom-0 left-0 right-0 z-10 h-20 w-full bg-white">
+          <div className="fixed bottom-[68px] left-0 right-0 z-10 h-20 w-full bg-white">
             {finishRequest === null ? (
               <Button
-                size="large"
-                className="fixed bottom-5 left-5 right-5 mt-16 rounded-md text-white"
+                selected
+                className="fixed bottom-[88px] left-5 right-5 mt-16 rounded-md text-white"
                 onClick={handleSkipRequest}
               >
                 요청사항 생략하기
               </Button>
             ) : (
               <Button
-                size="large"
-                className="fixed bottom-5 left-5 right-5 rounded-md text-white"
+                selected
+                className="fixed bottom-[88px] left-5 right-5 rounded-md text-white"
                 onClick={handleNext}
               >
-                다음
+                확인
               </Button>
             )}
           </div>

@@ -1,7 +1,7 @@
 import Input from "@/components/Input/Input";
 
 interface SizeInputProps {
-  label: string;
+  label?: string;
   name: string;
   placeholder: string;
   value: string;

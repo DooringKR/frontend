@@ -66,11 +66,11 @@ function ConfirmPage() {
         )}
         {finishItem.finishRequest && <p>요청 사항 : {finishItem.finishRequest}</p>}
       </div>
-      <div className="fixed bottom-0 left-0 right-0 z-10 flex gap-2 bg-white p-5">
-        <Button className="flex-1 bg-gray-200 text-black" onClick={handleAddToCart}>
+      <div className="fixed bottom-[68px] left-0 right-0 z-10 flex gap-2 bg-white p-5">
+        <Button className="flex-1" onClick={handleAddToCart}>
           장바구니 담기
         </Button>
-        <Button className="flex-1 bg-black text-white" onClick={handlePurchase}>
+        <Button selected={true} className="flex-1" onClick={handlePurchase}>
           바로 구매
         </Button>
       </div>

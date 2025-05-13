@@ -4,6 +4,8 @@ import { useState } from "react";
 
 import Input from "@/components/Input/Input";
 
+import SizeInput from "../../../cabinet/select/_components/SizeInput";
+
 interface DepthProps {
   depth: {
     baseDepth: string | null;
@@ -34,26 +36,20 @@ function Depth({ depth, setDepth }: DepthProps) {
   const sumDepth = (Number(depth.baseDepth) || 0) + (Number(depth.additionalDepth) || 0);
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2 px-4">
-        <label className="text-sm font-medium">깊이</label>
-        <div className="flex items-center gap-2">
-          <Input
-            type="number"
-            name="depth"
-            placeholder="깊이"
-            value={depth.baseDepth ?? ""}
-            onChange={e =>
-              setDepth(prev => ({
-                ...prev,
-                baseDepth: e.target.value.replace(/^0+(?=\d)/, ""),
-              }))
-            }
-            className="w-60"
-          />
-          <span className="text-sm text-black">mm</span>
-        </div>
-      </div>
+    <div className="mx-5 flex flex-col gap-4">
+      <SizeInput
+        label="깊이"
+        name="depth"
+        placeholder="깊이"
+        value={depth.baseDepth ?? ""}
+        onChange={value =>
+          setDepth(prev => ({
+            ...prev,
+            baseDepth: value.replace(/^0+(?=\d)/, ""), // 앞자리 0 제거
+          }))
+        }
+      />
+
       <div className="rounded-md bg-gray-100 px-4 py-3">
         <div className="flex items-center gap-3">
           <span className="text-sm font-medium">깊이 키우기</span>
@@ -69,21 +65,22 @@ function Depth({ depth, setDepth }: DepthProps) {
           </label>
         </div>
         {isDepthExtended && (
-          <div className="mt-4 flex items-center gap-2">
-            <Input
-              type="number"
-              name="additionalDepth"
-              placeholder="추가 깊이"
-              value={depth.additionalDepth ?? ""}
-              onChange={e =>
-                setDepth(prev => ({
-                  ...prev,
-                  additionalDepth: e.target.value.replace(/^0+(?=\d)/, ""),
-                }))
-              }
-              className="w-60"
-            />
-            <span className="text-sm text-black">mm</span>
+          <div className="mt-2 flex items-center gap-2">
+            <div className="flex-grow">
+              <Input
+                type="number"
+                name="additionalDepth"
+                placeholder="추가 깊이"
+                value={depth.additionalDepth ?? ""}
+                onChange={e =>
+                  setDepth(prev => ({
+                    ...prev,
+                    additionalDepth: e.target.value.replace(/^0+(?=\d)/, ""),
+                  }))
+                }
+              />
+            </div>
+            <span className="mr-2">mm</span>
           </div>
         )}
         <div className="mt-2 flex justify-between text-sm font-medium">

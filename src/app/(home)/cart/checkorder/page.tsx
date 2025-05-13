@@ -158,7 +158,7 @@ function CheckOrder() {
         />
       </section>
 
-      <Button className="w-full bg-black text-white" onClick={handleOrderSubmit}>
+      <Button selected={true} onClick={handleOrderSubmit}>
         주문하기
       </Button>
     </div>
