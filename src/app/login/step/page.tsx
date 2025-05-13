@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import Button from "@/components/Button/Button";
+import Input from "@/components/Input/Input";
 import Modal from "@/components/Modal/Modal";
 
 import useUserStore from "@/store/userStore";
@@ -42,10 +43,19 @@ function LoginStepPage() {
   return (
     <div className="relative flex h-screen w-full flex-col gap-5 bg-white p-5">
       <h1 className="text-2xl font-semibold leading-[1.2] text-[#000000]">
-        반가워요, <br /> 어떤 업체이신가요?
+        어떤 업체에서 오셨어요?
       </h1>
       <div className="flex flex-col gap-3">
-        <p className="text-base text-neutral-700">업체 유형</p>
+        <Input
+          label="휴대폰 번호"
+          type="text"
+          name="user_phoneNumber"
+          value={user_phoneNumber || ""}
+          onChange={e => setUserPhoneNumber(e.target.value)}
+          placeholder="010-1234-5678"
+          className="h-12 w-full"
+        />
+        <p className="text-sm leading-[1.4] text-gray-400">업체 유형 선택</p>
         <div className="flex gap-2">
           <Button
             type="button"
@@ -70,16 +80,6 @@ function LoginStepPage() {
             공장
           </Button>
         </div>
-      </div>
-      <div className="flex flex-col gap-3">
-        <label className="text-base font-medium text-neutral-800">휴대폰 번호</label>
-        <input
-          type="text"
-          value={user_phoneNumber || ""}
-          onChange={e => setUserPhoneNumber(e.target.value)}
-          placeholder="010-1234-5678"
-          className="h-12 w-full rounded-md border border-neutral-300 px-4 text-black"
-        />
       </div>
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <div className="flex justify-between">

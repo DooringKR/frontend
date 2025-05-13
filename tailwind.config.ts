@@ -9,7 +9,11 @@ const config: Config = {
   theme: {
     screens: {},
     extend: {
-      colors: {},
+      colors: {
+        brand: {
+          500: "#44BE83",
+        },
+      },
     },
   },
   plugins: [],
