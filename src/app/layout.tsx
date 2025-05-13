@@ -13,7 +13,6 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
 };
 
-
 function RootLayout({
   children,
 }: Readonly<{
@@ -21,9 +20,7 @@ function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className="mx-auto max-w-[500px]">
-          {children}
-      </body>
+      <body className="mx-auto max-w-[500px]">{children}</body>
     </html>
   );
 }

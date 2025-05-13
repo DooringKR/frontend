@@ -73,7 +73,7 @@ export default function CartPage() {
   };
 
   const handleAddProduct = () => {
-    router.push("/"); // 또는 상품 등록 페이지 경로로 변경 가능
+    router.push("/");
   };
 
   const getTotalPrice = () => {
@@ -85,7 +85,6 @@ export default function CartPage() {
       }, 0);
   };
 
-  // ✅ 여기 추가: count 변경 핸들러
   const handleCountChange = (category: string, index: number, newCount: number) => {
     setCartGroups(prev => {
       const newGroups = { ...prev };
@@ -121,7 +120,7 @@ export default function CartPage() {
 
   return (
     <div className="flex flex-col p-5 pb-20">
-      <h1 className="mb-4 text-xl font-bold">장바구니</h1>
+      <h1 className="mb-4 text-center text-xl font-bold">장바구니</h1>
 
       <div className={`mb-4 p-2 text-center font-medium ${deliveryMessageColor}`}>
         {deliveryMessage}
@@ -135,14 +134,14 @@ export default function CartPage() {
               <CartItemDetail
                 key={`${category}-${i}`}
                 item={item}
-                onCountChange={(newCount) => handleCountChange(category, i, newCount)}
+                onCountChange={newCount => handleCountChange(category, i, newCount)}
               />
             );
           })}
         </div>
       ))}
 
-      <Button className="mb-3 border border-black bg-gray-200" onClick={handleAddProduct}>
+      <Button selected={true} className="mb-3" onClick={handleAddProduct}>
         상품 추가
       </Button>
 
@@ -176,7 +175,7 @@ export default function CartPage() {
           </div>
         </div>
       </div>
-      <Button className="w-full bg-black text-white" onClick={handleOrder}>
+      <Button selected={true} onClick={handleOrder}>
         다음
       </Button>
     </div>

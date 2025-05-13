@@ -5,6 +5,8 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
+import Button from "@/components/Button/Button";
+import Input from "@/components/Input/Input";
 import DaumPostcodePopup from "@/components/SearchAddress/DaumPostcode";
 
 import useAddressStore from "@/store/addressStore";
@@ -42,7 +44,7 @@ function Page() {
 
   const isButtonDisabled = !address1 || !address2;
 
-  const handleAddressComplete = () => { 
+  const handleAddressComplete = () => {
     setAddress(address1, address2);
     router.push(`/order/${englishCategory}`);
   };
@@ -72,23 +74,25 @@ function Page() {
             </p>
           )}
         </div>
-        <input
+        <Input
+          name="상세주소"
           type="text"
           value={address2}
           onChange={e => setAddress2(e.target.value)}
           placeholder="상세주소 (예: 101동 501호 / 단독주택)"
-          className="w-full rounded-md border border-gray-300 px-4 py-3 text-base"
+          className="mt-2 w-full px-4 text-base"
         />
       </div>
 
-      <button
+      <Button
         type="button"
         onClick={handleAddressComplete}
+        selected={!isButtonDisabled}
         disabled={isButtonDisabled}
-        className={`absolute bottom-5 left-5 right-5 rounded-md py-3 text-white ${isButtonDisabled ? "bg-gray-300" : "bg-black"}`}
+        className="absolute bottom-5 left-5 right-5"
       >
         다음
-      </button>
+      </Button>
     </div>
   );
 }

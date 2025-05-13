@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
+import { Swiper, SwiperSlide } from "swiper/react";
 
 interface TimePickerSwiperProps {
   initialHour: string;
@@ -19,6 +19,8 @@ export default function TimePickerSwiper({
 }: TimePickerSwiperProps) {
   const [hour, setHour] = useState(initialHour);
   const [minute, setMinute] = useState(initialMinute);
+  const [selectedHourIndex, setSelectedHourIndex] = useState(parseInt(initialHour));
+  const [selectedMinuteIndex, setSelectedMinuteIndex] = useState(parseInt(initialMinute));
 
   const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
   const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, "0"));
@@ -32,12 +34,20 @@ export default function TimePickerSwiper({
             direction="vertical"
             slidesPerView={5}
             centeredSlides
-            onSlideChange={(swiper) => setHour(hours[swiper.realIndex])}
+            onSlideChange={swiper => {
+              setSelectedHourIndex(swiper.realIndex);
+              setHour(hours[swiper.realIndex]);
+            }}
             initialSlide={parseInt(initialHour)}
             className="h-40 w-20 text-center"
           >
-            {hours.map((h) => (
-              <SwiperSlide key={h} className="flex items-center justify-center text-lg">
+            {hours.map((h, i) => (
+              <SwiperSlide
+                key={h}
+                className={`flex items-center justify-center text-lg ${
+                  i === selectedHourIndex ? "font-bold text-brand-500" : "text-gray-500"
+                }`}
+              >
                 {h}
               </SwiperSlide>
             ))}
@@ -47,12 +57,20 @@ export default function TimePickerSwiper({
             direction="vertical"
             slidesPerView={5}
             centeredSlides
-            onSlideChange={(swiper) => setMinute(minutes[swiper.realIndex])}
+            onSlideChange={swiper => {
+              setSelectedMinuteIndex(swiper.realIndex);
+              setMinute(minutes[swiper.realIndex]);
+            }}
             initialSlide={parseInt(initialMinute)}
             className="h-40 w-20 text-center"
           >
-            {minutes.map((m) => (
-              <SwiperSlide key={m} className="flex items-center justify-center text-lg">
+            {minutes.map((m, i) => (
+              <SwiperSlide
+                key={m}
+                className={`flex items-center justify-center text-lg ${
+                  i === selectedMinuteIndex ? "font-bold text-brand-500" : "text-gray-500"
+                }`}
+              >
                 {m}
               </SwiperSlide>
             ))}

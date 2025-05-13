@@ -3,12 +3,12 @@
 import Image from "next/image";
 import { useState } from "react";
 
+import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
 import Modal from "@/components/Modal/Modal";
-import Button from "@/components/Button/Button";
 
-import baseSchema from "@/utils/schema";
 import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
+import baseSchema from "@/utils/schema";
 
 interface RecipientPhoneNumberProps {
   recipientPhoneNumber: string;
@@ -61,8 +61,8 @@ export default function RecipientPhoneNumber({
       </div>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-      <div className="fixed inset-0 z-20 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="flex flex-col gap-8 w-full max-w-lg h-screen bg-white p-6">
+        <div className="fixed inset-0 z-20 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="flex h-screen w-full max-w-lg flex-col gap-8 bg-white p-6">
             <div className="flex items-center justify-between">
               <button type="button" onClick={() => setIsModalOpen(false)}>
                 <Image src="/icons/Arrow_Left.svg" width={24} height={24} alt="뒤로가기" />
@@ -73,27 +73,22 @@ export default function RecipientPhoneNumber({
             <h1 className="text-2xl font-semibold leading-[1.2] text-[#000000]">
               받는 분 휴대전화 번호를 <br /> 입력해주세요
             </h1>
-
-            <div>
-              <Input
-                label="휴대폰 번호"
-                type="text"
-                name="수령자 전화번호"
-                value={formatPhoneNumber(tempPhoneNumber)}
-                onChange={handleInputChange}
-                placeholder="010-1234-5678"
-                className="w-full rounded-md border border-gray-300 px-4 py-3 text-base"
-              />
-              {errorMessage && (
-                <p className="mt-2 text-sm text-red-500">{errorMessage}</p>
-              )}
-            </div>
-
+            <Input
+              label="휴대폰 번호"
+              type="text"
+              name="수령자 전화번호"
+              value={formatPhoneNumber(tempPhoneNumber)}
+              onChange={handleInputChange}
+              placeholder="010-1234-5678"
+              className="w-full text-base"
+            />
+            {errorMessage && <p className="-mt-4 text-sm text-red-500">{errorMessage}</p>}
             <Button
               type="button"
+              selected={!errorMessage}
               onClick={handleSave}
               disabled={!!errorMessage}
-              className="fixed bottom-5 right-5 left-5 text-white bg-black"
+              className="fixed bottom-5 left-5 right-5"
             >
               저장
             </Button>

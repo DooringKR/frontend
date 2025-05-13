@@ -13,13 +13,10 @@ function Modal({ isOpen, onClose, children }: ModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center">
+      <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose} />
       <div
-        className="absolute inset-0 bg-black bg-opacity-50"
-        onClick={onClose}
-      />
-      <div
-        className="relative w-full max-w-md bg-white p-6 z-10"
-        onClick={(e) => e.stopPropagation()}
+        className="relative z-10 w-full max-w-md rounded-3xl bg-white p-6"
+        onClick={e => e.stopPropagation()}
       >
         {children}
       </div>

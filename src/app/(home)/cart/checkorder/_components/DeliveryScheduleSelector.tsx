@@ -105,7 +105,7 @@ export default function DeliveryScheduleSelector({
 
             <div
               onClick={() => setIsModalOpen(true)}
-              className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-lg shadow-inner"
+              className="w-full border-b-2 border-gray-300 bg-white px-4 py-3 text-lg"
             >
               {hour}:{minute}
             </div>

@@ -1,19 +1,21 @@
-import { getButtonStyle, getSizeClasses } from "./buttonStyles";
+import { getButtonStyle } from "./buttonStyles";
 
 interface ButtonProps {
   type?: "button" | "submit";
-  size?: "small" | "large";
   onClick?: () => void;
   disabled?: boolean;
+  selected?: boolean;
+  loading?: boolean;
   children?: React.ReactNode;
   className?: string;
 }
 
 const Button = ({
   type = "button",
-  size = "large",
   onClick,
   disabled = false,
+  selected = false,
+  loading = false,
   children,
   className = "",
 }: ButtonProps) => {
@@ -21,10 +23,18 @@ const Button = ({
     <button
       type={type}
       onClick={onClick}
-      disabled={disabled}
-      className={`${getButtonStyle(disabled)} ${size === "large" ? getSizeClasses("large") : getSizeClasses("small")} ${className} `}
+      disabled={disabled || loading}
+      className={`h-12 ${getButtonStyle({ disabled, selected, loading })} ${className}`}
     >
-      {children}
+      {loading ? (
+        <span className="flex items-center justify-center gap-1">
+          <span className="animate-pulse">•</span>
+          <span className="animate-pulse delay-100">•</span>
+          <span className="animate-pulse delay-200">•</span>
+        </span>
+      ) : (
+        children
+      )}
     </button>
   );
 };
