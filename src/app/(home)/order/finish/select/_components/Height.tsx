@@ -3,8 +3,7 @@
 import { useState } from "react";
 
 import Input from "@/components/Input/Input";
-
-import SizeInput from "../../../cabinet/select/_components/SizeInput";
+import SizeInput from "@/components/SIzeInput/SizeInput";
 
 interface DepthProps {
   height: {

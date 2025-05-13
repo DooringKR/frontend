@@ -9,6 +9,7 @@ import { useState } from "react";
 
 import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
+import SizeInput from "@/components/SIzeInput/SizeInput";
 
 import useCabinetStore from "@/store/Items/cabinetStore";
 
@@ -20,7 +21,6 @@ import Open from "./_components/HandleType/Open";
 import Upper from "./_components/HandleType/Upper";
 import Material from "./_components/Material";
 import Rail from "./_components/Rail";
-import SizeInput from "./_components/SizeInput";
 
 function SelectPage() {
   if (typeof window === "undefined") return null;

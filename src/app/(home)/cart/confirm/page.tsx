@@ -4,6 +4,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import Button from "@/components/Button/Button";
+
 import { useCurrentOrderStore } from "@/store/Items/currentOrderStore";
 
 export default function OrderConfirmPage() {
@@ -135,8 +137,6 @@ export default function OrderConfirmPage() {
               <p className="font-semibold">배송일정</p>
               <p>당일배송</p>
             </div>
-
-            {/* 주소 */}
             <div className="mb-2 border-b border-black pb-3">
               <p className="font-semibold">배송주소</p>
               <p>{order.address1}</p>
@@ -154,9 +154,8 @@ export default function OrderConfirmPage() {
               <p>{order.recipientPhoneNumber}</p>
             </div>
 
-            {/* 도어링 요청사항 */}
             <div className="mb-2">
-              <p className="font-semibold">도어링 요청사항</p>
+              <p className="font-semibold">바로가구 요청사항</p>
               <p>{order.otherRequests || "없음"}</p>
             </div>
           </div>
@@ -165,15 +164,12 @@ export default function OrderConfirmPage() {
 
       {/* 하단 버튼 */}
       <div className="flex gap-3">
-        <button className="flex-1 rounded bg-gray-200 py-3 font-semibold" onClick={handleGoHome}>
+        <Button className="flex-1" onClick={handleGoHome}>
           홈으로
-        </button>
-        <button
-          className="flex-1 rounded bg-black py-3 font-semibold text-white"
-          onClick={handleCopyAccount}
-        >
+        </Button>
+        <Button selected className="flex-1" onClick={handleCopyAccount}>
           계좌 복사
-        </button>
+        </Button>
       </div>
     </div>
   );
