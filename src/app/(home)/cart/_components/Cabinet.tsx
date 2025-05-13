@@ -1,16 +1,8 @@
-"use client";
-
 import { CABINET_ITEMS_NAME } from "@/constants/modelList";
-import { useState } from "react";
 
 import { CabinetItem } from "@/store/Items/cabinetStore";
 
 function Cabinet({ item }: { item: CabinetItem }) {
-  const [count, setCount] = useState(item?.count ?? 1);
-  if (!item) return null;
-
-  const total = (item.price ?? 0) * count;
-
   return (
     <>
       <h2 className="mb-3 text-lg font-semibold">부분장</h2>
