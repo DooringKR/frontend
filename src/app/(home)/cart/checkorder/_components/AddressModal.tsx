@@ -5,8 +5,11 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-import { DeliverTime } from "@/utils/CheckDeliveryTime";
+import Button from "@/components/Button/Button";
+import Input from "@/components/Input/Input";
 import DaumPostcodePopup from "@/components/SearchAddress/DaumPostcode";
+
+import { DeliverTime } from "@/utils/CheckDeliveryTime";
 
 interface AddressModalProps {
   onClose: () => void;
@@ -49,21 +52,17 @@ export default function AddressModal({ onClose, onAddressSelect }: AddressModalP
 
   return (
     <div className="fixed inset-0 z-30 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="relative w-full max-w-lg h-full bg-white p-6">
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute right-5 top-5 text-gray-500"
-        >
+      <div className="relative h-full w-full max-w-lg bg-white p-6">
+        <button type="button" onClick={onClose} className="absolute right-5 top-5 text-gray-500">
           ✕
         </button>
 
-        <h1 className="text-2xl font-semibold mb-4">
+        <h1 className="mb-4 text-2xl font-semibold">
           <span className="font-bold">자재</span>를 배송받을 주소를 <br />
           입력해주세요.
         </h1>
 
-        <div className="flex flex-col gap-[10px] mb-4">
+        <div className="mb-4 flex flex-col gap-[10px]">
           <label>주소</label>
           <DaumPostcodePopup address1={address1} onComplete={handleComplete} />
 
@@ -75,23 +74,25 @@ export default function AddressModal({ onClose, onAddressSelect }: AddressModalP
             </p>
           )}
 
-          <input
+          <Input
+            name="상세주소"
             type="text"
             value={address2}
             onChange={e => setAddress2(e.target.value)}
             placeholder="상세주소 (예: 101동 501호 / 단독주택)"
-            className="w-full rounded-md border border-gray-300 px-4 py-3 text-base"
+            className="h-[50px] w-full px-4 text-base"
           />
         </div>
 
-        <button
+        <Button
           type="button"
           onClick={handleAddressComplete}
           disabled={isButtonDisabled}
-          className={`w-full rounded-md py-3 text-white ${isButtonDisabled ? "bg-gray-300" : "bg-black"}`}
+          selected={!isButtonDisabled}
+          className="w-full"
         >
           다음
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import Header from "@/components/Header/Header";
+
 const NAV_ITEMS = [
   { href: "/", label: "홈", key: "home" },
   { href: "/cart", label: "장바구니", key: "Shopping_Cart" },
@@ -18,7 +20,8 @@ function Layout({
   const pathname = usePathname();
 
   return (
-    <div className="relative min-h-screen pb-17">
+    <div className="relative min-h-screen pb-20">
+      <Header />
       {children}
 
       <footer className="fixed bottom-0 left-0 right-0 z-10 border-t bg-white text-sm font-semibold">

@@ -56,24 +56,21 @@ export default function CustomerRequest({
             <h1 className="text-2xl font-semibold leading-[1.2] text-[#000000]">
               요청사항을 입력해주세요
             </h1>
-
-            <div>
-              <Input
-                label="요청사항"
-                type="text"
-                name="고객 요청사항"
-                value={tempRequest}
-                onChange={e => setTempRequest(e.target.value)}
-                placeholder="요청사항을 입력해주세요"
-                className="w-full rounded-md border border-gray-300 px-4 py-3 text-base"
-              />
-            </div>
-
+            <Input
+              label="요청사항"
+              type="text"
+              name="고객 요청사항"
+              value={tempRequest}
+              onChange={e => setTempRequest(e.target.value)}
+              placeholder="요청사항을 입력해주세요"
+              className="w-full text-base"
+            />
             <Button
               type="button"
               onClick={handleSave}
+              selected={!!tempRequest.trim()}
               disabled={!tempRequest.trim()}
-              className="fixed bottom-5 left-5 right-5 bg-black text-white"
+              className="fixed bottom-5 left-5 right-5 mx-auto max-w-[460px]"
             >
               저장
             </Button>

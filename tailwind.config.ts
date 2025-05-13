@@ -9,7 +9,14 @@ const config: Config = {
   theme: {
     screens: {},
     extend: {
-      colors: {},
+      colors: {
+        brand: {
+          100: "#D2EFE1",
+          200: "#AFE3CA",
+          500: "#44BE83",
+          600: "#3AA26F",
+        },
+      },
     },
   },
   plugins: [],
