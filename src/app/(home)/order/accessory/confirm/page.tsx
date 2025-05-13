@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import Button from "@/components/Button/Button";
+
 import useAccessoryStore from "@/store/Items/accessoryStore";
 
 function ConfirmPage() {
@@ -12,7 +13,12 @@ function ConfirmPage() {
   const { accessoryItem, updatePriceAndCount } = useAccessoryStore();
   const [count, setCount] = useState(1);
 
-  if (!accessoryItem.slug || !accessoryItem.madeBy || !accessoryItem.model || accessoryItem.price === null) {
+  if (
+    !accessoryItem.slug ||
+    !accessoryItem.madeBy ||
+    !accessoryItem.model ||
+    accessoryItem.price === null
+  ) {
     return <p className="p-5">잘못된 접근입니다.</p>;
   }
 
@@ -40,7 +46,9 @@ function ConfirmPage() {
 
   return (
     <div className="flex flex-col gap-6 p-5 pb-20">
-      <h1 className="text-xl font-bold"><span>{header}</span> 주문 개수를 선택해주세요</h1>
+      <h1 className="text-xl font-bold">
+        <span>{header}</span> 주문 개수를 선택해주세요
+      </h1>
 
       <div className="flex items-center justify-between">
         <span className="text-base font-medium">주문 개수</span>
@@ -64,11 +72,11 @@ function ConfirmPage() {
         <p>모델명: {accessoryItem.model}</p>
         <p>요청 사항: {accessoryItem.accessoryRequests}</p>
       </div>
-      <div className="fixed bottom-0 left-0 right-0 z-10 flex gap-2 bg-white p-5">
-        <Button className="flex-1 bg-gray-200 text-black" onClick={handleAddToCart}>
+      <div className="fixed bottom-[68px] left-0 right-0 z-10 flex gap-2 bg-white p-5">
+        <Button className="flex-1" onClick={handleAddToCart}>
           장바구니 담기
         </Button>
-        <Button className="flex-1 bg-black text-white" onClick={handlePurchase}>
+        <Button selected={true} className="flex-1" onClick={handlePurchase}>
           바로 구매
         </Button>
       </div>

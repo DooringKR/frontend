@@ -121,23 +121,24 @@ function SelectPage() {
         />
       )}
       <div className="fixed bottom-[68px] left-0 right-0 z-10 h-20 w-full bg-white">
-        {hardwareRequests === null ? (
-          <Button
-            selected={true}
-            className="fixed bottom-[88px] left-5 right-5 mt-16 rounded-md text-white"
-            onClick={handleSkipRequest}
-          >
-            요청사항 생략하기
-          </Button>
-        ) : (
-          <Button
-            selected={true}
-            className="fixed bottom-[88px] left-5 right-5 rounded-md text-white"
-            onClick={handleNext}
-          >
-            확인
-          </Button>
-        )}
+        {model &&
+          (hardwareRequests === null ? (
+            <Button
+              selected
+              className="fixed bottom-[88px] left-5 right-5 mt-16 rounded-md text-white"
+              onClick={handleSkipRequest}
+            >
+              요청사항 생략하기
+            </Button>
+          ) : (
+            <Button
+              selected
+              className="fixed bottom-[88px] left-5 right-5 rounded-md text-white"
+              onClick={handleNext}
+            >
+              확인
+            </Button>
+          ))}
       </div>
     </div>
   );

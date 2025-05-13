@@ -27,18 +27,18 @@ function Model({ setModel, model }: ModelProps) {
     <div>
       {isExistModel ? (
         <ModalButton
-          label="제조사"
+          label="모델명"
           value={model}
-          placeholder="제조사를 선택해주세요"
+          placeholder="모델명을 선택해주세요"
           onClick={() => setIsModalOpen(true)}
         />
       ) : (
         <>
           <Input
-            label="제조사"
+            label="모델명"
             type="text"
-            name="제조사 입력"
-            placeholder="제조사를 입력해주세요"
+            name="모델명 입력"
+            placeholder="모델명을 입력해주세요"
             onChange={e => setModel(e.target.value)}
             value={model}
           />
@@ -50,7 +50,6 @@ function Model({ setModel, model }: ModelProps) {
               setIsModalOpen(true);
             }}
           >
-            {" "}
             목록에서 선택
           </Button>
         </>

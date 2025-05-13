@@ -1,17 +1,17 @@
 "use client";
 
+import { checkAccessoryPrice } from "@/api/checkcash";
 import { ACCESSORY_CATEGORY_LIST } from "@/constants/category";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import Button from "@/components/Button/Button";
+import Input from "@/components/Input/Input";
 
 import useAccessoryStore from "@/store/Items/accessoryStore";
 
 import MadeBy from "./_components/MadeBy";
 import Model from "./_components/Model";
-import Input from "@/components/Input/Input";
-import { checkAccessoryPrice } from "@/api/checkcash";
 
 function SelectPage() {
   if (typeof window === "undefined") return null;
@@ -111,33 +111,34 @@ function SelectPage() {
       <MadeBy setMadeBy={setMadeBy} madeBy={madeBy} />
       {madeBy && <Model setModel={setModel} model={model} />}
       {model && (
-        <div className="flex flex-col gap-2">
-          <label>요청사항</label>
-          <Input
-            type="text"
-            name="요청사항"
-            placeholder="요청사항을 입력해주세요"
-            onChange={e => setAccessoryRequests(e.target.value)}
-            value={accessoryRequests ?? ""}
-          />
-        </div>
+        <Input
+          label="요청사항"
+          type="text"
+          name="accessoryRequests"
+          placeholder="요청사항을 입력해주세요"
+          onChange={e => setAccessoryRequests(e.target.value)}
+          value={accessoryRequests ?? ""}
+        />
       )}
       <div className="fixed bottom-0 left-0 right-0 z-10 h-20 w-full bg-white">
-        {accessoryRequests === null ? (
-          <Button
-            className="fixed bottom-5 left-5 right-5 mt-16 rounded-md text-white"
-            onClick={handleSkipRequest}
-          >
-            요청사항 생략하기
-          </Button>
-        ) : (
-          <Button
-            className="fixed bottom-5 left-5 right-5 rounded-md text-white"
-            onClick={handleNext}
-          >
-            확인
-          </Button>
-        )}
+        {model &&
+          (accessoryRequests === null ? (
+            <Button
+              selected={true}
+              className="fixed bottom-[88px] left-5 right-5 mt-16 rounded-md text-white"
+              onClick={handleSkipRequest}
+            >
+              요청사항 생략하기
+            </Button>
+          ) : (
+            <Button
+              selected={true}
+              className="fixed bottom-[88px] left-5 right-5 rounded-md text-white"
+              onClick={handleNext}
+            >
+              확인
+            </Button>
+          ))}
       </div>
     </div>
   );

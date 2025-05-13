@@ -7,6 +7,7 @@ import { useState } from "react";
 import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
 import Modal from "@/components/Modal/Modal";
+import ModalButton from "@/components/ModalButton/ModalButton";
 
 interface ModelProps {
   model: string;
@@ -16,6 +17,7 @@ interface ModelProps {
 function Model({ setModel, model }: ModelProps) {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isExistModel, setIsExistModel] = useState<boolean>(true);
+
   const handleSelectModel = (model: string) => {
     setModel(model);
     setIsModalOpen(false);
@@ -23,34 +25,33 @@ function Model({ setModel, model }: ModelProps) {
 
   return (
     <div>
-      <h3 className="mb-2">모델명</h3>
       {isExistModel ? (
-        <button
-          className={`flex h-10 w-full items-center justify-between rounded-md border px-4 text-start ${model ? "text-black" : "text-gray-400"}`}
+        <ModalButton
+          label="모델명"
+          value={model}
+          placeholder="모델명을 선택해주세요"
           onClick={() => setIsModalOpen(true)}
-        >
-          <p>{model || "제조사를 선택해주세요"}</p>
-          <Image src="/icons/Arrow_Bottom.svg" alt="제조사 선택" width={15} height={7.5} />
-        </button>
+        />
       ) : (
         <>
           <Input
+            label="모델명"
             type="text"
-            name="제조사 입력"
-            placeholder="제조사를 입력해주세요"
+            name="모델명 입력"
+            placeholder="모델명을 입력해주세요"
             onChange={e => setModel(e.target.value)}
             value={model}
           />
-          <button
-            className="my-2 rounded-xl border border-black bg-gray-300 px-3 py-2 text-center"
+          <Button
+            type="button"
+            className="my-2 w-full border border-black bg-gray-300 text-center text-sm"
             onClick={() => {
               setIsExistModel(true);
               setIsModalOpen(true);
             }}
           >
-            {" "}
             목록에서 선택
-          </button>
+          </Button>
         </>
       )}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>

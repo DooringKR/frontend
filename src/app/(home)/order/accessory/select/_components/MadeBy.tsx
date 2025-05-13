@@ -7,6 +7,7 @@ import { useState } from "react";
 import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
 import Modal from "@/components/Modal/Modal";
+import ModalButton from "@/components/ModalButton/ModalButton";
 
 interface MadeByProps {
   madeBy: string;
@@ -16,6 +17,7 @@ interface MadeByProps {
 function MadeBy({ setMadeBy, madeBy }: MadeByProps) {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(true);
   const [isExistMadeBy, setIsExistMadeBy] = useState<boolean>(true);
+
   const handleSelectModel = (model: string) => {
     setMadeBy(model);
     setIsModalOpen(false);
@@ -23,32 +25,33 @@ function MadeBy({ setMadeBy, madeBy }: MadeByProps) {
 
   return (
     <div>
-      <h3 className="mb-2">제조사</h3>
       {isExistMadeBy ? (
-        <button
-          className={`flex h-10 w-full items-center justify-between rounded-md border px-4 text-start ${madeBy ? "text-black" : "text-gray-400"}`}
+        <ModalButton
+          label="제조사"
+          value={madeBy}
+          placeholder="제조사를 선택해주세요"
           onClick={() => setIsModalOpen(true)}
-        >
-          <p>{madeBy || "제조사를 선택해주세요"}</p>
-          <Image src="/icons/Arrow_Bottom.svg" alt="제조사 선택" width={15} height={7.5} />
-        </button>
+        />
       ) : (
         <>
           <Input
+            label="제조사"
             type="text"
             name="제조사 입력"
             placeholder="제조사를 입력해주세요"
             onChange={e => setMadeBy(e.target.value)}
             value={madeBy}
           />
-          <button className="my-2 rounded-xl border border-black bg-gray-300 py-2 px-3 text-center" onClick={()=> {
-            setIsExistMadeBy(true)
-            setIsModalOpen(true)
-          }
-          }>
-            {" "}
+          <Button
+            type="button"
+            onClick={() => {
+              setIsExistMadeBy(true);
+              setIsModalOpen(true);
+            }}
+            className="my-2 w-full border border-black bg-gray-300 text-center text-sm"
+          >
             목록에서 선택
-          </button>
+          </Button>
         </>
       )}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
@@ -72,16 +75,17 @@ function MadeBy({ setMadeBy, madeBy }: MadeByProps) {
               </button>
             ))}
           </div>
-            <button
-              className="rounded-xl border border-black bg-gray-300 py-2 px-3  text-center"
-              onClick={() => {
-                setIsExistMadeBy(false);
-                setMadeBy("");
-                setIsModalOpen(false);
-              }}
-            >
-              찾는 제조사가 없어요
-            </button>
+          <Button
+            type="button"
+            onClick={() => {
+              setIsExistMadeBy(false);
+              setMadeBy("");
+              setIsModalOpen(false);
+            }}
+            className="mt-2 border border-black bg-gray-300 text-sm"
+          >
+            찾는 제조사가 없어요
+          </Button>
         </div>
       </Modal>
     </div>
