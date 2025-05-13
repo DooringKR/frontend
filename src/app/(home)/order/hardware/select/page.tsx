@@ -125,7 +125,6 @@ function SelectPage() {
       <div className="fixed bottom-0 left-0 right-0 z-10 h-20 w-full bg-white">
         {hardwareRequests === null ? (
           <Button
-            size="large"
             className="fixed bottom-5 left-5 right-5 mt-16 rounded-md text-white"
             onClick={handleSkipRequest}
           >
@@ -133,7 +132,6 @@ function SelectPage() {
           </Button>
         ) : (
           <Button
-            size="large"
             className="fixed bottom-5 left-5 right-5 rounded-md text-white"
             onClick={handleNext}
           >

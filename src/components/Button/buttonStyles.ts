@@ -1,13 +1,21 @@
-export const getButtonStyle = (disabled?: boolean) => {
-  if (disabled) return "bg-[#d9d9d9] text-[#b3b3b3] border border-[#b3b3b3] cursor-not-allowed";
-  return "bg-[#2c2c2c] ";
-};
+interface ButtonStyleOptions {
+  disabled?: boolean;
+  selected?: boolean;
+  loading?: boolean;
+}
 
-export const getSizeClasses = (size: string) => {
-  switch (size) {
-    case "small":
-      return "h-10 rounded-lg px-3 font-normal text-base text-center";
-    case "large":
-      return "h-10 rounded-lg px-3 font-normal text-base text-center";
+export function getButtonStyle({ disabled, selected, loading }: ButtonStyleOptions): string {
+  if (disabled) {
+    return "bg-brand-100 text-gray-300 cursor-not-allowed rounded-xl";
   }
-};
+
+  if (loading) {
+    return "bg-brand-500 text-white rounded-xl";
+  }
+
+  if (selected) {
+    return "bg-brand-500 text-white focus:ring-brand-200 hover:bg-brand-600 rounded-xl";
+  }
+
+  return "bg-gray-100 text-gray-800 focus:ring-gray-300 hover:bg-gray-200 rounded-xl";
+}
