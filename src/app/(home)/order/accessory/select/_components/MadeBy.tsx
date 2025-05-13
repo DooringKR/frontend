@@ -76,13 +76,14 @@ function MadeBy({ setMadeBy, madeBy }: MadeByProps) {
             ))}
           </div>
           <Button
+            selected={true}
             type="button"
             onClick={() => {
               setIsExistMadeBy(false);
               setMadeBy("");
               setIsModalOpen(false);
             }}
-            className="mt-2 border border-black bg-gray-300 text-sm"
+            className="mt-2 text-sm"
           >
             찾는 제조사가 없어요
           </Button>

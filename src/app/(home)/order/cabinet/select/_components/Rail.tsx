@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useState } from "react";
 
 import Modal from "@/components/Modal/Modal";
+import ModalButton from "@/components/ModalButton/ModalButton";
 
 interface RailProps {
   railType: string;
@@ -20,14 +21,12 @@ function Rail({ setRailType, railType }: RailProps) {
 
   return (
     <div>
-      <h3 className="mb-2">레일 종류</h3>
-      <button
-        className={`flex h-10 w-full items-center justify-between rounded-md border px-4 text-start ${railType ? "text-black" : "text-gray-400"}`}
+      <ModalButton
+        label="레일 종류"
+        value={railType}
+        placeholder="레일 종류를 선택해주세요"
         onClick={() => setIsModalOpen(true)}
-      >
-        <p>{railType || "레일 종류를 선택해주세요"}</p>
-        <Image src="/icons/Arrow_Bottom.svg" alt="레일 종류 선택" width={15} height={7.5} />
-      </button>
+      />
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <div className="flex flex-col gap-4">
           <div className="flex justify-between">

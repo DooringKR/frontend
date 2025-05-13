@@ -1,13 +1,13 @@
 "use client";
 
 import { CABINET_CATEGORY_LIST } from "@/constants/category";
+import { CABINET_ITEMS_NAME } from "@/constants/modelList";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import Button from "@/components/Button/Button";
 
 import useCabinetStore from "@/store/Items/cabinetStore";
-import { CABINET_ITEMS_NAME } from "@/constants/modelList";
 
 function ConfirmPage() {
   const router = useRouter();
@@ -49,8 +49,6 @@ function ConfirmPage() {
   const currentCategory = CABINET_CATEGORY_LIST.find(item => item.slug === cabinetItem.slug);
   const header = currentCategory?.header || "부분장";
 
-
-
   return (
     <div className="flex flex-col gap-6 p-5 pb-20">
       <h1 className="text-xl font-bold">부분장 주문 개수를 선택해주세요</h1>
@@ -88,11 +86,11 @@ function ConfirmPage() {
         {cabinetItem.cabinetRequests && <p>기타 요청 사항: {cabinetItem.cabinetRequests}</p>}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 z-10 flex gap-2 bg-white p-5">
-        <Button className="flex-1 bg-gray-200 text-black" onClick={handleAddToCart}>
+      <div className="fixed bottom-[68px] left-0 right-0 z-10 flex gap-2 bg-white p-5">
+        <Button className="flex-1" onClick={handleAddToCart}>
           장바구니 담기
         </Button>
-        <Button className="flex-1 bg-black text-white" onClick={handlePurchase}>
+        <Button selected={true} className="flex-1" onClick={handlePurchase}>
           바로 구매
         </Button>
       </div>

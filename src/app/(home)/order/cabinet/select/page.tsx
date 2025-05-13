@@ -229,7 +229,9 @@ function SelectPage() {
         <p className="text-sm text-gray-400">색상이 선택되지 않았습니다.</p>
       )}
       {renderTypeComponent()}
-      {handleType && <Material material={material} setMaterial={setMaterial} />}
+      {(handleType || compartmentCount) && (
+        <Material material={material} setMaterial={setMaterial} />
+      )}
       {material && (
         <SizeInput
           label="두께"
@@ -240,7 +242,13 @@ function SelectPage() {
         />
       )}
       {thickness && (
-        <SizeInput label="너비" name="width" placeholder="너비" value={width} onChange={setWidth} />
+        <SizeInput
+          label="너비"
+          name="width"
+          placeholder="너비 입력"
+          value={width}
+          onChange={setWidth}
+        />
       )}
       {width && (
         <SizeInput
@@ -265,32 +273,30 @@ function SelectPage() {
       {drawerType && <Rail railType={railType} setRailType={setRailType} />}
       {railType && (
         <>
-          <div>
-            <p>요청사항</p>
-            <Input
-              type="text"
-              name="doorRequest"
-              placeholder="요청사항을 입력해주세요"
-              value={cabinetRequests ?? ""}
-              onChange={e => setCabinetRequests(e.target.value)}
-            />
-          </div>
+          <Input
+            label="요청사항"
+            type="text"
+            name="cabinetRequest"
+            placeholder="요청사항을 입력해주세요"
+            value={cabinetRequests ?? ""}
+            onChange={e => setCabinetRequests(e.target.value)}
+          />
           <div className="fixed bottom-0 left-0 right-0 z-10 h-20 w-full bg-white">
             {cabinetRequests === null ? (
               <Button
-                size="large"
-                className="fixed bottom-5 left-5 right-5 mt-16 rounded-md text-white"
+                selected
+                className="fixed bottom-[88px] left-5 right-5 mt-16 rounded-md text-white"
                 onClick={handleSkipRequest}
               >
                 요청사항 생략하기
               </Button>
             ) : (
               <Button
-                size="large"
-                className="fixed bottom-5 left-5 right-5 rounded-md text-white"
+                selected
+                className="fixed bottom-[88px] left-5 right-5 rounded-md text-white"
                 onClick={handleNext}
               >
-                다음
+                확인
               </Button>
             )}
           </div>

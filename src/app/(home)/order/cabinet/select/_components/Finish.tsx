@@ -4,27 +4,25 @@ import Button from "@/components/Button/Button";
 
 interface FinishTypeProps {
   finishType: string | null;
-  setFinishType: (value:"urahome" | "makura" | null) => void;
+  setFinishType: (value: "urahome" | "makura" | null) => void;
 }
 
 function Finish({ setFinishType, finishType }: FinishTypeProps) {
   return (
     <div>
-      <h3 className="mb-2">마감 방식</h3>
-      <div className="flex flex-grow gap-4 w-full">
+      <h3 className="mb-2 text-sm text-gray-300">마감 방식</h3>
+      <div className="flex w-full flex-grow gap-4">
         <Button
           onClick={() => setFinishType("makura")}
-          className={`w-full border border-black ${
-            finishType === "makura" ? "bg-black text-white" : "bg-gray-200 text-black"
-          }`}
+          selected={finishType === "makura"}
+          className="w-full"
         >
           막우라
         </Button>
         <Button
           onClick={() => setFinishType("urahome")}
-          className={`w-full border border-black ${
-            finishType === "urahome" ? "bg-black text-white" : "bg-gray-200 text-black"
-          }`}
+          selected={finishType === "urahome"}
+          className="w-full"
         >
           우라홈
         </Button>

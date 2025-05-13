@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useState } from "react";
 
 import Modal from "@/components/Modal/Modal";
+import ModalButton from "@/components/ModalButton/ModalButton";
 
 interface DrawerProps {
   material: string;
@@ -20,14 +21,12 @@ function Material({ setMaterial, material }: DrawerProps) {
 
   return (
     <div>
-      <h3 className="mb-2">소재</h3>
-      <button
-        className={`flex h-10 w-full items-center justify-between rounded-md border px-4 text-start ${material ? "text-black" : "text-gray-400"}`}
+      <ModalButton
+        label="소재"
+        value={material}
+        placeholder="소재를 선택해주세요"
         onClick={() => setIsModalOpen(true)}
-      >
-        <p>{material || "소재 종류를 선택해주세요"}</p>
-        <Image src="/icons/Arrow_Bottom.svg" alt="소재 종류 선택" width={15} height={7.5} />
-      </button>
+      />
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <div className="flex flex-col gap-4">
           <div className="flex justify-between">

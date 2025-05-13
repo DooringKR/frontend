@@ -33,18 +33,21 @@ function Model({ setModel, model }: ModelProps) {
           onClick={() => setIsModalOpen(true)}
         />
       ) : (
-        <>
-          <Input
-            label="모델명"
-            type="text"
-            name="모델명 입력"
-            placeholder="모델명을 입력해주세요"
-            onChange={e => setModel(e.target.value)}
-            value={model}
-          />
+        <div className="flex w-full gap-2">
+          <div className="w-full">
+            <Input
+              label="모델명"
+              type="text"
+              name="모델명 입력"
+              placeholder="모델명을 입력해주세요"
+              onChange={e => setModel(e.target.value)}
+              value={model}
+            />
+          </div>
           <Button
             type="button"
-            className="my-2 w-full border border-black bg-gray-300 text-center text-sm"
+            selected={true}
+            className="my-2 w-[100px] px-4 text-sm"
             onClick={() => {
               setIsExistModel(true);
               setIsModalOpen(true);
@@ -52,7 +55,7 @@ function Model({ setModel, model }: ModelProps) {
           >
             목록에서 선택
           </Button>
-        </>
+        </div>
       )}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <div className="flex flex-col gap-4">
@@ -75,16 +78,18 @@ function Model({ setModel, model }: ModelProps) {
               </button>
             ))}
           </div>
-          <button
-            className="rounded-xl border border-black bg-gray-300 px-3 py-2 text-center"
+          <Button
+            selected={true}
+            type="button"
             onClick={() => {
               setIsExistModel(false);
               setModel("");
               setIsModalOpen(false);
             }}
+            className="mt-2 text-sm"
           >
             찾는 모델명이 없어요
-          </button>
+          </Button>
         </div>
       </Modal>
     </div>
