@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
-
 import { HARDWARE_MADEBY_LIST } from "@/constants/modelList";
+import Image from "next/image";
+import { useState } from "react";
 
 import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
@@ -26,10 +25,9 @@ function MadeBy({ setMadeBy, madeBy }: MadeByProps) {
 
   return (
     <div>
-      <h3 className="mb-2 font-medium">제조사</h3>
-
       {isExistMadeBy ? (
         <ModalButton
+          label="제조사"
           value={madeBy}
           placeholder="제조사를 선택해주세요"
           onClick={() => setIsModalOpen(true)}
@@ -37,6 +35,7 @@ function MadeBy({ setMadeBy, madeBy }: MadeByProps) {
       ) : (
         <>
           <Input
+            label="제조사"
             type="text"
             name="제조사 입력"
             placeholder="제조사를 입력해주세요"

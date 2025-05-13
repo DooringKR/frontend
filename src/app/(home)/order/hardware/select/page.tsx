@@ -111,28 +111,28 @@ function SelectPage() {
       <MadeBy setMadeBy={setMadeBy} madeBy={madeBy} />
       {madeBy && <Model setModel={setModel} model={model} />}
       {model && (
-        <div className="flex flex-col gap-2">
-          <label>요청사항</label>
-          <Input
-            type="text"
-            name="요청사항"
-            placeholder="요청사항을 입력해주세요"
-            onChange={e => setHardwareRequests(e.target.value)}
-            value={hardwareRequests ?? ""}
-          />
-        </div>
+        <Input
+          label="요청사항"
+          type="text"
+          name="hardwareRequests"
+          placeholder="요청사항을 입력해주세요"
+          onChange={e => setHardwareRequests(e.target.value)}
+          value={hardwareRequests ?? ""}
+        />
       )}
-      <div className="fixed bottom-0 left-0 right-0 z-10 h-20 w-full bg-white">
+      <div className="fixed bottom-[68px] left-0 right-0 z-10 h-20 w-full bg-white">
         {hardwareRequests === null ? (
           <Button
-            className="fixed bottom-5 left-5 right-5 mt-16 rounded-md text-white"
+            selected={true}
+            className="fixed bottom-[88px] left-5 right-5 mt-16 rounded-md text-white"
             onClick={handleSkipRequest}
           >
             요청사항 생략하기
           </Button>
         ) : (
           <Button
-            className="fixed bottom-5 left-5 right-5 rounded-md text-white"
+            selected={true}
+            className="fixed bottom-[88px] left-5 right-5 rounded-md text-white"
             onClick={handleNext}
           >
             확인

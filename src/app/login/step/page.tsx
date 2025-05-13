@@ -15,16 +15,11 @@ function LoginStepPage() {
   const { userType, user_phoneNumber, setUserType, setUserPhoneNumber } = useUserStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUserTypeModalOpen, setIsUserTypeModalOpen] = useState(false);
-  const [isAgreed, setIsAgreed] = useState(false);
   const router = useRouter();
 
   const handleTypeSelect = (type: "company" | "factory") => {
     setUserType(type);
     setIsUserTypeModalOpen(false); // 선택 시 모달 닫기
-  };
-
-  const toggleAgreement = () => {
-    setIsAgreed(prev => !prev);
   };
 
   const handleStart = async () => {
@@ -56,7 +51,7 @@ function LoginStepPage() {
         placeholder="업체 유형을 선택해 주세요"
         onClick={() => setIsUserTypeModalOpen(true)}
         className="text-2xl"
-      />{" "}
+      />
       {userType && (
         <Button
           onClick={() => setIsModalOpen(true)}
