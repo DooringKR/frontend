@@ -34,6 +34,7 @@ const UnderlinedInput: React.FC<UnderlinedInputProps> = ({
   //활성화된 상태면 에러를 그대로 사용, 비활성화상태는? 이 코드 필요한지 모르겠지만 일단 남겨둠
   const effectiveError = disabled ? undefined : error;
 
+  //todo: 입력 완료 시 색깔이 연함. 디자인 파일처럼 진하게 해야 함
   const labelColor = effectiveError
     ? "text-red-500"
     : isFocused
@@ -69,27 +70,26 @@ const UnderlinedInput: React.FC<UnderlinedInputProps> = ({
     <div className="relative w-full flex flex-col gap-1">
       {/* Label */}
       <div className='h-[20px]'>
-      {(isFocused || inputValue) && ( // 조건부 렌더링 추가
-        <label
+        {(isFocused || inputValue) && ( // 조건부 렌더링 추가
+          <label
             className={`text-[14px] font-normal leading-[1.4] ${labelColor}`}
-        >
+          >
             {label}
             {required && <span className="text-red-500 ml-1">*</span>}
-        </label>
+          </label>
         )}
       </div>
-      
+
 
       {/* Input */}
       <div className="relative">
         <input
           ref={inputRef} // ref 연결
           type={type}
-          className={`w-full border-b-2 bg-transparent py-2 text-[23px] outline-none transition-all pr-8 ${
-            error
+          className={`w-full border-b-2 bg-transparent py-2 text-[23px] outline-none transition-all pr-8 ${error
               ? 'border-red-500 focus:border-red-500'
               : 'border-gray-300 focus:border-brand-500'
-          }`}
+            }`}
           value={inputValue}
           placeholder={isFocused ? '' : placeholder}
           onFocus={() => setIsFocused(true)}
@@ -113,9 +113,8 @@ const UnderlinedInput: React.FC<UnderlinedInputProps> = ({
 
       {/* Helper Text */}
       <div
-        className={`mt-1 text-[15px] ${
-          error ? 'text-red-500' : 'text-gray-500'
-        }`}
+        className={`mt-1 text-[15px] ${error ? 'text-red-500' : 'text-gray-500'
+          }`}
       >
         {helperText}
       </div>
