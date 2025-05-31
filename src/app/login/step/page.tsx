@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import Button from "@/components/Button/Button";
 import Input from "@/components/Input/Input";
@@ -10,14 +10,32 @@ import Modal from "@/components/Modal/Modal";
 import ModalButton from "@/components/ModalButton/ModalButton";
 
 import useUserStore from "@/store/userStore";
+import UnderlinedInput from "@/components/Input/UnderlinedInput";
+import baseSchema, { PhoneFormData } from "@/utils/schema";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
+import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import Header1 from "@/components/Header/Header_1";
 
 function LoginStepPage() {
   const { userType, user_phoneNumber, setUserType, setUserPhoneNumber } = useUserStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUserTypeModalOpen, setIsUserTypeModalOpen] = useState(false);
   const router = useRouter();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<PhoneFormData>({
+    resolver: zodResolver(baseSchema),
+    mode: "onChange",
+  });
 
-  const handleTypeSelect = (type: "company" | "factory") => {
+  const handleTypeSelect = (type:"company" | "factory") => {
     setUserType(type);
     setIsUserTypeModalOpen(false); // 선택 시 모달 닫기
   };
@@ -34,9 +52,30 @@ function LoginStepPage() {
   };
 
   return (
-    <div className="relative flex h-screen w-full flex-col gap-5 bg-white p-5">
-      <h1 className="text-2xl font-semibold leading-[1.2] text-black">어떤 업체에서 오셨어요?</h1>
-      <Input
+    <div className="relative flex h-screen w-full flex-col gap-5 bg-white">
+        <TopNavigator title="테스트" />
+        <Header1 
+          title={userType ? "입력한 정보를 확인해주세요" : "어떤 업체에서 오셨어요?"} 
+          size="Large"
+        />
+        <div className="px-5">
+        <UnderlinedInput 
+          label={"휴대폰 번호"}
+          type="tel"
+          value={user_phoneNumber || ""}
+          placeholder="휴대폰 번호"
+          error={!!errors.user_phoneNumber}
+          helperText={errors.user_phoneNumber?.message || ""}
+          required={true}
+          onChange={(value) => {
+            const formatted = formatPhoneNumber(value);
+            setValue("user_phoneNumber", formatted, {
+              shouldValidate: true,
+              shouldDirty: true,
+            });
+          }}
+       />
+      {/* <Input
         label="휴대폰 번호"
         type="text"
         name="user_phoneNumber"
@@ -44,7 +83,7 @@ function LoginStepPage() {
         onChange={e => setUserPhoneNumber(e.target.value)}
         placeholder="010-1234-5678"
         className="h-12 w-full text-2xl"
-      />
+      /> */}
       <ModalButton
         label="업체 유형 선택"
         value={userType === "company" ? "인테리어 업체" : userType === "factory" ? "공장" : ""}
@@ -126,6 +165,8 @@ function LoginStepPage() {
           </Button>
         </div>
       </Modal>
+          </div> 
+        
     </div>
   );
 }
