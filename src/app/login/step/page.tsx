@@ -18,6 +18,7 @@ import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import Header1 from "@/components/Header/Header_1";
 import UnderlinedSelect from "@/components/Input/UnderlinedSelect";
+import BottomButton from "@/components/BottomButton/BottomButton";
 
 function LoginStepPage() {
   const { userType, user_phoneNumber, setUserType, setUserPhoneNumber } = useUserStore();
@@ -94,7 +95,17 @@ function LoginStepPage() {
               throw new Error("Function not implemented.");
             }} />
         </div>
-        {userType && (
+        <BottomButton
+          className="absolute bottom-0 left-0 right-0"
+          type="textcombo+button"
+          textComboText={{ title: "타이틀", subtitle: "서브타이틀" }}
+          button1Text="확인"
+          button2Text="확인"
+          button1Type="Brand"
+          button2Type="GrayMedium"
+          onButton1Click={() => setIsModalOpen(true)}
+        />
+        {/* {userType && (
           <Button
             onClick={() => setIsModalOpen(true)}
             selected={true}
@@ -102,7 +113,7 @@ function LoginStepPage() {
           >
             확인
           </Button>
-        )}
+        )} */}
         <Modal isOpen={isUserTypeModalOpen} onClose={() => setIsUserTypeModalOpen(false)}>
           <div>
             <h2 className="pb-5 pt-2 text-xl font-bold">업체 유형을 선택해주세요</h2>
@@ -163,9 +174,7 @@ function LoginStepPage() {
                 </div>
               </div>
             </div>
-            <Button selected={true} type="button" onClick={handleStart}>
-              모두 동의하고 회원가입
-            </Button>
+            <BottomButton className="absolute bottom-5 left-5 right-5" type="1button" button1Text="모두 동의하고 회원가입" onButton1Click={handleStart} />
           </div>
         </Modal>
       </div>

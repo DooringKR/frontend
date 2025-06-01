@@ -25,6 +25,7 @@ const config: Config = {
       },
       colors: {
         brand: {
+          50: "#ECF9F3",
           100: "#D2EFE1",
           200: "#AFE3CA",
           500: "#44BE83",
