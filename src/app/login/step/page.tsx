@@ -19,6 +19,10 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import Header1 from "@/components/Header/Header_1";
 import UnderlinedSelect from "@/components/Input/UnderlinedSelect";
 import BottomButton from "@/components/BottomButton/BottomButton";
+import BottomSheet from "@/components/BottomSheet/BottomSheet";
+import CompanyTypeButton from "@/components/Button/CompanyTypeButton";
+import PaintBruchVertical from "public/icons/paintbrush_vertical";
+import Factory from "public/icons/factory";
 
 function LoginStepPage() {
   const { userType, user_phoneNumber, setUserType, setUserPhoneNumber } = useUserStore();
@@ -114,7 +118,26 @@ function LoginStepPage() {
             확인
           </Button>
         )} */}
-        <Modal isOpen={isUserTypeModalOpen} onClose={() => setIsUserTypeModalOpen(false)}>
+        <BottomSheet
+          isOpen={isUserTypeModalOpen}
+          title={"업체 유형을 선택해 주세요"}
+          onClose={() => setIsUserTypeModalOpen(false)}
+          children={
+            <div className="flex gap-3 py-5">
+              <CompanyTypeButton
+                text={"인테리어 업체"}
+                icon={<PaintBruchVertical />}
+                onClick={() => handleTypeSelect("company")}
+              />
+              <CompanyTypeButton
+                text={"자재 공장"}
+                icon={<Factory />}
+                onClick={() => handleTypeSelect("factory")}
+              />
+            </div>
+          }
+        />
+        {/* <Modal isOpen={isUserTypeModalOpen} onClose={() => setIsUserTypeModalOpen(false)}>
           <div>
             <h2 className="pb-5 pt-2 text-xl font-bold">업체 유형을 선택해주세요</h2>
             <div className="flex w-full gap-3">
@@ -148,7 +171,7 @@ function LoginStepPage() {
               </Button>
             </div>
           </div>
-        </Modal>
+        </Modal> */}
         <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
           <div className="flex flex-col gap-5">
             <h2 className="text-lg font-bold text-gray-800">
