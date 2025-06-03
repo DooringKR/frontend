@@ -74,7 +74,7 @@ function LoginStepPage() {
           placeholder="휴대폰 번호"
           error={!!errors.user_phoneNumber}
           helperText={errors.user_phoneNumber?.message || ""}
-          required={true}
+          // required={true}
           onChange={(value) => {
             const formatted = formatPhoneNumber(value);
             setValue("user_phoneNumber", formatted, {
