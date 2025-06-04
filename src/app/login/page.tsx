@@ -13,6 +13,9 @@ import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 import handlePhoneKeyDown from "@/utils/handlePhoneKeyDown";
 import baseSchema, { PhoneFormData } from "@/utils/schema";
 import { signin } from "@/api/authApi";
+import UnderlinedInput from "@/components/Input/UnderlinedInput";
+import Header1 from "@/components/Header/Header_1";
+import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 function PhoneLoginPage() {
   const router = useRouter();
@@ -68,13 +71,12 @@ function PhoneLoginPage() {
   const isPhoneEntered = !!watchedPhoneNumber?.trim();
 
   return (
-    <div className="flex h-screen w-full flex-col justify-center gap-6 bg-white px-5">
-      <Image src="/img/Logo.png" alt="도어링 메인 로고" width={60} height={60} />
-      <h1 className="text-2xl font-semibold leading-[1.2] text-[#000000]">
-        휴대폰번호로 <br /> 바로가구 시작하기
-      </h1>
-      <form onSubmit={handleSubmit(onSubmit)} className="w-[272px] space-y-6">
-        <Input
+    <div className="flex h-screen w-full flex-col justify-start gap-6 bg-white px-5">
+      {/* <Image src="/img/Logo.png" alt="도어링 메인 로고" width={60} height={60} /> */}
+      <TopNavigator title="테스트" />
+      <Header1 title="휴대폰 번호를 입력해주세요" size="Large"/>
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6 px-5">
+        {/* <Input
           type="text"
           label="휴대폰 번호"
           name="user_phoneNumber"
@@ -89,6 +91,20 @@ function PhoneLoginPage() {
             });
           }}
           onKeyDown={handlePhoneKeyDown}
+        /> */}
+        <UnderlinedInput
+          label="휴대폰 번호"
+          value={watchedPhoneNumber || ""}
+          placeholder="휴대폰 번호"
+          error={!!errors.user_phoneNumber}
+          helperText={errors.user_phoneNumber?.message || ""}
+          onChange={(value) => {
+            const formatted = formatPhoneNumber(value);
+            setValue("user_phoneNumber", formatted, {
+              shouldValidate: true,
+              shouldDirty: true,
+            });
+          }}
         />
 
         <button
