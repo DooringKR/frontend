@@ -1,7 +1,7 @@
 import Image from "next/image";
 interface HeaderProps {
-  title?: string;
-  subtitle?: string;
+  title?: React.ReactNode;
+  subtitle?: React.ReactNode;
   size?: "Large" | "Medium"; // size prop 추가
 }
 

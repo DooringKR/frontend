@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import Header from "@/components/Header/Header";
+import Header1 from "@/components/Header/Header_1";
 
 const NAV_ITEMS = [
   { href: "/", label: "홈", key: "home" },
@@ -21,7 +22,7 @@ function Layout({
 
   return (
     <div className="relative min-h-screen pb-20">
-      <Header />
+      {/* <Header /> */}
       {children}
 
       <footer className="fixed bottom-0 left-0 right-0 z-10 border-t bg-white text-sm font-semibold">
