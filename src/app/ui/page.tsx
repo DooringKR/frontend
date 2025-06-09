@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 
+import SelectToggleButton from "@/components/Button/SelectToggleButton";
 import DoorPreviewIcon from "@/components/DoorPreviewIcon/DoorPreviewIcon";
 
 import BoxedInput from "../../components/Input/BoxedInput";
@@ -26,6 +27,18 @@ const Page = () => {
           placeholder="이름을 입력하세요"
         />
       </div>
+      <SelectToggleButton
+        imageSrc="https://via.placeholder.com/48"
+        label="Option 1"
+        description="This is the first option"
+        checked={true}
+        onClick={() => console.log("Option 1 clicked")}
+      />
+      <SelectToggleButton
+        label="Option 2"
+        // checked={true}
+        onClick={() => console.log("Option 2 clicked")}
+      />
       <DoorPreviewIcon
         DoorType={"플랩문"}
         FatOrTall={"Same"}
