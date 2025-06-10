@@ -6,10 +6,14 @@ import SelectToggleButton from "@/components/Button/SelectToggleButton";
 import DoorPreviewIcon from "@/components/DoorPreviewIcon/DoorPreviewIcon";
 
 import BoxedInput from "../../components/Input/BoxedInput";
+import SegmentedControl from "@/components/SegmentedControl/SegmentedControl";
 
 const Page = () => {
   const [value, setValue] = useState("");
   const [error, setError] = useState<string | undefined>(undefined);
+
+  // SegmentedControl의 value 상태 추가
+  const [segmentValue, setSegmentValue] = useState(0);
 
   const handleChange = (value: string) => {
     setValue(value);
@@ -18,6 +22,11 @@ const Page = () => {
 
   return (
     <div className="flex flex-col gap-5 p-5">
+      <SegmentedControl
+        options={["레이블 1", "레이블 2"]}
+        value={segmentValue}
+        onChange={setSegmentValue}
+      />
       <div style={{ maxWidth: 400, margin: "2rem auto" }}>
         <BoxedInput
           label="이름"
