@@ -17,7 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import Header1 from "@/components/Header/Header_1";
-import UnderlinedSelect from "@/components/Input/UnderlinedSelect";
+import UnderlinedSelect from "@/components/Select/UnderlinedSelect";
 import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import CompanyTypeButton from "@/components/Button/CompanyTypeButton";

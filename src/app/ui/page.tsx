@@ -7,6 +7,8 @@ import DoorPreviewIcon from "@/components/DoorPreviewIcon/DoorPreviewIcon";
 
 import BoxedInput from "../../components/Input/BoxedInput";
 import SegmentedControl from "@/components/SegmentedControl/SegmentedControl";
+import BoringInputField from "@/components/Input/BoringInputField";
+import BoxedSelect from "@/components/Select/BoxedSelect";
 
 const Page = () => {
   const [value, setValue] = useState("");
@@ -22,6 +24,18 @@ const Page = () => {
 
   return (
     <div className="flex flex-col gap-5 p-5">
+      <BoxedSelect
+        options={[]}
+        value={""}
+        onChange={function (value: string): void {
+          throw new Error("Function not implemented.");
+        }} />
+      <BoringInputField
+        placeholder="이름"
+        value={value}
+        onChange={handleChange}
+        error={error}
+      />
       <SegmentedControl
         options={["레이블 1", "레이블 2"]}
         value={segmentValue}
