@@ -5,7 +5,6 @@ import Factory from "public/icons/factory";
 import KakaoIcon from "public/icons/kakao";
 import PaintBruchVertical from "public/icons/paintbrush_vertical";
 import React, { useState } from "react";
-import { fa } from "zod/v4/locales";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
