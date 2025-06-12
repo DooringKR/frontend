@@ -28,7 +28,7 @@ const BoringInputField: React.FC<BoringInputFieldProps> = ({
     return (
         <input
             className={`
-                    w-[100px] px-1 py-[7px] rounded-[10px] 
+                    w-full px-1 py-[7px] rounded-[10px] 
                      outline-none
                     ${error
                     ? "border-[2px] border-red-300"

@@ -9,6 +9,7 @@ import BoxedInput from "../../components/Input/BoxedInput";
 import SegmentedControl from "@/components/SegmentedControl/SegmentedControl";
 import BoringInputField from "@/components/Input/BoringInputField";
 import BoxedSelect from "@/components/Select/BoxedSelect";
+import DoorPreview from "@/components/DoorPreview/DoorPreview";
 
 const Page = () => {
   const [value, setValue] = useState("");
@@ -24,9 +25,19 @@ const Page = () => {
 
   return (
     <div className="flex flex-col gap-5 p-5">
+      <div className="p-5 justify-center items-center flex flex-col">
+        <DoorPreview
+          DoorWidth={0}
+          DoorHeight={0}
+          boringDirection={"right"}
+          boringNum={4}
+          boringSize={[]} />
+      </div>
       <BoxedSelect
+        label="레이블"
         options={[]}
-        value={""}
+        value={"에러값"}
+        error="에러 메시지"
         onChange={function (value: string): void {
           throw new Error("Function not implemented.");
         }} />

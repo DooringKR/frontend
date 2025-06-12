@@ -7,6 +7,7 @@ interface BoxedSelectProps {
     value: string;
     onChange: (value: string) => void;
     onClick?: () => void; // onClick prop 추가
+    error?: string; // error prop 추가
 }
 
 const BoxedSelect: React.FC<BoxedSelectProps> = ({
@@ -15,17 +16,22 @@ const BoxedSelect: React.FC<BoxedSelectProps> = ({
     value,
     onChange,
     onClick,
+    error,
 }) => {
     const [isFocused, setIsFocused] = useState(false);
 
     return (
         <div className="w-full flex flex-col gap-2 relative">
             {/* Label */}
-            <div className={`w-full text-[14px] ${isFocused ? 'text-brand-500' : 'text-gray-600'}`}>
+            <div className={`w-full text-[14px] font-400 ${(isFocused && !error) ? 'text-brand-500' : 'text-gray-600'}`}>
                 {label}
             </div>
             <button
-                className={`w-full flex justify-between items-center border-[1px] focus:border-[2px] ${isFocused ? 'border-brand-300' : 'border-gray-200'}`}
+                className={`w-full py-3 px-4 flex justify-between items-center rounded-[12px]
+                    border-[1px] focus:border-[2px]
+                    ${error ? 'border-[2px] border-red-300' : isFocused ? 'border-brand-300' : 'hover:border-brand-100 border-gray-200'}
+                    hover:border-[2px] 
+                     `}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 onClick={() => {
@@ -34,11 +40,14 @@ const BoxedSelect: React.FC<BoxedSelectProps> = ({
                     onChange(value);
                 }}
             >
-                <div className={`${value || isFocused ? 'text-gray-800' : 'text-gray-300'} text-[23px]`}>{value || label}</div>
-                <div className={`${isFocused ? 'text-brand-500' : 'text-gray-200'}`}>
+                <div className={`${(value && !error) ? 'text-gray-700' : 'text-gray-300'} text-[17px]`}>{error ? '잘못된 입력' : value || label}</div>
+                <div className={`${(isFocused && !error) ? 'text-brand-500' : 'text-gray-200'}`}>
                     <ChevronDown />
                 </div>
             </button>
+            {error && (
+                <span className="text-red-500 text-[15px] font-400">{error}</span>
+            )}
         </div>
     );
 };
