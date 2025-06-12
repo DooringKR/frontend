@@ -42,8 +42,8 @@ function MadeBy({ setMadeBy, madeBy }: MadeByProps) {
             onChange={e => setMadeBy(e.target.value)}
             value={madeBy}
           />
-          <Button
-            type="button"
+          {/* <Button
+            type="Brand"
             onClick={() => {
               setIsExistMadeBy(true);
               setIsModalOpen(true);
@@ -51,7 +51,7 @@ function MadeBy({ setMadeBy, madeBy }: MadeByProps) {
             className="my-2 w-full border border-black bg-gray-300 text-center text-sm"
           >
             목록에서 선택
-          </Button>
+          </Button> */}
         </>
       )}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
@@ -75,18 +75,17 @@ function MadeBy({ setMadeBy, madeBy }: MadeByProps) {
               </button>
             ))}
           </div>
-          <Button
+          {/* <Button
             selected={true}
-            type="button"
+            type="Brand"
             onClick={() => {
               setIsExistMadeBy(false);
               setMadeBy("");
               setIsModalOpen(false);
             }}
-            className="mt-2 text-sm"
           >
             찾는 제조사가 없어요
-          </Button>
+          </Button> */}
         </div>
       </Modal>
     </div>

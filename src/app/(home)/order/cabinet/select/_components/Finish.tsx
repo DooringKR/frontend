@@ -1,6 +1,6 @@
 "use client";
 
-import Button from "@/components/Button/Button";
+import Button from "@/components/BeforeEditByKi/Button/Button";
 
 interface FinishTypeProps {
   finishType: string | null;

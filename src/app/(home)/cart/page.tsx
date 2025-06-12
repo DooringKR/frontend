@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import Button from "@/components/Button/Button";
+import Button from "@/components/BeforeEditByKi/Button/Button";
 
 import { AccessoryItem } from "@/store/Items/accessoryStore";
 import { CabinetItem } from "@/store/Items/cabinetStore";

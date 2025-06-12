@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-import Button from "@/components/Button/Button";
+import Button from "@/components/BeforeEditByKi/Button/Button";
 import Input from "@/components/Input/Input";
 
 import useFinishStore from "@/store/Items/finishStore";

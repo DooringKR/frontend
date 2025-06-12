@@ -4,7 +4,7 @@ import { HARDWARE_MADEBY_LIST } from "@/constants/modelList";
 import Image from "next/image";
 import { useState } from "react";
 
-import Button from "@/components/Button/Button";
+import Button from "@/components/BeforeEditByKi/Button/Button";
 import Input from "@/components/Input/Input";
 import Modal from "@/components/Modal/Modal";
 import ModalButton from "@/components/ModalButton/ModalButton";

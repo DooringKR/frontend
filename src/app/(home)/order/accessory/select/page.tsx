@@ -120,7 +120,7 @@ function SelectPage() {
           value={accessoryRequests ?? ""}
         />
       )}
-      <div className="fixed bottom-0 left-0 right-0 z-10 h-20 w-full bg-white">
+      {/* <div className="fixed bottom-0 left-0 right-0 z-10 h-20 w-full bg-white">
         {model &&
           (accessoryRequests === null ? (
             <Button
@@ -139,7 +139,7 @@ function SelectPage() {
               확인
             </Button>
           ))}
-      </div>
+      </div> */}
     </div>
   );
 }

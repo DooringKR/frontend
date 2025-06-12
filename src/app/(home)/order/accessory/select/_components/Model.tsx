@@ -44,7 +44,7 @@ function Model({ setModel, model }: ModelProps) {
               value={model}
             />
           </div>
-          <Button
+          {/* <Button
             type="button"
             selected={true}
             className="my-2 w-[100px] px-4 text-sm"
@@ -54,7 +54,7 @@ function Model({ setModel, model }: ModelProps) {
             }}
           >
             목록에서 선택
-          </Button>
+          </Button> */}
         </div>
       )}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
@@ -78,7 +78,7 @@ function Model({ setModel, model }: ModelProps) {
               </button>
             ))}
           </div>
-          <Button
+          {/* <Button
             selected={true}
             type="button"
             onClick={() => {
@@ -89,7 +89,7 @@ function Model({ setModel, model }: ModelProps) {
             className="mt-2 text-sm"
           >
             찾는 모델명이 없어요
-          </Button>
+          </Button> */}
         </div>
       </Modal>
     </div>

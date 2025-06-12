@@ -4,7 +4,7 @@ import { HARDWARE_CATEGORY_LIST } from "@/constants/category";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import Button from "@/components/Button/Button";
+import Button from "@/components/BeforeEditByKi/Button/Button";
 
 import useHardwareStore from "@/store/Items/hardwareStore";
 

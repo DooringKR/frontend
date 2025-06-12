@@ -1,6 +1,6 @@
 "use client";
 
-import Button from "@/components/Button/Button";
+import Button from "@/components/BeforeEditByKi/Button/Button";
 
 interface UpperProps {
   handleType: "channel" | "outer" | "pull-down" | null;
