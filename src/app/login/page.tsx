@@ -1,21 +1,21 @@
 "use client";
 
+import { signin } from "@/api/authApi";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 
+import Header from "@/components/Header/Header";
 import Input from "@/components/Input/Input";
+import UnderlinedInput from "@/components/Input/UnderlinedInput";
+import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import useUserStore from "@/store/userStore";
 import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 import handlePhoneKeyDown from "@/utils/handlePhoneKeyDown";
 import baseSchema, { PhoneFormData } from "@/utils/schema";
-import { signin } from "@/api/authApi";
-import UnderlinedInput from "@/components/Input/UnderlinedInput";
-import Header1 from "@/components/Header/Header_1";
-import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 function PhoneLoginPage() {
   const router = useRouter();
@@ -41,7 +41,7 @@ function PhoneLoginPage() {
   //     const result = await signin({
   //       phoneNumber: data.user_phoneNumber,
   //     });
-  
+
   //     if (result.isRegistered) {
   //       router.push("/");
   //     } else {
@@ -74,7 +74,7 @@ function PhoneLoginPage() {
     <div className="flex h-screen w-full flex-col justify-start gap-6 bg-white px-5">
       {/* <Image src="/img/Logo.png" alt="도어링 메인 로고" width={60} height={60} /> */}
       <TopNavigator title="테스트" />
-      <Header1 title="휴대폰 번호를 입력해주세요" size="Large"/>
+      <Header title="휴대폰 번호를 입력해주세요" size="Large" />
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6 px-5">
         {/* <Input
           type="text"
@@ -98,7 +98,7 @@ function PhoneLoginPage() {
           placeholder="휴대폰 번호"
           error={!!errors.user_phoneNumber}
           helperText={errors.user_phoneNumber?.message || ""}
-          onChange={(value) => {
+          onChange={value => {
             const formatted = formatPhoneNumber(value);
             setValue("user_phoneNumber", formatted, {
               shouldValidate: true,

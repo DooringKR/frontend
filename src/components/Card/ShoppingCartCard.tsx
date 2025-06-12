@@ -3,7 +3,7 @@ import PlusIcon from "public/icons/plus";
 import TrashCan from "public/icons/trash_can";
 import React from "react";
 
-import Button2 from "../Button/Button2";
+import Button2 from "../Button/Button";
 import DoorPreviewIcon from "../DoorPreviewIcon/DoorPreviewIcon";
 
 interface ShoppingCartCardProps {

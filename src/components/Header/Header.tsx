@@ -1,17 +1,18 @@
 import Image from "next/image";
 
-import BackButton from "../BackButton/BackButton";
-
 interface HeaderProps {
-  title?: string;
+  title?: React.ReactNode;
+  subtitle?: React.ReactNode;
+  size?: "Large" | "Medium"; // size prop 추가
 }
 
-function Header({ title }: HeaderProps) {
+function Header({ title, subtitle, size = "Medium" }: HeaderProps) {
+  const titleClass = size === "Large" ? "text-[26px] font-bold" : "text-[23px]"; // 크기별 클래스 설정
+
   return (
-    <header className="flex items-center justify-between px-5 pt-9">
-      <BackButton />
-      {title && <h1 className="text-2xl">{title}</h1>}
-      <Image src="/icons/Headphones.svg" width={24} height={24} alt="문의하기 버튼" />
+    <header className="flex flex-col items-start gap-[8px] px-[20px] pt-[20px]">
+      <h1 className={`${titleClass} text-left`}>{title}</h1>
+      <h2 className="text-[17px] font-normal text-gray-500">{subtitle}</h2>
     </header>
   );
 }

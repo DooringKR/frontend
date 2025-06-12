@@ -1,28 +1,27 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import Factory from "public/icons/factory";
+import PaintBruchVertical from "public/icons/paintbrush_vertical";
 import { useEffect, useRef, useState } from "react";
-
-import Button from "@/components/Button/Button";
-import Input from "@/components/Input/Input";
-import Modal from "@/components/Modal/Modal";
-import ModalButton from "@/components/ModalButton/ModalButton";
-
-import useUserStore from "@/store/userStore";
-import UnderlinedInput from "@/components/Input/UnderlinedInput";
-import baseSchema, { PhoneFormData } from "@/utils/schema";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
-import TopNavigator from "@/components/TopNavigator/TopNavigator";
-import Header1 from "@/components/Header/Header_1";
-import UnderlinedSelect from "@/components/Select/UnderlinedSelect";
+
 import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import CompanyTypeButton from "@/components/Button/CompanyTypeButton";
-import PaintBruchVertical from "public/icons/paintbrush_vertical";
-import Factory from "public/icons/factory";
+import Header from "@/components/Header/Header";
+import Input from "@/components/Input/Input";
+import UnderlinedInput from "@/components/Input/UnderlinedInput";
+import Modal from "@/components/Modal/Modal";
+import ModalButton from "@/components/ModalButton/ModalButton";
+import UnderlinedSelect from "@/components/Select/UnderlinedSelect";
+import TopNavigator from "@/components/TopNavigator/TopNavigator";
+
+import useUserStore from "@/store/userStore";
+import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
+import baseSchema, { PhoneFormData } from "@/utils/schema";
 
 function LoginStepPage() {
   const { userType, user_phoneNumber, setUserType, setUserPhoneNumber } = useUserStore();
@@ -62,7 +61,7 @@ function LoginStepPage() {
   return (
     <div className="relative flex h-screen w-full flex-col gap-5 bg-white">
       <TopNavigator title="테스트" />
-      <Header1
+      <Header
         title={userType ? "입력한 정보를 확인해주세요" : "어떤 업체에서 오셨어요?"}
         size="Large"
       />
@@ -75,7 +74,7 @@ function LoginStepPage() {
           error={!!errors.user_phoneNumber}
           helperText={errors.user_phoneNumber?.message || ""}
           // required={true}
-          onChange={(value) => {
+          onChange={value => {
             const formatted = formatPhoneNumber(value);
             setValue("user_phoneNumber", formatted, {
               shouldValidate: true,
@@ -93,11 +92,15 @@ function LoginStepPage() {
         className="h-12 w-full text-2xl"
       /> */}
         <div className="pt-5">
-          <UnderlinedSelect label={"업체 유형 선택"} options={[]} value={userType === "company" ? "인테리어 업체" : userType === "factory" ? "공장" : ""}
+          <UnderlinedSelect
+            label={"업체 유형 선택"}
+            options={[]}
+            value={userType === "company" ? "인테리어 업체" : userType === "factory" ? "공장" : ""}
             onClick={() => setIsUserTypeModalOpen(true)}
             onChange={function (): void {
               throw new Error("Function not implemented.");
-            }} />
+            }}
+          />
         </div>
         <BottomButton
           className="absolute bottom-0 left-0 right-0"
@@ -186,22 +189,36 @@ function LoginStepPage() {
                     <span className="font-semibold text-brand-500">필수</span>{" "}
                     <span className="text-gray-700">서비스 이용 동의</span>
                   </p>
-                  <Image src="/icons/Arrow_Right.svg" width={20} alt="왼쪽 더보기 버튼" height={20} />
+                  <Image
+                    src="/icons/Arrow_Right.svg"
+                    width={20}
+                    alt="왼쪽 더보기 버튼"
+                    height={20}
+                  />
                 </div>
                 <div className="flex items-center justify-between">
                   <p>
                     <span className="font-semibold text-brand-500">필수</span>{" "}
                     <span className="text-gray-700">개인정보 수집 및 이용 동의</span>
                   </p>
-                  <Image src="/icons/Arrow_Right.svg" width={20} alt="왼쪽 더보기 버튼" height={20} />
+                  <Image
+                    src="/icons/Arrow_Right.svg"
+                    width={20}
+                    alt="왼쪽 더보기 버튼"
+                    height={20}
+                  />
                 </div>
               </div>
             </div>
-            <BottomButton className="absolute bottom-5 left-5 right-5" type="1button" button1Text="모두 동의하고 회원가입" onButton1Click={handleStart} />
+            <BottomButton
+              className="absolute bottom-5 left-5 right-5"
+              type="1button"
+              button1Text="모두 동의하고 회원가입"
+              onButton1Click={handleStart}
+            />
           </div>
         </Modal>
       </div>
-
     </div>
   );
 }

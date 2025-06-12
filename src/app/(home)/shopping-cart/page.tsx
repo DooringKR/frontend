@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
-import Button2 from "@/components/Button/Button2";
+import Button2 from "@/components/Button/Button";
 import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 

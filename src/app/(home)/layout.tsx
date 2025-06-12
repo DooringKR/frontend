@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import Header from "@/components/Header/Header";
+import Header from "@/components/BeforeEditByKi/Header";
 import Header1 from "@/components/Header/Header_1";
 
 const NAV_ITEMS = [

@@ -1,13 +1,13 @@
-import React, { useRef, useState } from 'react';
-import { Brand_Green500 } from '@/ui-assets/color';
-import InputClear from 'public/icons/InputClear';
-import { FieldError } from 'react-hook-form';
+import { Brand_Green500 } from "@/ui-assets/color";
+import InputClear from "public/icons/InputClear";
+import React, { useRef, useState } from "react";
+import { FieldError } from "react-hook-form";
 
 interface UnderlinedInputProps {
   label: string;
   value?: string;
   placeholder?: string;
-  type?: 'text' | 'password' | 'tel';
+  type?: "text" | "password" | "tel";
   // error?: FieldError | undefined;
   error?: boolean;
   helperText?: string;
@@ -18,11 +18,10 @@ interface UnderlinedInputProps {
 
 const UnderlinedInput: React.FC<UnderlinedInputProps> = ({
   label,
-  value = '',
-  placeholder = '',
-  type = 'text',
+  value = "",
+  type = "text",
   error = false,
-  helperText = '',
+  helperText = "",
   required = false,
   disabled = false,
   onChange,
@@ -58,40 +57,36 @@ const UnderlinedInput: React.FC<UnderlinedInputProps> = ({
   };
 
   const handleClear = () => {
-    setInputValue('');
+    setInputValue("");
     if (onChange) {
-      onChange('');
+      onChange("");
     }
     setIsFocused(true); // Clear 버튼 클릭 시 다시 focus
     inputRef.current?.focus(); // Clear 버튼 클릭 시 input에 포커스
   };
 
   return (
-    <div className="relative w-full flex flex-col gap-1">
+    <div className="relative flex w-full flex-col gap-1">
       {/* Label */}
-      <div className='h-[20px]'>
+      <div className="h-[20px]">
         {(isFocused || inputValue) && ( // 조건부 렌더링 추가
-          <label
-            className={`text-[14px] font-normal leading-[1.4] ${labelColor}`}
-          >
+          <label className={`text-[14px] font-normal leading-[1.4] ${labelColor}`}>
             {label}
-            {required && <span className="text-red-500 ml-1">*</span>}
+            {/* {required && <span className="text-red-500 ml-1">*</span>} */}
           </label>
         )}
       </div>
-
 
       {/* Input */}
       <div className="relative">
         <input
           ref={inputRef} // ref 연결
           type={type}
-          className={`w-full border-b-2 bg-transparent py-2 text-[23px] outline-none transition-all pr-8 ${error
-              ? 'border-red-500 focus:border-red-500'
-              : 'border-gray-300 focus:border-brand-500'
-            }`}
+          className={`w-full border-b-2 bg-transparent py-2 pr-8 text-[23px] outline-none transition-all ${
+            error ? "border-red-500 focus:border-red-500" : "border-gray-300 focus:border-brand-500"
+          }`}
           value={inputValue}
-          placeholder={isFocused ? '' : placeholder}
+          placeholder={isFocused ? "" : label}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           onChange={handleInputChange}
@@ -100,9 +95,9 @@ const UnderlinedInput: React.FC<UnderlinedInputProps> = ({
         {inputValue && (
           <button
             type="button"
-            className={`absolute right-0 top-1/2 transform -translate-y-1/2`}
+            className={`absolute right-0 top-1/2 -translate-y-1/2 transform`}
             onClick={() => {
-              console.log('Clear button clicked'); // 디버깅 로그 추가
+              console.log("Clear button clicked"); // 디버깅 로그 추가
               handleClear();
             }}
           >
@@ -112,10 +107,7 @@ const UnderlinedInput: React.FC<UnderlinedInputProps> = ({
       </div>
 
       {/* Helper Text */}
-      <div
-        className={`mt-1 text-[15px] ${error ? 'text-red-500' : 'text-gray-500'
-          }`}
-      >
+      <div className={`mt-1 text-[15px] ${error ? "text-red-500" : "text-gray-500"}`}>
         {helperText}
       </div>
     </div>

@@ -33,7 +33,7 @@ const SelectToggleButton: React.FC<SelectToggleButtonProps> = ({
         <div className="text-[17px] font-500 text-gray-600">{label}</div>
         {description && <InfoIcon />}
       </div>
-      {description && <div className="text-[17px] font-400 text-gray-400">{description}</div>}
+      {description && <div className="text-[14px] font-400 text-gray-400">{description}</div>}
       {/* 체크박스 아이콘 */}
       {checked !== undefined && (
         <div className="ml-auto">

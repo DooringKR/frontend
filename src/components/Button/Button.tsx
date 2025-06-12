@@ -1,40 +1,76 @@
-import { getButtonStyle } from "./buttonStyles";
+import React from "react";
 
-interface ButtonProps {
-  type?: "button" | "submit";
-  onClick?: () => void;
-  disabled?: boolean;
-  selected?: boolean;
-  loading?: boolean;
-  children?: React.ReactNode;
-  className?: string;
+interface IconProps {
+  icon?: React.ReactNode;
 }
 
-const Button = ({
-  type = "button",
-  onClick,
-  disabled = false,
-  selected = false,
-  loading = false,
-  children,
-  className = "",
-}: ButtonProps) => {
+interface ButtonProps extends IconProps {
+  type: "Brand" | "GrayLarge" | "OutlinedLarge" | "BrandInverse" | "GrayMedium" | "OutlinedMedium";
+  text: string;
+  onClick?: () => void;
+  disabled?: boolean;
+}
+
+const Button: React.FC<ButtonProps> = ({ type, text, onClick, disabled, icon }) => {
+  const getClassName = () => {
+    switch (type) {
+      case "Brand":
+        return [
+          "bg-brand-500 px-4 py-3 rounded-[12px]",
+          "text-white text-[17px] font-500",
+          "hover:bg-brand-600 focus:ring-4 focus:ring-brand-200",
+          "disabled:bg-brand-100 disabled:cursor-not-allowed",
+        ].join(" ");
+      case "GrayLarge":
+        return [
+          "bg-gray-100 px-4 py-3 rounded-[12px]",
+          "text-gray-700 text-[17px] font-500",
+          "hover:bg-gray-200 focus:ring-4 focus:ring-gray-300",
+          "disabled:bg-gray-100 disabled:text-gray-300 disabled:cursor-not-allowed",
+        ].join(" ");
+      case "OutlinedLarge":
+        return [
+          "border-[1px] border-gray-200 bg-white px-4 py-3 rounded-[12px]",
+          "text-gray-700 text-[17px] font-500",
+          "hover:bg-gray-50 focus:ring-4 focus:ring-gray-200",
+          "disabled:bg-gray-50 disabled:text-gray-300 disabled:cursor-not-allowed",
+        ].join(" ");
+      case "BrandInverse":
+        return [
+          "bg-brand-50 px-4 py-3 rounded-[12px]",
+          "text-brand-600 text-[17px] font-500",
+          "hover:bg-brand-100 focus:ring-4 focus:ring-brand-200",
+          "disabled:bg-brand-50 disabled:text-brand-200 disabled:cursor-not-allowed",
+        ].join(" ");
+      case "GrayMedium":
+        return [
+          "bg-gray-100 px-3 py-[9px] rounded-[12px]",
+          "text-gray-700 text-[16px] font-500",
+          "hover:bg-gray-200 focus:ring-[3px] focus:ring-gray-300",
+          "disabled:bg-gray-100 disabled:text-gray-300 disabled:cursor-not-allowed",
+        ].join(" ");
+      case "OutlinedMedium":
+        return [
+          "border-[1px] border-gray-200 bg-white px-3 py-[9px] rounded-[12px]",
+          "text-gray-700 text-[16px] font-500",
+          "hover:bg-gray-50 focus:ring-[3px] focus:ring-gray-200",
+          "disabled:bg-gray-50 disabled:text-gray-300 disabled:cursor-not-allowed",
+        ].join(" ");
+      default:
+        return "";
+    }
+  };
+
   return (
-    <button
-      type={type}
-      onClick={onClick}
-      disabled={disabled || loading}
-      className={`h-12 ${getButtonStyle({ disabled, selected, loading })} ${className}`}
-    >
-      {loading ? (
-        <span className="flex items-center justify-center gap-1">
-          <span className="animate-pulse">•</span>
-          <span className="animate-pulse delay-100">•</span>
-          <span className="animate-pulse delay-200">•</span>
-        </span>
-      ) : (
-        children
-      )}
+    <button className={`button w-full ${getClassName()}`} onClick={onClick} disabled={disabled}>
+      <div className="flex items-center justify-center gap-1">
+        {icon && (
+          <span className={`icon-left ${disabled ? "text-gray-300" : "text-gray-700"}`}>
+            {icon}
+          </span>
+        )}
+        {text}
+      </div>
     </button>
   );
 };
