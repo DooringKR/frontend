@@ -1,13 +1,13 @@
 import React from "react";
-
 import BoringInputField from "../Input/BoringInputField";
 
 interface DoorPreviewProps {
-  DoorWidth: number;
-  DoorHeight: number;
+  DoorWidth: number | undefined; // 가로 길이, undefined일 경우 입력 필요
+  DoorHeight: number | undefined; // 세로 길이, undefined일 경우 입력 필요
   boringDirection: "left" | "right";
   boringNum: 2 | 3 | 4; // 보어링 개수는 2, 3, 4 중 하나
-  boringSize: [];
+  boringSize: number[];
+  onChangeBoringSize?: (sizes: number[]) => void;
 }
 
 const DoorPreview: React.FC<DoorPreviewProps> = ({
@@ -16,9 +16,17 @@ const DoorPreview: React.FC<DoorPreviewProps> = ({
   boringDirection,
   boringNum,
   boringSize,
+  onChangeBoringSize,
 }) => {
   // 보어링 input의 높이 계산
   const boringHeight = 250 / boringNum;
+
+  // boringSize 변경 핸들러
+  const handleBoringInputChange = (idx: number, value: number) => {
+    const newSizes = [...boringSize];
+    newSizes[idx] = value;
+    onChangeBoringSize?.(newSizes);
+  };
 
   // 보어링 input 배열 생성
   const boringInputs = Array.from({ length: boringNum }).map((_, idx) => (
@@ -30,10 +38,8 @@ const DoorPreview: React.FC<DoorPreviewProps> = ({
       <div className="max-w-[125px]">
         <BoringInputField
           placeholder="보링"
-          value={""}
-          onChange={function (value: string): void {
-            throw new Error("Function not implemented.");
-          }}
+          value={boringSize[idx]}
+          onChange={value => handleBoringInputChange(idx, value)}
         />
       </div>
     </div>
@@ -43,11 +49,13 @@ const DoorPreview: React.FC<DoorPreviewProps> = ({
   // Todo: boringDirection에 따라 좌우 정렬 달라져야 함
   const inputHeight = (
     <div className={`flex h-full flex-col items-center justify-center`}>
-      <input
-        placeholder="입력 필요"
-        className="w-full text-center outline-none placeholder:text-[17px] placeholder:font-600 placeholder:text-gray-300"
-        // 필요시 value/onChange 추가
-      />
+      <div
+        className="w-full text-center text-[17px]"
+      >
+        {DoorHeight !== undefined && DoorHeight !== null && DoorHeight !== 0
+          ? <span className="font-500 text-gray-800">{DoorHeight}</span>
+          : <span className="font-600 text-gray-300">입력 필요</span>}
+      </div>
       <div className="text-center text-[14px] font-500 text-gray-400">세로</div>
     </div>
   );
@@ -73,14 +81,17 @@ const DoorPreview: React.FC<DoorPreviewProps> = ({
 
   return (
     <div className="flex w-[375px] flex-col items-center justify-center">
+      <div>{boringSize}</div>
       <div className="flex h-[250px] w-full">{mainRow}</div>
       {/* input width */}
       <div className="flex w-full flex-col justify-center pt-3">
-        <input
-          placeholder="입력 필요"
-          className="text-center outline-none placeholder:text-[17px] placeholder:font-600 placeholder:text-gray-300"
-          // 필요시 value/onChange 추가
-        />
+        <div
+          className="w-full text-center text-[17px]"
+        >
+          {DoorWidth !== undefined && DoorWidth !== null && DoorWidth !== 0
+            ? <span className="font-500 text-gray-800">{DoorWidth}</span>
+            : <span className="font-600 text-gray-300">입력 필요</span>}
+        </div>
         <div className="text-center text-[14px] font-500 text-gray-400">가로</div>
       </div>
     </div>

@@ -6,7 +6,7 @@ interface HeaderProps {
   size?: "Large" | "Medium"; // size prop 추가
 }
 
-function Header({ title, subtitle, size = "Medium" }: HeaderProps) {
+function Header({ title, subtitle, size = "Large" }: HeaderProps) {
   const titleClass = size === "Large" ? "text-[26px] font-bold" : "text-[23px]"; // 크기별 클래스 설정
 
   return (

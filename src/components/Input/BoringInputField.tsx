@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 
 interface BoringInputFieldProps {
-    value: string;
-    onChange: (value: string) => void;
+    value: number;
+    onChange: (value: number) => void;
     placeholder?: string;
     error?: string;
 }
@@ -37,7 +37,7 @@ const BoringInputField: React.FC<BoringInputFieldProps> = ({
                     text-center
                     `}
             value={value}
-            onChange={e => onChange(e.target.value)}
+            onChange={e => onChange(Number(e.target.value))}
             placeholder={placeholder}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}

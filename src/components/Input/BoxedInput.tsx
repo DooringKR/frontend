@@ -6,9 +6,9 @@ interface BoxedInputProps {
   error?: boolean;
   helperText?: string;
   placeholder?: string;
-  value?: string;
+  value?: any;
   onChange?: (value: string) => void;
-  type?: "text" | "password" | "tel";
+  type?: "text" | "password" | "tel" | "number";
   required?: boolean;
   disabled?: boolean;
 }
