@@ -26,15 +26,21 @@ const BoxedInput: React.FC<BoxedInputProps> = ({
 }) => {
   const [inputValue, setInputValue] = useState(value);
   const [isFocused, setIsFocused] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null); // input 요소에 대한 ref 추가
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // value prop이 바뀌면 inputValue도 동기화
+  React.useEffect(() => {
+    setInputValue(value);
+  }, [value]);
 
   const handleClear = () => {
+    console.log("handleClear");
     setInputValue("");
     if (onChange) {
       onChange("");
     }
-    setIsFocused(true); // Clear 버튼 클릭 시 다시 focus
-    inputRef.current?.focus(); // Clear 버튼 클릭 시 input에 포커스
+    setIsFocused(true);
+    inputRef.current?.focus();
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,24 +55,36 @@ const BoxedInput: React.FC<BoxedInputProps> = ({
     <div className="flex flex-col gap-2">
       <label className="text-[14px] font-400 text-gray-600">{label}</label>
       <div
-        className={`flex items-center justify-between rounded-[12px] border-[1px] px-4 py-3 transition-colors ${error ? "border-[2px] border-[#FCA5A5]" : "border-gray-200 focus-within:border-[2px] focus-within:border-brand-300 hover:border-[2px] hover:border-brand-100 focus-within:hover:border-brand-300"} `}
+        className={`flex items-center justify-between rounded-[12px] border px-4 transition-colors ${
+          error
+            ? "border-[2px] border-[#FCA5A5] py-[11px]"
+            : "border border-gray-200 py-3 focus-within:border-[2px] focus-within:border-brand-300 focus-within:py-[11px] hover:border-[2px] hover:border-brand-100 hover:py-[11px]"
+        } `}
       >
+        {/* {value} */}
         <input
           className="w-full text-[17px] font-400 text-gray-700 placeholder-gray-300 focus:outline-none"
           placeholder={placeholder}
-          value={value}
+          value={inputValue}
           onChange={handleInputChange}
           type={type}
           required={required}
           disabled={disabled}
+          ref={inputRef} // input 요소에 ref 연결
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
         />
-        {true ? (
-          <button type="button" onClick={handleClear}>
+        {isFocused && (
+          <button
+            type="button"
+            onMouseDown={e => {
+              e.preventDefault(); // blur 방지
+              handleClear();
+            }}
+          >
             <InputClear />
           </button>
-        ) : null}
+        )}
       </div>
       {error && <div className="text-[15px] font-400 text-red-500">{helperText}</div>}
     </div>

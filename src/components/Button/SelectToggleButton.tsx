@@ -24,7 +24,7 @@ const SelectToggleButton: React.FC<SelectToggleButtonProps> = ({
       //     console.log("button clicked");
       //     console.log(checked);
       //   }}
-      className={`flex w-full items-center gap-3 rounded-[12px] px-4 py-3 transition hover:bg-gray-50`}
+      className={`flex h-[48px] w-full items-center gap-3 rounded-[12px] px-4 py-3 transition hover:bg-gray-50`}
     >
       {/* 이미지 */}
       {imageSrc && <div className="h-8 w-8 rounded-[4px] bg-yellow-100"></div>}

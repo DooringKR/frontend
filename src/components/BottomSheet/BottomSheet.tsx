@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 interface BottomSheetProps {
   isOpen: boolean;
@@ -17,16 +17,23 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
   children,
   buttonArea,
 }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
   return (
     <>
       <div className="fixed inset-0 flex items-center justify-center">
         {/* 오버레이 배경: 가운데 500px만 적용 */}
-        <div
-          className="w-full max-w-[500px] bg-black bg-opacity-20"
-          onClick={onClose}
-          style={{ minHeight: "100vh" }}
-        ></div>
+        <div className="h-full w-full max-w-[500px] bg-black bg-opacity-20" onClick={onClose}></div>
       </div>
       <div
         className="fixed bottom-[10px] left-1/2 flex w-[calc(100%-20px)] max-w-[500px] -translate-x-1/2 flex-col rounded-[24px] bg-white"

@@ -82,7 +82,7 @@ const UnderlinedInput: React.FC<UnderlinedInputProps> = ({
         <input
           ref={inputRef} // ref 연결
           type={type}
-          className={`w-full border-b-2 bg-transparent py-2 pr-8 text-[23px] outline-none transition-all ${
+          className={`w-full rounded-none border-b-2 bg-transparent py-2 pr-8 text-[23px] outline-none transition-all ${
             error ? "border-red-500 focus:border-red-500" : "border-gray-300 focus:border-brand-500"
           }`}
           value={inputValue}
@@ -92,12 +92,12 @@ const UnderlinedInput: React.FC<UnderlinedInputProps> = ({
           onChange={handleInputChange}
         />
         {/* Clear 버튼 */}
-        {inputValue && (
+        {inputValue && isFocused && (
           <button
             type="button"
             className={`absolute right-0 top-1/2 -translate-y-1/2 transform`}
-            onClick={() => {
-              console.log("Clear button clicked"); // 디버깅 로그 추가
+            onMouseDown={e => {
+              e.preventDefault(); // blur 방지
               handleClear();
             }}
           >

@@ -44,14 +44,14 @@ const Button: React.FC<ButtonProps> = ({ type, text, onClick, disabled, icon }) 
         ].join(" ");
       case "GrayMedium":
         return [
-          "bg-gray-100 px-3 py-[9px] rounded-[12px]",
+          "h-[40px] bg-gray-100 px-3 py-[9px] rounded-[12px]",
           "text-gray-700 text-[16px] font-500",
           "hover:bg-gray-200 focus:ring-[3px] focus:ring-gray-300",
           "disabled:bg-gray-100 disabled:text-gray-300 disabled:cursor-not-allowed",
         ].join(" ");
       case "OutlinedMedium":
         return [
-          "border-[1px] border-gray-200 bg-white px-3 py-[9px] rounded-[12px]",
+          "h-[40px] border-[1px] border-gray-200 bg-white px-3 py-[9px] rounded-[12px]",
           "text-gray-700 text-[16px] font-500",
           "hover:bg-gray-50 focus:ring-[3px] focus:ring-gray-200",
           "disabled:bg-gray-50 disabled:text-gray-300 disabled:cursor-not-allowed",
@@ -62,7 +62,11 @@ const Button: React.FC<ButtonProps> = ({ type, text, onClick, disabled, icon }) 
   };
 
   return (
-    <button className={`button w-full ${getClassName()}`} onClick={onClick} disabled={disabled}>
+    <button
+      className={`button w-full ${getClassName()} flex items-center justify-between`}
+      onClick={onClick}
+      disabled={disabled}
+    >
       <div className="flex items-center justify-center gap-1">
         {icon && (
           <span className={`icon-left ${disabled ? "text-gray-300" : "text-gray-700"}`}>

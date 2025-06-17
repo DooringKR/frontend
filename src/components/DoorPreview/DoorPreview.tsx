@@ -1,4 +1,5 @@
 import React from "react";
+
 import BoringInputField from "../Input/BoringInputField";
 
 interface DoorPreviewProps {
@@ -49,12 +50,12 @@ const DoorPreview: React.FC<DoorPreviewProps> = ({
   // Todo: boringDirection에 따라 좌우 정렬 달라져야 함
   const inputHeight = (
     <div className={`flex h-full flex-col items-center justify-center`}>
-      <div
-        className="w-full text-center text-[17px]"
-      >
-        {DoorHeight !== undefined && DoorHeight !== null && DoorHeight !== 0
-          ? <span className="font-500 text-gray-800">{DoorHeight}</span>
-          : <span className="font-600 text-gray-300">입력 필요</span>}
+      <div className="w-full text-center text-[17px]">
+        {DoorHeight !== undefined && DoorHeight !== null && DoorHeight !== 0 ? (
+          <span className="font-500 text-gray-800">{DoorHeight}</span>
+        ) : (
+          <span className="font-600 text-gray-300">입력 필요</span>
+        )}
       </div>
       <div className="text-center text-[14px] font-500 text-gray-400">세로</div>
     </div>
@@ -81,16 +82,15 @@ const DoorPreview: React.FC<DoorPreviewProps> = ({
 
   return (
     <div className="flex w-[375px] flex-col items-center justify-center">
-      <div>{boringSize}</div>
       <div className="flex h-[250px] w-full">{mainRow}</div>
       {/* input width */}
       <div className="flex w-full flex-col justify-center pt-3">
-        <div
-          className="w-full text-center text-[17px]"
-        >
-          {DoorWidth !== undefined && DoorWidth !== null && DoorWidth !== 0
-            ? <span className="font-500 text-gray-800">{DoorWidth}</span>
-            : <span className="font-600 text-gray-300">입력 필요</span>}
+        <div className="w-full text-center text-[17px]">
+          {DoorWidth !== undefined && DoorWidth !== null && DoorWidth !== 0 ? (
+            <span className="font-500 text-gray-800">{DoorWidth}</span>
+          ) : (
+            <span className="font-600 text-gray-300">입력 필요</span>
+          )}
         </div>
         <div className="text-center text-[14px] font-500 text-gray-400">가로</div>
       </div>
