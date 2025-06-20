@@ -13,15 +13,103 @@ model Order {
   userId             Int
   userType           String
   userPhone          String
-  recipientPhone     String   // ✅ 변경된 필드명
+  recipientPhone     String  
   address1           String
   address2           String
+  foyerType          String
+  gatePassword       String?
   deliveryDate       DateTime
   deliveryRequest    String
   otherRequests      String
   totalPrice         Int
   itemCount          Int
   createdAt          DateTime @default(now())
+  doorItems          DoorItem[]
+  finishItems        FinishItem[]
+  cabinetItems       CabinetItem[]
+  accessoryItems     AccessoryItem[]
+  hardwareItems      HardwareItem[]
+}
+
+model DoorItem {
+  id          Int    @id @default(autoincrement())
+  order       Order  @relation(fields: [orderId], references: [id])
+  orderId     Int
+  slug        String
+  color       String
+  width       Int
+  height      Int
+  hingeCount  Int
+  hingeSide   String
+  topHinge    Int
+  bottomHinge Int
+  middleHinge        Int?
+  middleTopHinge     Int?
+  middleBottomHinge  Int?
+  doorRequest String
+  count       Int
+  price       Int
+}
+
+model FinishItem {
+  id          Int    @id @default(autoincrement())
+  order       Order  @relation(fields: [orderId], references: [id])
+  orderId     Int
+  color       String
+  baseDepth   Int
+  additionalDepth Int?
+  baseHeight  Int
+  additionalHeight Int?
+  finishRequest String
+  count       Int
+  price       Int
+}
+
+model CabinetItem {
+  id          Int    @id @default(autoincrement())
+  order       Order  @relation(fields: [orderId], references: [id])
+  orderId     Int
+  slug        String
+  color       String
+  handleType  String
+  compartmentCount Int?
+  flapStayType String?
+  material    String
+  thickness   String
+  width       Int
+  height      Int
+  depth       Int
+  option      String
+  finishType  String
+  drawerType  String?
+  railType    String?
+  orderRequests String
+  count       Int
+  price       Int
+}
+
+model AccessoryItem {
+  id          Int    @id @default(autoincrement())
+  order       Order  @relation(fields: [orderId], references: [id])
+  orderId     Int
+  slug        String
+  madeBy      String
+  model       String
+  orderRequests String
+  count       Int
+  price       Int
+}
+
+model HardwareItem {
+  id          Int    @id @default(autoincrement())
+  order       Order  @relation(fields: [orderId], references: [id])
+  orderId     Int
+  slug        String
+  madeBy      String
+  model       String
+  orderRequests String
+  count       Int
+  price       Int
 }
 
 model User {
