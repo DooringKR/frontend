@@ -55,6 +55,7 @@ export const handleOrderRequest = async (req: Request, res: Response): Promise<R
     // 4. Order 테이블에 저장
     const orderRecord = await prisma.order.create({
       data: {
+        userId: order.user.id,
         userType: order.user.userType,
         userPhone: order.user.phoneNumber,
         recipientPhone: order.recipientPhoneNumber,
