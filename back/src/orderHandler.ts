@@ -8,7 +8,7 @@ export const handleOrderRequest = async (req: Request, res: Response): Promise<R
   // 1. 기본 필수 필드 검증
   if (
     !order.user ||
-    !order.user.id ||
+    order.user.id == null ||
     !order.user.userType ||
     !order.user.phoneNumber ||
     !order.recipientPhoneNumber ||
@@ -16,9 +16,9 @@ export const handleOrderRequest = async (req: Request, res: Response): Promise<R
     !order.address2 ||
     !order.foyerAccessType ||
     !order.foyerAccessType.type ||
-    !order.deliveryDate ||
-    !order.deliveryRequest ||
-    !order.otherRequests ||
+    order.deliveryDate == null ||
+    order.deliveryRequest === undefined ||
+    order.otherRequests === undefined ||
     !Array.isArray(order.cartItems) ||
     order.cartItems.length === 0 ||
     order.totalPrice == null
