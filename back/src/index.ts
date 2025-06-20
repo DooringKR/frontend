@@ -5,7 +5,7 @@ import { handleOrderRequest } from './orderHandler';
 import { handleSignIn, handleSignUp, handleUserInfo } from './authHandler';
 
 const app = express();
-const PORT = 3001;
+const PORT = parseInt(process.env.PORT || "3001", 10);
 
 app.use(cors({
   origin: 'https://dooringkr.vercel.app/login',
@@ -22,3 +22,5 @@ app.get('/api/auth/user', handleUserInfo);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+console.log('▶ process.env.PORT =', process.env.PORT);

@@ -9,7 +9,7 @@ const cors_1 = __importDefault(require("cors"));
 const orderHandler_1 = require("./orderHandler");
 const authHandler_1 = require("./authHandler");
 const app = (0, express_1.default)();
-const PORT = 3001;
+const PORT = parseInt(process.env.PORT || "3001", 10);
 app.use((0, cors_1.default)({
     origin: 'https://dooringkr.vercel.app/login',
     credentials: true
@@ -22,3 +22,4 @@ app.get('/api/auth/user', authHandler_1.handleUserInfo);
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+console.log('▶ process.env.PORT =', process.env.PORT);
