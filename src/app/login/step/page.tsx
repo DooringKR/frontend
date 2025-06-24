@@ -46,13 +46,17 @@ function LoginStepPage() {
   };
 
   const handleStart = async () => {
-    // const response = await fetch("/api/register", {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    console.log(apiUrl);
+    // 현재 로컬에서 확인불가
+    // const response = await fetch(`${apiUrl}/api/auth/signup`, {
     //   method: "POST",
     //   headers: { "Content-Type": "application/json" },
     //   body: JSON.stringify({ phoneNumber: user_phoneNumber, userType }),
     // });
     // const result = await response.json();
     console.log("백엔드 응답");
+    // console.log("응답내용:", result);
     router.push("/");
   };
 
