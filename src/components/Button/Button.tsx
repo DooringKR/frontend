@@ -63,7 +63,7 @@ const Button: React.FC<ButtonProps> = ({ type, text, onClick, disabled, icon }) 
 
   return (
     <button
-      className={`button w-full ${getClassName()} flex items-center justify-between`}
+      className={`button w-full ${getClassName()} flex items-center justify-center`}
       onClick={onClick}
       disabled={disabled}
     >
