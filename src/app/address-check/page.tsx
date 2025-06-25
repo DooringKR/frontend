@@ -5,6 +5,7 @@ import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
+import DeliveryTimeCheck from "@/components/DeliveryTimeCheck/DeliveryTimeCheck";
 import Header from "@/components/Header/Header";
 import BoxedInput from "@/components/Input/BoxedInput";
 import DaumPostcodeEmbed from "@/components/SearchAddress/DaumPostcodeEmbed";
@@ -15,6 +16,8 @@ function AddressPage() {
   const router = useRouter();
   const category = searchParams.get("category");
 
+  const [isDeliveryPossible, setIsDeliveryPossible] = useState(false);
+  const [isAddressEntered, setisAddressEntered] = useState(false);
   const [showPostcode, setShowPostcode] = useState(false);
   const [address1, setAddress1] = useState("");
   const [address2, setAddress2] = useState("");
@@ -43,6 +46,12 @@ function AddressPage() {
       scriptLoadedRef.current = true;
     }
   }, []);
+
+  useEffect(() => {
+    const isComplete = address1.trim() !== "" && address2.trim() !== "";
+    setisAddressEntered(isComplete);
+  }, [address1, address2]);
+
   return (
     <div>
       <Script
@@ -83,6 +92,13 @@ function AddressPage() {
           />
         )}
       </div>
+      <div className="mx-5 mt-3">
+        <DeliveryTimeCheck
+          isDeliveryPossible={isDeliveryPossible}
+          isAddressEntered={isAddressEntered}
+        />
+      </div>
+
       <div className="fixed bottom-0 left-1/2 w-full max-w-[500px] -translate-x-1/2 px-5 pb-5">
         <BottomButton
           type="1button"
