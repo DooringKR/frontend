@@ -78,7 +78,7 @@ function AddressPage() {
           />
         )}
       </div>
-      <div className="fixed bottom-0 left-1/2 w-full max-w-[500px] -translate-x-1/2">
+      <div className="fixed bottom-0 left-1/2 w-full max-w-[500px] -translate-x-1/2 px-5 pb-5">
         <BottomButton
           type="1button"
           button1Text="다음"
