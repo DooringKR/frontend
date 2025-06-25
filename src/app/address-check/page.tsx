@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter, useSearchParams } from "next/navigation";
 import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
 
@@ -10,6 +11,10 @@ import DaumPostcodeEmbed from "@/components/SearchAddress/DaumPostcodeEmbed";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 function AddressPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const category = searchParams.get("category");
+
   const [showPostcode, setShowPostcode] = useState(false);
   const [address1, setAddress1] = useState("");
   const [address2, setAddress2] = useState("");
@@ -89,10 +94,12 @@ function AddressPage() {
               return;
             }
 
-            console.log("주소:", address1);
-            console.log("상세주소:", address2);
+            if (!category) {
+              alert("카테고리 정보가 없습니다.");
+              return;
+            }
 
-            // 여기에 페이지 이동이나 저장 로직 넣으면 됨
+            router.replace(`/order/${category}`);
           }}
         />
       </div>
