@@ -8,19 +8,27 @@ interface DaumPostcodePopupProps {
   onComplete: (address: string) => void;
 }
 
-declare global {
-  interface Window {
-    daum: {
-      Postcode: new (config: { oncomplete: (data: any) => void }) => { open: () => void };
-    };
-  }
-}
+// declare global {
+//   interface Window {
+//     daum: {
+//       Postcode: new (config: { oncomplete: (data: any) => void }) => { open: () => void };
+//     };
+//   }
+// }
 
 export default function DaumPostcodePopup({ address1, onComplete }: DaumPostcodePopupProps) {
+  console.log("버튼 클릭됨");
+
   const scriptLoadedRef = useRef(false);
 
   const openPostcodePopup = useCallback(() => {
-    if (typeof window === "undefined" || !window.daum?.Postcode) return;
+    console.log("스크립트 아직 로드 안 됐음");
+    // if (typeof window === "undefined" || !window.daum?.Postcode) return;
+    if (!scriptLoadedRef.current) {
+      alert("주소 검색 스크립트가 아직 로드되지 않았습니다. 잠시 후 다시 시도해주세요.");
+      return;
+    }
+    console.log("스크립트 로드됨, 팝업 실행");
 
     new window.daum.Postcode({
       oncomplete: data => {
@@ -31,6 +39,7 @@ export default function DaumPostcodePopup({ address1, onComplete }: DaumPostcode
   }, [onComplete]);
 
   const handleScriptLoad = useCallback(() => {
+    console.log("다음 스크립트 로드 완료");
     scriptLoadedRef.current = true;
   }, []);
 
