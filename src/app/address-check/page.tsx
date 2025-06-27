@@ -77,7 +77,7 @@ function AddressPage() {
         }
         size="Large"
       />
-      <div className="gap-2 px-[20px] pb-[100px] pt-[20px]">
+      <div className="gap-2 px-[20px] pt-[20px]">
         <BoxedInput
           label={"주소"}
           placeholder="건물, 지번 또는 도로명 검색"
