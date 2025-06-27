@@ -1,7 +1,20 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+
 import BottomButton from "@/components/BottomButton/BottomButton";
 import CurrentTime from "@/components/DeliveryTimeCheck/CurrentTime";
 
 export default function UnavailableDeliveryPage() {
+  const router = useRouter();
+  const handleClickConfirmButton = () => {
+    router.back();
+  };
+
+  const handleClickCustomerServiceButton = () => {
+    router.push("/customer-service");
+  };
+
   return (
     <div className="relative mx-auto min-h-screen max-w-[500px]">
       <div className="overflow-y-auto pb-[80px]">
@@ -69,12 +82,13 @@ export default function UnavailableDeliveryPage() {
       </div>
       <div>
         <BottomButton
-          className="fixed bottom-0 left-0 z-50 mx-auto w-full max-w-[500px]"
+          className="fixed bottom-0 z-50 mx-auto w-full max-w-[500px]"
           type="2buttons"
           button1Text="확인했어요"
           button2Text="고객센터 전화"
           button1Type="BrandInverse"
-          // onButton1Click={handleStart}
+          onButton1Click={handleClickConfirmButton}
+          onButton2Click={handleClickCustomerServiceButton}
         />
       </div>
     </div>
