@@ -30,7 +30,8 @@ const DaumPostcodeEmbed: React.FC<DaumPostcodeEmbedProps> = ({ onComplete, onClo
         handleClose(); // 자동 닫기
       },
       onresize: size => {
-        containerRef.current!.style.height = size.height + "px";
+        // containerRef.current!.style.height = size.height + "px";
+        containerRef.current!.style.height = Math.max(size.height, 400) + "px";
       },
       width: "100%",
       height: "100%",
@@ -46,15 +47,14 @@ const DaumPostcodeEmbed: React.FC<DaumPostcodeEmbedProps> = ({ onComplete, onClo
 
   return (
     <>
-      <div className="mt-2 w-full overflow-hidden rounded-md border" style={{ height: "400px" }}>
+      <div className="w-full overflow-y-auto rounded-md border" style={{ height: "500px" }}>
         <div ref={containerRef} className="h-full w-full" />
       </div>
 
-      {/* ✅ 아래쪽에 닫기 버튼 배치 */}
-      <div className="mt-2 flex justify-end">
+      <div className="mt-2 flex">
         <button
           onClick={handleClose}
-          className="rounded bg-gray-100 px-4 py-2 text-sm text-gray-700 shadow-sm hover:bg-gray-200"
+          className="mx-3 w-full rounded bg-white px-4 py-2 text-sm text-gray-700 shadow-sm hover:bg-gray-100"
         >
           닫기
         </button>

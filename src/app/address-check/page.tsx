@@ -11,22 +11,26 @@ import BoxedInput from "@/components/Input/BoxedInput";
 import DaumPostcodeEmbed from "@/components/SearchAddress/DaumPostcodeEmbed";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
+import useAddressStore from "@/store/addressStore";
+
 function AddressPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const category = searchParams.get("category");
 
   const [isDeliveryPossible, setIsDeliveryPossible] = useState(false);
-  const [isAddressEntered, setisAddressEntered] = useState(false);
+  // const [isAddressEntered, setisAddressEntered] = useState(false);
   const [showPostcode, setShowPostcode] = useState(false);
-  const [address1, setAddress1] = useState("");
-  const [address2, setAddress2] = useState("");
+  // const [address1, setAddress1] = useState("");
+  // const [address2, setAddress2] = useState("");
   const scriptLoadedRef = useRef(false);
+
+  const { address1, address2, setAddress } = useAddressStore();
 
   const handleScriptLoad = () => {
     scriptLoadedRef.current = true;
   };
-
+  //다음 주소 api 팝업용 함수
   const handleAddressClick = () => {
     if (!scriptLoadedRef.current || !window.daum?.Postcode) {
       alert("주소 검색 스크립트가 아직 로드되지 않았습니다. 잠시 후 다시 시도해주세요.");
@@ -36,7 +40,8 @@ function AddressPage() {
     new window.daum.Postcode({
       oncomplete: data => {
         const selectedAddress = data.roadAddress || data.address;
-        setAddress1(selectedAddress);
+        // setAddress1(selectedAddress);
+        setAddress(selectedAddress, address2); // 상세주소 유지
       },
     }).open();
   };
@@ -47,10 +52,13 @@ function AddressPage() {
     }
   }, []);
 
-  useEffect(() => {
-    const isComplete = address1.trim() !== "" && address2.trim() !== "";
-    setisAddressEntered(isComplete);
-  }, [address1, address2]);
+  // 상태에 따라 주소 입력 완료 여부 판단
+  const isAddressEntered = address1.trim() !== "" && address2.trim() !== "";
+
+  // useEffect(() => {
+  //   const isComplete = address1.trim() !== "" && address2.trim() !== "";
+  //   setisAddressEntered(isComplete);
+  // }, [address1, address2]);
 
   return (
     <div>
@@ -69,7 +77,7 @@ function AddressPage() {
         }
         size="Large"
       />
-      <div className="gap-2 px-[20px] pt-[20px]">
+      <div className="gap-2 px-[20px] pb-[100px] pt-[20px]">
         <BoxedInput
           label={"주소"}
           placeholder="건물, 지번 또는 도로명 검색"
@@ -80,16 +88,18 @@ function AddressPage() {
         <BoxedInput
           placeholder="상세주소 (예: 101동 501호 / 단독주택)"
           value={address2}
-          onChange={setAddress2}
+          onChange={value => setAddress(address1, value)}
         />
         {showPostcode && (
-          <DaumPostcodeEmbed
-            onComplete={address => {
-              setAddress1(address);
-              setShowPostcode(false); // 검색 완료되면 닫기
-            }}
-            onClose={() => setShowPostcode(false)} // 닫기 버튼 만들었으면 닫기 지원
-          />
+          <div className="fixed bottom-5 left-4 right-4 top-4 z-50 overflow-y-auto bg-gray-200">
+            <DaumPostcodeEmbed
+              onComplete={selected => {
+                setAddress(selected, address2);
+                setShowPostcode(false);
+              }}
+              onClose={() => setShowPostcode(false)} // 닫기
+            />
+          </div>
         )}
       </div>
       <div className="mx-5 mt-3">
