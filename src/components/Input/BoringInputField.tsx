@@ -28,11 +28,10 @@ const BoringInputField: React.FC<BoringInputFieldProps> = ({
   return (
     <input
       type="number"
-      className={`w-full rounded-[10px] px-1 py-[7px] outline-none ${
-        error
-          ? "border-[2px] border-red-300"
-          : "border-[1px] border-gray-200 hover:border-[2px] hover:border-brand-100 focus:border-[2px] focus:border-brand-300"
-      } text-center placeholder-gray-300`}
+      className={`w-full rounded-[10px] px-1 py-[7px] outline-none text-[16px] ${error
+        ? "border-[2px] border-red-300"
+        : "border-[1px] border-gray-200 hover:border-[2px] hover:border-brand-100 focus:border-[2px] focus:border-brand-300"
+        } text-center placeholder-gray-300`}
       value={value}
       onChange={e => onChange(Number(e.target.value))}
       placeholder={placeholder}

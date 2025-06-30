@@ -11,19 +11,19 @@ interface BottomButtonProps {
   onButton2Click?: () => void;
   className?: string;
   button1Type?:
-    | "Brand"
-    | "GrayLarge"
-    | "OutlinedLarge"
-    | "BrandInverse"
-    | "GrayMedium"
-    | "OutlinedMedium";
+  | "Brand"
+  | "GrayLarge"
+  | "OutlinedLarge"
+  | "BrandInverse"
+  | "GrayMedium"
+  | "OutlinedMedium";
   button2Type?:
-    | "Brand"
-    | "GrayLarge"
-    | "OutlinedLarge"
-    | "BrandInverse"
-    | "GrayMedium"
-    | "OutlinedMedium";
+  | "Brand"
+  | "GrayLarge"
+  | "OutlinedLarge"
+  | "BrandInverse"
+  | "GrayMedium"
+  | "OutlinedMedium";
 }
 
 const BottomButton: React.FC<BottomButtonProps> = ({
