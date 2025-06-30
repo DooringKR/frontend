@@ -1,4 +1,5 @@
 import { CUSTOMER_SERVICE_PAGE, HOME_PAGE } from "@/constants/pageName";
+import Link from "next/link";
 import HeadphonesIcon from "public/icons/Headphones";
 import ChevronLeft from "public/icons/chevron_left";
 import React from "react";
@@ -36,7 +37,7 @@ const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, isCartEmpty })
 
       {page === HOME_PAGE ? (
         <div className="flex gap-6">
-          <div className="relative">
+          <Link href={"/cart"} className="relative cursor-pointer">
             <img src={"/icons/shopping-cart.svg"} alt="장바구니 아이콘"></img>
             {isCartEmpty ? (
               ""
@@ -45,8 +46,10 @@ const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, isCartEmpty })
                 1
               </span>
             )}
-          </div>
-          <img src={"/icons/user-round.svg"} alt="유저 아이콘"></img>
+          </Link>
+          <Link href="/mypage" className="cursor-pointer">
+            <img src={"/icons/user-round.svg"} alt="유저 아이콘"></img>
+          </Link>
         </div>
       ) : (
         ""

@@ -1,9 +1,22 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+
 function Footer() {
+  const router = useRouter();
+
+  const handleContactButtonClick = () => {
+    router.push("/customer-service");
+  };
+
   return (
     <div className="flex flex-col gap-5 bg-gray-50 px-5 py-[60px] text-sm text-gray-400">
       <div className="flex justify-between">
         <img src={"/img/Logo.png"} alt="주식회사 도어링 로고" className="h-12 w-12" />
-        <button className="rounded-xl border-2 border-gray-200 bg-white px-[14px] py-[10px] text-[17px] font-500 text-gray-700">
+        <button
+          onClick={handleContactButtonClick}
+          className="rounded-xl border-2 border-gray-200 bg-white px-[14px] py-[10px] text-[17px] font-500 text-gray-700"
+        >
           문의
         </button>
       </div>
