@@ -27,7 +27,7 @@ const UnderlinedSelect: React.FC<UnderlinedSelectProps> = ({
         {value ? label : isFocused ? label : ""}
       </div>
       <button
-        className={`flex w-full items-center justify-between border-b-2 ${isFocused ? "border-brand-500" : "border-gray-200"}`}
+        className={`flex w-full h-[40px] items-center justify-between pt-[2px] pb-[4px] border-b-2 ${isFocused ? "border-brand-500" : "border-gray-200"}`}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         onClick={() => {
