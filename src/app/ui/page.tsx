@@ -19,6 +19,7 @@ import UnderlinedInput from "@/components/Input/UnderlinedInput";
 import SegmentedControl from "@/components/SegmentedControl/SegmentedControl";
 import BoxedSelect from "@/components/Select/BoxedSelect";
 import UnderlinedSelect from "@/components/Select/UnderlinedSelect";
+import SwitchDemo from "@/components/Switches/Switches";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 // SectionWrapper 컴포넌트 추가
@@ -232,6 +233,9 @@ const Page = () => {
           }}
           label="박스형 셀렉트(오류 발생 시)"
         />
+      </SectionWrapper>
+      <SectionWrapper title="Switches">
+        <SwitchDemo />
       </SectionWrapper>
     </div>
   );
