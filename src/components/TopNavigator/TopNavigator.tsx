@@ -1,4 +1,4 @@
-import { CUSTOMER_SERVICE_PAGE, HOME_PAGE } from "@/constants/pageName";
+import { CUSTOMER_SERVICE_PAGE, HOME_PAGE, MY_PAGE } from "@/constants/pageName";
 import Link from "next/link";
 import HeadphonesIcon from "public/icons/Headphones";
 import ChevronLeft from "public/icons/chevron_left";
@@ -27,8 +27,8 @@ const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, isCartEmpty })
 
       {/* Headphones Icon */}
 
-      {page === CUSTOMER_SERVICE_PAGE || page === HOME_PAGE ? (
-        ""
+      {page === CUSTOMER_SERVICE_PAGE || page === HOME_PAGE || page === MY_PAGE ? (
+        <div></div>
       ) : (
         <button className="flex items-center justify-center">
           <HeadphonesIcon />
