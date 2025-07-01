@@ -22,6 +22,7 @@ import UnderlinedSelect from "@/components/Select/UnderlinedSelect";
 import SwitchDemo from "@/components/Switches/Switches";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import HomeProductContainer from "@/components/HomeProductContaines/HomeProductContainer";
+import HomeNavigator from "@/components/HomeNavigator/HomeNavigator";
 
 // SectionWrapper 컴포넌트 추가
 const SectionWrapper = ({ title, children }: { title: string; children: React.ReactNode }) => (
@@ -240,6 +241,9 @@ const Page = () => {
       </SectionWrapper>
       <SectionWrapper title="Home Product Containes">
         <HomeProductContainer />
+      </SectionWrapper>
+      <SectionWrapper title="Home Navigator">
+        <HomeNavigator />
       </SectionWrapper>
     </div>
   );
