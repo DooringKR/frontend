@@ -69,32 +69,36 @@ export default function DeliveryScheduleSelector({
   }, [expectedArrivalMinutes]);
 
   return (
-    <section className="mb-4">
-      <h2 className="mb-2 font-medium">배송일정 선택</h2>
+    <section className="flex flex-col gap-3 py-5">
+      <h2 className="text-xl font-600">배송일정 선택</h2>
 
       <div
         onClick={() => isTodayDeliveryAvailable && setDeliveryType("today")}
-        className={`border p-3 ${deliveryType === "today" ? "border-blue-500" : "border-gray-300"} ${!isTodayDeliveryAvailable ? "cursor-not-allowed opacity-50" : ""}`}
+        className={`flex flex-col gap-1 rounded-xl border px-5 py-4 ${deliveryType === "today" ? "border-blue-500" : "border-gray-300"} ${!isTodayDeliveryAvailable ? "cursor-not-allowed opacity-50" : ""}`}
       >
         <div className="flex justify-between">
-          <span>바로배송</span>
+          {/* <span>바로배송</span> */}
+          <span className="text-[17px] font-600">오늘배송</span>
           <span className="text-blue-500">
             {expectedArrivalMinutes !== null ? `약 ${expectedArrivalMinutes}분` : "계산 중..."}
           </span>
         </div>
-        <p>
-          {isTodayDeliveryAvailable ? "오늘 오후 6시 전으로 배송돼요." : "바로 배송이 불가능해요."}
+        <p className="text-base font-400 text-gray-500">
+          {/* {isTodayDeliveryAvailable ? "오늘 오후 6시 전으로 배송돼요." : "바로 배송이 불가능해요."} */}
+          {isTodayDeliveryAvailable ? "오늘 16:28~17:45 도착예정" : "바로 배송이 불가능해요."}
         </p>
       </div>
 
       <div
         onClick={() => setDeliveryType("tomorrow")}
-        className={`mt-2 border p-3 ${deliveryType === "tomorrow" ? "border-blue-500" : "border-gray-300"}`}
+        className={`flex flex-col gap-1 rounded-xl border px-5 py-4 ${deliveryType === "tomorrow" ? "border-blue-500" : "border-gray-300"}`}
       >
         <div className="flex justify-between">
-          <span>익일배송</span>
+          {/* <span>익일배송</span> */}
+          <span className="text-[17px] font-600">내일배송</span>
           <span className="text-sm text-blue-500">{tomorrowDayLabel}</span>
         </div>
+        <p className="text-base font-400 text-gray-500">내일 원하는 시간에 배송돼요.</p>
 
         {deliveryType === "tomorrow" && (
           <>

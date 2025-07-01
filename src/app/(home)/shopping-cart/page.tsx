@@ -1,13 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import Button2 from "@/components/Button/Button";
 import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
+import PriceCheck from "@/components/PriceCheck/PriceCheck";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 function ShoppingCartPage() {
+  const router = useRouter();
   const [products, setProducts] = useState([
     {
       id: 1,
@@ -41,12 +44,25 @@ function ShoppingCartPage() {
     );
   };
 
+  const handleNextButtonClick = () => {
+    // 현재 api 오류로 주석처리
+    router.push("/cart/checkorder");
+  };
+
   return (
-    <div>
+    <div className="flex min-h-screen flex-col">
       <TopNavigator title="장바구니" />
-      <ProductInfo products={products} onQuantityChange={handleQuantityChange} />
-      <div className="fixed bottom-0 left-1/2 w-full max-w-[500px] -translate-x-1/2">
-        <BottomButton type="1button" button1Text="다음" button1Type="Brand" />
+      <div className="flex-1 overflow-y-auto pb-[100px]">
+        <ProductInfo products={products} onQuantityChange={handleQuantityChange} />
+      </div>
+      <div className="fixed bottom-0 left-1/2 w-full max-w-[500px] -translate-x-1/2 bg-white">
+        <BottomButton
+          type="textcombo+button"
+          textComboText={{ title: "100,000,000원", subtitle: "주문금액" }}
+          button1Text="다음"
+          button1Type="Brand"
+          onButton1Click={handleNextButtonClick}
+        />
       </div>
     </div>
   );
@@ -60,18 +76,21 @@ function ProductInfo({
   onQuantityChange: (id: number, delta: number) => void;
 }) {
   return (
-    <div className="flex flex-col gap-3 p-5">
-      <div>상품 {products.length}개</div>
-      {products.map(product => (
-        <ShoppingCartCard
-          key={product.id}
-          {...product}
-          onIncrease={() => onQuantityChange(product.id, 1)}
-          onDecrease={() => onQuantityChange(product.id, -1)}
-        />
-      ))}
-      <Button2 type={"BrandInverse"} text={"상품 추가"} />
-    </div>
+    <>
+      <div className="flex flex-col gap-3 p-5">
+        <div>상품 {products.length}개</div>
+        {products.map(product => (
+          <ShoppingCartCard
+            key={product.id}
+            {...product}
+            onIncrease={() => onQuantityChange(product.id, 1)}
+            onDecrease={() => onQuantityChange(product.id, -1)}
+          />
+        ))}
+        <Button2 type={"BrandInverse"} text={"상품 추가"} />
+      </div>
+      <PriceCheck />
+    </>
   );
 }
 

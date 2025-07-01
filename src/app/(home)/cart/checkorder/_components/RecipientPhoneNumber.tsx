@@ -44,11 +44,11 @@ export default function RecipientPhoneNumber({
   };
 
   return (
-    <div className="mt-[14px] rounded border bg-gray-50 p-4">
+    <div className="rounded-xl border border-gray-200 px-5 py-4">
       <div className="flex items-center justify-between">
-        <div className="flex flex-col gap-2">
-          <p className="text-sm font-medium">받는 분 휴대폰 번호</p>
-          <p>{formatPhoneNumber(recipientPhoneNumber)}</p>
+        <div className="flex flex-col gap-1">
+          <p className="text-[17px] font-600">받는 분 휴대폰 번호</p>
+          <p className="text-[15px] font-400">{formatPhoneNumber(recipientPhoneNumber)}</p>
         </div>
         <button
           onClick={() => {
@@ -56,7 +56,7 @@ export default function RecipientPhoneNumber({
             setIsModalOpen(true);
           }}
         >
-          <span className="text-base">&gt;</span>
+          <img src={"/icons/chevron-right.svg"} alt="오른쪽 화살표" />
         </button>
       </div>
 

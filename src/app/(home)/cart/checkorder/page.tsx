@@ -5,12 +5,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import Button from "@/components/BeforeEditByKi/Button/Button";
+import PriceCheck from "@/components/PriceCheck/PriceCheck";
+import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { useCurrentOrderStore } from "@/store/Items/currentOrderStore";
 import { DeliverTime } from "@/utils/CheckDeliveryTime";
 
-import CustomerRequest from "./_components/CostomerRequest";
 import DeliveryAddressCard from "./_components/DeliveryAddressCard";
+import DeliveryRequestSelector from "./_components/DeliveryRequestSelector";
 import DeliveryScheduleSelector from "./_components/DeliveryScheduleSelector";
 import RecipientPhoneNumber from "./_components/RecipientPhoneNumber";
 
@@ -43,6 +45,8 @@ function CheckOrder() {
     const saved = JSON.parse(localStorage.getItem("address-storage") || "{}");
     const userRaw = localStorage.getItem("userData");
     const selectedAddress = saved.state?.address1 || "주소 없음";
+
+    console.log("✅ selectedAddress:", selectedAddress);
 
     if (saved.state) setAddress(saved.state);
     if (userRaw) {
@@ -126,20 +130,15 @@ function CheckOrder() {
   };
 
   return (
-    <div className="flex flex-col p-5 pb-20">
-      <h1 className="mb-4 text-center text-xl font-bold">주문하기</h1>
+    <div className="flex flex-col px-5 pb-20">
+      {/* <h1 className="mb-4 text-center text-xl font-bold">주문하기</h1>
 
       <div className={`mb-4 p-2 text-center font-medium ${deliveryMessageColor}`}>
         {deliveryMessage}
-      </div>
-
-      <DeliveryScheduleSelector
-        expectedArrivalMinutes={expectedArrivalMinutes}
-        setDeliveryDate={setDeliveryDate}
-      />
-
-      <section className="mb-4">
-        <h2 className="mb-2 font-medium">배송 정보를 확인해주세요</h2>
+      </div> */}
+      <TopNavigator title="주문하기" />
+      <div className="flex flex-col gap-3 py-5">
+        <h2 className="text-xl font-600 text-gray-800">주소 확인</h2>
         <DeliveryAddressCard
           foyerAccessType={foyerAccessType}
           setFoyerAccessType={setFoyerAccessType}
@@ -148,15 +147,33 @@ function CheckOrder() {
           setRequestMessage={setRequestMessage}
           setAddress={setAddress}
         />
+      </div>
+      <DeliveryScheduleSelector
+        expectedArrivalMinutes={expectedArrivalMinutes}
+        setDeliveryDate={setDeliveryDate}
+      />
+
+      <section className="flex flex-col gap-3 py-5">
+        {/* <h2 className="mb-2 font-medium">배송 정보를 확인해주세요</h2> */}
+        <h2 className="text-xl font-600 text-gray-800">배송정보 확인</h2>
+
         <RecipientPhoneNumber
           recipientPhoneNumber={recipientPhoneNumber}
           setRecipientPhoneNumber={setRecipientPhoneNumber}
         />
-        <CustomerRequest
+        {/* <CustomerRequest
           customerRequest={customerRequest}
           setCustomerRequest={setCustomerRequest}
+        /> */}
+        {/* 배송기사 요청사항 분리된 컴포넌트 */}
+        <DeliveryRequestSelector
+          requestMessage={requestMessage}
+          setRequestMessage={setRequestMessage}
+          foyerAccessType={foyerAccessType}
+          setFoyerAccessType={setFoyerAccessType}
         />
       </section>
+      <PriceCheck />
 
       <Button selected={true} onClick={handleOrderSubmit}>
         주문하기
