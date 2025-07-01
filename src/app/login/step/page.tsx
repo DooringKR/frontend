@@ -5,17 +5,15 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Factory from "public/icons/factory";
 import PaintBruchVertical from "public/icons/paintbrush_vertical";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import CompanyTypeButton from "@/components/Button/CompanyTypeButton";
 import Header from "@/components/Header/Header";
-import Input from "@/components/Input/Input";
 import UnderlinedInput from "@/components/Input/UnderlinedInput";
 import Modal from "@/components/Modal/Modal";
-import ModalButton from "@/components/ModalButton/ModalButton";
 import UnderlinedSelect from "@/components/Select/UnderlinedSelect";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
@@ -48,13 +46,17 @@ function LoginStepPage() {
   };
 
   const handleStart = async () => {
-    // const response = await fetch("/api/register", {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    console.log(apiUrl);
+    // 현재 로컬에서 확인불가
+    // const response = await fetch(`${apiUrl}/api/auth/signup`, {
     //   method: "POST",
     //   headers: { "Content-Type": "application/json" },
     //   body: JSON.stringify({ phoneNumber: user_phoneNumber, userType }),
     // });
     // const result = await response.json();
     console.log("백엔드 응답");
+    // console.log("응답내용:", result);
     router.push("/");
   };
 
@@ -176,6 +178,8 @@ function LoginStepPage() {
           </div>
         </Modal> */}
         <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+          {/* <div className="h-2 w-2 bg-red-800"></div> */}
+
           <div className="flex flex-col gap-5">
             <h2 className="text-lg font-bold text-gray-800">
               바로가구 회원가입에 <br />꼭 필요한 동의만 추렸어요
@@ -209,13 +213,13 @@ function LoginStepPage() {
                   />
                 </div>
               </div>
+              <BottomButton
+                className=""
+                type="1button"
+                button1Text="모두 동의하고 회원가입"
+                onButton1Click={handleStart}
+              />
             </div>
-            <BottomButton
-              className="absolute bottom-5 left-5 right-5"
-              type="1button"
-              button1Text="모두 동의하고 회원가입"
-              onButton1Click={handleStart}
-            />
           </div>
         </Modal>
       </div>

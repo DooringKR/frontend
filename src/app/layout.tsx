@@ -20,7 +20,7 @@ function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className="mx-auto max-w-[500px]">{children}</body>
+      <body className="mx-auto min-h-screen max-w-[500px]">{children}</body>
     </html>
   );
 }
