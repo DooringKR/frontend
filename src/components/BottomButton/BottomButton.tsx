@@ -40,7 +40,7 @@ const BottomButton: React.FC<BottomButtonProps> = ({
   return (
     <div>
       {type === "1button" && (
-        <div className={`p-5 ${className}`}>
+        <div className={`pt-5 ${className}`}>
           <Button
             disabled={false}
             type={button1Type}

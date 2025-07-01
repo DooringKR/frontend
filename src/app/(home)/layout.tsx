@@ -1,16 +1,12 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import Header from "@/components/BeforeEditByKi/Header";
-
-const NAV_ITEMS = [
-  { href: "/", label: "홈", key: "home" },
-  { href: "/cart", label: "장바구니", key: "Shopping_Cart" },
-  { href: "/mypage", label: "마이페이지", key: "user" },
-];
+// const NAV_ITEMS = [
+//   { href: "/", label: "홈", key: "home" },
+//   { href: "/cart", label: "장바구니", key: "Shopping_Cart" },
+//   { href: "/mypage", label: "마이페이지", key: "user" },
+// ];
 
 function Layout({
   children,
@@ -20,11 +16,11 @@ function Layout({
   const pathname = usePathname();
 
   return (
-    <div className="relative min-h-screen pb-20">
+    <div>
       {/* <Header /> */}
       {children}
 
-      <footer className="fixed bottom-0 left-0 right-0 z-10 border-t bg-white text-sm font-semibold">
+      {/* <footer className="fixed bottom-0 left-0 right-0 z-10 border-t bg-white text-sm font-semibold">
         <nav className="flex h-[68px] items-center justify-around px-4">
           {NAV_ITEMS.map(({ href, label, key }) => {
             const isActive = pathname === href;
@@ -44,7 +40,7 @@ function Layout({
             );
           })}
         </nav>
-      </footer>
+      </footer> */}
     </div>
   );
 }

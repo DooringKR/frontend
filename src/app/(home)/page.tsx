@@ -1,9 +1,10 @@
 import { cookies } from "next/headers";
-import Image from "next/image";
 import { redirect } from "next/navigation";
 
+import TopNavigator from "@/components/TopNavigator/TopNavigator";
+
 import CategorySection from "./_components/CategorySection";
-import DeliveryTimer from "./_components/DeliveryTimer";
+import Footer from "./_components/Footer";
 
 async function Page() {
   const cookieStore = await cookies();
@@ -16,17 +17,20 @@ async function Page() {
   const user = null;
 
   return (
-    <div className="mx-5 flex flex-col gap-4 py-5">
-      <div className="flex items-center">
-        <div>
-          <h1 className="text-lg font-bold">
-            {user ? "돌아오신 것을 환영해요!" : "믿고 주문하는"}
-          </h1>
-          <p className="text-base font-semibold">바로가구 A/S 자재 배송</p>
+    <div className="flex min-h-screen flex-col">
+      <main className="flex flex-1 flex-col px-5">
+        <TopNavigator page="/" isCartEmpty={true} />
+
+        <div className="h-[125px] w-full">
+          <img src="/img/banner.png" alt="배너 이미지" className="h-full w-full object-cover" />
         </div>
-      </div>
-      <DeliveryTimer user={user} />
-      <CategorySection />
+
+        <div className="mb-7 mt-10 border-2 border-green-600">서울 성북구 지봉로24길</div>
+
+        <CategorySection />
+      </main>
+
+      <Footer />
     </div>
   );
 }

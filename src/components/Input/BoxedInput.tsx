@@ -11,6 +11,7 @@ interface BoxedInputProps {
   type?: "text" | "password" | "tel" | "number";
   required?: boolean;
   disabled?: boolean;
+  onClick?: () => void;
 }
 
 const BoxedInput: React.FC<BoxedInputProps> = ({
@@ -23,6 +24,7 @@ const BoxedInput: React.FC<BoxedInputProps> = ({
   type,
   required,
   disabled,
+  onClick,
 }) => {
   const [inputValue, setInputValue] = useState(value);
   const [isFocused, setIsFocused] = useState(false);
@@ -65,7 +67,7 @@ const BoxedInput: React.FC<BoxedInputProps> = ({
         <input
           className="w-full text-[17px] font-400 text-gray-700 placeholder-gray-300 focus:outline-none"
           placeholder={placeholder}
-          value={inputValue}
+          value={inputValue ?? ""}
           onChange={handleInputChange}
           type={type}
           required={required}
@@ -73,6 +75,7 @@ const BoxedInput: React.FC<BoxedInputProps> = ({
           ref={inputRef} // input 요소에 ref 연결
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
+          onClick={onClick}
         />
         {isFocused && (
           <button
