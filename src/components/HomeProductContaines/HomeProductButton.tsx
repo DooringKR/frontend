@@ -2,27 +2,23 @@ import React from "react";
 
 interface HomeProductButtonProps {
   label: string;
-  selected?: boolean;
-  disabled?: boolean;
+  icon: React.ReactNode;
   onClick?: () => void;
 }
 
 const HomeProductButton: React.FC<HomeProductButtonProps> = ({
   label,
-  selected,
-  disabled,
+  icon,
   onClick,
 }) => {
   return (
     <button
       type="button"
-      className={`flex h-[72px] w-[72px] flex-col items-center justify-center rounded-xl transition-colors ${selected ? "bg-green-100" : "bg-gray-100"} ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:bg-green-50"}`}
-      disabled={disabled}
+      className={`flex flex-col gap-2 flex-1 items-center justify-center min-w-0 min-h-0`}
       onClick={onClick}
     >
-      {/* 아이콘 자리 (현재 빈 값) */}
-      <div className="mb-1 h-10 w-10" />
-      <span className="text-xs font-medium text-gray-700">{label}</span>
+      <div className="w-full">{icon}</div>
+      <span className="font-500 text-[17px] text-gray-500 text-center">{label}</span>
     </button>
   );
 };
