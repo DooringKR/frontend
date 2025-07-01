@@ -23,6 +23,8 @@ import SwitchDemo from "@/components/Switches/Switches";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import HomeProductContainer from "@/components/HomeProductContaines/HomeProductContainer";
 import HomeNavigator from "@/components/HomeNavigator/HomeNavigator";
+import Banner from "@/components/Banner/Banner";
+import GradientText from "@/components/GradientText/GradientText";
 
 // SectionWrapper 컴포넌트 추가
 const SectionWrapper = ({ title, children }: { title: string; children: React.ReactNode }) => (
@@ -244,6 +246,17 @@ const Page = () => {
       </SectionWrapper>
       <SectionWrapper title="Home Navigator">
         <HomeNavigator />
+      </SectionWrapper>
+      <SectionWrapper title="Banner">
+        <Banner />
+      </SectionWrapper>
+      <SectionWrapper title="Gradient Text">
+        <GradientText>아무 말이나 써보세요. 글자가 멋져요.</GradientText>
+        <div style={{ fontSize: "2rem", fontWeight: "bold", background: "#f6f0fa", padding: 32 }}>
+          <GradientText>
+            아무 말이나 써보세요. 글자가 멋져요.
+          </GradientText>
+        </div>
       </SectionWrapper>
     </div>
   );
