@@ -6,6 +6,8 @@ import KakaoIcon from "public/icons/kakao";
 import PaintBruchVertical from "public/icons/paintbrush_vertical";
 import React, { useState } from "react";
 
+import AddressIndicator from "@/components/AddressIndicator/AddressIndicator";
+import Banner from "@/components/Banner/Banner";
 import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import Button from "@/components/Button/Button";
@@ -13,7 +15,11 @@ import CompanyTypeButton from "@/components/Button/CompanyTypeButton";
 import SelectToggleButton from "@/components/Button/SelectToggleButton";
 import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
 import DoorPreview from "@/components/DoorPreview/DoorPreview";
+import GradientText from "@/components/GradientEffectText/GradientEffectText";
+import GradientEffectText from "@/components/GradientEffectText/GradientEffectText";
 import Header from "@/components/Header/Header";
+import HomeNavigator from "@/components/HomeNavigator/HomeNavigator";
+import HomeProductContainer from "@/components/HomeProductContaines/HomeProductContainer";
 import BoxedInput from "@/components/Input/BoxedInput";
 import UnderlinedInput from "@/components/Input/UnderlinedInput";
 import SegmentedControl from "@/components/SegmentedControl/SegmentedControl";
@@ -21,10 +27,6 @@ import BoxedSelect from "@/components/Select/BoxedSelect";
 import UnderlinedSelect from "@/components/Select/UnderlinedSelect";
 import SwitchDemo from "@/components/Switches/Switches";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
-import HomeProductContainer from "@/components/HomeProductContaines/HomeProductContainer";
-import HomeNavigator from "@/components/HomeNavigator/HomeNavigator";
-import Banner from "@/components/Banner/Banner";
-import GradientText from "@/components/GradientText/GradientText";
 
 // SectionWrapper 컴포넌트 추가
 const SectionWrapper = ({ title, children }: { title: string; children: React.ReactNode }) => (
@@ -248,15 +250,20 @@ const Page = () => {
         <HomeNavigator />
       </SectionWrapper>
       <SectionWrapper title="Banner">
+        PC에서 매끄럽게 슬라이드 되지 않는 문제가 있습니다. 원인을 찾아보고 수정해야 합니다.
         <Banner />
       </SectionWrapper>
-      <SectionWrapper title="Gradient Text">
-        <GradientText>아무 말이나 써보세요. 글자가 멋져요.</GradientText>
-        <div style={{ fontSize: "2rem", fontWeight: "bold", background: "#f6f0fa", padding: 32 }}>
-          <GradientText>
-            아무 말이나 써보세요. 글자가 멋져요.
-          </GradientText>
-        </div>
+      <SectionWrapper title="Gradient Effect Text">
+        <GradientEffectText text="주소를 입력해주세요." />
+      </SectionWrapper>
+      <SectionWrapper title="Address Indicator">
+        주소 입력 & 오늘 배송
+        <AddressIndicator
+          address="서울시 강남구 역삼동 123-45"
+          deliverySchedule="today"
+          timeLimit="1시간 내"
+        />
+        <AddressIndicator address="" deliverySchedule="today" />
       </SectionWrapper>
     </div>
   );
