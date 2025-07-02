@@ -131,54 +131,58 @@ function CheckOrder() {
   };
 
   return (
-    <div className="flex flex-col px-5 pb-20">
+    <div className="flex min-h-screen flex-col justify-between">
       {/* <h1 className="mb-4 text-center text-xl font-bold">주문하기</h1>
 
       <div className={`mb-4 p-2 text-center font-medium ${deliveryMessageColor}`}>
         {deliveryMessage}
       </div> */}
       <TopNavigator title="주문하기" />
-      <div className="flex flex-col gap-3 py-5">
-        <h2 className="text-xl font-600 text-gray-800">주소 확인</h2>
-        <DeliveryAddressCard
-          foyerAccessType={foyerAccessType}
-          setFoyerAccessType={setFoyerAccessType}
-          address={address}
-          requestMessage={requestMessage}
-          setRequestMessage={setRequestMessage}
-          setAddress={setAddress}
-        />
-      </div>
-      <DeliveryScheduleSelector
-        expectedArrivalMinutes={expectedArrivalMinutes}
-        setDeliveryDate={setDeliveryDate}
-      />
 
-      <section className="flex flex-col gap-3 py-5">
-        {/* <h2 className="mb-2 font-medium">배송 정보를 확인해주세요</h2> */}
-        <h2 className="text-xl font-600 text-gray-800">배송정보 확인</h2>
-
-        <RecipientPhoneNumber
-          recipientPhoneNumber={recipientPhoneNumber}
-          setRecipientPhoneNumber={setRecipientPhoneNumber}
+      <div className="flex-grow px-5">
+        <div className="flex flex-col gap-3 py-5">
+          <h2 className="text-xl font-600 text-gray-800">주소 확인</h2>
+          <DeliveryAddressCard
+            foyerAccessType={foyerAccessType}
+            setFoyerAccessType={setFoyerAccessType}
+            address={address}
+            requestMessage={requestMessage}
+            setRequestMessage={setRequestMessage}
+            setAddress={setAddress}
+          />
+        </div>
+        <DeliveryScheduleSelector
+          expectedArrivalMinutes={expectedArrivalMinutes}
+          setDeliveryDate={setDeliveryDate}
         />
-        {/* <CustomerRequest
+
+        <section className="flex flex-col gap-3 py-5">
+          {/* <h2 className="mb-2 font-medium">배송 정보를 확인해주세요</h2> */}
+          <h2 className="text-xl font-600 text-gray-800">배송정보 확인</h2>
+
+          <RecipientPhoneNumber
+            recipientPhoneNumber={recipientPhoneNumber}
+            setRecipientPhoneNumber={setRecipientPhoneNumber}
+          />
+          {/* <CustomerRequest
           customerRequest={customerRequest}
           setCustomerRequest={setCustomerRequest}
         /> */}
-        {/* 배송기사 요청사항 분리된 컴포넌트 */}
-        <DeliveryRequestSelector
-          requestMessage={requestMessage}
-          setRequestMessage={setRequestMessage}
-          foyerAccessType={foyerAccessType}
-          setFoyerAccessType={setFoyerAccessType}
-        />
-      </section>
-      <PriceCheckCard page={CHECK_ORDER_PAGE} />
-
-      <Button selected={true} onClick={handleOrderSubmit}>
-        주문하기
-      </Button>
+          {/* 배송기사 요청사항 분리된 컴포넌트 */}
+          <DeliveryRequestSelector
+            requestMessage={requestMessage}
+            setRequestMessage={setRequestMessage}
+            foyerAccessType={foyerAccessType}
+            setFoyerAccessType={setFoyerAccessType}
+          />
+        </section>
+        <PriceCheckCard page={CHECK_ORDER_PAGE} />
+      </div>
+      <div className="w-full px-5 pb-5 pt-3">
+        <Button selected={true} onClick={handleOrderSubmit} className="w-full">
+          주문하기
+        </Button>
+      </div>
     </div>
   );
 }
