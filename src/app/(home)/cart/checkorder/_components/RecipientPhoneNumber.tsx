@@ -96,7 +96,7 @@ export default function RecipientPhoneNumber({
               disabled={!!errorMessage}
               className="mx-5"
             >
-              저장
+              저장하기
             </Button>
           </div>
         </div>
