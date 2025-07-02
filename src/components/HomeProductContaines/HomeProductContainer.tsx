@@ -1,7 +1,7 @@
 import React from "react";
 
 import HomeProductButton from "./HomeProductButton";
-import DoorIcon from "./Icons/door";
+import DoorIcon from "./Icons/Door";
 import FinishingMaterialsIcon from "./Icons/FinishingMaterials";
 import SectionHeadIcon from "./Icons/SectionHead";
 import AttachedIcon from "./Icons/Attached";
