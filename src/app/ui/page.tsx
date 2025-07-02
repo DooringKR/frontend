@@ -261,9 +261,27 @@ const Page = () => {
         <AddressIndicator
           address="서울시 강남구 역삼동 123-45"
           deliverySchedule="today"
-          timeLimit="1시간 내"
+          timeLimit="1시간 10분 내 주문시"
         />
-        <AddressIndicator address="" deliverySchedule="today" />
+        주소 입력 & 내일 배송
+        <AddressIndicator
+          address="서울시 강남구 역삼동 123-45"
+          deliverySchedule="tomorrow"
+          timeLimit="밤 12시 전 주문시" />
+        주소 입력 & 내일 영업일 X
+        <AddressIndicator
+          address="서울시 강남구 역삼동 123-45"
+          deliverySchedule="other"
+          timeLimit="12/24(일) 밤 12시 전 주문시"
+          arrivalDate="12/25(월)"
+        />
+        주소 미입력
+        <AddressIndicator
+          address=""
+          deliverySchedule=""
+          timeLimit=""
+          arrivalDate=""
+        />
       </SectionWrapper>
     </div>
   );

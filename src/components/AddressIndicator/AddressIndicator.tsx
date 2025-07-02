@@ -2,53 +2,35 @@ import React from "react";
 
 import GradientEffectText from "../GradientEffectText/GradientEffectText";
 import AddressIcon from "./icon/AddressIcon";
+import DeliveryScheduleDisplay from "./component/DeliveryScheduleDisplay";
 
-type DeliverySchedule = "today" | "tomorrow" | "other" | "";
-
-interface AddressIndicatorProps {
-  address?: string;
-  deliverySchedule: DeliverySchedule;
-  //도착보장일 추가 필요, 날짜로 받으면 getDeliveryScheduleText에서 조정
-  timeLimit?: string; // 예: "1시간 내", "오후 3시까지"
-}
-
-// 배송일정 표시 컴포넌트
-const DeliveryScheduleDisplay: React.FC<{ schedule: DeliverySchedule }> = ({ schedule }) => {
-  switch (schedule) {
-    case "today":
-      return (
-        <div className="flex flex-row gap-2">
-          <div className="rounded bg-red-500 px-2 py-1 text-sm font-medium text-white">
-            오늘배송 가능
-          </div>
-        </div>
-      );
-    case "tomorrow":
-      return (
-        <div className="flex flex-row gap-2">
-          <div className="rounded bg-orange-500 px-2 py-1 text-sm font-medium text-white">
-            내일(수) 도착 보장
-          </div>
-        </div>
-      );
-    case "other":
-      return (
-        <div className="flex flex-row gap-2">
-          <div className="rounded bg-gray-500 px-2 py-1 text-sm font-medium text-white">
-            12월 25일 도착 보장
-          </div>
-        </div>
-      );
-    default:
-      return null;
+// discriminated union 타입으로 timeLimit이 필수인 경우와 선택인 경우를 구분
+// arrivalDate는 도착 보장일이며, 'other'인 경우에만 사용합니다. api 호출 시 string 변환 후 전달해야 합니다.
+type AddressIndicatorProps =
+  | {
+    address: string;
+    deliverySchedule: "today" | "tomorrow";
+    timeLimit: string; // today, tomorrow인 경우 필수
+    arrivalDate?: string; // 도착 보장일
   }
-};
+  | {
+    address: string;
+    deliverySchedule: "other";
+    timeLimit?: string; // other, 빈 문자열인 경우 선택
+    arrivalDate?: string; // 도착 보장일
+  }
+  | {
+    //주소 입력 안 한 경우
+    address?: string;
+    deliverySchedule: "";
+    timeLimit?: string; // other, 빈 문자열인 경우 선택
+    arrivalDate?: string; // 도착 보장일
+  }
+  ;
 
-const AddressIndicator: React.FC<AddressIndicatorProps> = ({
-  address,
-  deliverySchedule,
-  timeLimit,
-}) => {
+const AddressIndicator: React.FC<AddressIndicatorProps> = (props) => {
+  const { address, deliverySchedule, timeLimit, arrivalDate } = props;
+
   return (
     <div className="flex flex-col gap-2 px-5">
       <div className="flex flex-row gap-[6px]">
@@ -59,8 +41,11 @@ const AddressIndicator: React.FC<AddressIndicatorProps> = ({
           <AddressIcon isAddressEntered={!!address} />
         </div>
       </div>
-      <DeliveryScheduleDisplay schedule={deliverySchedule} />
-      {timeLimit && <div className="text-sm font-medium text-red-600">{timeLimit} 주문</div>}
+      <DeliveryScheduleDisplay
+        schedule={deliverySchedule}
+        timeLimit={timeLimit}
+        arrivalDate={arrivalDate}
+      />
     </div>
   );
 };
