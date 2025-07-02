@@ -6,7 +6,7 @@ import { useState } from "react";
 import BottomButton from "@/components/BottomButton/BottomButton";
 import Button2 from "@/components/Button/Button";
 import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
-import PriceCheck from "@/components/PriceCheck/PriceCheck";
+import PriceCheckCard from "@/components/PriceCheckCard/PriceCheckCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 function ShoppingCartPage() {
@@ -89,7 +89,7 @@ function ProductInfo({
         ))}
         <Button2 type={"BrandInverse"} text={"상품 추가"} />
       </div>
-      <PriceCheck />
+      <PriceCheckCard />
     </>
   );
 }

@@ -1,11 +1,12 @@
 "use client";
 
 import { createOrder } from "@/api/orderApi";
+import { CHECK_ORDER_PAGE } from "@/constants/pageName";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import Button from "@/components/BeforeEditByKi/Button/Button";
-import PriceCheck from "@/components/PriceCheck/PriceCheck";
+import PriceCheckCard from "@/components/PriceCheckCard/PriceCheckCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { useCurrentOrderStore } from "@/store/Items/currentOrderStore";
@@ -173,7 +174,7 @@ function CheckOrder() {
           setFoyerAccessType={setFoyerAccessType}
         />
       </section>
-      <PriceCheck />
+      <PriceCheckCard page={CHECK_ORDER_PAGE} />
 
       <Button selected={true} onClick={handleOrderSubmit}>
         주문하기
