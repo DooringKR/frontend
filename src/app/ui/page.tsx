@@ -6,6 +6,8 @@ import KakaoIcon from "public/icons/kakao";
 import PaintBruchVertical from "public/icons/paintbrush_vertical";
 import React, { useState } from "react";
 
+import AddressIndicator from "@/components/AddressIndicator/AddressIndicator";
+import Banner from "@/components/Banner/Banner";
 import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import Button from "@/components/Button/Button";
@@ -13,12 +15,17 @@ import CompanyTypeButton from "@/components/Button/CompanyTypeButton";
 import SelectToggleButton from "@/components/Button/SelectToggleButton";
 import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
 import DoorPreview from "@/components/DoorPreview/DoorPreview";
+import GradientText from "@/components/GradientEffectText/GradientEffectText";
+import GradientEffectText from "@/components/GradientEffectText/GradientEffectText";
 import Header from "@/components/Header/Header";
+import HomeNavigator from "@/components/HomeNavigator/HomeNavigator";
+import HomeProductContainer from "@/components/HomeProductContaines/HomeProductContainer";
 import BoxedInput from "@/components/Input/BoxedInput";
 import UnderlinedInput from "@/components/Input/UnderlinedInput";
 import SegmentedControl from "@/components/SegmentedControl/SegmentedControl";
 import BoxedSelect from "@/components/Select/BoxedSelect";
 import UnderlinedSelect from "@/components/Select/UnderlinedSelect";
+import SwitchDemo from "@/components/Switches/Switches";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 // SectionWrapper 컴포넌트 추가
@@ -231,6 +238,49 @@ const Page = () => {
             throw new Error("Function not implemented.");
           }}
           label="박스형 셀렉트(오류 발생 시)"
+        />
+      </SectionWrapper>
+      <SectionWrapper title="Switches">
+        <SwitchDemo />
+      </SectionWrapper>
+      <SectionWrapper title="Home Product Containes">
+        <HomeProductContainer />
+      </SectionWrapper>
+      <SectionWrapper title="Home Navigator">
+        <HomeNavigator />
+      </SectionWrapper>
+      <SectionWrapper title="Banner">
+        PC에서 매끄럽게 슬라이드 되지 않는 문제가 있습니다. 원인을 찾아보고 수정해야 합니다.
+        <Banner />
+      </SectionWrapper>
+      <SectionWrapper title="Gradient Effect Text">
+        <GradientEffectText text="주소를 입력해주세요." />
+      </SectionWrapper>
+      <SectionWrapper title="Address Indicator">
+        주소 입력 & 오늘 배송
+        <AddressIndicator
+          address="서울시 강남구 역삼동 123-45"
+          deliverySchedule="today"
+          timeLimit="1시간 10분 내 주문시"
+        />
+        주소 입력 & 내일 배송
+        <AddressIndicator
+          address="서울시 강남구 역삼동 123-45"
+          deliverySchedule="tomorrow"
+          timeLimit="밤 12시 전 주문시" />
+        주소 입력 & 내일 영업일 X
+        <AddressIndicator
+          address="서울시 강남구 역삼동 123-45"
+          deliverySchedule="other"
+          timeLimit="12/24(일) 밤 12시 전 주문시"
+          arrivalDate="12/25(월)"
+        />
+        주소 미입력
+        <AddressIndicator
+          address=""
+          deliverySchedule=""
+          timeLimit=""
+          arrivalDate=""
         />
       </SectionWrapper>
     </div>
