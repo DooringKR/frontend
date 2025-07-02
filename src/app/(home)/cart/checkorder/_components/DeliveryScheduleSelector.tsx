@@ -74,7 +74,7 @@ export default function DeliveryScheduleSelector({
 
       <div
         onClick={() => isTodayDeliveryAvailable && setDeliveryType("today")}
-        className={`flex flex-col gap-1 rounded-xl border px-5 py-4 ${deliveryType === "today" ? "border-blue-500" : "border-gray-300"} ${!isTodayDeliveryAvailable ? "cursor-not-allowed opacity-50" : ""}`}
+        className={`flex cursor-pointer flex-col gap-1 rounded-xl border px-5 py-4 ${deliveryType === "today" ? "border-2 border-gray-800" : "border-gray-300"} ${!isTodayDeliveryAvailable ? "cursor-not-allowed opacity-50" : ""}`}
       >
         <div className="flex justify-between">
           {/* <span>바로배송</span> */}
@@ -91,20 +91,32 @@ export default function DeliveryScheduleSelector({
 
       <div
         onClick={() => setDeliveryType("tomorrow")}
-        className={`flex flex-col gap-1 rounded-xl border px-5 py-4 ${deliveryType === "tomorrow" ? "border-blue-500" : "border-gray-300"}`}
+        className={`flex cursor-pointer flex-col gap-1 rounded-xl border px-5 py-4 ${deliveryType === "tomorrow" ? "border-2 border-gray-800" : "border-gray-300"}`}
       >
         <div className="flex justify-between">
           {/* <span>익일배송</span> */}
           <span className="text-[17px] font-600">내일배송</span>
-          <span className="text-sm text-blue-500">{tomorrowDayLabel}</span>
+          {deliveryType === "tomorrow" ? (
+            ""
+          ) : (
+            <span className="text-sm text-blue-500">{tomorrowDayLabel}</span>
+          )}
         </div>
-        <p className="text-base font-400 text-gray-500">내일 원하는 시간에 배송돼요.</p>
+        {deliveryType === "tomorrow" ? (
+          <span className="text-[15px] font-500">
+            {tomorrowDayLabel.slice(0, -2)} 원하는 시간 도착
+          </span>
+        ) : (
+          <p className="text-base font-400 text-gray-500">내일 원하는 시간에 배송돼요.</p>
+        )}
 
         {deliveryType === "tomorrow" && (
           <>
-            <div className="mb-1 flex items-center justify-between">
-              <span className="font-semibold">희망배송시간</span>
-              <span className="text-sm text-blue-500">{tomorrowFullLabel}</span>
+            <div className="mt-3 flex items-center">
+              <span className="text-sm font-400 text-gray-800">
+                {tomorrowFullLabel}{" "}
+                <span className="text-sm font-400 text-gray-600">희망배송시간</span>
+              </span>
             </div>
 
             <div
