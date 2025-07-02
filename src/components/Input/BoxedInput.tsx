@@ -7,11 +7,12 @@ interface BoxedInputProps {
   helperText?: string;
   placeholder?: string;
   value?: any;
-  onChange?: (value: string) => void;
+  onChange?: React.ChangeEventHandler<HTMLInputElement>;
   type?: "text" | "password" | "tel" | "number";
   required?: boolean;
   disabled?: boolean;
   onClick?: () => void;
+  className?: string | null;
 }
 
 const BoxedInput: React.FC<BoxedInputProps> = ({
@@ -25,6 +26,7 @@ const BoxedInput: React.FC<BoxedInputProps> = ({
   required,
   disabled,
   onClick,
+  className,
 }) => {
   const [inputValue, setInputValue] = useState(value);
   const [isFocused, setIsFocused] = useState(false);
@@ -38,32 +40,35 @@ const BoxedInput: React.FC<BoxedInputProps> = ({
   const handleClear = () => {
     console.log("handleClear");
     setInputValue("");
-    if (onChange) {
-      onChange("");
+    if (onChange && inputRef.current) {
+      const event = {
+        ...({} as React.ChangeEvent<HTMLInputElement>),
+        target: inputRef.current,
+        currentTarget: inputRef.current,
+      };
+      inputRef.current.value = "";
+      onChange(event);
     }
     setIsFocused(true);
     inputRef.current?.focus();
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setInputValue(newValue);
+    setInputValue(e.target.value);
     if (onChange) {
-      onChange(newValue);
+      onChange(e);
     }
   };
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className={`flex flex-col gap-2${className ? ` ${className}` : ""}`}>
       <label className="text-[14px] font-400 text-gray-600">{label}</label>
       <div
-        className={`flex items-center justify-between rounded-[12px] border px-4 transition-colors ${
-          error
-            ? "border-[2px] border-[#FCA5A5] py-[11px]"
-            : "border border-gray-200 py-3 focus-within:border-[2px] focus-within:border-brand-300 focus-within:py-[11px] hover:border-[2px] hover:border-brand-100 hover:py-[11px]"
-        } `}
+        className={`flex items-center justify-between rounded-[12px] border px-4 transition-colors ${error
+          ? "border-[2px] border-[#FCA5A5] py-[11px]"
+          : "border border-gray-200 py-3 focus-within:border-[2px] focus-within:border-brand-300 focus-within:py-[11px] hover:border-[2px] hover:border-brand-100 hover:py-[11px]"
+          } `}
       >
-        {/* {value} */}
         <input
           className="w-full text-[17px] font-400 text-gray-700 placeholder-gray-300 focus:outline-none"
           placeholder={placeholder}
@@ -72,7 +77,7 @@ const BoxedInput: React.FC<BoxedInputProps> = ({
           type={type}
           required={required}
           disabled={disabled}
-          ref={inputRef} // input 요소에 ref 연결
+          ref={inputRef}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           onClick={onClick}
@@ -81,7 +86,7 @@ const BoxedInput: React.FC<BoxedInputProps> = ({
           <button
             type="button"
             onMouseDown={e => {
-              e.preventDefault(); // blur 방지
+              e.preventDefault();
               handleClear();
             }}
           >

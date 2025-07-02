@@ -1,6 +1,7 @@
 import InfoIcon from "public/icons/Info";
 import CheckIcon from "public/icons/check";
 import React from "react";
+import Image from "next/image";
 
 interface SelectToggleButtonProps {
   imageSrc?: string; // 버튼에 표시될 이미지 경로
@@ -26,9 +27,10 @@ const SelectToggleButton: React.FC<SelectToggleButtonProps> = ({
       //   }}
       className={`flex h-[48px] w-full items-center gap-3 rounded-[12px] px-4 py-3 transition hover:bg-gray-50`}
     >
-      {/* 이미지 */}
-      {imageSrc && <div className="h-8 w-8 rounded-[4px] bg-yellow-100"></div>}
-      {/* <img src={imageSrc} alt={label} className="h-8 w-8 rounded-full object-cover" /> */}
+      {/* 이미지 TODO: 컬러 constant 추가가 필요합니다. 지금 전부 체크박스로 보이네요*/}
+      {imageSrc && (
+        <Image src={imageSrc} alt={label} width={32} height={32} className="h-8 w-8 rounded-[4px] object-cover" />
+      )}
       <div className="flex items-center gap-1">
         <div className="text-[17px] font-500 text-gray-600">{label}</div>
         {description && <InfoIcon />}
