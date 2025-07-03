@@ -68,7 +68,7 @@ export default function Input({
         onChange={onChange}
         disabled={disabled}
         onKeyDown={onKeyDown}
-        className={`h-auto w-full rounded-xl border bg-white outline-none transition-colors duration-200 ${textColor} ${borderColor} ${className}`}
+        className={`h-auto w-full rounded-xl border bg-white px-4 py-3 outline-none transition-colors duration-200 ${textColor} ${borderColor} ${className}`}
       />
 
       {effectiveError && <p className="text-sm text-red-500">{effectiveError.message}</p>}
