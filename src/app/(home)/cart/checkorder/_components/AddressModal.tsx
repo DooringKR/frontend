@@ -85,7 +85,7 @@ export default function AddressModal({ onClose, onAddressSelect }: AddressModalP
               value={address2}
               onChange={e => setAddress2(e.target.value)}
               placeholder="상세주소 (예: 101동 501호 / 단독주택)"
-              className="h-[50px] w-full px-4 text-base"
+              className="h-[50px] w-full px-4 py-3 text-base"
             />
             <DeliveryTimeCheck
               isDeliveryPossible={isDeliveryPossible}
