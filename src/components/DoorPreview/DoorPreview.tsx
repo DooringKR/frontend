@@ -3,12 +3,12 @@ import React from "react";
 import BoringInputField from "../Input/BoringInputField";
 
 interface DoorPreviewProps {
-  DoorWidth: number | undefined; // 가로 길이, undefined일 경우 입력 필요
-  DoorHeight: number | undefined; // 세로 길이, undefined일 경우 입력 필요
+  DoorWidth: number | null; // 가로 길이, null 경우 입력 필요
+  DoorHeight: number | null; // 세로 길이, null 경우 입력 필요
   boringDirection: "left" | "right";
   boringNum: 2 | 3 | 4; // 보어링 개수는 2, 3, 4 중 하나
-  boringSize: number[];
-  onChangeBoringSize?: (sizes: number[]) => void;
+  boringSize: (number | null)[];
+  onChangeBoringSize?: (sizes: (number | null)[]) => void;
 }
 
 const DoorPreview: React.FC<DoorPreviewProps> = ({
@@ -23,7 +23,7 @@ const DoorPreview: React.FC<DoorPreviewProps> = ({
   const boringHeight = 250 / boringNum;
 
   // boringSize 변경 핸들러
-  const handleBoringInputChange = (idx: number, value: number) => {
+  const handleBoringInputChange = (idx: number, value: number | null) => {
     const newSizes = [...boringSize];
     newSizes[idx] = value;
     onChangeBoringSize?.(newSizes);
@@ -39,7 +39,7 @@ const DoorPreview: React.FC<DoorPreviewProps> = ({
       <div className="max-w-[125px]">
         <BoringInputField
           placeholder="보링"
-          value={boringSize[idx]}
+          value={boringSize[idx] ?? null}
           onChange={value => handleBoringInputChange(idx, value)}
         />
       </div>
@@ -52,7 +52,7 @@ const DoorPreview: React.FC<DoorPreviewProps> = ({
     <div className={`flex h-full flex-col items-center justify-center`}>
       <div className="w-full text-center text-[17px]">
         {DoorHeight !== undefined && DoorHeight !== null && DoorHeight !== 0 ? (
-          <span className="font-500 text-gray-800">{DoorHeight}</span>
+          <span className="font-500 text-gray-800">{DoorHeight}mm</span>
         ) : (
           <span className="font-600 text-gray-300">입력 필요</span>
         )}
@@ -87,7 +87,7 @@ const DoorPreview: React.FC<DoorPreviewProps> = ({
       <div className="flex w-full flex-col justify-center pt-3">
         <div className="w-full text-center text-[17px]">
           {DoorWidth !== undefined && DoorWidth !== null && DoorWidth !== 0 ? (
-            <span className="font-500 text-gray-800">{DoorWidth}</span>
+            <span className="font-500 text-gray-800">{DoorWidth}mm</span>
           ) : (
             <span className="font-600 text-gray-300">입력 필요</span>
           )}

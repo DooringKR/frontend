@@ -186,7 +186,7 @@ const Page = () => {
           }}
         />
         <SelectToggleButton
-          imageSrc="https://via.placeholder.com/150"
+          imageSrc="/img/color-list/hansol-cream-white.png"
           label={"레이블"}
           checked={true}
           description="설명 텍스트"
@@ -195,7 +195,7 @@ const Page = () => {
           }}
         />
         <SelectToggleButton
-          imageSrc="https://via.placeholder.com/150"
+          imageSrc="/img/color-list/hansol-cream-white.png"
           label={"레이블"}
           checked={false}
           description="설명 텍스트"
@@ -267,7 +267,8 @@ const Page = () => {
         <AddressIndicator
           address="서울시 강남구 역삼동 123-45"
           deliverySchedule="tomorrow"
-          timeLimit="밤 12시 전 주문시" />
+          timeLimit="밤 12시 전 주문시"
+        />
         주소 입력 & 내일 영업일 X
         <AddressIndicator
           address="서울시 강남구 역삼동 123-45"
@@ -276,12 +277,7 @@ const Page = () => {
           arrivalDate="12/25(월)"
         />
         주소 미입력
-        <AddressIndicator
-          address=""
-          deliverySchedule=""
-          timeLimit=""
-          arrivalDate=""
-        />
+        <AddressIndicator address="" deliverySchedule="" timeLimit="" arrivalDate="" />
       </SectionWrapper>
     </div>
   );

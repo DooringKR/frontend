@@ -1,6 +1,7 @@
 "use client";
 
 import Door from "@/app/(home)/cart/_components/Door";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
@@ -13,16 +14,21 @@ import BoxedSelect from "@/components/Select/BoxedSelect";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 function DoorInfoInputPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const color = searchParams.get("color") ?? "";
+
   //    const [isModalOpen, setIsModalOpen] = useState(false);
   const [boringNum, setBoringNum] = useState<2 | 3 | 4>(2);
   const [boringDirection, setBoringDirection] = useState<"left" | "right">("left");
-  const [DoorWidth, setDoorWidth] = useState<number>();
-  const [DoorHeight, setDoorHeight] = useState<number>();
-  const [boringSize, setBoringSize] = useState<number[]>([]);
+  const [DoorWidth, setDoorWidth] = useState<number | null>(null);
+  const [DoorHeight, setDoorHeight] = useState<number | null>(null);
+  const [boringSize, setBoringSize] = useState<(number | null)[]>([]);
 
   // boringNum이 바뀔 때 boringSize 길이 자동 조정
   useEffect(() => {
-    setBoringSize(prev => Array.from({ length: boringNum }, (_, i) => prev[i] ?? ""));
+    setBoringSize(prev => Array.from({ length: boringNum }, (_, i) => prev[i] ?? null));
   }, [boringNum]);
 
   return (
@@ -33,22 +39,30 @@ function DoorInfoInputPage() {
         <BoxedSelect
           label="색상"
           options={[]}
-          value={""}
+          value={color}
           onChange={function (value: string): void {
             throw new Error("Function not implemented.");
           }}
         />
         <BoxedInput
-          type="number"
+          type="text"
           label="가로 길이"
-          value={DoorWidth}
-          onChange={v => setDoorWidth(v === "" ? undefined : Number(v))}
+          placeholder="가로 길이를 입력해주세요"
+          value={DoorWidth !== null ? `${DoorWidth}mm` : ""}
+          onChange={e => {
+            const value = e.target.value.replace(/[^0-9]/g, "");
+            setDoorWidth(value ? Number(value) : null);
+          }}
         />
         <BoxedInput
-          type="number"
+          type="text"
           label="세로 길이"
-          value={DoorHeight}
-          onChange={v => setDoorHeight(v === "" ? undefined : Number(v))}
+          placeholder="세로 길이를 입력해주세요"
+          value={DoorHeight !== null ? `${DoorHeight}mm` : ""}
+          onChange={e => {
+            const value = e.target.value.replace(/[^0-9]/g, "");
+            setDoorHeight(value ? Number(value) : null);
+          }}
         />
         <div className="flex flex-col gap-2">
           <div className="w-full text-[14px] font-400 text-gray-600"> 경첩</div>
@@ -85,9 +99,16 @@ function DoorInfoInputPage() {
             onChangeBoringSize={setBoringSize}
           />
         </div>
-        <BoxedInput />
+        <BoxedInput label="제작 시 요청사항" placeholder="제작 시 요청사항을 입력해주세요" />
       </div>
-      <BottomButton type={"1button"} />
+      <BottomButton
+        type={"1button"}
+        button1Text={"다음"}
+        className="px-5 pb-5"
+        button1Disabled={
+          DoorWidth === null || DoorHeight === null || boringSize.some(v => v === null)
+        }
+      />
     </div>
   );
 }

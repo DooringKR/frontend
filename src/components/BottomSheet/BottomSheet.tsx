@@ -44,10 +44,10 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
         </div>
         <div className="flex flex-col items-start gap-1 px-5 pt-2">
           <h2 className="text-[20px] font-700 text-gray-900">{title}</h2>
-          <p className="text-[16px] font-400 text-gray-500">{description}</p>
+          <p className="text-[16px]/[22px] font-400 text-gray-500">{description}</p>
         </div>
         {children && <div className="px-5">{children}</div>}
-        {buttonArea && <div className="mt-5">{buttonArea}</div>}
+        {buttonArea && <div>{buttonArea}</div>}
       </div>
     </>
   );

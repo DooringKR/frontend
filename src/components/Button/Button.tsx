@@ -9,9 +9,10 @@ interface ButtonProps extends IconProps {
   text: string;
   onClick?: () => void;
   disabled?: boolean;
+  className?: string;
 }
 
-const Button: React.FC<ButtonProps> = ({ type, text, onClick, disabled, icon }) => {
+const Button: React.FC<ButtonProps> = ({ type, text, onClick, disabled, icon, className }) => {
   const getClassName = () => {
     switch (type) {
       case "Brand":
@@ -63,7 +64,7 @@ const Button: React.FC<ButtonProps> = ({ type, text, onClick, disabled, icon }) 
 
   return (
     <button
-      className={`button w-full ${getClassName()} flex items-center justify-center`}
+      className={`button ${getClassName()} flex items-center justify-center ${className || "w-full"}`}
       onClick={onClick}
       disabled={disabled}
     >
