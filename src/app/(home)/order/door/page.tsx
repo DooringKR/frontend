@@ -16,7 +16,7 @@ const doorCategories = [
       </>
     ),
     heightClass: "height-[44px]",
-    slug: "normal",
+    category: "normal",
   },
   {
     src: "/img/door-category/FlapDoor.png",
@@ -27,14 +27,14 @@ const doorCategories = [
       </>
     ),
     heightClass: "height-[44px]",
-    slug: "flap",
+    category: "flap",
   },
   {
     src: "/img/door-category/Drawer.png",
     alt: "서랍",
     label: "서랍 마에다",
     heightClass: "height-[22px]",
-    slug: "drawer",
+    category: "drawer",
   },
 ];
 
@@ -49,7 +49,7 @@ function DoorCategoryPage() {
           <div
             key={category.alt}
             className="flex flex-col gap-2 items-center flex-1 cursor-pointer"
-            onClick={() => router.push(`/order/door/color?slug=${category.slug}`)}
+            onClick={() => router.push(`/order/door/color?category=${category.category}`)}
           >
             <div className="w-full aspect-square relative">
               <Image

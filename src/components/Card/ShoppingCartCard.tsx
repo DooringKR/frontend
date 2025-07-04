@@ -3,8 +3,9 @@ import PlusIcon from "public/icons/plus";
 import TrashCan from "public/icons/trash_can";
 import React from "react";
 
-import Button2 from "../Button/Button";
 import DoorPreviewIcon from "../DoorPreviewIcon/DoorPreviewIcon";
+import Button from "../Button/Button";
+import QuantitySelector from "../QuantitySelector/QuantitySelector";
 
 interface ShoppingCartCardProps {
   title: string;
@@ -16,6 +17,8 @@ interface ShoppingCartCardProps {
   boring: string;
   quantity: number;
   trashable: boolean;
+  showQuantitySelector?: boolean;
+  request?: string;
   onOptionClick?: () => void;
   onDecrease?: () => void;
   onIncrease?: () => void;
@@ -31,6 +34,8 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   boring,
   quantity,
   trashable,
+  showQuantitySelector,
+  request,
   onOptionClick,
   onDecrease,
   onIncrease,
@@ -48,6 +53,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
             <div>경첩 개수 : {hingeCount}개</div>
             <div>경첩 방향 : {hingeDirection}</div>
             <div>보링 치수 : {boring}</div>
+            {request && <div>제작 시 요청 사항 : {request}</div>}
           </div>
         </div>
         <DoorPreviewIcon
@@ -59,67 +65,18 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
       </div>
       {/* button section */}
       <div className="ml-auto flex w-fit items-center gap-3">
-        <Button2 type={"OutlinedMedium"} text={"옵션 변경"} />
-        <QuantitySelector
-          quantity={quantity}
-          onDecrease={onDecrease}
-          onIncrease={onIncrease}
-          trashable={trashable}
-        />
+        <Button type={"OutlinedMedium"} text={"옵션 변경"} onClick={onOptionClick} />
+        {showQuantitySelector !== false && (
+          <QuantitySelector
+            quantity={quantity}
+            onDecrease={onDecrease}
+            onIncrease={onIncrease}
+            trashable={trashable}
+          />
+        )}
       </div>
     </div>
   );
-  function QuantitySelector({
-    trashable,
-    quantity,
-    onDecrease,
-    onIncrease,
-  }: {
-    trashable: boolean;
-    quantity: number;
-    onDecrease?: () => void;
-    onIncrease?: () => void;
-  }) {
-    return (
-      <div className="flex items-center">
-        <button
-          className="h-[40px] rounded-l-[10px] border-b border-l border-t px-2"
-          style={{
-            transition: "background 0.2s",
-          }}
-          onMouseEnter={e =>
-            (e.currentTarget.style.background = "linear-gradient(90deg, #F3F4F6 0%, #FFF 100%)")
-          }
-          onMouseLeave={e => (e.currentTarget.style.background = "")}
-          onClick={onDecrease}
-          aria-label="수량 감소"
-        >
-          {trashable && quantity === 1 ? (
-            <TrashCan disabled={false} />
-          ) : (
-            <MinusIcon disabled={quantity <= 0} />
-          )}
-        </button>
-        <div className="flex h-[40px] w-[32px] items-center justify-center border-b border-t text-center text-[16px] font-500 text-gray-700">
-          {quantity}
-        </div>
-        <button
-          className="h-[40px] rounded-r-[10px] border-b border-r border-t px-2"
-          style={{
-            transition: "background 0.2s",
-          }}
-          onMouseEnter={e =>
-            (e.currentTarget.style.background = "linear-gradient(270deg, #F3F4F6 0%, #FFF 100%)")
-          }
-          onMouseLeave={e => (e.currentTarget.style.background = "")}
-          onClick={onIncrease}
-          aria-label="수량 증가"
-        >
-          <PlusIcon disabled={false} />
-        </button>
-      </div>
-    );
-  }
 };
 
 export default ShoppingCartCard;

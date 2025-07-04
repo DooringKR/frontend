@@ -38,7 +38,7 @@ const DoorPreview: React.FC<DoorPreviewProps> = ({
     >
       <div className="max-w-[125px]">
         <BoringInputField
-          placeholder="보링"
+          placeholder="보링(mm)"
           value={boringSize[idx] ?? null}
           onChange={value => handleBoringInputChange(idx, value)}
         />

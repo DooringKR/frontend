@@ -17,14 +17,16 @@ function DoorInfoInputPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const color = searchParams.get("color") ?? "";
-
   //    const [isModalOpen, setIsModalOpen] = useState(false);
   const [boringNum, setBoringNum] = useState<2 | 3 | 4>(2);
   const [boringDirection, setBoringDirection] = useState<"left" | "right">("left");
   const [DoorWidth, setDoorWidth] = useState<number | null>(null);
   const [DoorHeight, setDoorHeight] = useState<number | null>(null);
   const [boringSize, setBoringSize] = useState<(number | null)[]>([]);
+  const [request, setRequest] = useState("");
+
+  const color = searchParams.get("color") ?? "";
+  const category = searchParams.get("category") ?? "";
 
   // boringNum이 바뀔 때 boringSize 길이 자동 조정
   useEffect(() => {
@@ -34,19 +36,26 @@ function DoorInfoInputPage() {
   return (
     <div>
       <TopNavigator />
-      <Header title="일반문 정보를 입력해주세요" />
+      <Header title={
+        category === "normal"
+          ? "일반문 정보를 입력해주세요"
+          : category === "flap"
+            ? "플랩문 정보를 입력해주세요"
+            : category === "drawer"
+              ? "서랍 정보를 입력해주세요"
+              : "문짝 정보를 입력해주세요"
+      } />
       <div className="flex flex-col gap-5 px-5">
         <BoxedSelect
           label="색상"
           options={[]}
           value={color}
-          onChange={function (value: string): void {
-            throw new Error("Function not implemented.");
-          }}
+          onClick={() => router.back()}
+          onChange={() => { }}
         />
         <BoxedInput
           type="text"
-          label="가로 길이"
+          label="가로 길이(mm)"
           placeholder="가로 길이를 입력해주세요"
           value={DoorWidth !== null ? `${DoorWidth}mm` : ""}
           onChange={e => {
@@ -56,7 +65,7 @@ function DoorInfoInputPage() {
         />
         <BoxedInput
           type="text"
-          label="세로 길이"
+          label="세로 길이(mm)"
           placeholder="세로 길이를 입력해주세요"
           value={DoorHeight !== null ? `${DoorHeight}mm` : ""}
           onChange={e => {
@@ -99,7 +108,12 @@ function DoorInfoInputPage() {
             onChangeBoringSize={setBoringSize}
           />
         </div>
-        <BoxedInput label="제작 시 요청사항" placeholder="제작 시 요청사항을 입력해주세요" />
+        <BoxedInput
+          label="제작 시 요청사항"
+          placeholder="제작 시 요청사항을 입력해주세요"
+          value={request}
+          onChange={e => setRequest(e.target.value)}
+        />
       </div>
       <BottomButton
         type={"1button"}
@@ -108,6 +122,15 @@ function DoorInfoInputPage() {
         button1Disabled={
           DoorWidth === null || DoorHeight === null || boringSize.some(v => v === null)
         }
+        onButton1Click={() => {
+          const params = new URLSearchParams(searchParams);
+          params.set("width", DoorWidth?.toString() ?? "");
+          params.set("height", DoorHeight?.toString() ?? "");
+          params.set("boringDirection", boringDirection);
+          params.set("boringSize", JSON.stringify(boringSize));
+          params.set("request", request);
+          router.push(`/order/door/confirm?${params.toString()}`);
+        }}
       />
     </div>
   );
