@@ -1,21 +1,24 @@
 "use client";
 
 import { createOrder } from "@/api/orderApi";
+import { CHECK_ORDER_PAGE } from "@/constants/pageName";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import Button from "@/components/BeforeEditByKi/Button/Button";
+import PriceCheckCard from "@/components/PriceCheckCard/PriceCheckCard";
+import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { useCurrentOrderStore } from "@/store/Items/currentOrderStore";
 import { DeliverTime } from "@/utils/CheckDeliveryTime";
 
-import CustomerRequest from "./_components/CostomerRequest";
 import DeliveryAddressCard from "./_components/DeliveryAddressCard";
+import DeliveryRequestSelector from "./_components/DeliveryRequestSelector";
 import DeliveryScheduleSelector from "./_components/DeliveryScheduleSelector";
 import RecipientPhoneNumber from "./_components/RecipientPhoneNumber";
 
 function CheckOrder() {
-  if (typeof window === "undefined") return null;
+  // if (typeof window === "undefined") return null;
   const { currentItem } = useCurrentOrderStore();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -43,6 +46,8 @@ function CheckOrder() {
     const saved = JSON.parse(localStorage.getItem("address-storage") || "{}");
     const userRaw = localStorage.getItem("userData");
     const selectedAddress = saved.state?.address1 || "주소 없음";
+
+    console.log("✅ selectedAddress:", selectedAddress);
 
     if (saved.state) setAddress(saved.state);
     if (userRaw) {
@@ -126,41 +131,58 @@ function CheckOrder() {
   };
 
   return (
-    <div className="flex flex-col p-5 pb-20">
-      <h1 className="mb-4 text-center text-xl font-bold">주문하기</h1>
+    <div className="flex min-h-screen flex-col justify-between">
+      {/* <h1 className="mb-4 text-center text-xl font-bold">주문하기</h1>
 
       <div className={`mb-4 p-2 text-center font-medium ${deliveryMessageColor}`}>
         {deliveryMessage}
-      </div>
+      </div> */}
+      <TopNavigator title="주문하기" />
 
-      <DeliveryScheduleSelector
-        expectedArrivalMinutes={expectedArrivalMinutes}
-        setDeliveryDate={setDeliveryDate}
-      />
+      <div className="flex-grow px-5">
+        <div className="flex flex-col gap-3 py-5">
+          <h2 className="text-xl font-600 text-gray-800">주소 확인</h2>
+          <DeliveryAddressCard
+            foyerAccessType={foyerAccessType}
+            setFoyerAccessType={setFoyerAccessType}
+            address={address}
+            requestMessage={requestMessage}
+            setRequestMessage={setRequestMessage}
+            setAddress={setAddress}
+          />
+        </div>
+        <DeliveryScheduleSelector
+          expectedArrivalMinutes={expectedArrivalMinutes}
+          setDeliveryDate={setDeliveryDate}
+        />
 
-      <section className="mb-4">
-        <h2 className="mb-2 font-medium">배송 정보를 확인해주세요</h2>
-        <DeliveryAddressCard
-          foyerAccessType={foyerAccessType}
-          setFoyerAccessType={setFoyerAccessType}
-          address={address}
-          requestMessage={requestMessage}
-          setRequestMessage={setRequestMessage}
-          setAddress={setAddress}
-        />
-        <RecipientPhoneNumber
-          recipientPhoneNumber={recipientPhoneNumber}
-          setRecipientPhoneNumber={setRecipientPhoneNumber}
-        />
-        <CustomerRequest
+        <section className="flex flex-col gap-3 py-5">
+          {/* <h2 className="mb-2 font-medium">배송 정보를 확인해주세요</h2> */}
+          <h2 className="text-xl font-600 text-gray-800">배송정보 확인</h2>
+
+          <RecipientPhoneNumber
+            recipientPhoneNumber={recipientPhoneNumber}
+            setRecipientPhoneNumber={setRecipientPhoneNumber}
+          />
+          {/* <CustomerRequest
           customerRequest={customerRequest}
           setCustomerRequest={setCustomerRequest}
-        />
-      </section>
-
-      <Button selected={true} onClick={handleOrderSubmit}>
-        주문하기
-      </Button>
+        /> */}
+          {/* 배송기사 요청사항 분리된 컴포넌트 */}
+          <DeliveryRequestSelector
+            requestMessage={requestMessage}
+            setRequestMessage={setRequestMessage}
+            foyerAccessType={foyerAccessType}
+            setFoyerAccessType={setFoyerAccessType}
+          />
+        </section>
+        <PriceCheckCard page={CHECK_ORDER_PAGE} />
+      </div>
+      <div className="w-full px-5 pb-5 pt-3">
+        <Button selected={true} onClick={handleOrderSubmit} className="w-full">
+          주문하기
+        </Button>
+      </div>
     </div>
   );
 }

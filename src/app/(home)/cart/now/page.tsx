@@ -16,7 +16,7 @@ import Finish from "./_components/Finish";
 import Hardware from "./_components/Hardware";
 
 export default function PurchasePage() {
-  if (typeof window === "undefined") return null;
+  // if (typeof window === "undefined") return null;
 
   const searchParams = useSearchParams();
   const router = useRouter();
