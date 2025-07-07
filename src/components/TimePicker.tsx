@@ -19,8 +19,8 @@ function TimePicker({ initialHour, initialMinute, onConfirm, onClose }: TimePick
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="w-72 rounded-3xl bg-white p-5">
-        <h2 className="mb-4 text-lg font-bold">희망배송시간</h2>
-        <div className="mb-4 flex justify-center gap-6">
+        <h2 className="mb-4 text-xl font-700">희망배송시간</h2>
+        <div className="flex justify-center gap-6 py-4">
           <div className="relative">
             <select
               value={hour}
