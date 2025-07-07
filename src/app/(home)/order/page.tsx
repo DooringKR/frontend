@@ -26,7 +26,7 @@ function DoorCategoryPage() {
     categories = hardwareCategories;
   }
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col">
       <TopNavigator />
       <Header size="Large" title={`${header} 종류를 선택해주세요`} />
       <div className="grid w-full grid-cols-3 gap-x-3 gap-y-[40px] px-5 pb-5 pt-10">
@@ -34,7 +34,11 @@ function DoorCategoryPage() {
           <div
             key={category.alt}
             className="flex flex-1 cursor-pointer flex-col items-center gap-2"
-            onClick={() => router.push(`/order/door/color?category=${category.category}`)}
+            onClick={() => {
+              const params = new URLSearchParams(searchParams);
+              params.set("category", category.category);
+              router.push(`/order/color?${params.toString()}`);
+            }}
           >
             <div className="relative aspect-square w-full">
               <Image
