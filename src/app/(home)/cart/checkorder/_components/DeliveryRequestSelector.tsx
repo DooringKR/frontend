@@ -1,12 +1,12 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 
 import Button from "@/components/BeforeEditByKi/Button/Button";
 import SelectToggleButton from "@/components/Button/SelectToggleButton";
 import Input from "@/components/Input/Input";
 import Modal from "@/components/Modal/Modal";
+import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 interface Props {
   requestMessage: string;
@@ -90,16 +90,12 @@ export default function DeliveryRequestSelector({
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <div className="fixed inset-0 z-20 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="flex h-screen w-full max-w-lg flex-col gap-8 bg-white p-6">
-            <div className="flex items-center justify-between">
-              <button type="button" onClick={() => setIsModalOpen(false)}>
-                <Image src="/icons/Arrow_Left.svg" width={24} height={24} alt="뒤로가기" />
-              </button>
-              <Image src="/icons/Headphones.svg" width={24} height={24} alt="문의하기 버튼" />
-            </div>
-            <h1 className="text-[23px] font-700">배송 시 요청사항</h1>
-            <div className="flex flex-col gap-3">
-              {/* <Button
+          <div className="flex h-screen w-full max-w-lg flex-col gap-5 bg-white px-5 pb-5">
+            <TopNavigator />
+            <div className="flex flex-grow flex-col">
+              <h1 className="text-[23px] font-700">배송 시 요청사항</h1>
+              <div className="mt-5 flex flex-col gap-3">
+                {/* <Button
                 selected={foyerAccessType.type === "call"}
                 onClick={() => handleSelect("call")}
               >
@@ -117,66 +113,67 @@ export default function DeliveryRequestSelector({
               >
                 공동현관으로 올라오세요
               </Button> */}
-              <SelectToggleButton
-                label="전화주시면 마중 나갈게요"
-                onClick={() => handleSelect("call")}
-                checked={foyerAccessType.type === "call"}
-              />
-              <SelectToggleButton
-                label="문 앞에 두면 가져갈게요"
-                onClick={() => handleSelect("doorfront")}
-                checked={foyerAccessType.type === "doorfront"}
-              />
-              <div>
                 <SelectToggleButton
-                  label="공동현관으로 올라오세요"
-                  onClick={() => handleSelect("gate")}
-                  checked={foyerAccessType.type === "gate"}
+                  label="전화주시면 마중 나갈게요"
+                  onClick={() => handleSelect("call")}
+                  checked={foyerAccessType.type === "call"}
                 />
-
-                {foyerAccessType.type === "gate" && (
-                  <div className="flex gap-2 px-4">
-                    <div className="mx-2 h-[76px] w-1 rounded-full bg-gray-200"></div>
-                    <div className="flex flex-1 flex-col">
-                      <Input
-                        label="공동현관 출입번호"
-                        name="공동현관 출입번호"
-                        type="text"
-                        value={tempPassword}
-                        // onChange={e => setTempPassword(e.target.value)}
-                        onChange={e => {
-                          setTempPassword(e.target.value);
-                        }}
-                        placeholder="예: #1234"
-                        className="w-full text-[17px] font-400 placeholder-gray-300"
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div>
                 <SelectToggleButton
-                  label="직접 입력"
-                  onClick={() => handleSelect("custom")}
-                  checked={foyerAccessType.type === "custom"}
+                  label="문 앞에 두면 가져갈게요"
+                  onClick={() => handleSelect("doorfront")}
+                  checked={foyerAccessType.type === "doorfront"}
                 />
-                {foyerAccessType.type === "custom" && (
-                  <div className="flex gap-2 px-4">
-                    <div className="mx-2 h-12 w-1 rounded-full bg-gray-200"></div>
-                    <div className="flex flex-1 flex-col">
-                      <Input
-                        label=""
-                        name="직접 입력"
-                        type="text"
-                        value={tempCustomRequest}
-                        onChange={e => setTempCustomRequest(e.target.value)}
-                        placeholder="예: 조심히 배송해주세요."
-                        className="w-full text-[17px] font-400 placeholder-gray-300"
-                      />
+                <div>
+                  <SelectToggleButton
+                    label="공동현관으로 올라오세요"
+                    onClick={() => handleSelect("gate")}
+                    checked={foyerAccessType.type === "gate"}
+                  />
+
+                  {foyerAccessType.type === "gate" && (
+                    <div className="flex gap-2 px-4">
+                      <div className="mx-2 h-[76px] w-1 rounded-full bg-gray-200"></div>
+                      <div className="flex flex-1 flex-col">
+                        <Input
+                          label="공동현관 출입번호"
+                          name="공동현관 출입번호"
+                          type="text"
+                          value={tempPassword}
+                          // onChange={e => setTempPassword(e.target.value)}
+                          onChange={e => {
+                            setTempPassword(e.target.value);
+                          }}
+                          placeholder="예: #1234"
+                          className="w-full text-[17px] font-400 placeholder-gray-300"
+                        />
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
+
+                <div>
+                  <SelectToggleButton
+                    label="직접 입력"
+                    onClick={() => handleSelect("custom")}
+                    checked={foyerAccessType.type === "custom"}
+                  />
+                  {foyerAccessType.type === "custom" && (
+                    <div className="flex gap-2 px-4">
+                      <div className="mx-2 h-12 w-1 rounded-full bg-gray-200"></div>
+                      <div className="flex flex-1 flex-col">
+                        <Input
+                          label=""
+                          name="직접 입력"
+                          type="text"
+                          value={tempCustomRequest}
+                          onChange={e => setTempCustomRequest(e.target.value)}
+                          placeholder="예: 조심히 배송해주세요."
+                          className="w-full text-[17px] font-400 placeholder-gray-300"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -186,7 +183,7 @@ export default function DeliveryRequestSelector({
               onClick={handleSave}
               className="w-full rounded-md bg-black text-white"
             >
-              저장
+              저장하기
             </Button>
           </div>
         </div>
