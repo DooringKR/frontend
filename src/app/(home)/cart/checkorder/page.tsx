@@ -33,11 +33,13 @@ function CheckOrder() {
   const [requestMessage, setRequestMessage] = useState("");
   const [customerRequest, setCustomerRequest] = useState("");
   const [foyerAccessType, setFoyerAccessType] = useState<{
-    type: "gate" | "call" | "doorfront";
+    type: "gate" | "call" | "doorfront" | "custom";
     gatePassword: string | null;
+    customRequest: string | null;
   }>({
     type: "call",
     gatePassword: null,
+    customRequest: null,
   });
 
   const [cartItems, setCartItems] = useState<any[]>([]);
@@ -143,11 +145,11 @@ function CheckOrder() {
         <div className="flex flex-col gap-3 py-5">
           <h2 className="text-xl font-600 text-gray-800">주소 확인</h2>
           <DeliveryAddressCard
-            foyerAccessType={foyerAccessType}
-            setFoyerAccessType={setFoyerAccessType}
+            // foyerAccessType={foyerAccessType}
+            // setFoyerAccessType={setFoyerAccessType}
             address={address}
-            requestMessage={requestMessage}
-            setRequestMessage={setRequestMessage}
+            // requestMessage={requestMessage}
+            // setRequestMessage={setRequestMessage}
             setAddress={setAddress}
           />
         </div>

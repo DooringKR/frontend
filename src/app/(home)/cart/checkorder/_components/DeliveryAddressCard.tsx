@@ -7,25 +7,25 @@ import AddressModal from "./AddressModal";
 
 interface DeliveryAddressCardProps {
   address: { address1: string; address2: string };
-  requestMessage: string;
-  setRequestMessage: (message: string) => void;
+  // requestMessage: string;
+  // setRequestMessage: (message: string) => void;
   setAddress: (address: { address1: string; address2: string }) => void;
-  foyerAccessType: {
-    type: "gate" | "call" | "doorfront";
-    gatePassword: string | null;
-  };
-  setFoyerAccessType: (data: {
-    type: "gate" | "call" | "doorfront";
-    gatePassword: string | null;
-  }) => void;
+  // foyerAccessType: {
+  //   type: "gate" | "call" | "doorfront";
+  //   gatePassword: string | null;
+  // };
+  // setFoyerAccessType: (data: {
+  //   type: "gate" | "call" | "doorfront";
+  //   gatePassword: string | null;
+  // }) => void;
 }
 
 export default function DeliveryAddressCard({
   address,
-  requestMessage,
-  foyerAccessType,
-  setFoyerAccessType,
-  setRequestMessage,
+  // requestMessage,
+  // foyerAccessType,
+  // setFoyerAccessType,
+  // setRequestMessage,
   setAddress,
 }: DeliveryAddressCardProps) {
   const router = useRouter();
