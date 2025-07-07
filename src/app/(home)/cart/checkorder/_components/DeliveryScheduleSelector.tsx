@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import Modal from "@/components/Modal/Modal";
-import TimePickerSwiper from "@/components/TimePickerSwiper";
+import TimePickerSimple from "@/components/TimePicker";
 
 interface DeliveryScheduleSelectorProps {
   expectedArrivalMinutes: number | null;
@@ -111,7 +111,7 @@ export default function DeliveryScheduleSelector({
         )}
 
         {deliveryType === "tomorrow" && (
-          <>
+          <div className="flex flex-col gap-2">
             <div className="mt-3 flex items-center">
               <span className="text-sm font-400 text-gray-800">
                 {tomorrowFullLabel}{" "}
@@ -121,13 +121,13 @@ export default function DeliveryScheduleSelector({
 
             <div
               onClick={() => setIsModalOpen(true)}
-              className="w-full border-b-2 border-gray-300 bg-white px-4 py-3 text-lg"
+              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-lg"
             >
               {hour}:{minute}
             </div>
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-              <TimePickerSwiper
+              <TimePickerSimple
                 initialHour={hour}
                 initialMinute={minute}
                 onConfirm={(h, m) => {
@@ -138,7 +138,7 @@ export default function DeliveryScheduleSelector({
                 onClose={() => setIsModalOpen(false)}
               />
             </Modal>
-          </>
+          </div>
         )}
       </div>
     </section>
