@@ -7,12 +7,12 @@ import CategorySection from "./_components/CategorySection";
 import Footer from "./_components/Footer";
 
 async function Page() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token");
+  // const cookieStore = await cookies();
+  // const token = cookieStore.get("token");
 
-  if (!token) {
-    redirect("/login");
-  }
+  // if (!token) {
+  //   redirect("/login");
+  // }
 
   const user = null;
 
