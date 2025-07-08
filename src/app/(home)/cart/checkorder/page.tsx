@@ -10,6 +10,7 @@ import PriceCheckCard from "@/components/PriceCheckCard/PriceCheckCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { useCurrentOrderStore } from "@/store/Items/currentOrderStore";
+import { useOrderStore } from "@/store/orderStore";
 import { DeliverTime } from "@/utils/CheckDeliveryTime";
 
 import DeliveryAddressCard from "./_components/DeliveryAddressCard";
@@ -23,11 +24,17 @@ function CheckOrder() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const recipientPhoneNumber = useOrderStore(state => state.recipientPhoneNumber);
+  const setRecipientPhoneNumber = useOrderStore(state => state.setRecipientPhoneNumber);
+  const address = useOrderStore(state => state.address);
+  const setAddress = useOrderStore(state => state.setAddress);
+  // 필요하면 requestMessage, setRequestMessage 등도 각각 selector로 호출
+
   const [expectedArrivalMinutes, setExpectedArrivalMinutes] = useState<number | null>(null);
   const [deliveryDate, setDeliveryDate] = useState<string | null>(null);
-  const [address, setAddress] = useState({ address1: "", address2: "" });
+  // const [address, setAddress] = useState({ address1: "", address2: "" });
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [recipientPhoneNumber, setRecipientPhoneNumber] = useState("");
+  // const [recipientPhoneNumber, setRecipientPhoneNumber] = useState("");
   const [deliveryMessage, setDeliveryMessage] = useState("");
   const [deliveryMessageColor, setDeliveryMessageColor] = useState("text-black");
   const [requestMessage, setRequestMessage] = useState("");
@@ -46,16 +53,22 @@ function CheckOrder() {
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("address-storage") || "{}");
+    if (saved.state && !address.address1 && !address.address2) {
+      setAddress(saved.state);
+    }
     const userRaw = localStorage.getItem("userData");
-    const selectedAddress = saved.state?.address1 || "주소 없음";
+    // const selectedAddress = saved.state?.address1 || "주소 없음";
+    const selectedAddress = address.address1 || "주소 없음";
 
     console.log("✅ selectedAddress:", selectedAddress);
 
-    if (saved.state) setAddress(saved.state);
     if (userRaw) {
       const user = JSON.parse(userRaw).state;
       setPhoneNumber(user?.user_phoneNumber || "");
-      setRecipientPhoneNumber(user?.user_phoneNumber || "");
+      // setRecipientPhoneNumber(user?.user_phoneNumber || "");
+      if (!recipientPhoneNumber) {
+        setRecipientPhoneNumber(user?.user_phoneNumber || "");
+      }
     }
 
     if (searchParams.get("current") === "now") {
@@ -91,7 +104,7 @@ function CheckOrder() {
     };
 
     fetchDeliveryTime();
-  }, [currentItem, searchParams]);
+  }, [currentItem, searchParams, address]);
 
   const handleOrderSubmit = async () => {
     const userRaw = JSON.parse(localStorage.getItem("userData") || "{}");
@@ -132,6 +145,9 @@ function CheckOrder() {
     }
   };
 
+  useEffect(() => {
+    console.log("🌀 useEffect: recipientPhoneNumber:", recipientPhoneNumber);
+  }, [recipientPhoneNumber]);
   return (
     <div className="flex min-h-screen flex-col justify-between">
       {/* <h1 className="mb-4 text-center text-xl font-bold">주문하기</h1>
@@ -161,10 +177,12 @@ function CheckOrder() {
         <section className="flex flex-col gap-3 py-5">
           {/* <h2 className="mb-2 font-medium">배송 정보를 확인해주세요</h2> */}
           <h2 className="text-xl font-600 text-gray-800">배송정보 확인</h2>
+          {/* {console.log("📱 화면에 표시되는 recipientPhoneNumber:", recipientPhoneNumber)} */}
 
           <RecipientPhoneNumber
-            recipientPhoneNumber={recipientPhoneNumber}
-            setRecipientPhoneNumber={setRecipientPhoneNumber}
+            key={recipientPhoneNumber}
+            // recipientPhoneNumber={recipientPhoneNumber}
+            // setRecipientPhoneNumber={setRecipientPhoneNumber}
           />
           {/* <CustomerRequest
           customerRequest={customerRequest}
