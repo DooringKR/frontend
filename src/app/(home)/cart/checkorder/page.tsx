@@ -189,12 +189,7 @@ function CheckOrder() {
           setCustomerRequest={setCustomerRequest}
         /> */}
           {/* 배송기사 요청사항 분리된 컴포넌트 */}
-          <DeliveryRequestSelector
-            requestMessage={requestMessage}
-            setRequestMessage={setRequestMessage}
-            foyerAccessType={foyerAccessType}
-            setFoyerAccessType={setFoyerAccessType}
-          />
+          <DeliveryRequestSelector />
         </section>
         <PriceCheckCard page={CHECK_ORDER_PAGE} />
       </div>
