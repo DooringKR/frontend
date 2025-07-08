@@ -42,7 +42,6 @@ export default function CheckOrderPhonePage() {
       // setRecipientPhoneNumber(tempPhoneNumber); // 상태 저장
       const formatted = formatPhoneNumber(tempPhoneNumber);
       setRecipientPhoneNumber(formatted);
-      console.log("✅ 저장됨:", formatted); // 🔍 확인용
       router.back();
     } else {
       setErrorMessage(result.error.errors[0]?.message);
@@ -50,30 +49,32 @@ export default function CheckOrderPhonePage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col px-5 py-6">
+    <div className="flex min-h-screen flex-col">
       <TopNavigator title="휴대폰 번호" />
-      <div className="flex-grow">
-        <h1 className="pb-5 pt-5 text-[23px] font-700 text-gray-900">받는 분 휴대폰 번호</h1>
-        <Input
-          label=""
-          type="text"
-          name="수령자 전화번호"
-          value={tempPhoneNumber} // 포맷된 값 그대로 보여줌
-          onChange={handleInputChange}
-          placeholder="010-1234-5678"
-          className="w-full px-4 py-3 text-base"
-        />
-        {errorMessage && <p className="mt-2 text-sm text-red-500">{errorMessage}</p>}
+      <div className="flex flex-grow flex-col px-5 py-6">
+        <div className="flex-grow">
+          <h1 className="pb-5 pt-5 text-[23px] font-700 text-gray-900">받는 분 휴대폰 번호</h1>
+          <Input
+            label=""
+            type="text"
+            name="수령자 전화번호"
+            value={tempPhoneNumber} // 포맷된 값 그대로 보여줌
+            onChange={handleInputChange}
+            placeholder="010-1234-5678"
+            className="w-full px-4 py-3 text-base"
+          />
+          {errorMessage && <p className="mt-2 text-sm text-red-500">{errorMessage}</p>}
+        </div>
+        <Button
+          type="button"
+          selected={!errorMessage}
+          onClick={handleSave}
+          disabled={!!errorMessage}
+          className="mt-4"
+        >
+          저장하기
+        </Button>
       </div>
-      <Button
-        type="button"
-        selected={!errorMessage}
-        onClick={handleSave}
-        disabled={!!errorMessage}
-        className="mt-4"
-      >
-        저장하기
-      </Button>
     </div>
   );
 }

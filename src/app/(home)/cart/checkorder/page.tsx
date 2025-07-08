@@ -175,14 +175,12 @@ function CheckOrder() {
         />
 
         <section className="flex flex-col gap-3 py-5">
-          {/* <h2 className="mb-2 font-medium">배송 정보를 확인해주세요</h2> */}
           <h2 className="text-xl font-600 text-gray-800">배송정보 확인</h2>
-          {/* {console.log("📱 화면에 표시되는 recipientPhoneNumber:", recipientPhoneNumber)} */}
 
           <RecipientPhoneNumber
-            key={recipientPhoneNumber}
-            // recipientPhoneNumber={recipientPhoneNumber}
-            // setRecipientPhoneNumber={setRecipientPhoneNumber}
+
+          // recipientPhoneNumber={recipientPhoneNumber}
+          // setRecipientPhoneNumber={setRecipientPhoneNumber}
           />
           {/* <CustomerRequest
           customerRequest={customerRequest}

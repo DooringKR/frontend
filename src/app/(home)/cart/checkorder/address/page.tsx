@@ -8,6 +8,7 @@ import Button from "@/components/BeforeEditByKi/Button/Button";
 import DeliveryTimeCheck from "@/components/DeliveryTimeCheck/DeliveryTimeCheck";
 import Input from "@/components/Input/Input";
 import DaumPostcodePopup from "@/components/SearchAddress/DaumPostcode";
+import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { useOrderStore } from "@/store/orderStore";
 import { DeliverTime } from "@/utils/CheckDeliveryTime";
@@ -56,45 +57,48 @@ export default function CheckOrderAddressPage() {
   const isAddressEntered = address1.trim() !== "" && address2.trim() !== "";
 
   return (
-    <div className="min-h-screen px-5 py-6">
-      <h1 className="mb-5 text-[23px] font-700">배송주소</h1>
+    <div className="flex min-h-screen flex-col">
+      <TopNavigator />
+      <div className="flex flex-grow flex-col px-5 py-6">
+        <h1 className="mb-5 text-[23px] font-700">배송주소</h1>
 
-      <div className="flex flex-col gap-[10px]">
-        <label className="text-sm font-400 text-gray-600">주소</label>
-        <DaumPostcodePopup address1={address1} onComplete={handleComplete} />
+        <div className="flex flex-grow flex-col gap-[10px]">
+          <label className="text-sm font-400 text-gray-600">주소</label>
+          <DaumPostcodePopup address1={address1} onComplete={handleComplete} />
 
-        {deliveryMessage && (
-          <p
-            className={`mt-[-10px] h-[49px] w-full rounded-[10px] bg-[#f4f4f4] px-4 pt-[18px] text-base ${deliveryMessageColor}`}
-          >
-            {deliveryMessage}
-          </p>
-        )}
+          {deliveryMessage && (
+            <p
+              className={`mt-[-10px] h-[49px] w-full rounded-[10px] bg-[#f4f4f4] px-4 pt-[18px] text-base ${deliveryMessageColor}`}
+            >
+              {deliveryMessage}
+            </p>
+          )}
 
-        <Input
-          name="상세주소"
-          type="text"
-          value={address2}
-          onChange={e => setAddress2(e.target.value)}
-          placeholder="상세주소 (예: 101동 501호 / 단독주택)"
-          className="h-[50px] w-full px-4 py-3 text-base"
-        />
+          <Input
+            name="상세주소"
+            type="text"
+            value={address2}
+            onChange={e => setAddress2(e.target.value)}
+            placeholder="상세주소 (예: 101동 501호 / 단독주택)"
+            className="h-[50px] w-full px-4 py-3 text-base"
+          />
 
-        <DeliveryTimeCheck
-          isDeliveryPossible={isDeliveryPossible}
-          isAddressEntered={isAddressEntered}
-        />
+          <DeliveryTimeCheck
+            isDeliveryPossible={isDeliveryPossible}
+            isAddressEntered={isAddressEntered}
+          />
+        </div>
+
+        <Button
+          type="button"
+          onClick={handleSave}
+          disabled={isButtonDisabled}
+          selected={!isButtonDisabled}
+          className="mt-6 w-full"
+        >
+          저장하기
+        </Button>
       </div>
-
-      <Button
-        type="button"
-        onClick={handleSave}
-        disabled={isButtonDisabled}
-        selected={!isButtonDisabled}
-        className="mt-6 w-full"
-      >
-        저장하기
-      </Button>
     </div>
   );
 }

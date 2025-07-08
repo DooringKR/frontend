@@ -5,23 +5,9 @@ import { useRouter } from "next/navigation";
 import { useOrderStore } from "@/store/orderStore";
 import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 
-// interface RecipientPhoneNumberProps {
-//   recipientPhoneNumber: string;
-//   setRecipientPhoneNumber: (phoneNumber: string) => void;
-// }
-
 export default function RecipientPhoneNumber() {
-  // const [isModalOpen, setIsModalOpen] = useState(false);
-  // const [tempPhoneNumber, setTempPhoneNumber] = useState(recipientPhoneNumber);
-  // const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
   const router = useRouter();
-  const recipientPhoneNumber = useOrderStore(state => state.recipientPhoneNumber); // ✅ 이렇게 해야 리렌더링됨
-  console.log("📦 리렌더된 번호:", recipientPhoneNumber); // ⬅️ 요기
-
-  console.log("📦 원본 번호:", recipientPhoneNumber);
-  console.log("📦 포맷된 번호:", formatPhoneNumber(recipientPhoneNumber)); // ⬅️ 요기 추가
-
+  const recipientPhoneNumber = useOrderStore(state => state.recipientPhoneNumber);
   const handleClick = () => {
     router.push("/cart/checkorder/phone");
   };
