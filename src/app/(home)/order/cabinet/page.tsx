@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
+import React from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import Header from "@/components/Header/Header";
@@ -11,6 +12,590 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import { CABINET_CATEGORY_LIST } from "@/constants/category";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import SelectToggleButton from "@/components/Button/SelectToggleButton";
+import Button from "@/components/Button/Button";
+import CabinetIcon1 from "./_components/cabinetIcon1";
+import CabinetIcon2 from "./_components/cabinetIcon2";
+import CabinetIcon3 from "./_components/cabinetIcon3";
+import ToastIcon from "public/icons/toast";
+
+// 공통 props 타입 정의
+type CabinetFormProps = {
+    color: string;
+    bodyMaterial: string;
+    DoorWidth: number | null;
+    DoorHeight: number | null;
+    DoorDepth: number | null;
+    request: string;
+    setDoorWidth: (value: number | null) => void;
+    setDoorHeight: (value: number | null) => void;
+    setDoorDepth: (value: number | null) => void;
+    setRequest: (value: string) => void;
+    setBodyMaterial: (value: string) => void;
+    setIsBottomSheetOpen: (value: boolean) => void;
+    router: ReturnType<typeof useRouter>;
+};
+
+// 상부장 전용 props 타입 정의
+type UpperCabinetFormProps = CabinetFormProps & {
+    handleType: string;
+    finishType: string;
+    setHandleType: (value: string) => void;
+    setFinishType: (value: string) => void;
+};
+
+// 하부장 전용 폼
+type LowerCabinetFormProps = CabinetFormProps & {
+    handleType: string;
+    finishType: string;
+    setHandleType: (value: string) => void;
+    setFinishType: (value: string) => void;
+};
+
+// 하부장 전용 폼
+type FlapCabinetFormProps = CabinetFormProps & {
+    handleType: string;
+    finishType: string;
+    showBar: string;
+    setHandleType: (value: string) => void;
+    setFinishType: (value: string) => void;
+    setShowBar: (value: string) => void;
+    isShowBarSheetOpen: boolean;
+    setIsShowBarSheetOpen: (v: boolean) => void;
+};
+
+type DrawerCabinetFormProps = CabinetFormProps & {
+    drawerType: string;
+    railType: string;
+    finishType: string;
+    setDrawerType: (value: string) => void;
+    setRailType: (value: string) => void;
+    setFinishType: (value: string) => void;
+    isDrawerTypeSheetOpen: boolean;
+    setIsDrawerTypeSheetOpen: (v: boolean) => void;
+    isRailTypeSheetOpen: boolean;
+    setIsRailTypeSheetOpen: (v: boolean) => void;
+};
+
+// 오픈장 전용 폼
+type OpenCabinetFormProps = CabinetFormProps & {
+    riceRail: string;
+    setRiceRail: (v: string) => void;
+    lowerDrawer: string;
+    setLowerDrawer: (v: string) => void;
+    finishType: string;
+    setFinishType: (v: string) => void;
+};
+
+function LowerCabinetForm(props: LowerCabinetFormProps) {
+    const { color, bodyMaterial, DoorWidth, DoorHeight, DoorDepth, request, handleType, finishType, setDoorWidth, setDoorHeight, setDoorDepth, setRequest, setBodyMaterial, setIsBottomSheetOpen, setHandleType, setFinishType, router } = props;
+
+    return (
+        <div className="flex flex-col gap-5 px-5">
+            <BoxedSelect
+                label="도어 색상"
+                options={[]}
+                value={color}
+                onClick={() => router.back()}
+                onChange={() => { }}
+            />
+            <BoxedSelect
+                label="몸통 소재 및 두께"
+                options={[]}
+                value={bodyMaterial}
+                onClick={() => setIsBottomSheetOpen(true)}
+                onChange={() => { }}
+            />
+            <BoxedInput
+                type="text"
+                label="너비(mm)"
+                placeholder="너비를 입력해주세요"
+                value={DoorWidth !== null ? `${DoorWidth}mm` : ""}
+                onChange={e => {
+                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    setDoorWidth(value ? Number(value) : null);
+                }}
+            />
+            <BoxedInput
+                type="text"
+                label="높이(mm)"
+                placeholder="높이를 입력해주세요"
+                value={DoorHeight !== null ? `${DoorHeight}mm` : ""}
+                onChange={e => {
+                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    setDoorHeight(value ? Number(value) : null);
+                }}
+            />
+            <BoxedInput
+                type="text"
+                label="깊이(mm)"
+                placeholder="깊이를 입력해주세요"
+                value={DoorDepth !== null ? `${DoorDepth}mm` : ""}
+                onChange={e => {
+                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    setDoorDepth(value ? Number(value) : null);
+                }}
+            />
+            <div className="flex flex-col gap-2">
+                <div className="text-[14px]/[20px] font-400 text-gray-600">손잡이 종류</div>
+                <div className="w-full flex gap-2">
+                    <Button
+                        type={handleType === "찬넬" ? "BrandInverse" : "GrayLarge"}
+                        text={"찬넬"}
+                        onClick={() => setHandleType("찬넬")}
+                    />
+                    <Button
+                        type={handleType === "겉손잡이" ? "BrandInverse" : "GrayLarge"}
+                        text={"겉손잡이"}
+                        onClick={() => setHandleType("겉손잡이")}
+                    />
+                </div>
+            </div>
+            <div className="flex flex-col gap-2">
+                <div className="text-[14px]/[20px] font-400 text-gray-600">마감 방식</div>
+                <div className="w-full flex gap-2">
+                    <Button
+                        type={finishType === "막우라" ? "BrandInverse" : "GrayLarge"}
+                        text={"막우라"}
+                        onClick={() => setFinishType("막우라")}
+                    />
+                    <Button
+                        type={finishType === "우라홈" ? "BrandInverse" : "GrayLarge"}
+                        text={"우라홈"}
+                        onClick={() => setFinishType("우라홈")}
+                    />
+                </div>
+            </div>
+            <BoxedInput
+                label="제작 시 요청사항"
+                placeholder="제작 시 요청사항을 입력해주세요"
+                value={request}
+                onChange={e => setRequest(e.target.value)}
+            />
+        </div>
+    );
+}
+
+// 상부장 전용 폼
+function UpperCabinetForm(props: UpperCabinetFormProps) {
+    const { color, bodyMaterial, DoorWidth, DoorHeight, DoorDepth, request, handleType, finishType, setDoorWidth, setDoorHeight, setDoorDepth, setRequest, setBodyMaterial, setIsBottomSheetOpen, setHandleType, setFinishType, router } = props;
+
+    return (
+        <div className="flex flex-col gap-5 px-5">
+            <BoxedSelect
+                label="도어 색상"
+                options={[]}
+                value={color}
+                onClick={() => router.back()}
+                onChange={() => { }}
+            />
+            <BoxedSelect
+                label="몸통 소재 및 두께"
+                options={[]}
+                value={bodyMaterial}
+                onClick={() => setIsBottomSheetOpen(true)}
+                onChange={() => { }}
+            />
+            <BoxedInput
+                type="text"
+                label="너비(mm)"
+                placeholder="너비를 입력해주세요"
+                value={DoorWidth !== null ? `${DoorWidth}mm` : ""}
+                onChange={e => {
+                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    setDoorWidth(value ? Number(value) : null);
+                }}
+            />
+            <BoxedInput
+                type="text"
+                label="높이(mm)"
+                placeholder="높이를 입력해주세요"
+                value={DoorHeight !== null ? `${DoorHeight}mm` : ""}
+                onChange={e => {
+                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    setDoorHeight(value ? Number(value) : null);
+                }}
+            />
+            <BoxedInput
+                type="text"
+                label="깊이(mm)"
+                placeholder="깊이를 입력해주세요"
+                value={DoorDepth !== null ? `${DoorDepth}mm` : ""}
+                onChange={e => {
+                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    setDoorDepth(value ? Number(value) : null);
+                }}
+            />
+            <div className="flex flex-col gap-2">
+                <div className="text-[14px]/[20px] font-400 text-gray-600">손잡이 종류</div>
+                <div className="w-full flex gap-2">
+                    <Button
+                        type={handleType === "겉손잡이" ? "BrandInverse" : "GrayLarge"}
+                        text={"겉손잡이"}
+                        onClick={() => setHandleType("겉손잡이")}
+                    />
+                    <Button
+                        type={handleType === "내리기" ? "BrandInverse" : "GrayLarge"}
+                        text={"내리기"}
+                        onClick={() => setHandleType("내리기")}
+                    />
+                </div>
+            </div>
+            <div className="flex flex-col gap-2">
+                <div className="text-[14px]/[20px] font-400 text-gray-600">마감 방식</div>
+                <div className="w-full flex gap-2">
+                    <Button
+                        type={finishType === "막우라" ? "BrandInverse" : "GrayLarge"}
+                        text={"막우라"}
+                        onClick={() => setFinishType("막우라")}
+                    />
+                    <Button
+                        type={finishType === "우라홈" ? "BrandInverse" : "GrayLarge"}
+                        text={"우라홈"}
+                        onClick={() => setFinishType("우라홈")}
+                    />
+                </div>
+            </div>
+            <BoxedInput
+                label="제작 시 요청사항"
+                placeholder="제작 시 요청사항을 입력해주세요"
+                value={request}
+                onChange={e => setRequest(e.target.value)}
+            />
+        </div>
+    );
+}
+
+// 플랩장 전용 폼
+function FlapCabinetForm(props: FlapCabinetFormProps) {
+    const { color, bodyMaterial, DoorWidth, DoorHeight, DoorDepth, request, handleType, finishType, showBar, setDoorWidth, setDoorHeight, setDoorDepth, setRequest, setBodyMaterial, setIsBottomSheetOpen, setHandleType, setFinishType, setShowBar, isShowBarSheetOpen, setIsShowBarSheetOpen, router } = props;
+
+    return (
+        <div className="flex flex-col gap-5 px-5">
+            <BoxedSelect
+                label="도어 색상"
+                options={[]}
+                value={color}
+                onClick={() => router.back()}
+                onChange={() => { }}
+            />
+            <BoxedSelect
+                label="몸통 소재 및 두께"
+                options={[]}
+                value={bodyMaterial}
+                onClick={() => setIsBottomSheetOpen(true)}
+                onChange={() => { }}
+            />
+            <BoxedInput
+                type="text"
+                label="너비(mm)"
+                placeholder="너비를 입력해주세요"
+                value={DoorWidth !== null ? `${DoorWidth}mm` : ""}
+                onChange={e => {
+                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    setDoorWidth(value ? Number(value) : null);
+                }}
+            />
+            <BoxedInput
+                type="text"
+                label="높이(mm)"
+                placeholder="높이를 입력해주세요"
+                value={DoorHeight !== null ? `${DoorHeight}mm` : ""}
+                onChange={e => {
+                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    setDoorHeight(value ? Number(value) : null);
+                }}
+            />
+            <BoxedInput
+                type="text"
+                label="깊이(mm)"
+                placeholder="깊이를 입력해주세요"
+                value={DoorDepth !== null ? `${DoorDepth}mm` : ""}
+                onChange={e => {
+                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    setDoorDepth(value ? Number(value) : null);
+                }}
+            />
+            <BoxedSelect
+                label="쇼바 종류"
+                options={[]}
+                value={showBar}
+                onClick={() => setIsShowBarSheetOpen(true)}
+                onChange={() => { }}
+            />
+            <ShowBarInputSheet
+                isOpen={isShowBarSheetOpen}
+                onClose={() => setIsShowBarSheetOpen(false)}
+                value={showBar}
+                onChange={setShowBar}
+            />
+            <div className="flex flex-col gap-2">
+                <div className="text-[14px]/[20px] font-400 text-gray-600">손잡이 종류</div>
+                <div className="w-full flex gap-2">
+                    <Button
+                        type={handleType === "겉손잡이" ? "BrandInverse" : "GrayLarge"}
+                        text={"겉손잡이"}
+                        onClick={() => setHandleType("겉손잡이")}
+                    />
+                    <Button
+                        type={handleType === "내리기" ? "BrandInverse" : "GrayLarge"}
+                        text={"내리기"}
+                        onClick={() => setHandleType("내리기")}
+                    />
+                </div>
+            </div>
+            <div className="flex flex-col gap-2">
+                <div className="text-[14px]/[20px] font-400 text-gray-600">마감 방식</div>
+                <div className="w-full flex gap-2">
+                    <Button
+                        type={finishType === "막우라" ? "BrandInverse" : "GrayLarge"}
+                        text={"막우라"}
+                        onClick={() => setFinishType("막우라")}
+                    />
+                    <Button
+                        type={finishType === "우라홈" ? "BrandInverse" : "GrayLarge"}
+                        text={"우라홈"}
+                        onClick={() => setFinishType("우라홈")}
+                    />
+                </div>
+            </div>
+            <BoxedInput
+                label="제작 시 요청사항"
+                placeholder="제작 시 요청사항을 입력해주세요"
+                value={request}
+                onChange={e => setRequest(e.target.value)}
+            />
+        </div>
+    );
+}
+
+// 오픈장 전용 폼
+function OpenCabinetForm(props: OpenCabinetFormProps) {
+    const {
+        color, bodyMaterial, DoorWidth, DoorHeight, DoorDepth, request,
+        setDoorWidth, setDoorHeight, setDoorDepth, setRequest, setBodyMaterial, setIsBottomSheetOpen, router,
+        riceRail, setRiceRail, lowerDrawer, setLowerDrawer, finishType, setFinishType
+    } = props;
+
+    return (
+        <div className="flex flex-col gap-5 px-5">
+            <BoxedSelect
+                label="도어 색상"
+                options={[]}
+                value={color}
+                onClick={() => router.back()}
+                onChange={() => { }}
+            />
+            <BoxedSelect
+                label="몸통 소재 및 두께"
+                options={[]}
+                value={bodyMaterial}
+                onClick={() => setIsBottomSheetOpen(true)}
+                onChange={() => { }}
+            />
+            <BoxedInput
+                type="text"
+                label="너비(mm)"
+                placeholder="너비를 입력해주세요"
+                value={DoorWidth !== null ? `${DoorWidth}mm` : ""}
+                onChange={e => {
+                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    setDoorWidth(value ? Number(value) : null);
+                }}
+            />
+            <BoxedInput
+                type="text"
+                label="높이(mm)"
+                placeholder="높이를 입력해주세요"
+                value={DoorHeight !== null ? `${DoorHeight}mm` : ""}
+                onChange={e => {
+                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    setDoorHeight(value ? Number(value) : null);
+                }}
+            />
+            <BoxedInput
+                type="text"
+                label="깊이(mm)"
+                placeholder="깊이를 입력해주세요"
+                value={DoorDepth !== null ? `${DoorDepth}mm` : ""}
+                onChange={e => {
+                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    setDoorDepth(value ? Number(value) : null);
+                }}
+            />
+            <div className="flex flex-col gap-2">
+                <div className="text-[14px]/[20px] font-400 text-gray-600">밥솥 레일 추가 여부</div>
+                <div className="w-full flex gap-2">
+                    <Button
+                        type={riceRail === "추가" ? "BrandInverse" : "GrayLarge"}
+                        text="추가"
+                        onClick={() => setRiceRail("추가")}
+                    />
+                    <Button
+                        type={riceRail === "추가 안 함" ? "BrandInverse" : "GrayLarge"}
+                        text="추가 안 함"
+                        onClick={() => setRiceRail("추가 안 함")}
+                    />
+                </div>
+            </div>
+            <div className="flex flex-col gap-2">
+                <div className="text-[14px]/[20px] font-400 text-gray-600">하부 서랍장 추가 여부</div>
+                <div className="w-full flex gap-2">
+                    <Button
+                        type={lowerDrawer === "추가" ? "BrandInverse" : "GrayLarge"}
+                        text="추가"
+                        onClick={() => setLowerDrawer("추가")}
+                    />
+                    <Button
+                        type={lowerDrawer === "추가 안 함" ? "BrandInverse" : "GrayLarge"}
+                        text="추가 안 함"
+                        onClick={() => setLowerDrawer("추가 안 함")}
+                    />
+                </div>
+            </div>
+            <div className="flex flex-col gap-2">
+                <div className="text-[14px]/[20px] font-400 text-gray-600">마감 방식</div>
+                <div className="w-full flex gap-2">
+                    <Button
+                        type={finishType === "막우라" ? "BrandInverse" : "GrayLarge"}
+                        text="막우라"
+                        onClick={() => setFinishType("막우라")}
+                    />
+                    <Button
+                        type={finishType === "우라홈" ? "BrandInverse" : "GrayLarge"}
+                        text="우라홈"
+                        onClick={() => setFinishType("우라홈")}
+                    />
+                </div>
+            </div>
+            <BoxedInput
+                label="제작 시 요청사항"
+                placeholder="제작 시 요청사항을 입력해주세요"
+                value={request}
+                onChange={e => setRequest(e.target.value)}
+            />
+        </div>
+    );
+}
+
+// 서랍장 전용 폼
+function DrawerCabinetForm(props: DrawerCabinetFormProps) {
+    const { color, bodyMaterial, DoorWidth, DoorHeight, DoorDepth, request, drawerType, railType, finishType, setDoorWidth, setDoorHeight, setDoorDepth, setRequest, setBodyMaterial, setIsBottomSheetOpen, setDrawerType, setRailType, setFinishType, isDrawerTypeSheetOpen, setIsDrawerTypeSheetOpen, isRailTypeSheetOpen, setIsRailTypeSheetOpen, router } = props;
+
+    return (
+        <div className="flex flex-col gap-5 px-5">
+            <BoxedSelect
+                label="도어 색상"
+                options={[]}
+                value={color}
+                onClick={() => router.back()}
+                onChange={() => { }}
+            />
+            <BoxedSelect
+                label="몸통 소재 및 두께"
+                options={[]}
+                value={bodyMaterial}
+                onClick={() => setIsBottomSheetOpen(true)}
+                onChange={() => { }}
+            />
+            <BoxedInput
+                type="text"
+                label="너비(mm)"
+                placeholder="너비를 입력해주세요"
+                value={DoorWidth !== null ? `${DoorWidth}mm` : ""}
+                onChange={e => {
+                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    setDoorWidth(value ? Number(value) : null);
+                }}
+            />
+            <BoxedInput
+                type="text"
+                label="높이(mm)"
+                placeholder="높이를 입력해주세요"
+                value={DoorHeight !== null ? `${DoorHeight}mm` : ""}
+                onChange={e => {
+                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    setDoorHeight(value ? Number(value) : null);
+                }}
+            />
+            <BoxedInput
+                type="text"
+                label="깊이(mm)"
+                placeholder="깊이를 입력해주세요"
+                value={DoorDepth !== null ? `${DoorDepth}mm` : ""}
+                onChange={e => {
+                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    setDoorDepth(value ? Number(value) : null);
+                }}
+            />
+            <BoxedSelect
+                label="서랍 종류"
+                options={[]}
+                value={drawerType}
+                onClick={() => setIsDrawerTypeSheetOpen(true)}
+                onChange={() => { }}
+            />
+
+            <BoxedSelect
+                label="레일 종류"
+                options={[]}
+                value={railType}
+                onClick={() => setIsRailTypeSheetOpen(true)}
+                onChange={() => { }}
+            />
+            <DrawerTypeInputSheet
+                isOpen={isDrawerTypeSheetOpen}
+                onClose={() => setIsDrawerTypeSheetOpen(false)}
+                value={drawerType}
+                onChange={setDrawerType}
+            />
+            <RailTypeInputSheet
+                isOpen={isRailTypeSheetOpen}
+                onClose={() => setIsRailTypeSheetOpen(false)}
+                value={railType}
+                onChange={setRailType}
+            />
+            <div className="flex flex-col gap-2">
+                <div className="text-[14px]/[20px] font-400 text-gray-600">마감 방식</div>
+                <div className="w-full flex gap-2">
+                    <Button
+                        type={finishType === "막우라" ? "BrandInverse" : "GrayLarge"}
+                        text={"막우라"}
+                        onClick={() => setFinishType("막우라")}
+                    />
+                    <Button
+                        type={finishType === "우라홈" ? "BrandInverse" : "GrayLarge"}
+                        text={"우라홈"}
+                        onClick={() => setFinishType("우라홈")}
+                    />
+                </div>
+            </div>
+            <BoxedInput
+                label="제작 시 요청사항"
+                placeholder="제작 시 요청사항을 입력해주세요"
+                value={request}
+                onChange={e => setRequest(e.target.value)}
+            />
+        </div>
+    );
+}
+
+// 카테고리별 폼 렌더링 함수
+function renderCabinetFormByCategory(category: string, props: CabinetFormProps, upperProps?: UpperCabinetFormProps, lowerProps?: LowerCabinetFormProps, flapProps?: FlapCabinetFormProps, drawerProps?: DrawerCabinetFormProps, openCabinetFormProps?: OpenCabinetFormProps) {
+    switch (category) {
+        case "lower":
+            return lowerProps ? <LowerCabinetForm {...lowerProps} /> : <LowerCabinetForm {...props as LowerCabinetFormProps} />;
+        case "upper":
+            return upperProps ? <UpperCabinetForm {...upperProps} /> : <UpperCabinetForm {...props as UpperCabinetFormProps} />;
+        case "open":
+            return openCabinetFormProps ? <OpenCabinetForm {...openCabinetFormProps} /> : <OpenCabinetForm {...props as OpenCabinetFormProps} />;
+        case "drawer":
+            return drawerProps ? <DrawerCabinetForm {...drawerProps} /> : <DrawerCabinetForm {...props as DrawerCabinetFormProps} />;
+        case "flap":
+            return flapProps ? <FlapCabinetForm {...flapProps} /> : <FlapCabinetForm {...props as FlapCabinetFormProps} />;
+        default:
+            return <LowerCabinetForm {...props as LowerCabinetFormProps} />; // 기본값
+    }
+}
 
 function DoorInfoInputPage() {
     const router = useRouter();
@@ -22,6 +607,16 @@ function DoorInfoInputPage() {
     const [request, setRequest] = useState("");
     const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
     const [bodyMaterial, setBodyMaterial] = useState("");
+    const [handleType, setHandleType] = useState("");
+    const [finishType, setFinishType] = useState("");
+    const [showBar, setShowBar] = useState("");
+    const [isShowBarSheetOpen, setIsShowBarSheetOpen] = useState(false);
+    const [drawerType, setDrawerType] = useState("");
+    const [railType, setRailType] = useState("");
+    const [isDrawerTypeSheetOpen, setIsDrawerTypeSheetOpen] = useState(false);
+    const [isRailTypeSheetOpen, setIsRailTypeSheetOpen] = useState(false);
+    const [riceRail, setRiceRail] = useState("");
+    const [lowerDrawer, setLowerDrawer] = useState("");
 
     const color = searchParams.get("color") ?? "";
     const category = searchParams.get("category") ?? "";
@@ -30,55 +625,121 @@ function DoorInfoInputPage() {
     const currentCategory = CABINET_CATEGORY_LIST.find(item => item.slug === category);
     const headerTitle = currentCategory?.header || category;
 
+    const formProps: CabinetFormProps = {
+        color,
+        bodyMaterial,
+        DoorWidth,
+        DoorHeight,
+        DoorDepth,
+        request,
+        setDoorWidth,
+        setDoorHeight,
+        setDoorDepth,
+        setRequest,
+        setBodyMaterial,
+        setIsBottomSheetOpen,
+        router
+    };
+
+    const upperFormProps: UpperCabinetFormProps = {
+        ...formProps,
+        handleType,
+        finishType,
+        setHandleType,
+        setFinishType
+    };
+    const lowerFormProps: LowerCabinetFormProps = {
+        ...formProps,
+        handleType,
+        finishType,
+        setHandleType,
+        setFinishType
+    };
+    const flapFormProps: FlapCabinetFormProps = {
+        ...formProps,
+        handleType,
+        finishType,
+        showBar,
+        setHandleType,
+        setFinishType,
+        setShowBar,
+        isShowBarSheetOpen,
+        setIsShowBarSheetOpen
+    };
+    const drawerFormProps: DrawerCabinetFormProps = {
+        ...formProps,
+        drawerType,
+        railType,
+        finishType,
+        setDrawerType,
+        setRailType,
+        setFinishType,
+        isDrawerTypeSheetOpen,
+        setIsDrawerTypeSheetOpen,
+        isRailTypeSheetOpen,
+        setIsRailTypeSheetOpen
+    };
+    const openCabinetFormProps: OpenCabinetFormProps = {
+        ...formProps,
+        riceRail,
+        setRiceRail,
+        lowerDrawer,
+        setLowerDrawer,
+        finishType,
+        setFinishType
+    };
+
+    let button1Disabled = false;
+    if (category === "lower" || category === "upper") {
+        button1Disabled = (
+            DoorWidth === null ||
+            DoorHeight === null ||
+            DoorDepth === null ||
+            !handleType ||
+            !finishType
+        );
+    } else if (category === "flap") {
+        button1Disabled = (
+            DoorWidth === null ||
+            DoorHeight === null ||
+            DoorDepth === null ||
+            !handleType ||
+            !finishType ||
+            !showBar
+        );
+    } else if (category === "drawer") {
+        button1Disabled = (
+            DoorWidth === null ||
+            DoorHeight === null ||
+            DoorDepth === null ||
+            !drawerType ||
+            !railType ||
+            !finishType
+        );
+    } else if (category === "open") {
+        button1Disabled = (
+            DoorWidth === null ||
+            DoorHeight === null ||
+            DoorDepth === null ||
+            !riceRail ||
+            !lowerDrawer ||
+            !finishType
+        );
+    } else {
+        button1Disabled = (
+            DoorWidth === null ||
+            DoorHeight === null ||
+            DoorDepth === null
+        );
+    }
+
     return (
         <div className="flex flex-col">
             <TopNavigator />
             <Header title={`${headerTitle} 정보를 입력해주세요`} />
             <div className="h-5" />
-            <div className="flex flex-col gap-5 px-5">
-                <BoxedSelect
-                    label="도어 색상"
-                    options={[]}
-                    value={color}
-                    onClick={() => router.back()}
-                    onChange={() => { }}
-                />
-                <BoxedSelect
-                    label="몸통 소재 및 두께"
-                    options={[]}
-                    value={bodyMaterial}
-                    onClick={() => {
-                        setIsBottomSheetOpen(true);
-                    }}
-                    onChange={() => { }}
-                />
-                <BoxedInput
-                    type="text"
-                    label="가로 길이(mm)"
-                    placeholder="가로 길이를 입력해주세요"
-                    value={DoorWidth !== null ? `${DoorWidth}mm` : ""}
-                    onChange={e => {
-                        const value = e.target.value.replace(/[^0-9]/g, "");
-                        setDoorWidth(value ? Number(value) : null);
-                    }}
-                />
-                <BoxedInput
-                    type="text"
-                    label="세로 길이(mm)"
-                    placeholder="세로 길이를 입력해주세요"
-                    value={DoorHeight !== null ? `${DoorHeight}mm` : ""}
-                    onChange={e => {
-                        const value = e.target.value.replace(/[^0-9]/g, "");
-                        setDoorHeight(value ? Number(value) : null);
-                    }}
-                />
-                <BoxedInput
-                    label="제작 시 요청사항"
-                    placeholder="제작 시 요청사항을 입력해주세요"
-                    value={request}
-                    onChange={e => setRequest(e.target.value)}
-                />
-            </div>
+            {renderCabinetFormByCategory(category, formProps, upperFormProps, lowerFormProps, flapFormProps, drawerFormProps, openCabinetFormProps)}
+            <div className="h-5" />
             <BodyMaterialManualInputSheet
                 isOpen={isBottomSheetOpen}
                 onClose={() => setIsBottomSheetOpen(false)}
@@ -86,25 +747,43 @@ function DoorInfoInputPage() {
                 onChange={setBodyMaterial}
                 searchParams={searchParams}
             />
-            <BottomButton
+            {!isBottomSheetOpen && <BottomButton
                 type={"1button"}
                 button1Text={"다음"}
-                className="px-5 pb-5"
-                button1Disabled={DoorWidth === null || DoorHeight === null || DoorDepth === null}
+                className="w-full max-w-[500px] px-5 pb-5 bg-white"
+                button1Disabled={button1Disabled}
                 onButton1Click={() => {
                     const params = new URLSearchParams(searchParams);
                     params.set("width", DoorWidth?.toString() ?? "");
                     params.set("height", DoorHeight?.toString() ?? "");
                     params.set("depth", DoorDepth?.toString() ?? "");
+                    params.set("bodyMaterial", bodyMaterial);
                     params.set("request", request);
+                    if (category === "upper" || category === "lower") {
+                        params.set("handleType", handleType);
+                        params.set("finishType", finishType);
+                    }
+                    if (category === "flap") {
+                        params.set("handleType", handleType);
+                        params.set("finishType", finishType);
+                        params.set("showBar", showBar);
+                    }
+                    if (category === "drawer") {
+                        params.set("drawerType", drawerType);
+                        params.set("railType", railType);
+                        params.set("finishType", finishType);
+                    }
+                    if (category === "open") {
+                        params.set("riceRail", riceRail);
+                        params.set("lowerDrawer", lowerDrawer);
+                        params.set("finishType", finishType);
+                    }
                     router.push(`/order/cabinet/confirm?${params.toString()}`);
                 }}
-            />
+            />}
         </div>
     );
 }
-
-export default DoorInfoInputPage;
 
 // 직접입력 BottomSheet 컴포넌트
 function BodyMaterialManualInputSheet({ isOpen, onClose, value, onChange, searchParams }: {
@@ -161,7 +840,6 @@ function BodyMaterialManualInputSheet({ isOpen, onClose, value, onChange, search
                             </div>
                         )}
                     </div>
-
                     <BottomButton
                         type={"1button"}
                         button1Text={"다음"}
@@ -177,3 +855,229 @@ function BodyMaterialManualInputSheet({ isOpen, onClose, value, onChange, search
         />
     );
 }
+
+function ShowBarInputSheet({ isOpen, onClose, value, onChange }: {
+    isOpen: boolean,
+    onClose: () => void,
+    value: string,
+    onChange: (v: string) => void,
+}) {
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    // 미리 정의된 옵션
+    const options = [
+        "쇼바 없음",
+        "문주 아벤토스 쇼바",
+        "블룸 아벤토스 쇼바",
+        "가스 쇼바",
+        "접이식 쇼바",
+    ];
+    return <BottomSheet isOpen={isOpen} title="쇼바 종류를 선택해주세요" children={<div>
+        <div>
+            {options.map(option => (
+                <SelectToggleButton
+                    key={option}
+                    label={option}
+                    checked={value === option}
+                    onClick={() => onChange(option)}
+                />
+            ))}
+            <div className="flex flex-col">
+                <SelectToggleButton
+                    label="직접 입력"
+                    checked={options.every(opt => value !== opt)}
+                    onClick={() => {
+                        onChange(""); // 입력창을 비우고 포커스
+                        setTimeout(() => inputRef.current?.focus(), 0);
+                    }}
+                />
+                {options.every(opt => value !== opt) && (
+                    <div className="flex gap-2 items-center px-4 pb-3">
+                        <div className="w-[4px] h-full min-h-[48px] rounded-[9999px] bg-gray-200 mx-2"></div>
+                        <BoxedInput
+                            ref={inputRef}
+                            type="text"
+                            placeholder="브랜드, 소재, 두께 등"
+                            className="w-full"
+                            value={value}
+                            onChange={e => onChange(e.target.value)}
+                        />
+                    </div>
+                )}
+            </div>
+            <BottomButton
+                type={"1button"}
+                button1Text={"다음"}
+                className="px-5 pb-5"
+                button1Disabled={!value}
+                onButton1Click={() => {
+                    onClose();
+                }}
+            />
+        </div>
+    </div>} onClose={onClose} />
+}
+
+function DrawerTypeInputSheet({ isOpen, onClose, value, onChange }: {
+    isOpen: boolean,
+    onClose: () => void,
+    value: string,
+    onChange: (v: string) => void,
+}) {
+    const inputRef = useRef<HTMLInputElement>(null);
+    const options = [
+        { main: "2단 서랍", sub: "", icon: <CabinetIcon1 /> },
+        { main: "3단 서랍", sub: "(1 : 1 : 2)", icon: <CabinetIcon2 /> },
+        { main: "3단 서랍", sub: "(겉2 ∙ 속1)", icon: <CabinetIcon3 /> },
+    ];
+    // 옵션/직접입력 모드 상태
+    const [mode, setMode] = useState<"option" | "input">("option");
+
+    useEffect(() => {
+        if (isOpen) {
+            if (options.some(opt => (opt.sub ? `${opt.main} ${opt.sub}` : opt.main) === value)) {
+                setMode("option");
+            } else if (value) {
+                setMode("input");
+            } else {
+                setMode("option");
+            }
+        }
+    }, [isOpen]);
+
+    return (
+        <BottomSheet
+            isOpen={isOpen}
+            title="서랍 종류를 선택해주세요"
+            headerButtonText={mode === "option" ? "직접 입력" : "이전"}
+            onHeaderButtonClick={() => {
+                if (mode === "option") {
+                    setMode("input");
+                    onChange("");
+                    setTimeout(() => inputRef.current?.focus(), 0);
+                } else {
+                    setMode("option");
+                }
+            }}
+            children={
+                <div>
+                    {mode === "option" ? (
+                        <div className="flex pt-5 justify-between">
+                            {options.map(option => {
+                                const label = option.sub ? `${option.main} ${option.sub}` : option.main;
+                                const selected = value === label;
+                                return (
+                                    <div
+                                        key={label}
+                                        className="flex flex-col items-center cursor-pointer gap-2 w-full"
+                                        onClick={() => onChange(label)}
+                                    >
+                                        <span className="flex items-center justify-center w-full">
+                                            {React.cloneElement(
+                                                option.icon,
+                                                { color: selected ? "#44BE83" : "#D1D5DC" }
+                                            )}
+                                        </span>
+                                        <div className="h-[42px] flex flex-col items-center justify-center">
+                                            <span className={`text-[16px]/[22px] font-400 text-gray-600`}>{option.main}</span>
+                                            {option.sub && (
+                                                <span className={`text-[14px]/[20px] font-500 text-gray-400`}>{option.sub}</span>
+                                            )}
+                                        </div>
+                                        <ToastIcon active={selected} />
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <BoxedInput
+                            label="서랍 종류"
+                            ref={inputRef}
+                            type="text"
+                            placeholder="구체적으로 꼼꼼히 입력해주세요"
+                            className="pt-5 w-full"
+                            value={value}
+                            onChange={e => onChange(e.target.value)}
+                        />
+                    )}
+                    <BottomButton
+                        type={"1button"}
+                        button1Text={"다음"}
+                        className="pb-5"
+                        button1Disabled={!value}
+                        onButton1Click={() => {
+                            onClose();
+                        }}
+                    />
+                </div>
+            }
+            onClose={onClose}
+        />
+    );
+}
+
+function RailTypeInputSheet({ isOpen, onClose, value, onChange }: {
+    isOpen: boolean,
+    onClose: () => void,
+    value: string,
+    onChange: (v: string) => void,
+}) {
+    const inputRef = useRef<HTMLInputElement>(null);
+    const options = [
+        "블룸 텐덤",
+        "국산(문주) 텐덤",
+        "헤펠레",
+        "언더레일",
+        "댐핑 볼레일",
+        "일반 볼레일",
+    ];
+    return (
+        <BottomSheet isOpen={isOpen} title="레일 종류를 선택해주세요" children={
+            <div>
+                {options.map(option => (
+                    <SelectToggleButton
+                        key={option}
+                        label={option}
+                        checked={value === option}
+                        onClick={() => onChange(option)}
+                    />
+                ))}
+                <div className="flex flex-col">
+                    <SelectToggleButton
+                        label="직접 입력"
+                        checked={options.every(opt => value !== opt)}
+                        onClick={() => {
+                            onChange("");
+                            setTimeout(() => inputRef.current?.focus(), 0);
+                        }}
+                    />
+                    {options.every(opt => value !== opt) && (
+                        <div className="flex gap-2 items-center px-4 pb-3">
+                            <div className="w-[4px] h-full min-h-[48px] rounded-[9999px] bg-gray-200 mx-2"></div>
+                            <BoxedInput
+                                ref={inputRef}
+                                type="text"
+                                placeholder="브랜드, 소재, 두께 등"
+                                className="w-full"
+                                value={value}
+                                onChange={e => onChange(e.target.value)}
+                            />
+                        </div>
+                    )}
+                </div>
+                <BottomButton
+                    type={"1button"}
+                    button1Text={"다음"}
+                    className="px-5 pb-5"
+                    button1Disabled={!value}
+                    onButton1Click={() => {
+                        onClose();
+                    }}
+                />
+            </div>
+        } onClose={onClose} />
+    );
+}
+
+export default DoorInfoInputPage;
+

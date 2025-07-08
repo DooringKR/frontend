@@ -7,6 +7,8 @@ interface BottomSheetProps {
   onClose: () => void;
   children?: React.ReactNode; // For additional elements like agreement, select options, etc.
   buttonArea?: React.ReactNode; // 버튼 영역을 외부에서 주입
+  headerButtonText?: string;
+  onHeaderButtonClick?: () => void;
 }
 
 const BottomSheet: React.FC<BottomSheetProps> = ({
@@ -16,6 +18,8 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
   onClose,
   children,
   buttonArea,
+  headerButtonText,
+  onHeaderButtonClick,
 }) => {
   useEffect(() => {
     if (isOpen) {
@@ -43,7 +47,14 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
           <div className="h-[4px] w-[40px] rounded-[9999px] bg-gray-200"></div>
         </div>
         <div className="flex flex-col items-start gap-1 px-5 pt-2">
-          <h2 className="text-[20px] font-700 text-gray-900">{title}</h2>
+          <div className="flex items-center justify-between w-full">
+            <h2 className="text-[20px] font-700 text-gray-900">{title}</h2>
+            {headerButtonText && (
+              <div onClick={onHeaderButtonClick} className="text-gray-400 text-[15px]/[22px] font-500 cursor-pointer">
+                {headerButtonText}
+              </div>
+            )}
+          </div>
           <p className="text-[16px]/[22px] font-400 text-gray-500">{description}</p>
         </div>
         {children && <div className="px-5">{children}</div>}
