@@ -1,9 +1,9 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+import HomeProductContainer from "@/components/HomeProductContaines/HomeProductContainer";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
-import CategorySection from "./_components/CategorySection";
 import Footer from "./_components/Footer";
 
 async function Page() {
@@ -26,8 +26,7 @@ async function Page() {
         </div>
 
         <div className="mb-7 mt-10 border-2 border-green-600">서울 성북구 지봉로24길</div>
-
-        <CategorySection />
+        <HomeProductContainer />
       </main>
 
       <Footer />
