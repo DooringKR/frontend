@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+import AddressIndicator from "@/components/AddressIndicator/AddressIndicator";
 import HomeProductContainer from "@/components/HomeProductContaines/HomeProductContainer";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
@@ -26,6 +27,7 @@ async function Page() {
         </div>
 
         <div className="mb-7 mt-10 border-2 border-green-600">서울 성북구 지봉로24길</div>
+        <AddressIndicator deliverySchedule="" />
         <HomeProductContainer />
       </main>
 
