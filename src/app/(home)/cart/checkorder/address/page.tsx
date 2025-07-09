@@ -13,7 +13,7 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import { useOrderStore } from "@/store/orderStore";
 import { DeliverTime } from "@/utils/CheckDeliveryTime";
 
-import AddressChangeConfirmModal from "./AddressChangeConfirm";
+import AddressChangeConfirmModal from "./_components/AddressChangeConfirm";
 
 export default function CheckOrderAddressPage() {
   const router = useRouter();

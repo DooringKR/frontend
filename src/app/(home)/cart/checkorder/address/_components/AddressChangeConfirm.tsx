@@ -1,6 +1,6 @@
 import BottomButton from "@/components/BottomButton/BottomButton";
 
-import UnavailableDeliveryFooter from "../test/UnavailableDeliveryFooter";
+import UnavailableDeliveryFooter from "./UnavailableDeliveryFooter";
 
 interface AddressChangeConfirmModalProps {
   onConfirm: () => void;

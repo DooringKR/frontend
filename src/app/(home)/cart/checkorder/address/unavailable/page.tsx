@@ -8,7 +8,7 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { useOrderStore } from "@/store/orderStore";
 
-import UnavailableDeliveryFooter from "../../test/UnavailableDeliveryFooter";
+import UnavailableDeliveryFooter from "../_components/UnavailableDeliveryFooter";
 
 function AddressUnavailablePage() {
   const router = useRouter();
