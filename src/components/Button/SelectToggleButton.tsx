@@ -9,6 +9,7 @@ interface SelectToggleButtonProps {
   description?: string; // 버튼의 디스크립션
   checked?: boolean | undefined; // 체크 여부 (null일 경우 아이콘 숨김)
   showInfoIcon?: boolean; // InfoIcon 표시 여부
+  customIcon?: React.ReactNode; // 커스텀 아이콘 (기본값: CheckIcon)
   onClick: () => void; // 버튼 클릭 핸들러
 }
 
@@ -18,6 +19,7 @@ const SelectToggleButton: React.FC<SelectToggleButtonProps> = ({
   description,
   checked,
   showInfoIcon = false,
+  customIcon,
   onClick,
 }) => {
   return (
@@ -50,9 +52,7 @@ const SelectToggleButton: React.FC<SelectToggleButtonProps> = ({
       )}
       {/* 체크박스 아이콘 */}
       {checked !== undefined && (
-        <div className="ml-auto">
-          <CheckIcon checked={!!checked} />
-        </div>
+        <div className="ml-auto">{customIcon || <CheckIcon checked={!!checked} />}</div>
       )}
     </button>
   );

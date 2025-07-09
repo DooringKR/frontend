@@ -14,7 +14,11 @@ function CategorySection() {
   const { cartItems } = useCartStore();
 
   const handleCategoryClick = (slug: string) => {
-    router.push(`/order?type=${slug}`);
+    if (slug === "finish") {
+      router.push(`/order/color?type=finish`);
+    } else {
+      router.push(`/order?type=${slug}`);
+    }
     // const addressStorage = localStorage.getItem("address-storage");
 
     // if (!addressStorage) {
