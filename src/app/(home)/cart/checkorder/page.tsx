@@ -18,7 +18,6 @@ import DeliveryScheduleSelector from "./_components/DeliveryScheduleSelector";
 import RecipientPhoneNumber from "./_components/RecipientPhoneNumber";
 
 function CheckOrder() {
-  // if (typeof window === "undefined") return null;
   const { currentItem } = useCurrentOrderStore();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -27,7 +26,6 @@ function CheckOrder() {
   const setRecipientPhoneNumber = useOrderStore(state => state.setRecipientPhoneNumber);
   const address = useOrderStore(state => state.address);
   const setAddress = useOrderStore(state => state.setAddress);
-  // 필요하면 requestMessage, setRequestMessage 등도 각각 selector로 호출
 
   const foyerAccessType = useOrderStore(state => state.foyerAccessType);
   const setFoyerAccessType = useOrderStore(state => state.setFoyerAccessType);
@@ -59,15 +57,13 @@ function CheckOrder() {
       setAddress(saved.state);
     }
     const userRaw = localStorage.getItem("userData");
-    // const selectedAddress = saved.state?.address1 || "주소 없음";
-    const selectedAddress = address.address1 || "주소 없음";
 
-    console.log("✅ selectedAddress:", selectedAddress);
+    const selectedAddress = address.address1 || "주소 없음";
 
     if (userRaw) {
       const user = JSON.parse(userRaw).state;
       setPhoneNumber(user?.user_phoneNumber || "");
-      // setRecipientPhoneNumber(user?.user_phoneNumber || "");
+
       if (!recipientPhoneNumber) {
         setRecipientPhoneNumber(user?.user_phoneNumber || "");
       }
@@ -149,25 +145,7 @@ function CheckOrder() {
 
   // 실제 주문 API 생략. api없이 confirm페이지 UI확인용
   const handleOrderSubmit = async () => {
-    console.log("✅ 주문 제출 시작");
     const totalPrice = cartItems.reduce((sum, item) => sum + item.price * (item.count || 1), 0);
-
-    // localStorage.setItem(
-    //   "recentOrder",
-    //   JSON.stringify({
-    //     recipientPhoneNumber: recipientPhoneNumber,
-    //     totalPrice,
-    //     cartItems,
-    //     deliveryDate,
-    //     address1: address.address1,
-    //     address2: address.address2,
-    //     deliveryRequest: requestMessage,
-    //     foyerAccessType,
-    //     otherRequests: customerRequest,
-    //   }),
-    // );
-
-    // router.push("/cart/confirm");
 
     const payload = {
       recipientPhoneNumber,
@@ -188,11 +166,6 @@ function CheckOrder() {
 
   return (
     <div className="flex min-h-screen flex-col justify-between">
-      {/* <h1 className="mb-4 text-center text-xl font-bold">주문하기</h1>
-
-      <div className={`mb-4 p-2 text-center font-medium ${deliveryMessageColor}`}>
-        {deliveryMessage}
-      </div> */}
       <TopNavigator title="주문하기" />
 
       <div className="flex-grow px-5">
@@ -215,16 +188,7 @@ function CheckOrder() {
         <section className="flex flex-col gap-3 py-5">
           <h2 className="text-xl font-600 text-gray-800">배송정보 확인</h2>
 
-          <RecipientPhoneNumber
-
-          // recipientPhoneNumber={recipientPhoneNumber}
-          // setRecipientPhoneNumber={setRecipientPhoneNumber}
-          />
-          {/* <CustomerRequest
-          customerRequest={customerRequest}
-          setCustomerRequest={setCustomerRequest}
-        /> */}
-          {/* 배송기사 요청사항 분리된 컴포넌트 */}
+          <RecipientPhoneNumber />
           <DeliveryRequestSelector />
         </section>
         <PriceCheckCard page={CHECK_ORDER_PAGE} />

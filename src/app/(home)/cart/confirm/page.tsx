@@ -64,16 +64,10 @@ export default function OrderConfirmPage() {
       // };
       // setOrder(dummyOrder);
     }
-
-    return () => {
-      localStorage.removeItem("cartItems");
-      localStorage.removeItem("recentOrder");
-      useCurrentOrderStore.getState().clearCurrentItem();
-    };
   }, []);
 
   const handleCopyAccount = () => {
-    navigator.clipboard.writeText("토스뱅크 1234-5678-1234");
+    navigator.clipboard.writeText("IBK 기업은행 1234-5678-1234");
     alert("계좌번호가 복사되었습니다!");
   };
 
@@ -110,7 +104,7 @@ export default function OrderConfirmPage() {
 
   return (
     <>
-      <div className="flex flex-col px-5 pt-5">
+      <div className="flex flex-col px-5 pt-[60px]">
         <p className="mb-2 text-[23px] font-700 text-gray-900">주문이 잘 접수되었어요</p>
         <p className="text-[17px] font-400 text-gray-500">남은 단계를 확인해주세요.</p>
         <div className="flex items-center justify-center py-10">
@@ -150,25 +144,23 @@ export default function OrderConfirmPage() {
                     {order.totalPrice.toLocaleString()}원
                   </span>
                 </div>
-                <div>
-                  <div className="flex justify-between gap-3">
-                    <img
-                      src={"/icons/bank.svg"}
-                      alt="IBK기업은행 로고"
-                      className="h-7 w-7 flex-[1]"
-                    />
+                <div className="flex justify-between gap-3">
+                  <img
+                    src={"/icons/bank.svg"}
+                    alt="IBK기업은행 로고"
+                    className="h-7 w-7 justify-start"
+                  />
 
-                    <div className="flex flex-[2] flex-col items-start">
-                      <span className="text-[17px] font-500 text-gray-600">12345678911111</span>
-                      <span className="text-sm font-500">IBK기업은행</span>
-                    </div>
-                    <button
-                      className="flex-[1] rounded-lg bg-brand-50 px-[10px] py-2 text-[15px] font-500 text-brand-500"
-                      onClick={handleCopyAccount}
-                    >
-                      복사
-                    </button>
+                  <div className="flex flex-col items-start">
+                    <span className="text-[17px] font-500 text-gray-600">12345678911111</span>
+                    <span className="text-sm font-500">IBK기업은행</span>
                   </div>
+                  <button
+                    className="rounded-lg bg-brand-50 px-[10px] py-2 text-[15px] font-500 text-brand-500"
+                    onClick={handleCopyAccount}
+                  >
+                    복사
+                  </button>
                 </div>
               </div>
             </div>
@@ -195,39 +187,6 @@ export default function OrderConfirmPage() {
             </div>
           </div>
         </div>
-
-        {/* <p className="mb-4 text-xl font-bold leading-tight">
-        {order.recipientPhoneNumber}로
-        <br />
-        10분 안에 확인 전화드려요
-      </p>
-      <div className="relative w-full">
-        <Image
-          src="/img/Checker.png"
-          alt="통화이미지"
-          width={0}
-          height={0}
-          sizes="100vw"
-          className="h-auto w-full object-contain"
-        />
-      </div>
-      <p className="mb-5 mt-10">
-        전화로 주문을 확인하면 <br />
-        결제금액을 아래 계좌로 송금해주세요
-      </p>
-      <div className="mb-4 w-full bg-gray-300 p-4">
-        <div className="mb-2 flex justify-between">
-          <span>결제금액</span>
-          <span>{order.totalPrice.toLocaleString()}원</span>
-        </div>
-        <hr className="my-2 border-black" />
-        <div className="flex items-center justify-between">
-          <span className="font-semibold text-blue-600">토스뱅크 1234-5678-1234</span>
-          <button className="text-sm" onClick={handleCopyAccount}>
-            복사
-          </button>
-        </div>
-      </div> */}
       </div>
       <div className="bg-gray-100 px-5 py-10">
         <div className="w-full">
@@ -241,11 +200,9 @@ export default function OrderConfirmPage() {
           {showDetails && (
             <div className="mt-2 rounded-xl bg-white p-5 text-sm">
               <div className="mb-5 flex justify-between">
-                {/* <span className="font-semibold">총 결제금액</span>
-                <span>{order.totalPrice.toLocaleString()}원</span> */}
                 <span className="text-[17px] font-600">주문 상품</span>
               </div>
-              {/* <hr className="my-3 border-black" /> */}
+
               {order.cartItems.map((item: any, idx: number) => {
                 if (!item) return null;
 
@@ -263,7 +220,7 @@ export default function OrderConfirmPage() {
                         className="mb-3 border-b border-gray-200 pb-2 text-[15px] font-400 text-gray-500"
                       >
                         <p className="mb-1 text-[17px] font-600 text-gray-800">문짝</p>
-                        <p className="font-semibold">{getHeaderFromSlug(item.slug)}</p>
+                        {/* <p className="font-semibold">{getHeaderFromSlug(item.slug)}</p> */}
                         <p>색상 : {item.color}</p>
                         <p>가로 길이 : {item.width?.toLocaleString()}mm</p>
                         <p>세로 길이 : {item.height?.toLocaleString()}mm</p>
