@@ -84,7 +84,7 @@ function FinishPage() {
                       </div>
                     }
                     label={"합산 깊이"}
-                    onClick={() => {}}
+                    onClick={() => { }}
                   />
                 </div>
               )}
@@ -137,7 +137,7 @@ function FinishPage() {
                       </div>
                     }
                     label={"합산 높이"}
-                    onClick={() => {}}
+                    onClick={() => { }}
                   />
                 </div>
               )}
@@ -159,6 +159,9 @@ function FinishPage() {
             const params = new URLSearchParams();
             params.set("height", height?.toString() ?? "");
             params.set("depth", depth?.toString() ?? "");
+            params.set("color", color ?? "");
+            params.set("depthIncrease", depthIncrease?.toString() ?? "");
+            params.set("heightIncrease", heightIncrease?.toString() ?? "");
             params.set("request", request);
             router.push(`/order/finish/confirm?${params.toString()}`);
           }}

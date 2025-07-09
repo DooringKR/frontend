@@ -37,7 +37,11 @@ function DoorCategoryPage() {
             onClick={() => {
               const params = new URLSearchParams(searchParams);
               params.set("category", category.category);
-              router.push(`/order/color?${params.toString()}`);
+              if (type === "accessory") {
+                router.push(`/order/accessory?${params.toString()}`);
+              } else {
+                router.push(`/order/color?${params.toString()}`);
+              }
             }}
           >
             <div className="relative aspect-square w-full">

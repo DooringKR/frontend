@@ -259,20 +259,20 @@ const Page = () => {
       <SectionWrapper title="Address Indicator">
         주소 입력 & 오늘 배송
         <AddressIndicator
-          address="서울시 강남구 역삼동 123-45"
           deliverySchedule="today"
+          address="서울시 강남구 역삼동 123-45"
           timeLimit="1시간 10분 내 주문시"
         />
         주소 입력 & 내일 배송
         <AddressIndicator
-          address="서울시 강남구 역삼동 123-45"
           deliverySchedule="tomorrow"
+          address="서울시 강남구 역삼동 123-45"
           timeLimit="밤 12시 전 주문시"
         />
         주소 입력 & 내일 영업일 X
         <AddressIndicator
-          address="서울시 강남구 역삼동 123-45"
           deliverySchedule="other"
+          address="서울시 강남구 역삼동 123-45"
           timeLimit="12/24(일) 밤 12시 전 주문시"
           arrivalDate="12/25(월)"
         />

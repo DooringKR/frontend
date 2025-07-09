@@ -8,11 +8,11 @@ import Button from "../Button/Button";
 import QuantitySelector from "../QuantitySelector/QuantitySelector";
 
 interface ShoppingCartCardProps {
-  type: "door" | "cabinet";
+  type: "door" | "cabinet" | "finish" | "accessory";
   title: string;
-  color: string;
-  width: string;
-  height: string;
+  color?: string;
+  width?: string;
+  height?: string;
   depth?: string;
   hingeCount?: number;
   hingeDirection?: string;
@@ -32,6 +32,10 @@ interface ShoppingCartCardProps {
   railType?: string;
   riceRail?: string;
   lowerDrawer?: string;
+  depthIncrease?: string;
+  heightIncrease?: string;
+  manufacturer?: string;
+  modelName?: string;
 }
 
 const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
@@ -59,6 +63,10 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   railType,
   riceRail,
   lowerDrawer,
+  depthIncrease,
+  heightIncrease,
+  manufacturer,
+  modelName,
 }) => {
   return (
     <div className="flex w-full flex-col gap-[20px] rounded-[16px] border-[1px] border-gray-200 bg-white p-[20px]">
@@ -67,11 +75,15 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
         <div className="flex flex-col gap-2">
           <div className="text-[17px} font-600 text-gray-800">{title}</div>
           <div className="flex flex-col text-[15px] font-400 text-gray-500">
-            <div>색상 : {color}</div>
+            {color && <div>색상 : {color}</div>}
             {bodyMaterial && <div>몸통 소재 및 두께 : {bodyMaterial}</div>}
-            <div>{type === "cabinet" ? `너비 : ${width}` : `가로 길이 : ${width}`}</div>
-            <div>{type === "cabinet" ? `높이 : ${height}` : `세로 길이 : ${height}`}</div>
+            {width && <div>{type === "cabinet" ? `너비 : ${width}` : `가로 길이 : ${width}`}</div>}
+            {height && <div>{type === "cabinet" || type === "finish" ? `높이 : ${height}` : `세로 길이 : ${height}`}</div>}
+            {heightIncrease && <div>⤷ 높이 키우기 : {heightIncrease}</div>}
+            {heightIncrease && <div>⤷ 합산 높이 : {height}</div>}
             {depth && <div>깊이 : {depth}</div>}
+            {depthIncrease && <div>⤷ 깊이 키우기 : {depthIncrease}</div>}
+            {depthIncrease && <div>⤷ 합산 깊이 : {depth}</div>}
             {hingeCount && <div>경첩 개수 : {hingeCount}개</div>}
             {hingeDirection && <div>경첩 방향 : {hingeDirection}</div>}
             {boring && <div>보링 치수 : {boring}</div>}
@@ -82,6 +94,8 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
             {riceRail && <div>밥솥 레일 추가 여부 : {riceRail}</div>}
             {lowerDrawer && <div>하부 서랍장 추가 여부 : {lowerDrawer}</div>}
             {finishType && <div>마감 방식 : {finishType}</div>}
+            {manufacturer && <div>제조사 : {manufacturer}</div>}
+            {modelName && <div>모델명 : {modelName}</div>}
             {request && <div>제작 시 요청 사항 : {request}</div>}
           </div>
         </div>
