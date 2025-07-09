@@ -3,29 +3,27 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import AddressModal from "./AddressModal";
-
 interface DeliveryAddressCardProps {
   address: { address1: string; address2: string };
-  requestMessage: string;
-  setRequestMessage: (message: string) => void;
+  // requestMessage: string;
+  // setRequestMessage: (message: string) => void;
   setAddress: (address: { address1: string; address2: string }) => void;
-  foyerAccessType: {
-    type: "gate" | "call" | "doorfront";
-    gatePassword: string | null;
-  };
-  setFoyerAccessType: (data: {
-    type: "gate" | "call" | "doorfront";
-    gatePassword: string | null;
-  }) => void;
+  // foyerAccessType: {
+  //   type: "gate" | "call" | "doorfront";
+  //   gatePassword: string | null;
+  // };
+  // setFoyerAccessType: (data: {
+  //   type: "gate" | "call" | "doorfront";
+  //   gatePassword: string | null;
+  // }) => void;
 }
 
 export default function DeliveryAddressCard({
   address,
-  requestMessage,
-  foyerAccessType,
-  setFoyerAccessType,
-  setRequestMessage,
+  // requestMessage,
+  // foyerAccessType,
+  // setFoyerAccessType,
+  // setRequestMessage,
   setAddress,
 }: DeliveryAddressCardProps) {
   const router = useRouter();
@@ -44,16 +42,10 @@ export default function DeliveryAddressCard({
             <p className="text-[15px] font-500">{address.address1}</p>
             <p className="text-[15px] font-400">{address.address2}</p>
           </div>
-          <button onClick={() => setIsAddressModalOpen(true)}>
+          <button onClick={() => router.push("/cart/checkorder/address")}>
             <img src={"/icons/chevron-right.svg"} alt="오른쪽 화살표" />
           </button>
         </div>
-        {isAddressModalOpen && (
-          <AddressModal
-            onClose={() => setIsAddressModalOpen(false)}
-            onAddressSelect={handleAddressSelect}
-          />
-        )}
       </div>
     </div>
   );

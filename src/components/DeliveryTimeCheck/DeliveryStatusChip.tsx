@@ -1,18 +1,23 @@
 import { useRouter } from "next/navigation";
 
-interface DeliveryTimeCheckProps {
+interface DeliveryStatusChipProps {
   isDeliveryPossible: boolean;
   isAddressEntered: boolean;
+  onUnavailableClick: () => void;
 }
 
-function DeliveryTimeCheck({ isDeliveryPossible, isAddressEntered }: DeliveryTimeCheckProps) {
+function DeliveryStatusChip({
+  isDeliveryPossible,
+  isAddressEntered,
+  onUnavailableClick,
+}: DeliveryStatusChipProps) {
   const router = useRouter();
 
   if (!isAddressEntered) return null;
 
   const handleClick = () => {
-    if (!isDeliveryPossible) {
-      router.push("/address-check/unavailable"); // 이동할 페이지 경로
+    if (!isDeliveryPossible && onUnavailableClick) {
+      onUnavailableClick();
     }
   };
 
@@ -41,4 +46,4 @@ function DeliveryTimeCheck({ isDeliveryPossible, isAddressEntered }: DeliveryTim
   );
 }
 
-export default DeliveryTimeCheck;
+export default DeliveryStatusChip;
