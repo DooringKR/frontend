@@ -62,7 +62,7 @@ function LoginStepPage() {
 
   return (
     <div className="relative flex h-screen w-full flex-col gap-5 bg-white">
-      <TopNavigator title="테스트" />
+      <TopNavigator />
       <Header
         title={userType ? "입력한 정보를 확인해주세요" : "어떤 업체에서 오셨어요?"}
         size="Large"
@@ -104,16 +104,16 @@ function LoginStepPage() {
             }}
           />
         </div>
-        <BottomButton
-          className="absolute bottom-0 left-0 right-0"
-          type="textcombo+button"
-          textComboText={{ title: "타이틀", subtitle: "서브타이틀" }}
-          button1Text="확인"
-          button2Text="확인"
-          button1Type="Brand"
-          button2Type="GrayMedium"
-          onButton1Click={() => setIsModalOpen(true)}
-        />
+        <div className="">
+          <BottomButton
+            className="absolute bottom-0 left-0 right-0 mb-5"
+            type="1button"
+            button1Text="확인"
+            button1Type="Brand"
+            onButton1Click={() => setIsModalOpen(true)}
+          />
+        </div>
+
         {/* {userType && (
           <Button
             onClick={() => setIsModalOpen(true)}
@@ -178,8 +178,6 @@ function LoginStepPage() {
           </div>
         </Modal> */}
         <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-          {/* <div className="h-2 w-2 bg-red-800"></div> */}
-
           <div className="flex flex-col gap-5">
             <h2 className="text-lg font-bold text-gray-800">
               바로가구 회원가입에 <br />꼭 필요한 동의만 추렸어요
@@ -187,10 +185,10 @@ function LoginStepPage() {
             <div>
               <div className="text-sm text-gray-400">필수 동의 총 2개</div>
 
-              <div className="border-1 ml-3 mt-2 flex flex-col gap-3 border-l border-[#E2E2E2] pl-3">
+              <div className="border-1 ml-3 mt-2 flex flex-col gap-3 border-l-[4px] border-[#E2E2E2] pl-3">
                 <div className="flex items-center justify-between">
                   <p>
-                    <span className="font-semibold text-brand-500">필수</span>{" "}
+                    <span className="font-semibold text-brand-500">필수 </span>
                     <span className="text-gray-700">서비스 이용 동의</span>
                   </p>
                   <Image
@@ -198,11 +196,12 @@ function LoginStepPage() {
                     width={20}
                     alt="왼쪽 더보기 버튼"
                     height={20}
+                    className="cursor-pointer"
                   />
                 </div>
                 <div className="flex items-center justify-between">
                   <p>
-                    <span className="font-semibold text-brand-500">필수</span>{" "}
+                    <span className="font-semibold text-brand-500">필수 </span>
                     <span className="text-gray-700">개인정보 수집 및 이용 동의</span>
                   </p>
                   <Image
@@ -210,6 +209,7 @@ function LoginStepPage() {
                     width={20}
                     alt="왼쪽 더보기 버튼"
                     height={20}
+                    className="cursor-pointer"
                   />
                 </div>
               </div>
