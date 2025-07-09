@@ -23,7 +23,7 @@ async function Page() {
       <TopNavigator page="/" isCartEmpty={true} />
       <Banner />
 
-      <main className="mt-10 flex flex-col gap-7">
+      <main className="mt-10 flex flex-grow flex-col gap-7">
         <AddressIndicator deliverySchedule="" />
         <HomeProductContainer />
       </main>
