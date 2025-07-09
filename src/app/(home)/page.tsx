@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import AddressIndicator from "@/components/AddressIndicator/AddressIndicator";
+import Banner from "@/components/Banner/Banner";
 import HomeProductContainer from "@/components/HomeProductContaines/HomeProductContainer";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
@@ -22,13 +23,11 @@ async function Page() {
       <main className="flex flex-1 flex-col px-5">
         <TopNavigator page="/" isCartEmpty={true} />
 
-        <div className="h-[125px] w-full">
-          <img src="/img/banner.png" alt="배너 이미지" className="h-full w-full object-cover" />
+        <Banner />
+        <div className="mt-10 flex flex-col gap-7">
+          <AddressIndicator deliverySchedule="" />
+          <HomeProductContainer />
         </div>
-
-        <div className="mb-7 mt-10 border-2 border-green-600">서울 성북구 지봉로24길</div>
-        <AddressIndicator deliverySchedule="" />
-        <HomeProductContainer />
       </main>
 
       <Footer />
