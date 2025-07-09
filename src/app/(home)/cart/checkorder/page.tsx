@@ -1,6 +1,5 @@
 "use client";
 
-import { createOrder } from "@/api/orderApi";
 import { CHECK_ORDER_PAGE } from "@/constants/pageName";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -30,6 +29,9 @@ function CheckOrder() {
   const setAddress = useOrderStore(state => state.setAddress);
   // 필요하면 requestMessage, setRequestMessage 등도 각각 selector로 호출
 
+  const foyerAccessType = useOrderStore(state => state.foyerAccessType);
+  const setFoyerAccessType = useOrderStore(state => state.setFoyerAccessType);
+
   const [expectedArrivalMinutes, setExpectedArrivalMinutes] = useState<number | null>(null);
   const [deliveryDate, setDeliveryDate] = useState<string | null>(null);
   // const [address, setAddress] = useState({ address1: "", address2: "" });
@@ -39,15 +41,15 @@ function CheckOrder() {
   const [deliveryMessageColor, setDeliveryMessageColor] = useState("text-black");
   const [requestMessage, setRequestMessage] = useState("");
   const [customerRequest, setCustomerRequest] = useState("");
-  const [foyerAccessType, setFoyerAccessType] = useState<{
-    type: "gate" | "call" | "doorfront" | "custom";
-    gatePassword: string | null;
-    customRequest: string | null;
-  }>({
-    type: "call",
-    gatePassword: null,
-    customRequest: null,
-  });
+  // const [foyerAccessType, setFoyerAccessType] = useState<{
+  //   type: "gate" | "call" | "doorfront" | "custom";
+  //   gatePassword: string | null;
+  //   customRequest: string | null;
+  // }>({
+  //   type: "call",
+  //   gatePassword: null,
+  //   customRequest: null,
+  // });
 
   const [cartItems, setCartItems] = useState<any[]>([]);
 
@@ -106,48 +108,84 @@ function CheckOrder() {
     fetchDeliveryTime();
   }, [currentItem, searchParams, address]);
 
-  const handleOrderSubmit = async () => {
-    const userRaw = JSON.parse(localStorage.getItem("userData") || "{}");
-    const user = userRaw.state || {};
+  // const handleOrderSubmit = async () => {
+  //   const userRaw = JSON.parse(localStorage.getItem("userData") || "{}");
+  //   const user = userRaw.state || {};
 
-    const totalPrice = cartItems.reduce((sum, item) => sum + item.price, 0);
+  //   const totalPrice = cartItems.reduce((sum, item) => sum + item.price, 0);
+
+  //   const payload = {
+  //     user: {
+  //       id: user.user_id || 0,
+  //       userType: user.userType || "company",
+  //       phoneNumber: phoneNumber,
+  //     },
+  //     recipientPhoneNumber: recipientPhoneNumber,
+  //     address1: address.address1,
+  //     address2: address.address2,
+  //     foyerAccessType: foyerAccessType,
+  //     deliveryDate: deliveryDate,
+  //     deliveryRequest: requestMessage,
+  //     otherRequests: customerRequest,
+  //     cartItems: cartItems,
+  //     totalPrice: totalPrice,
+  //   };
+
+  //   try {
+  //     await createOrder(payload);
+  //     const currentParam = searchParams.get("current");
+  //     if (currentParam !== "now") {
+  //       localStorage.removeItem("cartItems");
+  //     }
+
+  //     localStorage.removeItem("address-storage");
+  //     useCurrentOrderStore.getState().clearCurrentItem();
+  //     localStorage.setItem("recentOrder", JSON.stringify(payload));
+  //     router.push("/cart/confirm");
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
+
+  // 실제 주문 API 생략. api없이 confirm페이지 UI확인용
+  const handleOrderSubmit = async () => {
+    console.log("✅ 주문 제출 시작");
+    const totalPrice = cartItems.reduce((sum, item) => sum + item.price * (item.count || 1), 0);
+
+    // localStorage.setItem(
+    //   "recentOrder",
+    //   JSON.stringify({
+    //     recipientPhoneNumber: recipientPhoneNumber,
+    //     totalPrice,
+    //     cartItems,
+    //     deliveryDate,
+    //     address1: address.address1,
+    //     address2: address.address2,
+    //     deliveryRequest: requestMessage,
+    //     foyerAccessType,
+    //     otherRequests: customerRequest,
+    //   }),
+    // );
+
+    // router.push("/cart/confirm");
 
     const payload = {
-      user: {
-        id: user.user_id || 0,
-        userType: user.userType || "company",
-        phoneNumber: phoneNumber,
-      },
-      recipientPhoneNumber: recipientPhoneNumber,
+      recipientPhoneNumber,
+      totalPrice,
+      cartItems,
+      deliveryDate,
       address1: address.address1,
       address2: address.address2,
-      foyerAccessType: foyerAccessType,
-      deliveryDate: deliveryDate,
       deliveryRequest: requestMessage,
+      foyerAccessType,
       otherRequests: customerRequest,
-      cartItems: cartItems,
-      totalPrice: totalPrice,
     };
 
-    try {
-      await createOrder(payload);
-      const currentParam = searchParams.get("current");
-      if (currentParam !== "now") {
-        localStorage.removeItem("cartItems");
-      }
-
-      localStorage.removeItem("address-storage");
-      useCurrentOrderStore.getState().clearCurrentItem();
-      localStorage.setItem("recentOrder", JSON.stringify(payload));
-      router.push("/cart/confirm");
-    } catch (error) {
-      console.error(error);
-    }
+    console.log("💾 저장할 데이터:", payload);
+    localStorage.setItem("recentOrder", JSON.stringify(payload));
+    router.push("/cart/confirm");
   };
 
-  useEffect(() => {
-    console.log("🌀 useEffect: recipientPhoneNumber:", recipientPhoneNumber);
-  }, [recipientPhoneNumber]);
   return (
     <div className="flex min-h-screen flex-col justify-between">
       {/* <h1 className="mb-4 text-center text-xl font-bold">주문하기</h1>
