@@ -1,4 +1,3 @@
-// store/orderStore.ts
 import { create } from "zustand";
 
 interface FoyerAccessType {
@@ -12,6 +11,8 @@ interface Address {
   address2: string;
 }
 
+type ReceiveMethod = "delivery" | "pickup" | null;
+
 interface OrderStore {
   address: Address;
   recipientPhoneNumber: string;
@@ -19,6 +20,7 @@ interface OrderStore {
   customerRequest: string;
   foyerAccessType: FoyerAccessType;
   deliveryDate: string | null;
+  receiveMethod: ReceiveMethod;
 
   setAddress: (addr: Address) => void;
   setRecipientPhoneNumber: (phone: string) => void;
@@ -26,6 +28,7 @@ interface OrderStore {
   setCustomerRequest: (message: string) => void;
   setFoyerAccessType: (data: FoyerAccessType) => void;
   setDeliveryDate: (date: string | null) => void;
+  setReceiveMethod: (method: ReceiveMethod) => void;
   clearOrder: () => void;
 }
 
@@ -40,6 +43,7 @@ export const useOrderStore = create<OrderStore>(set => ({
     customRequest: null,
   },
   deliveryDate: null,
+  receiveMethod: null,
 
   setAddress: address => set({ address }),
   setRecipientPhoneNumber: phone => set({ recipientPhoneNumber: phone }),
@@ -47,6 +51,7 @@ export const useOrderStore = create<OrderStore>(set => ({
   setCustomerRequest: message => set({ customerRequest: message }),
   setFoyerAccessType: data => set({ foyerAccessType: data }),
   setDeliveryDate: date => set({ deliveryDate: date }),
+  setReceiveMethod: method => set({ receiveMethod: method }),
   clearOrder: () =>
     set({
       address: { address1: "", address2: "" },
@@ -59,5 +64,6 @@ export const useOrderStore = create<OrderStore>(set => ({
         customRequest: null,
       },
       deliveryDate: null,
+      receiveMethod: null,
     }),
 }));
