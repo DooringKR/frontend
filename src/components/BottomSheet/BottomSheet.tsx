@@ -9,6 +9,7 @@ interface BottomSheetProps {
   buttonArea?: React.ReactNode; // 버튼 영역을 외부에서 주입
   headerButtonText?: string;
   onHeaderButtonClick?: () => void;
+  contentPadding?: string; // content 영역의 padding을 조절할 수 있는 prop 추가
 }
 
 const BottomSheet: React.FC<BottomSheetProps> = ({
@@ -20,6 +21,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
   buttonArea,
   headerButtonText,
   onHeaderButtonClick,
+  contentPadding = "px-5", // 기본값은 px-5
 }) => {
   useEffect(() => {
     if (isOpen) {
@@ -57,7 +59,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
           </div>
           <p className="text-[16px]/[22px] font-400 text-gray-500">{description}</p>
         </div>
-        {children && <div className="px-5">{children}</div>}
+        {children && <div className={contentPadding}>{children}</div>}
         {buttonArea && <div>{buttonArea}</div>}
       </div>
     </>

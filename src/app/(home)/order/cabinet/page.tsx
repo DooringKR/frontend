@@ -116,14 +116,14 @@ function LowerCabinetForm(props: LowerCabinetFormProps) {
         options={[]}
         value={color}
         onClick={() => router.back()}
-        onChange={() => {}}
+        onChange={() => { }}
       />
       <BoxedSelect
         label="몸통 소재 및 두께"
         options={[]}
         value={bodyMaterial}
         onClick={() => setIsBottomSheetOpen(true)}
-        onChange={() => {}}
+        onChange={() => { }}
       />
       <BoxedInput
         type="text"
@@ -224,14 +224,14 @@ function UpperCabinetForm(props: UpperCabinetFormProps) {
         options={[]}
         value={color}
         onClick={() => router.back()}
-        onChange={() => {}}
+        onChange={() => { }}
       />
       <BoxedSelect
         label="몸통 소재 및 두께"
         options={[]}
         value={bodyMaterial}
         onClick={() => setIsBottomSheetOpen(true)}
-        onChange={() => {}}
+        onChange={() => { }}
       />
       <BoxedInput
         type="text"
@@ -336,14 +336,14 @@ function FlapCabinetForm(props: FlapCabinetFormProps) {
         options={[]}
         value={color}
         onClick={() => router.back()}
-        onChange={() => {}}
+        onChange={() => { }}
       />
       <BoxedSelect
         label="몸통 소재 및 두께"
         options={[]}
         value={bodyMaterial}
         onClick={() => setIsBottomSheetOpen(true)}
-        onChange={() => {}}
+        onChange={() => { }}
       />
       <BoxedInput
         type="text"
@@ -380,7 +380,7 @@ function FlapCabinetForm(props: FlapCabinetFormProps) {
         options={[]}
         value={showBar}
         onClick={() => setIsShowBarSheetOpen(true)}
-        onChange={() => {}}
+        onChange={() => { }}
       />
       <ShowBarInputSheet
         isOpen={isShowBarSheetOpen}
@@ -459,14 +459,14 @@ function OpenCabinetForm(props: OpenCabinetFormProps) {
         options={[]}
         value={color}
         onClick={() => router.back()}
-        onChange={() => {}}
+        onChange={() => { }}
       />
       <BoxedSelect
         label="몸통 소재 및 두께"
         options={[]}
         value={bodyMaterial}
         onClick={() => setIsBottomSheetOpen(true)}
-        onChange={() => {}}
+        onChange={() => { }}
       />
       <BoxedInput
         type="text"
@@ -588,14 +588,14 @@ function DrawerCabinetForm(props: DrawerCabinetFormProps) {
         options={[]}
         value={color}
         onClick={() => router.back()}
-        onChange={() => {}}
+        onChange={() => { }}
       />
       <BoxedSelect
         label="몸통 소재 및 두께"
         options={[]}
         value={bodyMaterial}
         onClick={() => setIsBottomSheetOpen(true)}
-        onChange={() => {}}
+        onChange={() => { }}
       />
       <BoxedInput
         type="text"
@@ -632,7 +632,7 @@ function DrawerCabinetForm(props: DrawerCabinetFormProps) {
         options={[]}
         value={drawerType}
         onClick={() => setIsDrawerTypeSheetOpen(true)}
-        onChange={() => {}}
+        onChange={() => { }}
       />
 
       <BoxedSelect
@@ -640,7 +640,7 @@ function DrawerCabinetForm(props: DrawerCabinetFormProps) {
         options={[]}
         value={railType}
         onClick={() => setIsRailTypeSheetOpen(true)}
-        onChange={() => {}}
+        onChange={() => { }}
       />
       <DrawerTypeInputSheet
         isOpen={isDrawerTypeSheetOpen}
@@ -935,6 +935,7 @@ function BodyMaterialManualInputSheet({
     <BottomSheet
       isOpen={isOpen}
       title="몸통 소재 및 두께를 선택해주세요"
+      contentPadding="px-1"
       children={
         <div>
           {options.map(option => (
