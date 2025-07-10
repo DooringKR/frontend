@@ -8,7 +8,7 @@ import Button from "../Button/Button";
 import QuantitySelector from "../QuantitySelector/QuantitySelector";
 
 interface ShoppingCartCardProps {
-  type: "door" | "cabinet" | "finish" | "accessory";
+  type: "door" | "cabinet" | "finish" | "accessory" | "hardware";
   title: string;
   color?: string;
   width?: string;
@@ -36,6 +36,7 @@ interface ShoppingCartCardProps {
   heightIncrease?: string;
   manufacturer?: string;
   modelName?: string;
+  size?: string;
 }
 
 const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
@@ -67,6 +68,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   heightIncrease,
   manufacturer,
   modelName,
+  size,
 }) => {
   return (
     <div className="flex w-full flex-col gap-[20px] rounded-[16px] border-[1px] border-gray-200 bg-white p-[20px]">
@@ -96,6 +98,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
             {finishType && <div>마감 방식 : {finishType}</div>}
             {manufacturer && <div>제조사 : {manufacturer}</div>}
             {modelName && <div>모델명 : {modelName}</div>}
+            {size && <div>사이즈 : {size}</div>}
             {request && <div>제작 시 요청 사항 : {request}</div>}
           </div>
         </div>

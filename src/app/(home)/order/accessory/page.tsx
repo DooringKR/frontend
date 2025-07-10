@@ -1,16 +1,11 @@
 "use client";
 
-import Door from "@/app/(home)/cart/_components/Door";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
-import Button from "@/components/Button/Button";
-import DoorPreview from "@/components/DoorPreview/DoorPreview";
 import Header from "@/components/Header/Header";
 import BoxedInput from "@/components/Input/BoxedInput";
-import SegmentedControl from "@/components/SegmentedControl/SegmentedControl";
-import BoxedSelect from "@/components/Select/BoxedSelect";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import { ACCESSORY_CATEGORY_LIST } from "@/constants/category";
 

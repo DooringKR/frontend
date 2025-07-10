@@ -3,12 +3,10 @@
 import Header from "@/components/Header/Header";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ACCESSORY_CATEGORY_LIST, CABINET_CATEGORY_LIST } from "@/constants/category";
-import { useState, useMemo } from "react";
+import { ACCESSORY_CATEGORY_LIST } from "@/constants/category";
+import { useState } from "react";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
-import formatColor from "@/utils/formatColor";
-import formatSize from "@/utils/formatSize";
 import BottomButton from "@/components/BottomButton/BottomButton";
 
 function ConfirmPage() {

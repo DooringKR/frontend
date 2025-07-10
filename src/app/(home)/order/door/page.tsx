@@ -12,6 +12,7 @@ import BoxedInput from "@/components/Input/BoxedInput";
 import SegmentedControl from "@/components/SegmentedControl/SegmentedControl";
 import BoxedSelect from "@/components/Select/BoxedSelect";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import { DOOR_CATEGORY_LIST } from "@/constants/category";
 
 function DoorInfoInputPage() {
     const router = useRouter();
@@ -28,6 +29,8 @@ function DoorInfoInputPage() {
     const color = searchParams.get("color") ?? "";
     const category = searchParams.get("category") ?? "";
 
+    const doorCategory = DOOR_CATEGORY_LIST.find(item => item.slug === category);
+
     // boringNum이 바뀔 때 boringSize 길이 자동 조정
     useEffect(() => {
         setBoringSize(prev => Array.from({ length: boringNum }, (_, i) => prev[i] ?? null));
@@ -36,15 +39,13 @@ function DoorInfoInputPage() {
     return (
         <div>
             <TopNavigator />
-            <Header title={
-                category === "normal"
-                    ? "일반문 정보를 입력해주세요"
-                    : category === "flap"
-                        ? "플랩문 정보를 입력해주세요"
-                        : category === "drawer"
-                            ? "서랍 정보를 입력해주세요"
-                            : "문짝 정보를 입력해주세요"
-            } />
+            <Header
+                title={
+                    doorCategory
+                        ? `${doorCategory.header} 정보를 입력해주세요`
+                        : "문짝 정보를 입력해주세요"
+                }
+            />
             <div className="flex flex-col gap-5 px-5">
                 <BoxedSelect
                     label="색상"
