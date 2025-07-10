@@ -1,5 +1,3 @@
-import { useRouter } from "next/navigation";
-
 interface DeliveryStatusChipProps {
   isDeliveryPossible: boolean;
   isAddressEntered: boolean;
@@ -11,8 +9,6 @@ function DeliveryStatusChip({
   isAddressEntered,
   onUnavailableClick,
 }: DeliveryStatusChipProps) {
-  const router = useRouter();
-
   if (!isAddressEntered) return null;
 
   const handleClick = () => {
