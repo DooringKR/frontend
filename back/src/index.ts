@@ -20,7 +20,7 @@ app.use(cors({
 
 app.use(express.json());
 
-app.use('/api/auth', authRouter);
+app.use('/auth', authRouter);
 app.use('/order', orderRouter);
 app.use('/app_user', appUserRouter);
 app.use('/cart', cartRouter);
