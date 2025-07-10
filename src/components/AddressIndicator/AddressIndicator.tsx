@@ -3,6 +3,7 @@ import React from "react";
 import GradientEffectText from "../GradientEffectText/GradientEffectText";
 import AddressIcon from "./icon/AddressIcon";
 import DeliveryScheduleDisplay from "./component/DeliveryScheduleDisplay";
+import { useRouter } from "next/navigation";
 
 // discriminated union 타입으로 timeLimit이 필수인 경우와 선택인 경우를 구분
 // arrivalDate는 도착 보장일이며, 'other'인 경우에만 사용합니다. api 호출 시 string 변환 후 전달해야 합니다.
@@ -29,11 +30,16 @@ type AddressIndicatorProps =
   ;
 
 const AddressIndicator: React.FC<AddressIndicatorProps> = (props) => {
+  const router = useRouter();
   const { address, deliverySchedule, timeLimit, arrivalDate } = props;
 
   return (
     <div className="flex flex-col gap-2 px-5">
-      <div className="flex flex-row gap-[6px]">
+      <div className="flex flex-row gap-[6px] cursor-pointer" onClick={() => {
+        // if (!address) {
+        //   // router.push("/order/address");
+        // }
+      }}>
         <div className="text-[20px] font-600 text-gray-700">
           {address ? address : <GradientEffectText text="주소를 입력해주세요" />}
         </div>

@@ -20,7 +20,7 @@ export const Switch: React.FC<SwitchProps> = ({ checked, onChange, disabled }) =
   return (
     <button
       type="button"
-      className={`flex h-[24px] w-[40px] items-center rounded-full p-[2px] transition-colors duration-200 focus:outline-none ${disabled ? "bg-gray-200" : isChecked ? "bg-brand-500" : "bg-gray-300"} ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
+      className={`flex h-[24px] w-[40px] items-center rounded-full p-[2px] transition-colors duration-200 focus:outline-none overflow-hidden ${disabled ? "bg-gray-200" : isChecked ? "bg-brand-500" : "bg-gray-300"} ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
       onClick={handleToggle}
       aria-checked={isChecked}
       disabled={disabled}

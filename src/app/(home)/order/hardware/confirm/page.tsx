@@ -1,87 +1,57 @@
-"use client";
+'use client'
 
+import Header from "@/components/Header/Header";
+import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import { useRouter, useSearchParams } from "next/navigation";
 import { HARDWARE_CATEGORY_LIST } from "@/constants/category";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-
-import Button from "@/components/BeforeEditByKi/Button/Button";
-
-import useHardwareStore from "@/store/Items/hardwareStore";
+import OrderSummaryCard from "@/components/OrderSummaryCard";
+import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
+import BottomButton from "@/components/BottomButton/BottomButton";
 
 function ConfirmPage() {
-  const router = useRouter();
-  const { hardwareItem, updatePriceAndCount } = useHardwareStore();
-  const [count, setCount] = useState(1);
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    // const type = searchParams.get("type");
+    const category = searchParams.get("category");
+    const manufacturer = searchParams.get("manufacturer");
+    const size = searchParams.get("size");
+    const request = searchParams.get("request");
 
-  if (
-    !hardwareItem.slug ||
-    !hardwareItem.madeBy ||
-    !hardwareItem.model ||
-    hardwareItem.price === null
-  ) {
-    return <p className="p-5">잘못된 접근입니다.</p>;
-  }
 
-  const total = hardwareItem.price * count;
+    const [quantity, setQuantity] = useState(1);
 
-  const handleAddToCart = () => {
-    const existing = JSON.parse(localStorage.getItem("cartItems") || "[]");
-    const newItem = {
-      ...hardwareItem,
-      count,
-      price: total,
-    };
-    localStorage.setItem("cartItems", JSON.stringify([...existing, newItem]));
-    alert("장바구니에 담았습니다.");
-    router.push("/cart");
-  };
-
-  const handlePurchase = () => {
-    updatePriceAndCount(total, count);
-    router.push("/cart/now?category=hardware");
-  };
-
-  const currentCategory = HARDWARE_CATEGORY_LIST.find(item => item.slug === hardwareItem.slug);
-  const header = currentCategory?.header || "부속";
-
-  return (
-    <div className="flex flex-col gap-6 p-5 pb-20">
-      <h1 className="text-xl font-bold">
-        <span>{header}</span> 주문 개수를 선택해주세요
-      </h1>
-
-      <div className="flex items-center justify-between">
-        <span className="text-base font-medium">주문 개수</span>
-        <div className="flex items-center border">
-          <button onClick={() => setCount(c => Math.max(1, c - 1))}>－</button>
-          <span className="px-4">{count}</span>
-          <button onClick={() => setCount(c => c + 1)}>＋</button>
-        </div>
-      </div>
-
-      <div className="flex items-center justify-between">
-        <span className="text-base font-medium">가격</span>
-        <span className="text-lg font-bold">{total.toLocaleString()}원</span>
-      </div>
-
-      <hr />
-
-      <div className="text-sm leading-relaxed">
-        <p className="font-semibold">{header}</p>
-        <p>제조사: {hardwareItem.madeBy}</p>
-        <p>모델명: {hardwareItem.model}</p>
-        <p>요청 사항: {hardwareItem.hardwareRequests}</p>
-      </div>
-      <div className="fixed bottom-[68px] left-0 right-0 z-10 flex gap-2 bg-white p-5">
-        <Button className="flex-1" onClick={handleAddToCart}>
-          장바구니 담기
-        </Button>
-        <Button selected={true} className="flex-1" onClick={handlePurchase}>
-          바로 구매
-        </Button>
-      </div>
-    </div>
-  );
+    return (
+        <div>
+            <TopNavigator />
+            <Header size="Large" title={`${HARDWARE_CATEGORY_LIST.find(item => item.slug === category)?.header} 주문 개수를 선택해주세요`} />
+            <div className="flex flex-col pt-5 px-5 gap-[20px] pb-[100px]">
+                <ShoppingCartCard
+                    type="hardware"
+                    title={`${HARDWARE_CATEGORY_LIST.find(item => item.slug === category)?.header}`}
+                    showQuantitySelector={false}
+                    request={request ?? undefined}
+                    manufacturer={manufacturer ?? undefined}
+                    size={size ? `${size}mm` : undefined}
+                    onOptionClick={() => {
+                        router.push(`/order/hardware/?category=${category}`);
+                    }}
+                    quantity={0}
+                    trashable={false} />
+                <OrderSummaryCard
+                    quantity={quantity}
+                    unitPrice={9000}
+                    onIncrease={() => setQuantity(q => q + 1)}
+                    onDecrease={() => setQuantity(q => Math.max(1, q - 1))} />
+            </div>
+            <BottomButton
+                type={"1button"}
+                button1Text={"장바구니 담기"}
+                className="fixed bottom-0 w-full max-w-[500px] px-5 pb-5 bg-white"
+                onButton1Click={() => { }}
+            />
+        </div >
+    );
 }
 
 export default ConfirmPage;

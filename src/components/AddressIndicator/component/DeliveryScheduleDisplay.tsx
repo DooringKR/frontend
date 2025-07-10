@@ -53,8 +53,8 @@ const DeliveryScheduleDisplay: React.FC<DeliveryScheduleDisplayProps> = ({
             );
         case "other":
             return (
-                <div className="flex flex-col gap-2">
-                    <div className="text-gray-500 px-2 py-1 text-[15px] font-500">
+                <div className="flex flex-row flex-wrap gap-2 sm:flex-col">
+                    <div className="text-gray-500 px-2 py-1 text-[15px]/[22px] font-500 bg-gray-50 rounded-[8px]">
                         {arrivalDate} 도착 보장
                     </div>
                     <div className="flex flex-row gap-2 items-center">
@@ -63,7 +63,6 @@ const DeliveryScheduleDisplay: React.FC<DeliveryScheduleDisplayProps> = ({
                             {timeLimit}
                         </div>
                     </div>
-
                 </div>
             );
         case "":

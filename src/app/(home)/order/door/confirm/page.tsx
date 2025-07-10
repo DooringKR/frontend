@@ -1,95 +1,104 @@
-"use client";
-
-import { DOOR_CATEGORY_LIST } from "@/constants/category";
-import { useRouter } from "next/navigation";
+'use client'
+import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
+import Header from "@/components/Header/Header";
+import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import { useRouter, useSearchParams } from "next/navigation";
+import { COLOR_LIST } from "@/constants/colorList";
+import QuantitySelector from "@/components/QuantitySelector/QuantitySelector";
 import { useState } from "react";
+import BottomButton from "@/components/BottomButton/BottomButton";
+import OrderSummaryCard from "@/components/OrderSummaryCard";
+import formatColor from "@/utils/formatColor";
+import formatSize from "@/utils/formatSize";
 
-import Button from "@/components/BeforeEditByKi/Button/Button";
+function getCategoryLabel(category: string | null) {
+    if (category === "normal") return "일반문";
+    if (category === "flap") return "플랩문";
+    if (category === "drawer") return "서랍";
+    return "문짝";
+}
 
-import useDoorStore from "@/store/Items/doorStore";
+
+
+function isPredefinedColor(color: string | null) {
+    if (!color) return false;
+    return COLOR_LIST.some(item => item.name === color);
+}
+
+function formatBoring(boringSize: string | null) {
+    if (!boringSize) return "";
+    let arr: (number | null)[] = [];
+    try {
+        arr = JSON.parse(boringSize);
+    } catch {
+        return "";
+    }
+    if (!Array.isArray(arr)) return "";
+    const labelMap = [
+        ["상", "하"],
+        ["상", "중", "하"],
+        ["상", "중상", "중하", "하"],
+    ];
+    const label = labelMap[arr.length - 2];
+    if (!label) return arr.join(", ");
+    return arr
+        .map((v, i) => (v !== null && v !== undefined ? `${label[i]}${v}` : null))
+        .filter(Boolean)
+        .join(", ");
+}
+
+function formatBoringDirection(dir: string | null) {
+    if (dir === "left") return "좌경";
+    if (dir === "right") return "우경";
+    return dir ?? "";
+}
 
 function ConfirmPage() {
-  const router = useRouter();
-  const { doorItem, updatePriceAndCount } = useDoorStore();
-  const [count, setCount] = useState(1);
+    const router = useRouter();
 
-  if (!doorItem.slug || !doorItem.width || !doorItem.height || doorItem.price === null) {
-    return <p className="p-5">잘못된 접근입니다.</p>;
-  }
-
-  const total = doorItem.price * count;
-
-  const handleAddToCart = () => {
-    const existing = JSON.parse(localStorage.getItem("cartItems") || "[]");
-    const newItem = {
-      ...doorItem,
-      count,
-      price: total,
-    };
-    localStorage.setItem("cartItems", JSON.stringify([...existing, newItem]));
-    alert("장바구니에 담았습니다.");
-    router.push("/cart");
-  };
-
-  const handlePurchase = () => {
-    updatePriceAndCount(total, count);
-    router.push("/cart/now?category=door");
-  };
-
-  const currentCategory = DOOR_CATEGORY_LIST.find(item => item.slug === doorItem.slug);
-  const header = currentCategory?.header || "문짝";
-
-  return (
-    <div className="flex flex-col gap-6 p-5 pb-[100px]">
-      <h1 className="text-xl font-bold">문짝 주문 개수를 선택해주세요</h1>
-
-      <div className="flex items-center justify-between">
-        <span className="text-base font-medium">주문 개수</span>
-        <div className="flex items-center border">
-          <button onClick={() => setCount(c => Math.max(1, c - 1))}>－</button>
-          <span className="px-4">{count}</span>
-          <button onClick={() => setCount(c => c + 1)}>＋</button>
+    const searchParams = useSearchParams();
+    const category = searchParams.get("category");
+    const color = searchParams.get("color");
+    const width = searchParams.get("width");
+    const height = searchParams.get("height");
+    const boringDirection = searchParams.get("boringDirection");
+    const boringSize = searchParams.get("boringSize");
+    const request = searchParams.get("request");
+    const isPredefined = isPredefinedColor(color);
+    const [quantity, setQuantity] = useState(1);
+    return (
+        <div>
+            <TopNavigator />
+            <Header size="Large" title={`${getCategoryLabel(category)} 주문 개수를 선택해주세요`} />
+            <div className="flex flex-col gap-[20px] px-5 pt-5 pb-[100px]">
+                <ShoppingCartCard
+                    type="door"
+                    title={getCategoryLabel(category)}
+                    color={formatColor(color)}
+                    width={formatSize(width)}
+                    height={formatSize(height)}
+                    hingeDirection={formatBoringDirection(boringDirection)}
+                    hingeCount={boringSize ? JSON.parse(boringSize).length : 0}
+                    boring={formatBoring(boringSize)}
+                    // 아래의 다른 컴포넌트로 전달할 예정이라 여기선 일단 0으로 전달
+                    quantity={0}
+                    trashable={false}
+                    showQuantitySelector={false}
+                    request={request ?? undefined}
+                    onOptionClick={() => {
+                        router.push(`/order/door/?category=${category}&color=${color}`);
+                    }}
+                />
+                <OrderSummaryCard quantity={quantity} unitPrice={9000} onIncrease={() => setQuantity(q => q + 1)} onDecrease={() => setQuantity(q => Math.max(1, q - 1))} />
+            </div>
+            <BottomButton
+                type={"1button"}
+                button1Text={"장바구니 담기"}
+                className="fixed bottom-0 w-full max-w-[500px] px-5 pb-5 bg-white"
+                onButton1Click={() => { }}
+            />
         </div>
-      </div>
-
-      <div className="flex items-center justify-between">
-        <span className="text-base font-medium">가격</span>
-        <span className="text-lg font-bold">{total.toLocaleString()}원</span>
-      </div>
-
-      <hr />
-
-      <div className="text-sm leading-relaxed">
-        <p className="font-semibold">{header}</p>
-        <p>색상: {doorItem.color}</p>
-        <p>가로 길이: {doorItem.width}mm</p>
-        <p>세로 길이: {doorItem.height}mm</p>
-        {doorItem.hinge.hingeCount && <p>경첩 개수: {doorItem.hinge.hingeCount}</p>}
-        {doorItem.hinge.hingePosition && (
-          <p>경첩 방향: {doorItem.hinge.hingePosition === "left" ? "좌경" : "우경"}</p>
-        )}
-        {doorItem.slug !== "drawer" && (
-          <p>
-            보링 치수: 상{doorItem.hinge.topHinge}
-            {doorItem.hinge.middleHinge ? `, 중${doorItem.hinge.middleHinge}` : ""}
-            {doorItem.hinge.middleTopHinge ? `, 중상${doorItem.hinge.middleTopHinge}` : ""}
-            {doorItem.hinge.middleBottomHinge ? `, 중하${doorItem.hinge.middleBottomHinge}` : ""},
-            하{doorItem.hinge.bottomHinge}
-          </p>
-        )}
-        {doorItem.doorRequest && <p>요청사항: {doorItem.doorRequest}</p>}
-      </div>
-
-      <div className="fixed bottom-[68px] left-0 right-0 z-10 flex gap-2 bg-white p-5">
-        <Button className="flex-1" onClick={handleAddToCart}>
-          장바구니 담기
-        </Button>
-        <Button selected={true} className="flex-1" onClick={handlePurchase}>
-          바로 구매
-        </Button>
-      </div>
-    </div>
-  );
+    );
 }
 
 export default ConfirmPage;
