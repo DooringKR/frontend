@@ -33,7 +33,7 @@ export default function ReceiveOptionBar({
           변경
         </button>
       </div>
-      {children && <div>{children}</div>}
+      {children && <div className="mx-5">{children}</div>}
       <div className={`h-4 bg-gray-100 ${bottomBarClassName}`}></div>
     </div>
   );
