@@ -146,7 +146,7 @@ const Page = () => {
         <BoxedInput
           label={"예시레이블"}
           value={value}
-          onChange={handleChange}
+          onChange={e => setValue(e.target.value)}
           error={!!error}
           helperText={error}
           placeholder="placeholder 텍스트"
@@ -163,6 +163,7 @@ const Page = () => {
           boring={""}
           quantity={0}
           trashable={false}
+          type="door"
         />
         <Button
           type={"Brand"}

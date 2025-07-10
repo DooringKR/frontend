@@ -16,14 +16,14 @@ import BoxedInput from "@/components/Input/BoxedInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
+import DrawerCabinetForm from "./_components/DrawerCabinetForm";
+import FlapCabinetForm from "./_components/FlapCabinetForm";
+import LowerCabinetForm from "./_components/LowerCabinetForm";
+import OpenCabinetForm from "./_components/OpenCabinetForm";
+import UpperCabinetForm from "./_components/UpperCabinetForm";
 import CabinetIcon1 from "./_components/cabinetIcon1";
 import CabinetIcon2 from "./_components/cabinetIcon2";
 import CabinetIcon3 from "./_components/cabinetIcon3";
-import LowerCabinetForm from "./_components/LowerCabinetForm";
-import UpperCabinetForm from "./_components/UpperCabinetForm";
-import FlapCabinetForm from "./_components/FlapCabinetForm";
-import DrawerCabinetForm from "./_components/DrawerCabinetForm";
-import OpenCabinetForm from "./_components/OpenCabinetForm";
 
 // 공통 props 타입 정의
 type CabinetFormProps = {
@@ -93,7 +93,8 @@ type OpenCabinetFormProps = CabinetFormProps & {
   setFinishType: (v: string) => void;
 };
 
-function DoorInfoInputPage() {
+// 기존 DoorInfoInputPage를 CabinetPageContent로 이름 변경
+function CabinetPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -652,4 +653,12 @@ function renderCabinetFormByCategory(
   }
 }
 
-export default DoorInfoInputPage;
+function CabinetPage() {
+  return (
+    <React.Suspense fallback={<div>로딩 중...</div>}>
+      <CabinetPageContent />
+    </React.Suspense>
+  );
+}
+
+export default CabinetPage;

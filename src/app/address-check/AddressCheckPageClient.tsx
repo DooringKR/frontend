@@ -88,7 +88,7 @@ function AddressPageClient() {
         <BoxedInput
           placeholder="상세주소 (예: 101동 501호 / 단독주택)"
           value={address2}
-          onChange={value => setAddress(address1, value)}
+          onChange={e => setAddress(address1, e.target.value)}
         />
         {showPostcode && (
           <div className="fixed bottom-5 left-4 right-4 top-4 z-50 overflow-y-auto bg-gray-200">

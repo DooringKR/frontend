@@ -1,8 +1,15 @@
 "use client";
 
-import { CATEGORY_LIST, DOOR_CATEGORY_LIST, ACCESSORY_CATEGORY_LIST, HARDWARE_CATEGORY_LIST, CABINET_CATEGORY_LIST } from "@/constants/category";
+import {
+  ACCESSORY_CATEGORY_LIST,
+  CABINET_CATEGORY_LIST,
+  CATEGORY_LIST,
+  DOOR_CATEGORY_LIST,
+  HARDWARE_CATEGORY_LIST,
+} from "@/constants/category";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 
 import Header from "@/components/Header/Header";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
@@ -65,4 +72,12 @@ function DoorCategoryPage() {
   );
 }
 
-export default DoorCategoryPage;
+function OrderPage() {
+  return (
+    <Suspense fallback={<div>로딩 중...</div>}>
+      <DoorCategoryPage />
+    </Suspense>
+  );
+}
+
+export default OrderPage;

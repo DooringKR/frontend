@@ -1,18 +1,18 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import Header from "@/components/Header/Header";
 import BoxedInput from "@/components/Input/BoxedInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+
 import DepthInputSection from "./_components/DepthInputSection";
 import HeightInputSection from "./_components/HeightInputSection";
 
-
-function FinishPage() {
+function FinishPageContent() {
   const searchParams = useSearchParams();
   const color = searchParams.get("color");
   const router = useRouter();
@@ -78,6 +78,14 @@ function FinishPage() {
         />
       </div>
     </div>
+  );
+}
+
+function FinishPage() {
+  return (
+    <Suspense fallback={<div>로딩 중...</div>}>
+      <FinishPageContent />
+    </Suspense>
   );
 }
 

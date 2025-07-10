@@ -10,7 +10,7 @@ import { COLOR_LIST } from "@/constants/colorList";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import FileIcon from "public/icons/file";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
@@ -20,10 +20,10 @@ import Header from "@/components/Header/Header";
 import BoxedInput from "@/components/Input/BoxedInput";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
-import ColorSelectList from "./_components/ColorSelectList";
 import ColorManualInputGuide from "./_components/ColorManualInputGuide";
 import ColorManualInputSheet from "./_components/ColorManualInputSheet";
 import ColorSelectBottomButton from "./_components/ColorSelectBottomButton";
+import ColorSelectList from "./_components/ColorSelectList";
 
 const categoryMap: Record<string, any[]> = {
   door: DOOR_CATEGORY_LIST,
@@ -37,7 +37,7 @@ function getHeader(type: string | null, currentCategory: any) {
   return currentCategory?.header ?? "";
 }
 
-function ColorListPage() {
+function ColorListPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const type = searchParams.get("type");
@@ -106,5 +106,12 @@ function ColorListPage() {
   );
 }
 
-export default ColorListPage;
+function ColorListPage() {
+  return (
+    <Suspense fallback={<div>로딩 중...</div>}>
+      <ColorListPageContent />
+    </Suspense>
+  );
+}
 
+export default ColorListPage;
