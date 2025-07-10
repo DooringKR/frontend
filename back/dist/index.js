@@ -20,7 +20,7 @@ app.use((0, cors_1.default)({
     credentials: true,
 }));
 app.use(express_1.default.json());
-app.use('/api/auth', auth_1.default);
+app.use('/auth', auth_1.default);
 app.use('/order', order_1.default);
 app.use('/app_user', app_user_1.default);
 app.use('/cart', cart_1.default);

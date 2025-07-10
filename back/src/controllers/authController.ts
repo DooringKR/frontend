@@ -30,13 +30,30 @@ export async function signup(req: Request, res: Response) {
       .json({ message: "이미 가입된 회원입니다" });
   }
 
-  // 3) 신규 생성
-  await prisma.user.create({
-    data: { user_phone, user_type },
-  });
-  return res
-    .status(201)
-    .json({ message: "가입이 성공했습니다" });
+  try {
+    // 3) User와 Cart을 원자적으로 생성
+    const [newUser] = await prisma.$transaction([
+      prisma.user.create({
+        data: { user_phone, user_type },
+      }),
+      // Cart 생성은 다음 줄에서, 트랜잭션 콜백 안에 넣어도 무방합니다.
+    ]);
+
+    // 4) 빈 장바구니 생성
+    await prisma.cart.create({
+      data: { user_id: newUser.id },
+    });
+
+    return res
+      .status(201)
+      .json({ message: "가입이 성공했습니다" });
+
+  } catch (e) {
+    console.error("signup error:", e);
+    return res
+      .status(500)
+      .json({ message: "서버 오류로 가입에 실패했습니다." });
+  }
 }
 
 // 중복검증 (HEAD)
