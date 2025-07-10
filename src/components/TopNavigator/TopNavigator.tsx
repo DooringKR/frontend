@@ -37,7 +37,7 @@ const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, isCartEmpty })
 
       {page === HOME_PAGE ? (
         <div className="flex gap-6">
-          <Link href={"/cart"} className="relative cursor-pointer">
+          <Link href={"/shopping-cart"} className="relative cursor-pointer">
             <img src={"/icons/shopping-cart.svg"} alt="장바구니 아이콘"></img>
             {isCartEmpty ? (
               ""
