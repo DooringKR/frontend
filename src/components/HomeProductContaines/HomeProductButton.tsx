@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 
 interface HomeProductButtonProps {
@@ -6,19 +8,15 @@ interface HomeProductButtonProps {
   onClick?: () => void;
 }
 
-const HomeProductButton: React.FC<HomeProductButtonProps> = ({
-  label,
-  icon,
-  onClick,
-}) => {
+const HomeProductButton: React.FC<HomeProductButtonProps> = ({ label, icon, onClick }) => {
   return (
     <button
       type="button"
-      className={`flex flex-col gap-2 flex-1 items-center justify-center min-w-0 min-h-0`}
+      className={`flex min-h-0 min-w-0 flex-1 flex-col items-center justify-center gap-2`}
       onClick={onClick}
     >
       <div className="w-full">{icon}</div>
-      <span className="font-500 text-[17px] text-gray-500 text-center">{label}</span>
+      <span className="text-center text-[17px] font-500 text-gray-500">{label}</span>
     </button>
   );
 };

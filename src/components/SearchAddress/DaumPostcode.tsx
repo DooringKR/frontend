@@ -54,7 +54,7 @@ export default function DaumPostcodePopup({ address1, onComplete }: DaumPostcode
       <button
         type="button"
         onClick={openPostcodePopup}
-        className="min-h-[40px] w-full cursor-pointer border-b-2 border-gray-300 bg-white px-4 py-3 text-left text-base shadow-sm"
+        className="min-h-[40px] w-full cursor-pointer rounded-xl border border-gray-200 bg-white px-4 py-3 text-left text-base shadow-sm"
       >
         <span className={address1 ? "text-gray-800" : "text-gray-400"}>
           {address1 || "건물, 지번 또는 도로명 검색"}

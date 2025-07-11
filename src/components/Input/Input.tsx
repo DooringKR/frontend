@@ -33,22 +33,23 @@ export default function Input({
   const [isFocused, setIsFocused] = useState(false);
   const effectiveError = disabled ? undefined : error;
 
-  const labelColor = effectiveError
-    ? "text-red-500"
-    : isFocused
-      ? "text-brand-500"
-      : "text-gray-300";
+  // const labelColor = effectiveError
+  //   ? "text-red-500"
+  //   : isFocused
+  //     ? "text-brand-500"
+  //     : "text-gray-200";
+  const labelColor = "text-gray-600";
 
   const borderColor = effectiveError
     ? "border-red-500"
     : isFocused
       ? "border-brand-500"
-      : "border-gray-300";
+      : "border-gray-200";
 
   const textColor = "text-[#1e1e1e]";
 
   return (
-    <div className="relative flex flex-col gap-1">
+    <div className="relative flex flex-col gap-2">
       {label && (
         <label htmlFor={name} className={`text-sm font-normal leading-[1.4] ${labelColor}`}>
           {label}
@@ -68,7 +69,7 @@ export default function Input({
         onChange={onChange}
         disabled={disabled}
         onKeyDown={onKeyDown}
-        className={`h-8 w-full border-b-[2px] bg-white outline-none transition-colors duration-200 ${textColor} ${borderColor} ${className}`}
+        className={`h-auto w-full rounded-xl border bg-white px-4 py-3 outline-none transition-colors duration-200 ${textColor} ${borderColor} ${className}`}
       />
 
       {effectiveError && <p className="text-sm text-red-500">{effectiveError.message}</p>}

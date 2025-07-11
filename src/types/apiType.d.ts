@@ -6,9 +6,9 @@ export type User = {
   phoneNumber: string;
 };
 
-export type SignupUser = Pick<User, "userType" | "phoneNumber"> 
+export type SignupUser = Pick<User, "userType" | "phoneNumber">;
 
-export type SigninUser = Pick<User, "phoneNumber"> 
+export type SigninUser = Pick<User, "phoneNumber">;
 
 // door type
 
@@ -24,7 +24,7 @@ export type Hinge = {
 
 export type DoorRequest = {
   category: "door";
-  slug: "normal" | "flap" | "drawer" ;
+  slug: "normal" | "flap" | "drawer";
   color: string;
   width: number;
   height: number;
@@ -118,17 +118,17 @@ export type CartItem =
   | (AccessoryRequest & { count: number; price: number })
   | (HardwareRequest & { count: number; price: number });
 
-
 export type OrderRequest = {
   user: User;
   recipientPhoneNumber: string | null;
   address1: string;
   address2: string;
   foyerAccessType: {
-    type: "gate" | "call" | "doorfront";
+    type: "gate" | "call" | "doorfront" | "custom";
     gatePassword: string | null;
+    customRequest: string | null;
   };
-  deliveryDate: string|null; // ISO8601
+  deliveryDate: string | null; // ISO8601
   deliveryRequest: string;
   otherRequests: string;
   cartItems: CartItem[];
@@ -142,4 +142,4 @@ export type OrderResponse = {
   itemCount: number;
   estimatedDeliveryDate: string;
   message: string;
-}
+};

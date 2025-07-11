@@ -16,7 +16,7 @@ function Modal({ isOpen, onClose, children }: ModalProps) {
       <div className="absolute inset-0 bg-black bg-opacity-50" onClick={onClose} />
 
       <div
-        className="relative z-10 w-full max-w-md rounded-3xl bg-white px-6 pb-6 pt-3"
+        className="relative z-10 mb-[10px] w-full max-w-md rounded-3xl bg-white px-6 pb-6 pt-3"
         onClick={e => e.stopPropagation()}
       >
         <div className="mb-5 flex justify-center">
