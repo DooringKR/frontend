@@ -79,8 +79,8 @@ function ShoppingCart() {
     });
   };
 
-  const handleOrder = () => {
-    router.push("/cart/checkorder");
+  const handleGoToReceiveOption = () => {
+    router.push("/cart/receive-option");
   };
 
   const handleAddProduct = () => {
@@ -251,7 +251,7 @@ function ShoppingCart() {
           }}
           button1Text="다음"
           button1Type="Brand"
-          onButton1Click={handleOrder}
+          onButton1Click={handleGoToReceiveOption}
         />
       </div>
     </div>
