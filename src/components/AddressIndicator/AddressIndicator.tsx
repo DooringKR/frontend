@@ -1,3 +1,6 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import React from "react";
 
 import GradientEffectText from "../GradientEffectText/GradientEffectText";
@@ -28,11 +31,19 @@ type AddressIndicatorProps =
     };
 
 const AddressIndicator: React.FC<AddressIndicatorProps> = props => {
+  const router = useRouter();
   const { address, deliverySchedule, timeLimit, arrivalDate } = props;
 
   return (
     <div className="flex flex-col gap-2 px-5">
-      <div className="flex flex-row gap-[6px]">
+      <div
+        className="flex cursor-pointer flex-row gap-[6px]"
+        onClick={() => {
+          // if (!address) {
+          //   // router.push("/order/address");
+          // }
+        }}
+      >
         <div className="text-[20px] font-600 text-gray-700">
           {address ? address : <GradientEffectText text="주소를 입력해주세요" />}
         </div>

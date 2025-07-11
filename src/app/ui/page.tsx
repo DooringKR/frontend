@@ -146,7 +146,7 @@ const Page = () => {
         <BoxedInput
           label={"예시레이블"}
           value={value}
-          onChange={handleChange}
+          onChange={e => setValue(e.target.value)}
           error={!!error}
           helperText={error}
           placeholder="placeholder 텍스트"
@@ -163,6 +163,7 @@ const Page = () => {
           boring={""}
           quantity={0}
           trashable={false}
+          type="door"
         />
         <Button
           type={"Brand"}
@@ -186,7 +187,7 @@ const Page = () => {
           }}
         />
         <SelectToggleButton
-          imageSrc="https://via.placeholder.com/150"
+          imageSrc="/img/color-list/hansol-cream-white.png"
           label={"레이블"}
           checked={true}
           description="설명 텍스트"
@@ -195,7 +196,7 @@ const Page = () => {
           }}
         />
         <SelectToggleButton
-          imageSrc="https://via.placeholder.com/150"
+          imageSrc="/img/color-list/hansol-cream-white.png"
           label={"레이블"}
           checked={false}
           description="설명 텍스트"
@@ -259,29 +260,25 @@ const Page = () => {
       <SectionWrapper title="Address Indicator">
         주소 입력 & 오늘 배송
         <AddressIndicator
-          address="서울시 강남구 역삼동 123-45"
           deliverySchedule="today"
+          address="서울시 강남구 역삼동 123-45"
           timeLimit="1시간 10분 내 주문시"
         />
         주소 입력 & 내일 배송
         <AddressIndicator
-          address="서울시 강남구 역삼동 123-45"
           deliverySchedule="tomorrow"
-          timeLimit="밤 12시 전 주문시" />
+          address="서울시 강남구 역삼동 123-45"
+          timeLimit="밤 12시 전 주문시"
+        />
         주소 입력 & 내일 영업일 X
         <AddressIndicator
-          address="서울시 강남구 역삼동 123-45"
           deliverySchedule="other"
+          address="서울시 강남구 역삼동 123-45"
           timeLimit="12/24(일) 밤 12시 전 주문시"
           arrivalDate="12/25(월)"
         />
         주소 미입력
-        <AddressIndicator
-          address=""
-          deliverySchedule=""
-          timeLimit=""
-          arrivalDate=""
-        />
+        <AddressIndicator address="" deliverySchedule="" timeLimit="" arrivalDate="" />
       </SectionWrapper>
     </div>
   );
