@@ -1,5 +1,8 @@
+"use client";
+
 import { CUSTOMER_SERVICE_PAGE, HOME_PAGE, MY_PAGE } from "@/constants/pageName";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import HeadphonesIcon from "public/icons/Headphones";
 import ChevronLeft from "public/icons/chevron_left";
 import React from "react";
@@ -11,12 +14,13 @@ interface TopNavigatorProps {
 }
 
 const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, isCartEmpty }) => {
+  const router = useRouter();
   return (
     <div className="flex h-[60px] w-full flex-shrink-0 items-center justify-between gap-[12px] px-[20px]">
       {page === HOME_PAGE ? (
         <h3 className="text-xl font-700">바로가구</h3>
       ) : (
-        <button className="flex items-center justify-center">
+        <button onClick={() => router.back()} className="flex items-center justify-center">
           {/* 뒤로가기 버튼 */}
           <ChevronLeft />
         </button>

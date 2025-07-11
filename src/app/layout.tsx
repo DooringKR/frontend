@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 
 import "./globals.css";
 
@@ -9,8 +9,11 @@ export const metadata: Metadata = {
     icon: "/favicon.ico",
     apple: "/icons/icon-192x192.png",
   },
-  themeColor: "#000000",
   manifest: "/manifest.json",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#000000",
 };
 
 function RootLayout({

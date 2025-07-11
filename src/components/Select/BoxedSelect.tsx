@@ -29,7 +29,12 @@ const BoxedSelect: React.FC<BoxedSelectProps> = ({
         {label}
       </div>
       <button
-        className={`flex w-full items-center justify-between rounded-[12px] border px-4 transition-colors focus:outline-none ${error ? "border-[2px] border-red-300 py-[11px]" : isFocused ? "border-[2px] border-brand-300 py-[11px]" : "border-gray-200 py-3 hover:border-[2px] hover:border-brand-100 hover:py-[11px]"} `}
+        className={`flex w-full items-center
+          justify-between rounded-[12px]
+           border transition-colors focus:outline-none
+             ${error ? "border-[2px] border-red-300 py-[11px] px-[15px]"
+            : isFocused ? "border-[2px] border-brand-300 py-[11px] px-[15px]"
+              : "border-gray-200 px-4 py-3 hover:border-[2px] hover:border-brand-100 hover:py-[11px] hover:px-[15px]"} `}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         onClick={() => {

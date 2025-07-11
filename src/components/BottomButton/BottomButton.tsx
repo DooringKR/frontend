@@ -10,6 +10,7 @@ interface BottomButtonProps {
   onButton1Click?: () => void;
   onButton2Click?: () => void;
   className?: string;
+  children?: React.ReactNode;
   button1Type?:
     | "Brand"
     | "GrayLarge"
@@ -24,6 +25,7 @@ interface BottomButtonProps {
     | "BrandInverse"
     | "GrayMedium"
     | "OutlinedMedium";
+  button1Disabled?: boolean;
 }
 
 const BottomButton: React.FC<BottomButtonProps> = ({
@@ -34,15 +36,18 @@ const BottomButton: React.FC<BottomButtonProps> = ({
   onButton1Click,
   onButton2Click,
   className = "",
+  children,
   button1Type = "Brand",
   button2Type = "Brand",
+  button1Disabled = false,
 }) => {
   return (
     <div>
       {type === "1button" && (
         <div className={`pt-5 ${className}`}>
+          {children && <div>{children}</div>}
           <Button
-            disabled={false}
+            disabled={button1Disabled}
             type={button1Type}
             text={button1Text || ""}
             onClick={onButton1Click}
@@ -52,7 +57,7 @@ const BottomButton: React.FC<BottomButtonProps> = ({
       {type === "2buttons" && (
         <div className={`flex gap-3 p-5 ${className}`}>
           <Button
-            disabled={false}
+            disabled={button1Disabled}
             type={button1Type}
             text={button1Text || ""}
             onClick={onButton1Click}
@@ -75,7 +80,7 @@ const BottomButton: React.FC<BottomButtonProps> = ({
           </div>
           <div className="flex-1">
             <Button
-              disabled={false}
+              disabled={button1Disabled}
               type={button1Type}
               text={button1Text || ""}
               onClick={onButton1Click}
