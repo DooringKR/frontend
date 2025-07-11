@@ -75,6 +75,10 @@ function ShoppingCart() {
       }
 
       newGroups[category] = updatedItems;
+
+      const allItems = Object.values(newGroups).flat().filter(Boolean);
+      localStorage.setItem("cartItems", JSON.stringify(allItems));
+
       return newGroups;
     });
   };

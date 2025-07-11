@@ -222,7 +222,9 @@ export default function OrderConfirmPage() {
 
                 const commonPrice = (
                   <p className="mt-1 text-[15px] font-500 text-gray-800">
-                    {item.price?.toLocaleString()}원 {item.count}개
+                    {/* {item.price?.toLocaleString()}원 {item.count}개 */}
+                    {Number((item.price ?? 0) * (item.count ?? 1)).toLocaleString()}원 {item.count}
+                    개
                   </p>
                 );
 
