@@ -1,3 +1,4 @@
+"use client";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -7,8 +8,17 @@ import HomeProductContainer from "@/components/HomeProductContaines/HomeProductC
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import Footer from "./_components/Footer";
+import { useEffect } from "react";
+import { useSingleCartStore } from "@/store/singleCartStore";
 
-async function Page() {
+export default function Page() {
+  const resetCart = useSingleCartStore(state => state.reset);
+
+  useEffect(() => {
+    useSingleCartStore.persist.clearStorage();
+    resetCart();
+  }, []);
+
   // const cookieStore = await cookies();
   // const token = cookieStore.get("token");
 
@@ -33,4 +43,3 @@ async function Page() {
   );
 }
 
-export default Page;

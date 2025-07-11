@@ -8,17 +8,19 @@ import BottomButton from "@/components/BottomButton/BottomButton";
 import Header from "@/components/Header/Header";
 import BoxedInput from "@/components/Input/BoxedInput";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
-import { useSingleCartStore } from "@/store/singleCartStore";
+import { AccessoryCart, useSingleCartStore } from "@/store/singleCartStore";
 
 function AccessoryPageContent() {
   const router = useRouter();
   // const searchParams = useSearchParams();
 
-  const category = useSingleCartStore(state => state.category);
+  const category = useSingleCartStore(state => (state.cart as AccessoryCart).category);
 
-  const [manufacturer, setManufacturer] = useState(useSingleCartStore(state => state.manufacturer) ?? "");
-  const [modelName, setModelName] = useState(useSingleCartStore(state => state.modelName) ?? "");
-  const [request, setRequest] = useState(useSingleCartStore(state => state.request) ?? "");
+  const [manufacturer, setManufacturer] = useState(useSingleCartStore(state => (state.cart as AccessoryCart).manufacturer) ?? "");
+  const [modelName, setModelName] = useState(useSingleCartStore(state => (state.cart as AccessoryCart).modelName) ?? "");
+  const [request, setRequest] = useState(useSingleCartStore(state => (state.cart as AccessoryCart).request) ?? "");
+
+  const setCart = useSingleCartStore(state => state.setCart);
 
   // const category = searchParams.get("category") ?? "";
   // category(slug)에 맞는 header 값 찾기
@@ -62,10 +64,12 @@ function AccessoryPageContent() {
         className="fixed bottom-0 w-full max-w-[500px] bg-white px-5 pb-5"
         button1Disabled={manufacturer === "" || modelName === ""}
         onButton1Click={() => {
-          useSingleCartStore.setState({
+          setCart({
+            type: "accessory",
+            category: category ?? null,
             manufacturer: manufacturer ?? null,
             modelName: modelName ?? null,
-            request: request ?? "",
+            request: request ?? null,
           });
           router.push(`/order/accessory/confirm`);
         }}

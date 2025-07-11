@@ -6,6 +6,7 @@ import React from "react";
 import DoorPreviewIcon from "../DoorPreviewIcon/DoorPreviewIcon";
 import Button from "../Button/Button";
 import QuantitySelector from "../QuantitySelector/QuantitySelector";
+import formatSize from "@/utils/formatSize";
 
 interface ShoppingCartCardProps {
   type: "door" | "cabinet" | "finish" | "accessory" | "hardware";
@@ -80,12 +81,12 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
             {color && <div>색상 : {color}</div>}
             {bodyMaterial && <div>몸통 소재 및 두께 : {bodyMaterial}</div>}
             {width && <div>{type === "cabinet" ? `너비 : ${width}` : `가로 길이 : ${width}`}</div>}
-            {height && <div>{type === "cabinet" || type === "finish" ? `높이 : ${height}` : `세로 길이 : ${height}`}</div>}
-            {heightIncrease && <div>⤷ 높이 키우기 : {heightIncrease}</div>}
-            {heightIncrease && <div>⤷ 합산 높이 : {height}</div>}
-            {depth && <div>깊이 : {depth}</div>}
-            {depthIncrease && <div>⤷ 깊이 키우기 : {depthIncrease}</div>}
-            {depthIncrease && <div>⤷ 합산 깊이 : {depth}</div>}
+            {height && <div>{type === "cabinet" || type === "finish" ? `높이 : ${formatSize(height)}` : `세로 길이 : ${formatSize(height)}`}</div>}
+            {heightIncrease && <div>⤷ 높이 키우기 : {formatSize(heightIncrease)}</div>}
+            {heightIncrease && <div>⤷ 합산 높이 : {formatSize(String(Number(height) + Number(heightIncrease)))}</div>}
+            {depth && <div>깊이 : {formatSize(depth)}</div>}
+            {depthIncrease && <div>⤷ 깊이 키우기 : {formatSize(depthIncrease)}</div>}
+            {depthIncrease && <div>⤷ 합산 깊이 : {formatSize(String(Number(depth) + Number(depthIncrease)))}</div>}
             {hingeCount && <div>경첩 개수 : {hingeCount}개</div>}
             {hingeDirection && <div>경첩 방향 : {hingeDirection}</div>}
             {boring && <div>보링 치수 : {boring}</div>}

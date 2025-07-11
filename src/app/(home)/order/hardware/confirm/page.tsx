@@ -9,14 +9,14 @@ import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
 import Header from "@/components/Header/Header";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
-import { useSingleCartStore } from "@/store/singleCartStore";
+import { HardwareCart, useSingleCartStore } from "@/store/singleCartStore";
 
 function HardwareConfirmPageContent() {
   const router = useRouter();
-  const category = useSingleCartStore(state => state.category);
-  const manufacturer = useSingleCartStore(state => state.manufacturer);
-  const size = useSingleCartStore(state => state.size);
-  const request = useSingleCartStore(state => state.request);
+  const category = useSingleCartStore(state => (state.cart as HardwareCart).category);
+  const manufacturer = useSingleCartStore(state => (state.cart as HardwareCart).manufacturer);
+  const size = useSingleCartStore(state => (state.cart as HardwareCart).size);
+  const request = useSingleCartStore(state => (state.cart as HardwareCart).request);
 
   const [quantity, setQuantity] = useState(1);
 

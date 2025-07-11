@@ -18,7 +18,9 @@ import { useSingleCartStore } from "@/store/singleCartStore";
 function DoorCategoryPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const type = useSingleCartStore(state => state.type);
+  const type = useSingleCartStore(state => state.cart.type);
+  const setCart = useSingleCartStore(state => state.setCart);
+
   let header;
   const category = CATEGORY_LIST.find(item => item.slug === type);
   if (category) header = category.name;
@@ -43,11 +45,10 @@ function DoorCategoryPage() {
             key={category.slug}
             className="flex flex-1 cursor-pointer flex-col items-center gap-2"
             onClick={() => {
-              useSingleCartStore.setState({
+              setCart({
+                type: type,
                 category: category.slug,
               });
-              // const params = new URLSearchParams(searchParams);
-              // params.set("category", category.slug);
               if (type === "accessory" || type === "hardware") {
                 router.push(`/order/${type}`);
               } else {

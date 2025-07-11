@@ -7,7 +7,7 @@ import {
   HARDWARE_CATEGORY_LIST,
 } from "@/constants/category";
 import { COLOR_LIST } from "@/constants/colorList";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
 import Header from "@/components/Header/Header";
 import BoxedInput from "@/components/Input/BoxedInput";
@@ -17,8 +17,7 @@ import ColorManualInputGuide from "./_components/ColorManualInputGuide";
 import ColorManualInputSheet from "./_components/ColorManualInputSheet";
 import ColorSelectBottomButton from "./_components/ColorSelectBottomButton";
 import ColorSelectList from "./_components/ColorSelectList";
-import { navigateWithAllParams } from "./utils/navigateWithAllParams";
-import { useSingleCartStore } from "@/store/singleCartStore";
+import { FinishCart, useSingleCartStore } from "@/store/singleCartStore";
 
 const categoryMap: Record<string, any[]> = {
   door: DOOR_CATEGORY_LIST,
@@ -34,15 +33,15 @@ function getHeader(type: string | null, currentCategory: any) {
 
 function ColorListPageContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const type = searchParams.get("type");
-  const category = searchParams.get("category"); // 쿼리스트링에서 category 가져오기
-  const [searchKeyword, setSearchKeyword] = useState("");
-  const [selectedColor, setSelectedColor] = useState<string | null>(searchParams.get("color"));
-  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  // const searchParams = useSearchParams();
+  const type = useSingleCartStore(state => state.cart.type);
+  const category = useSingleCartStore(state => (state.cart as FinishCart).category);
+  const setCartColor = useSingleCartStore(state => state.setCart);
 
-  // zustand store 사용
-  const setCartColor = useSingleCartStore(state => state.setColor);
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const initialColor = useSingleCartStore(state => (state.cart as FinishCart).color) ?? null;
+  const [selectedColor, setSelectedColor] = useState<string | null>(initialColor);
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
 
   const categoryList = categoryMap[type as keyof typeof categoryMap] || [];
   const currentCategory = categoryList.find(item => item.slug === category);
@@ -68,15 +67,10 @@ function ColorListPageContent() {
         selectedColor={selectedColor}
         setSelectedColor={(color) => {
           setSelectedColor(color);
-          setCartColor(color); // zustand에 저장
-          // URL 업데이트
-          const params = new URLSearchParams(searchParams);
-          if (color) {
-            params.set("color", color);
-          } else {
-            params.delete("color");
-          }
-          router.replace(`?${params.toString()}`, { scroll: false });
+          setCartColor({
+            type: type,
+            color: color,
+          });
         }}
       />
       {!isBottomSheetOpen && (
@@ -91,33 +85,31 @@ function ColorListPageContent() {
         value={selectedColor ?? ""}
         onChange={(color) => {
           setSelectedColor(color);
-          setCartColor(color); // zustand에 저장
-          // URL 업데이트
-          const params = new URLSearchParams(searchParams);
-          if (color) {
-            params.set("color", color);
-          } else {
-            params.delete("color");
-          }
-          router.replace(`?${params.toString()}`, { scroll: false });
+          setCartColor({
+            type: type,
+            color: color,
+          });
         }}
-        searchParams={searchParams}
         type={type ?? ""}
+        onNext={() => {
+          if (selectedColor) {
+            setCartColor({
+              type: type,
+              color: selectedColor,
+            });
+            router.push(`/order/${type}`);
+          }
+        }}
       />
       {!isBottomSheetOpen && (
         <ColorSelectBottomButton
           selectedColor={selectedColor}
-          searchParams={searchParams}
           onClick={() => {
-            if (selectedColor) {
-              navigateWithAllParams({
-                router,
-                searchParams,
-                type: type ?? "",
-                category,
-                color: selectedColor,
-              });
-            }
+            setCartColor({
+              type: type,
+              color: selectedColor,
+            });
+            router.push(`/order/${type}`);
           }}
         />
       )}

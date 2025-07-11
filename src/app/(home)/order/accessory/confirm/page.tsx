@@ -9,14 +9,14 @@ import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
 import Header from "@/components/Header/Header";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
-import { useSingleCartStore } from "@/store/singleCartStore";
+import { AccessoryCart, useSingleCartStore } from "@/store/singleCartStore";
 
 function ConfirmPageContent() {
   const router = useRouter();
-  const category = useSingleCartStore(state => state.category);
-  const manufacturer = useSingleCartStore(state => state.manufacturer);
-  const modelName = useSingleCartStore(state => state.modelName);
-  const request = useSingleCartStore(state => state.request);
+  const category = useSingleCartStore(state => (state.cart as AccessoryCart).category);
+  const manufacturer = useSingleCartStore(state => (state.cart as AccessoryCart).manufacturer);
+  const modelName = useSingleCartStore(state => (state.cart as AccessoryCart).modelName);
+  const request = useSingleCartStore(state => (state.cart as AccessoryCart).request);
 
   const [quantity, setQuantity] = useState(1);
 

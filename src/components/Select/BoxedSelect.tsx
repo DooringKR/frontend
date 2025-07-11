@@ -3,9 +3,9 @@ import React, { useState } from "react";
 
 interface BoxedSelectProps {
   label?: string;
-  options: { value: string; label: string }[];
+  options?: { value: string; label: string }[];
   value: string;
-  onChange: (value: string) => void;
+  onChange?: (value: string) => void;
   onClick?: () => void; // onClick prop 추가
   error?: string; // error prop 추가
 }
@@ -40,7 +40,7 @@ const BoxedSelect: React.FC<BoxedSelectProps> = ({
         onClick={() => {
           if (onClick) onClick(); // onClick prop 호출
           console.log("Current userType:", value); // 현재 store의 userType 출력
-          onChange(value);
+          onChange?.(value);
         }}
       >
         <div className={`${value && !error ? "text-gray-700" : "text-gray-300"} text-[17px]`}>
