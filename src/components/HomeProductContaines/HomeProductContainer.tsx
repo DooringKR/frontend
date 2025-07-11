@@ -32,8 +32,11 @@ const HomeProductContainer: React.FC = () => {
     const addressStorage = localStorage.getItem("address-storage");
     if (!addressStorage) {
       router.push(`/address-check?category=${slug}`);
+    } else if (slug === "finish") {
+      // 마감재일 경우 바로 색상 선택 페이지로 이동
+      router.push(`/order/color?type=${slug}`);
     } else {
-      router.push(`/order/${slug}`);
+      router.push(`/order?type=${slug}`);
     }
   };
 
