@@ -13,11 +13,12 @@ import { Suspense, useState } from "react";
 
 import Header from "@/components/Header/Header";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import { useSingleCartStore } from "@/store/singleCartStore";
 
 function DoorCategoryPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const type = searchParams.get("type"); // 쿼리스트링에서 category 가져오기
+  const type = useSingleCartStore(state => state.type);
   let header;
   const category = CATEGORY_LIST.find(item => item.slug === type);
   if (category) header = category.name;
@@ -42,10 +43,13 @@ function DoorCategoryPage() {
             key={category.slug}
             className="flex flex-1 cursor-pointer flex-col items-center gap-2"
             onClick={() => {
-              const params = new URLSearchParams(searchParams);
-              params.set("category", category.slug);
+              useSingleCartStore.setState({
+                category: category.slug,
+              });
+              // const params = new URLSearchParams(searchParams);
+              // params.set("category", category.slug);
               if (type === "accessory" || type === "hardware") {
-                router.push(`/order/${type}?${params.toString()}`);
+                router.push(`/order/${type}`);
               } else {
                 router.push(`/order/color?${params.toString()}`);
               }

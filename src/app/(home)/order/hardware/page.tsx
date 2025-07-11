@@ -1,23 +1,24 @@
 "use client";
 
 import { HARDWARE_CATEGORY_LIST } from "@/constants/category";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import Header from "@/components/Header/Header";
 import BoxedInput from "@/components/Input/BoxedInput";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import { useSingleCartStore } from "@/store/singleCartStore";
 
 function HardwarePageContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  // const searchParams = useSearchParams();
+  const category = useSingleCartStore(state => state.category);
+  const [manufacturer, setManufacturer] = useState(useSingleCartStore(state => state.manufacturer) ?? "");
+  const [size, setSize] = useState(useSingleCartStore(state => state.size) ?? "");
+  const [request, setRequest] = useState(useSingleCartStore(state => state.request) ?? "");
 
-  const [manufacturer, setManufacturer] = useState("");
-  const [size, setSize] = useState("");
-  const [request, setRequest] = useState("");
-
-  const category = searchParams.get("category") ?? "";
+  // const category = searchParams.get("category") ?? "";
   // category(slug)에 맞는 header 값 찾기
   const currentCategory = HARDWARE_CATEGORY_LIST.find(item => item.slug === category);
   const headerTitle = currentCategory?.header || category;
@@ -59,11 +60,12 @@ function HardwarePageContent() {
         className="fixed bottom-0 w-full max-w-[500px] bg-white px-5 pb-5"
         button1Disabled={manufacturer === "" || size === ""}
         onButton1Click={() => {
-          const params = new URLSearchParams(searchParams);
-          params.set("manufacturer", manufacturer);
-          params.set("size", size);
-          params.set("request", request);
-          router.push(`/order/hardware/confirm?${params.toString()}`);
+          useSingleCartStore.setState({
+            manufacturer: manufacturer ?? null,
+            size: size ?? null,
+            request: request ?? "",
+          });
+          router.push(`/order/hardware/confirm`);
         }}
       />
     </div>

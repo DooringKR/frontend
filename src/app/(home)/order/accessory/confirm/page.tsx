@@ -1,7 +1,7 @@
 "use client";
 
 import { ACCESSORY_CATEGORY_LIST } from "@/constants/category";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
@@ -9,15 +9,14 @@ import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
 import Header from "@/components/Header/Header";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import { useSingleCartStore } from "@/store/singleCartStore";
 
 function ConfirmPageContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  // const type = searchParams.get("type");
-  const category = searchParams.get("category");
-  const manufacturer = searchParams.get("manufacturer");
-  const modelName = searchParams.get("modelName");
-  const request = searchParams.get("request");
+  const category = useSingleCartStore(state => state.category);
+  const manufacturer = useSingleCartStore(state => state.manufacturer);
+  const modelName = useSingleCartStore(state => state.modelName);
+  const request = useSingleCartStore(state => state.request);
 
   const [quantity, setQuantity] = useState(1);
 
@@ -37,7 +36,7 @@ function ConfirmPageContent() {
           manufacturer={manufacturer ?? undefined}
           modelName={modelName ?? undefined}
           onOptionClick={() => {
-            router.push(`/order/accessory/?category=${category}`);
+            router.push(`/order/accessory`);
           }}
           quantity={0}
           trashable={false}
@@ -53,7 +52,7 @@ function ConfirmPageContent() {
         type={"1button"}
         button1Text={"장바구니 담기"}
         className="fixed bottom-0 w-full max-w-[500px] bg-white px-5 pb-5"
-        onButton1Click={() => {}}
+        onButton1Click={() => { }}
       />
     </div>
   );

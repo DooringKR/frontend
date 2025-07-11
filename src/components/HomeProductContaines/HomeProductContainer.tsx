@@ -10,6 +10,7 @@ import DoorIcon from "./Icons/Door";
 import FinishingMaterialsIcon from "./Icons/FinishingMaterials";
 import HardWareIcon from "./Icons/HardWare";
 import SectionHeadIcon from "./Icons/SectionHead";
+import { useSingleCartStore } from "@/store/singleCartStore";
 
 const productList = [
   { label: "문짝", icon: <DoorIcon />, slug: "door" },
@@ -34,9 +35,15 @@ const HomeProductContainer: React.FC = () => {
       router.push(`/address-check?category=${slug}`);
     } else if (slug === "finish") {
       // 마감재일 경우 바로 색상 선택 페이지로 이동
+      useSingleCartStore.setState({
+        type: "finish",
+      });
       router.push(`/order/color?type=${slug}`);
     } else {
-      router.push(`/order?type=${slug}`);
+      useSingleCartStore.setState({
+        type: slug as "door" | "cabinet" | "finish" | "hardware" | "accessory" | "custom" | null,
+      });
+      router.push(`/order`);
     }
   };
 

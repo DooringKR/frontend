@@ -1,7 +1,7 @@
 "use client";
 
 import { HARDWARE_CATEGORY_LIST } from "@/constants/category";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
@@ -9,15 +9,14 @@ import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
 import Header from "@/components/Header/Header";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import { useSingleCartStore } from "@/store/singleCartStore";
 
 function HardwareConfirmPageContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  // const type = searchParams.get("type");
-  const category = searchParams.get("category");
-  const manufacturer = searchParams.get("manufacturer");
-  const size = searchParams.get("size");
-  const request = searchParams.get("request");
+  const category = useSingleCartStore(state => state.category);
+  const manufacturer = useSingleCartStore(state => state.manufacturer);
+  const size = useSingleCartStore(state => state.size);
+  const request = useSingleCartStore(state => state.request);
 
   const [quantity, setQuantity] = useState(1);
 
@@ -37,7 +36,7 @@ function HardwareConfirmPageContent() {
           manufacturer={manufacturer ?? undefined}
           size={size ? `${size}mm` : undefined}
           onOptionClick={() => {
-            router.push(`/order/hardware/?category=${category}`);
+            router.push(`/order/hardware`);
           }}
           quantity={0}
           trashable={false}
@@ -53,7 +52,7 @@ function HardwareConfirmPageContent() {
         type={"1button"}
         button1Text={"장바구니 담기"}
         className="fixed bottom-0 w-full max-w-[500px] bg-white px-5 pb-5"
-        onButton1Click={() => {}}
+        onButton1Click={() => { }}
       />
     </div>
   );
