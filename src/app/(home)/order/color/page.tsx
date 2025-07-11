@@ -7,15 +7,8 @@ import {
   HARDWARE_CATEGORY_LIST,
 } from "@/constants/category";
 import { COLOR_LIST } from "@/constants/colorList";
-import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import FileIcon from "public/icons/file";
 import { Suspense, useState } from "react";
-
-import BottomButton from "@/components/BottomButton/BottomButton";
-import BottomSheet from "@/components/BottomSheet/BottomSheet";
-import Button from "@/components/Button/Button";
-import SelectToggleButton from "@/components/Button/SelectToggleButton";
 import Header from "@/components/Header/Header";
 import BoxedInput from "@/components/Input/BoxedInput";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
@@ -24,6 +17,8 @@ import ColorManualInputGuide from "./_components/ColorManualInputGuide";
 import ColorManualInputSheet from "./_components/ColorManualInputSheet";
 import ColorSelectBottomButton from "./_components/ColorSelectBottomButton";
 import ColorSelectList from "./_components/ColorSelectList";
+import { navigateWithAllParams } from "./utils/navigateWithAllParams";
+import { useSingleCartStore } from "@/store/singleCartStore";
 
 const categoryMap: Record<string, any[]> = {
   door: DOOR_CATEGORY_LIST,
@@ -43,8 +38,11 @@ function ColorListPageContent() {
   const type = searchParams.get("type");
   const category = searchParams.get("category"); // 쿼리스트링에서 category 가져오기
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [selectedColor, setSelectedColor] = useState<string | null>(searchParams.get("color"));
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+
+  // zustand store 사용
+  const setCartColor = useSingleCartStore(state => state.setColor);
 
   const categoryList = categoryMap[type as keyof typeof categoryMap] || [];
   const currentCategory = categoryList.find(item => item.slug === category);
@@ -68,7 +66,18 @@ function ColorListPageContent() {
       <ColorSelectList
         filteredColors={filteredColors}
         selectedColor={selectedColor}
-        setSelectedColor={setSelectedColor}
+        setSelectedColor={(color) => {
+          setSelectedColor(color);
+          setCartColor(color); // zustand에 저장
+          // URL 업데이트
+          const params = new URLSearchParams(searchParams);
+          if (color) {
+            params.set("color", color);
+          } else {
+            params.delete("color");
+          }
+          router.replace(`?${params.toString()}`, { scroll: false });
+        }}
       />
       {!isBottomSheetOpen && (
         <ColorManualInputGuide
@@ -80,7 +89,18 @@ function ColorListPageContent() {
         isOpen={isBottomSheetOpen}
         onClose={() => setIsBottomSheetOpen(false)}
         value={selectedColor ?? ""}
-        onChange={setSelectedColor}
+        onChange={(color) => {
+          setSelectedColor(color);
+          setCartColor(color); // zustand에 저장
+          // URL 업데이트
+          const params = new URLSearchParams(searchParams);
+          if (color) {
+            params.set("color", color);
+          } else {
+            params.delete("color");
+          }
+          router.replace(`?${params.toString()}`, { scroll: false });
+        }}
         searchParams={searchParams}
         type={type ?? ""}
       />
@@ -90,14 +110,13 @@ function ColorListPageContent() {
           searchParams={searchParams}
           onClick={() => {
             if (selectedColor) {
-              const params = new URLSearchParams(searchParams);
-              if (selectedColor) {
-                params.set("color", selectedColor);
-                const validTypes = ["door", "cabinet", "hardware", "finish"];
-                if (validTypes.includes(type ?? "")) {
-                  router.push(`/order/${type}?${params.toString()}`);
-                }
-              }
+              navigateWithAllParams({
+                router,
+                searchParams,
+                type: type ?? "",
+                category,
+                color: selectedColor,
+              });
             }
           }}
         />

@@ -13,28 +13,79 @@ import BoxedInput from "@/components/Input/BoxedInput";
 import SegmentedControl from "@/components/SegmentedControl/SegmentedControl";
 import BoxedSelect from "@/components/Select/BoxedSelect";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import { useSingleCartStore } from "@/store/singleCartStore";
 
 function DoorPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  //    const [isModalOpen, setIsModalOpen] = useState(false);
-  const [boringNum, setBoringNum] = useState<2 | 3 | 4>(2);
-  const [boringDirection, setBoringDirection] = useState<"left" | "right">("left");
-  const [DoorWidth, setDoorWidth] = useState<number | null>(null);
-  const [DoorHeight, setDoorHeight] = useState<number | null>(null);
-  const [boringSize, setBoringSize] = useState<(number | null)[]>([]);
-  const [request, setRequest] = useState("");
+  // 초기값을 쿼리스트링에서 읽어오기
+  const [boringNum, setBoringNum] = useState<2 | 3 | 4>(
+    (Number(searchParams.get("boringNum")) as 2 | 3 | 4) || 2
+  );
+  const [boringDirection, setBoringDirection] = useState<"left" | "right">(
+    (searchParams.get("boringDirection") as "left" | "right") || "left"
+  );
+  const [DoorWidth, setDoorWidth] = useState<number | null>(
+    searchParams.get("width") ? Number(searchParams.get("width")) : null
+  );
+  const [DoorHeight, setDoorHeight] = useState<number | null>(
+    searchParams.get("height") ? Number(searchParams.get("height")) : null
+  );
+  const [boringSize, setBoringSize] = useState<(number | null)[]>(
+    searchParams.get("boringSize")
+      ? JSON.parse(searchParams.get("boringSize")!)
+      : []
+  );
+  const [request, setRequest] = useState(
+    searchParams.get("request") ?? ""
+  );
 
-  const color = searchParams.get("color") ?? "";
+  // const color = searchParams.get("color") ?? "";
   const category = searchParams.get("category") ?? "";
+
+  const color = useSingleCartStore(state => state.color);
 
   const doorCategory = DOOR_CATEGORY_LIST.find(item => item.slug === category);
 
   // boringNum이 바뀔 때 boringSize 길이 자동 조정
   useEffect(() => {
     setBoringSize(prev => Array.from({ length: boringNum }, (_, i) => prev[i] ?? null));
+    // boringNum 변경 시 URL 동기화
+    const params = new URLSearchParams(searchParams);
+    params.set("boringNum", String(boringNum));
+    params.set("boringSize", JSON.stringify(Array.from({ length: boringNum }, (_, i) => boringSize[i] ?? null)));
+    router.replace(`?${params.toString()}`, { scroll: false });
+    // eslint-disable-next-line
   }, [boringNum]);
+
+  // boringSize가 바뀔 때 URL 동기화
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    params.set("boringSize", JSON.stringify(boringSize));
+    router.replace(`?${params.toString()}`, { scroll: false });
+    // eslint-disable-next-line
+  }, [boringSize]);
+
+  // boringDirection이 바뀔 때 URL 동기화
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    params.set("boringDirection", boringDirection);
+    router.replace(`?${params.toString()}`, { scroll: false });
+    // eslint-disable-next-line
+  }, [boringDirection]);
+
+  // DoorWidth, DoorHeight, request가 바뀔 때 URL 동기화
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    if (DoorWidth !== null) params.set("width", String(DoorWidth));
+    else params.delete("width");
+    if (DoorHeight !== null) params.set("height", String(DoorHeight));
+    else params.delete("height");
+    params.set("request", request);
+    router.replace(`?${params.toString()}`, { scroll: false });
+    // eslint-disable-next-line
+  }, [DoorWidth, DoorHeight, request]);
 
   return (
     <div>
@@ -48,9 +99,9 @@ function DoorPageContent() {
         <BoxedSelect
           label="색상"
           options={[]}
-          value={color}
+          value={color ?? ""}
           onClick={() => router.back()}
-          onChange={() => {}}
+          onChange={() => { }}
         />
         <BoxedInput
           type="text"

@@ -3,6 +3,7 @@ import BoxedInput from "@/components/Input/BoxedInput";
 import BottomButton from "@/components/BottomButton/BottomButton";
 import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
+import { navigateWithAllParams } from "../utils/navigateWithAllParams";
 
 interface ColorManualInputSheetProps {
     isOpen: boolean;
@@ -43,13 +44,13 @@ const ColorManualInputSheet: React.FC<ColorManualInputSheetProps> = ({
                     className="px-5 pb-5"
                     onButton1Click={() => {
                         if (value) {
-                            const params = new URLSearchParams(searchParams);
-                            params.set("color", value);
-                            const validTypes = ["door", "cabinet", "hardware", "finish"];
-                            if (validTypes.includes(type ?? "")) {
-                                router.push(`/order/${type}?${params.toString()}`);
-                            }
-
+                            navigateWithAllParams({
+                                router,
+                                searchParams,
+                                type,
+                                category: searchParams.get("category"),
+                                color: value,
+                            });
                         }
                     }}
                 />
