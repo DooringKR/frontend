@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import Button from "@/components/BeforeEditByKi/Button/Button";
-import PriceCheckCard from "@/components/PriceCheckCard/PriceCheckCard";
+import PriceSummaryCard from "@/components/PriceCheckCard/PriceSummaryCard";
 import ReceiveOptionBar from "@/components/ReceiveOptionBar/ReceiveOptionBar";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
@@ -17,6 +17,14 @@ import DeliveryAddressCard from "./_components/DeliveryAddressCard";
 import DeliveryRequestSelector from "./_components/DeliveryRequestSelector";
 import DeliveryScheduleSelector from "./_components/DeliveryScheduleSelector";
 import RecipientPhoneNumber from "./_components/RecipientPhoneNumber";
+
+const CATEGORY_MAP: Record<string, string> = {
+  door: "문짝",
+  finish: "마감재",
+  accessory: "부속품",
+  hardware: "하드웨어",
+  cabinet: "부분장",
+};
 
 function CheckOrderClientPage() {
   const { currentItem } = useCurrentOrderStore();
@@ -165,6 +173,23 @@ function CheckOrderClientPage() {
     router.push("/cart/confirm");
   };
 
+  const groupedCartItems = cartItems.reduce((acc: Record<string, any[]>, item) => {
+    if (!item || !item.category) return acc;
+    if (!acc[item.category]) acc[item.category] = [];
+    acc[item.category].push(item);
+    return acc;
+  }, {});
+
+  const getTotalPrice = () => {
+    return cartItems.reduce((sum, item) => {
+      return sum + (item?.price ?? 0) * (item?.count ?? 1);
+    }, 0);
+  };
+
+  const sanitizedCartGroups = Object.fromEntries(
+    Object.entries(groupedCartItems).map(([key, items]) => [key, items.filter(Boolean)]),
+  );
+
   return (
     <div className="flex min-h-screen flex-col justify-between">
       <TopNavigator title="주문하기" />
@@ -197,7 +222,14 @@ function CheckOrderClientPage() {
           <RecipientPhoneNumber />
           <DeliveryRequestSelector />
         </section>
-        <PriceCheckCard page={CHECK_ORDER_PAGE} />
+        {/* <PriceCheckCard page={CHECK_ORDER_PAGE} /> */}
+
+        <PriceSummaryCard
+          cartGroups={sanitizedCartGroups}
+          getTotalPrice={getTotalPrice}
+          categoryMap={CATEGORY_MAP}
+          page={CHECK_ORDER_PAGE}
+        />
       </div>
       <div className="w-full px-5 pb-5 pt-3">
         <Button selected={true} onClick={handleOrderSubmit} className="w-full">
