@@ -63,6 +63,8 @@ function ShoppingCart() {
   };
 
   const handleCountChange = (category: string, index: number, newCount: number) => {
+    if (newCount < 1) return;
+
     setCartGroups(prev => {
       const newGroups = { ...prev };
       const updatedItems = [...(newGroups[category] || [])];
@@ -149,6 +151,7 @@ function ShoppingCart() {
                       trashable={true}
                       onIncrease={() => handleCountChange(category, i, (doorItem.count ?? 0) + 1)}
                       onDecrease={() => handleCountChange(category, i, (doorItem.count ?? 0) - 1)}
+                      type={"door"}
                     />
                   );
                 }
@@ -157,6 +160,7 @@ function ShoppingCart() {
                   const finishItem = item as FinishItem;
                   return (
                     <ShoppingCartCard
+                      type={"finish"}
                       key={key}
                       title={"마감재"}
                       color={finishItem.color ?? ""}
@@ -175,6 +179,7 @@ function ShoppingCart() {
                   const cabinetItem = item as CabinetItem;
                   return (
                     <ShoppingCartCard
+                      type={"cabinet"}
                       key={key}
                       title={cabinetItem.slug ?? "부분장"}
                       color={cabinetItem.color ?? ""}
@@ -193,6 +198,7 @@ function ShoppingCart() {
                   const accessoryItem = item as AccessoryItem;
                   return (
                     <ShoppingCartCard
+                      type={"accessory"}
                       key={key}
                       title={accessoryItem.slug ?? "부속품"}
                       color={"-"}
@@ -211,6 +217,7 @@ function ShoppingCart() {
                   const hardwareItem = item as HardwareItem;
                   return (
                     <ShoppingCartCard
+                      type={"hardware"}
                       key={key}
                       title={hardwareItem.slug ?? "하드웨어"}
                       color={"-"}
