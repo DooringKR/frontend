@@ -34,14 +34,16 @@ const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, isCartEmpty })
       {page === CUSTOMER_SERVICE_PAGE || page === HOME_PAGE || page === MY_PAGE ? (
         <div></div>
       ) : (
-        <button className="flex items-center justify-center">
-          <HeadphonesIcon />
-        </button>
+        <Link href={"/customer-service"}>
+          <button className="flex items-center justify-center">
+            <HeadphonesIcon />
+          </button>
+        </Link>
       )}
 
       {page === HOME_PAGE ? (
         <div className="flex gap-6">
-          <Link href={"/shopping-cart"} className="relative cursor-pointer">
+          <Link href={"/cart"} className="relative cursor-pointer">
             <img src={"/icons/shopping-cart.svg"} alt="장바구니 아이콘"></img>
             {isCartEmpty ? (
               ""
