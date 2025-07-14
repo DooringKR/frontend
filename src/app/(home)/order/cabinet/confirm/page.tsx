@@ -1,8 +1,8 @@
 "use client";
 
 import { CABINET_CATEGORY_LIST } from "@/constants/category";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
@@ -12,78 +12,43 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import formatColor from "@/utils/formatColor";
 import formatSize from "@/utils/formatSize";
+import { CabinetCart, useSingleCartStore } from "@/store/singleCartStore";
 
 function CabinetConfirmPageContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const type = searchParams.get("type");
-  const category = searchParams.get("category");
-  const bodyMaterial = searchParams.get("bodyMaterial");
-  const color = searchParams.get("color");
-  const width = searchParams.get("width");
-  const height = searchParams.get("height");
-  const depth = searchParams.get("depth");
-  const request = searchParams.get("request");
-  const handleType = searchParams.get("handleType");
-  const finishType = searchParams.get("finishType");
-  const showBar = searchParams.get("showBar");
-  const drawerType = searchParams.get("drawerType");
-  const railType = searchParams.get("railType");
-  const riceRail = searchParams.get("riceRail");
-  const lowerDrawer = searchParams.get("lowerDrawer");
 
-  // 모든 파라미터를 하나의 객체로 저장
-  const orderParams = useMemo(
-    () => ({
-      type,
-      category,
-      bodyMaterial,
-      color,
-      width,
-      height,
-      depth,
-      request,
-      handleType,
-      finishType,
-      showBar,
-      drawerType,
-      railType,
-      riceRail,
-      lowerDrawer,
-    }),
-    [
-      type,
-      category,
-      bodyMaterial,
-      color,
-      width,
-      height,
-      depth,
-      request,
-      handleType,
-      finishType,
-      showBar,
-      drawerType,
-      railType,
-      riceRail,
-      lowerDrawer,
-    ],
-  );
+  const setCart = useSingleCartStore(state => state.setCart);
+  const type = useSingleCartStore(state => state.cart.type);
+  const category = useSingleCartStore(state => (state.cart as CabinetCart).category);
+  const bodyMaterial = useSingleCartStore(state => (state.cart as CabinetCart).bodyMaterial);
+  const color = useSingleCartStore(state => (state.cart as CabinetCart).color);
+  const width = useSingleCartStore(state => (state.cart as CabinetCart).width);
+  const height = useSingleCartStore(state => (state.cart as CabinetCart).height);
+  const depth = useSingleCartStore(state => (state.cart as CabinetCart).depth);
+  const request = useSingleCartStore(state => (state.cart as CabinetCart).request);
+  const handleType = useSingleCartStore(state => (state.cart as CabinetCart).handleType);
+  const finishType = useSingleCartStore(state => (state.cart as CabinetCart).finishType);
+  const showBar = useSingleCartStore(state => (state.cart as CabinetCart).showBar);
+  const drawerType = useSingleCartStore(state => (state.cart as CabinetCart).drawerType);
+  const railType = useSingleCartStore(state => (state.cart as CabinetCart).railType);
+  const riceRail = useSingleCartStore(state => (state.cart as CabinetCart).riceRail);
+  const lowerDrawer = useSingleCartStore(state => (state.cart as CabinetCart).lowerDrawer);
+
 
   const [quantity, setQuantity] = useState(1);
   return (
     <div>
       <TopNavigator />
-      <Header size="Large" title={`${getCategoryLabel(category)} 주문 개수를 선택해주세요`} />
+      <Header size="Large" title={`${getCategoryLabel(category ?? null)} 주문 개수를 선택해주세요`} />
       <div className="flex flex-col gap-[20px] px-5 pb-[100px] pt-5">
         <ShoppingCartCard
           type="cabinet"
-          title={`${getCategoryLabel(category)}`}
-          color={formatColor(color) ?? ""}
+          title={`${getCategoryLabel(category ?? null)}`}
+          color={formatColor(color ?? null) ?? ""}
           bodyMaterial={bodyMaterial ?? ""}
-          width={formatSize(width) ?? ""}
-          height={formatSize(height) ?? ""}
-          depth={formatSize(depth) ?? ""}
+          width={formatSize(width != null ? String(width) : null) ?? ""}
+          height={formatSize(height != null ? String(height) : null) ?? ""}
+          depth={formatSize(depth != null ? String(depth) : null) ?? ""}
           handleType={handleType ?? ""}
           finishType={finishType ?? ""}
           showBar={showBar ?? ""}
@@ -110,7 +75,7 @@ function CabinetConfirmPageContent() {
         type={"1button"}
         button1Text={"장바구니 담기"}
         className="fixed bottom-0 w-full max-w-[500px] bg-white px-5 pb-5"
-        onButton1Click={() => {}}
+        onButton1Click={() => { }}
       />
     </div>
   );

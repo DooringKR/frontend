@@ -10,7 +10,7 @@ import DoorIcon from "./Icons/Door";
 import FinishingMaterialsIcon from "./Icons/FinishingMaterials";
 import HardWareIcon from "./Icons/HardWare";
 import SectionHeadIcon from "./Icons/SectionHead";
-import { AccessoryCart, FinishCart, HardwareCart, useSingleCartStore } from "@/store/singleCartStore";
+import { AccessoryCart, CabinetCart, FinishCart, HardwareCart, useSingleCartStore } from "@/store/singleCartStore";
 
 const productList = [
   { label: "문짝", icon: <DoorIcon />, slug: "door" },
@@ -23,7 +23,7 @@ const productList = [
 
 const HomeProductContainer: React.FC = () => {
   const router = useRouter();
-  const setCart = useSingleCartStore(state => state.setCart); // ✅ 컴포넌트 최상단에서 호출
+  const setCart = useSingleCartStore(state => state.setCart);
 
   const handleCategoryClick = (slug: string) => {
     if (slug === "custom") {
@@ -49,6 +49,12 @@ const HomeProductContainer: React.FC = () => {
     } else if (slug === "accessory") {
       const initialAccessoryCart: AccessoryCart = {
         type: "accessory",
+      };
+      setCart(initialAccessoryCart);
+      router.push(`/order`);
+    } else if (slug === "cabinet") {
+      const initialAccessoryCart: CabinetCart = {
+        type: "cabinet",
       };
       setCart(initialAccessoryCart);
       router.push(`/order`);

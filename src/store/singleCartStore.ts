@@ -1,6 +1,24 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+export type CabinetCart = {
+    type: "cabinet";
+    category?: string | null;
+    color?: string | null;
+    width?: number | null;
+    height?: number | null;
+    depth?: number | null;
+    bodyMaterial?: string | null;
+    request?: string | null;
+    handleType?: string | null;
+    finishType?: string | null;
+    showBar?: string | null;
+    drawerType?: string | null;
+    railType?: string | null;
+    riceRail?: string | null;
+    lowerDrawer?: string | null;
+}
+
 export type HardwareCart = {
     type: "hardware";
     category?: string | null;
@@ -28,7 +46,7 @@ export type FinishCart = {
 }
 
 
-export type SingleCart = HardwareCart | AccessoryCart | FinishCart;
+export type SingleCart = CabinetCart | HardwareCart | AccessoryCart | FinishCart;
 
 interface SingleCartState {
     cart: SingleCart;

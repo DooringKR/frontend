@@ -3,7 +3,7 @@
 import { CABINET_CATEGORY_LIST } from "@/constants/category";
 import { useRouter, useSearchParams } from "next/navigation";
 import ToastIcon from "public/icons/toast";
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import React from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
@@ -24,6 +24,7 @@ import UpperCabinetForm from "./_components/UpperCabinetForm";
 import CabinetIcon1 from "./_components/cabinetIcon1";
 import CabinetIcon2 from "./_components/cabinetIcon2";
 import CabinetIcon3 from "./_components/cabinetIcon3";
+import { CabinetCart, useSingleCartStore } from "@/store/singleCartStore";
 
 // 공통 props 타입 정의
 type CabinetFormProps = {
@@ -95,32 +96,59 @@ type OpenCabinetFormProps = CabinetFormProps & {
 
 // 기존 DoorInfoInputPage를 CabinetPageContent로 이름 변경
 function CabinetPageContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const category = useSingleCartStore(state => (state.cart as CabinetCart).category);
+  const color = useSingleCartStore(state => (state.cart as CabinetCart).color ?? "");
 
-  const [DoorWidth, setDoorWidth] = useState<number | null>(null);
-  const [DoorHeight, setDoorHeight] = useState<number | null>(null);
-  const [DoorDepth, setDoorDepth] = useState<number | null>(null);
-  const [request, setRequest] = useState("");
-  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-  const [bodyMaterial, setBodyMaterial] = useState("");
-  const [handleType, setHandleType] = useState("");
-  const [finishType, setFinishType] = useState("");
-  const [showBar, setShowBar] = useState("");
-  const [isShowBarSheetOpen, setIsShowBarSheetOpen] = useState(false);
-  const [drawerType, setDrawerType] = useState("");
-  const [railType, setRailType] = useState("");
-  const [isDrawerTypeSheetOpen, setIsDrawerTypeSheetOpen] = useState(false);
-  const [isRailTypeSheetOpen, setIsRailTypeSheetOpen] = useState(false);
-  const [riceRail, setRiceRail] = useState("");
-  const [lowerDrawer, setLowerDrawer] = useState("");
-
-  const color = searchParams.get("color") ?? "";
-  const category = searchParams.get("category") ?? "";
 
   // category(slug)에 맞는 header 값 찾기
   const currentCategory = CABINET_CATEGORY_LIST.find(item => item.slug === category);
   const headerTitle = currentCategory?.header || category;
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // ...existing code...
+
+  const [DoorWidth, setDoorWidth] = useState<number | null>(
+    (useSingleCartStore.getState().cart as CabinetCart).width ?? null
+  );
+  const [DoorHeight, setDoorHeight] = useState<number | null>(
+    (useSingleCartStore.getState().cart as CabinetCart).height ?? null
+  );
+  const [DoorDepth, setDoorDepth] = useState<number | null>(
+    (useSingleCartStore.getState().cart as CabinetCart).depth ?? null
+  );
+  const [request, setRequest] = useState(
+    (useSingleCartStore.getState().cart as CabinetCart).request ?? ""
+  );
+  const [bodyMaterial, setBodyMaterial] = useState(
+    (useSingleCartStore.getState().cart as CabinetCart).bodyMaterial ?? ""
+  );
+  const [handleType, setHandleType] = useState(
+    (useSingleCartStore.getState().cart as CabinetCart).handleType ?? ""
+  );
+  const [finishType, setFinishType] = useState(
+    (useSingleCartStore.getState().cart as CabinetCart).finishType ?? ""
+  );
+  const [showBar, setShowBar] = useState(
+    (useSingleCartStore.getState().cart as CabinetCart).showBar ?? ""
+  );
+  const [drawerType, setDrawerType] = useState(
+    (useSingleCartStore.getState().cart as CabinetCart).drawerType ?? ""
+  );
+  const [railType, setRailType] = useState(
+    (useSingleCartStore.getState().cart as CabinetCart).railType ?? ""
+  );
+  const [riceRail, setRiceRail] = useState(
+    (useSingleCartStore.getState().cart as CabinetCart).riceRail ?? ""
+  );
+  const [lowerDrawer, setLowerDrawer] = useState(
+    (useSingleCartStore.getState().cart as CabinetCart).lowerDrawer ?? ""
+  );
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  const [isShowBarSheetOpen, setIsShowBarSheetOpen] = useState(false);
+  const [isDrawerTypeSheetOpen, setIsDrawerTypeSheetOpen] = useState(false);
+  const [isRailTypeSheetOpen, setIsRailTypeSheetOpen] = useState(false);
 
   const formProps: CabinetFormProps = {
     color,
@@ -224,7 +252,7 @@ function CabinetPageContent() {
       <Header title={`${headerTitle} 정보를 입력해주세요`} />
       <div className="h-5" />
       {renderCabinetFormByCategory(
-        category,
+        category ? category : "lower", // 기본값으로 "lower" 사용
         formProps,
         upperFormProps,
         lowerFormProps,
@@ -265,32 +293,27 @@ function CabinetPageContent() {
           className="w-full max-w-[500px] bg-white px-5 pb-5"
           button1Disabled={button1Disabled}
           onButton1Click={() => {
-            const params = new URLSearchParams(searchParams);
-            params.set("width", DoorWidth?.toString() ?? "");
-            params.set("height", DoorHeight?.toString() ?? "");
-            params.set("depth", DoorDepth?.toString() ?? "");
-            params.set("bodyMaterial", bodyMaterial);
-            params.set("request", request);
-            if (category === "upper" || category === "lower") {
-              params.set("handleType", handleType);
-              params.set("finishType", finishType);
-            }
-            if (category === "flap") {
-              params.set("handleType", handleType);
-              params.set("finishType", finishType);
-              params.set("showBar", showBar);
-            }
-            if (category === "drawer") {
-              params.set("drawerType", drawerType);
-              params.set("railType", railType);
-              params.set("finishType", finishType);
-            }
-            if (category === "open") {
-              params.set("riceRail", riceRail);
-              params.set("lowerDrawer", lowerDrawer);
-              params.set("finishType", finishType);
-            }
-            router.push(`/order/cabinet/confirm?${params.toString()}`);
+            useSingleCartStore.setState(state => ({
+              cart: {
+                ...state.cart,
+                type: "cabinet",
+                category,
+                color,
+                width: DoorWidth,
+                height: DoorHeight,
+                depth: DoorDepth,
+                bodyMaterial,
+                request,
+                handleType,
+                finishType,
+                showBar,
+                drawerType,
+                railType,
+                riceRail,
+                lowerDrawer,
+              },
+            }));
+            router.push(`/order/cabinet/confirm`);
           }}
         />
       )}

@@ -17,7 +17,7 @@ import ColorManualInputGuide from "./_components/ColorManualInputGuide";
 import ColorManualInputSheet from "./_components/ColorManualInputSheet";
 import ColorSelectBottomButton from "./_components/ColorSelectBottomButton";
 import ColorSelectList from "./_components/ColorSelectList";
-import { FinishCart, useSingleCartStore } from "@/store/singleCartStore";
+import { CabinetCart, FinishCart, useSingleCartStore } from "@/store/singleCartStore";
 
 const categoryMap: Record<string, any[]> = {
   door: DOOR_CATEGORY_LIST,
@@ -35,11 +35,11 @@ function ColorListPageContent() {
   const router = useRouter();
   // const searchParams = useSearchParams();
   const type = useSingleCartStore(state => state.cart.type);
-  const category = useSingleCartStore(state => (state.cart as FinishCart).category);
+  const category = useSingleCartStore(state => (state.cart as CabinetCart).category);
   const setCartColor = useSingleCartStore(state => state.setCart);
 
   const [searchKeyword, setSearchKeyword] = useState("");
-  const initialColor = useSingleCartStore(state => (state.cart as FinishCart).color) ?? null;
+  const initialColor = useSingleCartStore(state => ((state.cart as FinishCart) || (state.cart as CabinetCart)).color) ?? null;
   const [selectedColor, setSelectedColor] = useState<string | null>(initialColor);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
 
@@ -69,6 +69,7 @@ function ColorListPageContent() {
           setSelectedColor(color);
           setCartColor({
             type: type,
+            category: category,
             color: color,
           });
         }}
@@ -87,6 +88,7 @@ function ColorListPageContent() {
           setSelectedColor(color);
           setCartColor({
             type: type,
+            category: category,
             color: color,
           });
         }}
@@ -95,6 +97,7 @@ function ColorListPageContent() {
           if (selectedColor) {
             setCartColor({
               type: type,
+              category: category,
               color: selectedColor,
             });
             router.push(`/order/${type}`);
@@ -107,6 +110,7 @@ function ColorListPageContent() {
           onClick={() => {
             setCartColor({
               type: type,
+              category: category,
               color: selectedColor,
             });
             router.push(`/order/${type}`);

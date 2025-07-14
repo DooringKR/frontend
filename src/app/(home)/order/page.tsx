@@ -8,8 +8,8 @@ import {
   HARDWARE_CATEGORY_LIST,
 } from "@/constants/category";
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Suspense } from "react";
 
 import Header from "@/components/Header/Header";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
@@ -17,12 +17,11 @@ import { useSingleCartStore } from "@/store/singleCartStore";
 
 function DoorCategoryPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const type = useSingleCartStore(state => state.cart.type);
   const setCart = useSingleCartStore(state => state.setCart);
 
-  let header;
   const category = CATEGORY_LIST.find(item => item.slug === type);
+  let header;
   if (category) header = category.name;
 
   // 카테고리별 리스트 매핑
@@ -45,6 +44,7 @@ function DoorCategoryPage() {
             key={category.slug}
             className="flex flex-1 cursor-pointer flex-col items-center gap-2"
             onClick={() => {
+              //type, catergory 추가 후 다음 페이지로 이동
               setCart({
                 type: type,
                 category: category.slug,
@@ -52,7 +52,7 @@ function DoorCategoryPage() {
               if (type === "accessory" || type === "hardware") {
                 router.push(`/order/${type}`);
               } else {
-                router.push(`/order/color?${params.toString()}`);
+                router.push(`/order/color`);
               }
             }}
           >
