@@ -240,6 +240,24 @@ function CabinetPageContent() {
         onChange={setBodyMaterial}
         searchParams={searchParams}
       />
+      <ShowBarInputSheet
+        isOpen={isShowBarSheetOpen}
+        onClose={() => setIsShowBarSheetOpen(false)}
+        value={showBar}
+        onChange={setShowBar}
+      />
+      <DrawerTypeInputSheet
+        isOpen={isDrawerTypeSheetOpen}
+        onClose={() => setIsDrawerTypeSheetOpen(false)}
+        value={drawerType}
+        onChange={setDrawerType}
+      />
+      <RailTypeInputSheet
+        isOpen={isRailTypeSheetOpen}
+        onClose={() => setIsRailTypeSheetOpen(false)}
+        value={railType}
+        onChange={setRailType}
+      />
       {!isBottomSheetOpen && (
         <BottomButton
           type={"1button"}
