@@ -83,7 +83,7 @@ function AddressCheckClientPage() {
           placeholder="건물, 지번 또는 도로명 검색"
           value={address1}
           onClick={() => setShowPostcode(true)} // 클릭 시 embed 표시
-          onChange={() => {}} // 직접 입력 방지
+          onChange={() => { }} // 직접 입력 방지
           className={"mb-2"}
         />
         <BoxedInput
@@ -124,12 +124,7 @@ function AddressCheckClientPage() {
               return;
             }
 
-            if (!category) {
-              alert("카테고리 정보가 없습니다.");
-              return;
-            }
-
-            router.replace(`/order/${category}`);
+            router.replace(`/`);
           }}
         />
       </div>

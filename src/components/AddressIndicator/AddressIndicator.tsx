@@ -11,24 +11,24 @@ import AddressIcon from "./icon/AddressIcon";
 // arrivalDate는 도착 보장일이며, 'other'인 경우에만 사용합니다. api 호출 시 string 변환 후 전달해야 합니다.
 type AddressIndicatorProps =
   | {
-      address: string;
-      deliverySchedule: "today" | "tomorrow";
-      timeLimit: string; // today, tomorrow인 경우 필수
-      arrivalDate?: string; // 도착 보장일
-    }
+    address: string;
+    deliverySchedule: "today" | "tomorrow";
+    timeLimit: string; // today, tomorrow인 경우 필수
+    arrivalDate?: string; // 도착 보장일
+  }
   | {
-      address: string;
-      deliverySchedule: "other";
-      timeLimit?: string; // other, 빈 문자열인 경우 선택
-      arrivalDate?: string; // 도착 보장일
-    }
+    address: string;
+    deliverySchedule: "other";
+    timeLimit?: string; // other, 빈 문자열인 경우 선택
+    arrivalDate?: string; // 도착 보장일
+  }
   | {
-      //주소 입력 안 한 경우
-      address?: string;
-      deliverySchedule: "";
-      timeLimit?: string; // other, 빈 문자열인 경우 선택
-      arrivalDate?: string; // 도착 보장일
-    };
+    //주소 입력 안 한 경우
+    address?: string;
+    deliverySchedule: "";
+    timeLimit?: string; // other, 빈 문자열인 경우 선택
+    arrivalDate?: string; // 도착 보장일
+  };
 
 const AddressIndicator: React.FC<AddressIndicatorProps> = props => {
   const router = useRouter();
@@ -39,9 +39,9 @@ const AddressIndicator: React.FC<AddressIndicatorProps> = props => {
       <div
         className="flex cursor-pointer flex-row gap-[6px]"
         onClick={() => {
-          // if (!address) {
-          //   // router.push("/order/address");
-          // }
+          if (!address) {
+            router.push("/address-check");
+          }
         }}
       >
         <div className="text-[20px] font-600 text-gray-700">
