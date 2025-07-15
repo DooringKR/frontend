@@ -1,70 +1,81 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+
+export type DoorCart = {
+  type: "door";
+  category?: string | null;
+  color?: string | null;
+  width?: number | null;
+  height?: number | null;
+  boringNum?: number | null;
+  boringDirection?: string | null;
+  boringSize?: (number | null)[];
+  request?: string | null;
+};
 
 export type CabinetCart = {
-    type: "cabinet";
-    category?: string | null;
-    color?: string | null;
-    width?: number | null;
-    height?: number | null;
-    depth?: number | null;
-    bodyMaterial?: string | null;
-    request?: string | null;
-    handleType?: string | null;
-    finishType?: string | null;
-    showBar?: string | null;
-    drawerType?: string | null;
-    railType?: string | null;
-    riceRail?: string | null;
-    lowerDrawer?: string | null;
-}
+  type: "cabinet";
+  category?: string | null;
+  color?: string | null;
+  width?: number | null;
+  height?: number | null;
+  depth?: number | null;
+  bodyMaterial?: string | null;
+  request?: string | null;
+  handleType?: string | null;
+  finishType?: string | null;
+  showBar?: string | null;
+  drawerType?: string | null;
+  railType?: string | null;
+  riceRail?: string | null;
+  lowerDrawer?: string | null;
+};
 
 export type HardwareCart = {
-    type: "hardware";
-    category?: string | null;
-    manufacturer?: string | null;
-    size?: string | null;
-    request?: string | null | undefined;
-}
+  type: "hardware";
+  category?: string | null;
+  manufacturer?: string | null;
+  size?: string | null;
+  request?: string | null | undefined;
+};
 
 export type AccessoryCart = {
-    type: "accessory";
-    category?: string | null;
-    manufacturer?: string | null;
-    modelName?: string | null;
-    request?: string | null;
-}
+  type: "accessory";
+  category?: string | null;
+  manufacturer?: string | null;
+  modelName?: string | null;
+  request?: string | null;
+};
 
 export type FinishCart = {
-    type: "finish";
-    color?: string | null;
-    depth?: string | null;
-    height?: string | null;
-    depthIncrease?: string | null;
-    heightIncrease?: string | null;
-    request?: string | null;
-}
+  type: "finish";
+  color?: string | null;
+  depth?: string | null;
+  height?: string | null;
+  depthIncrease?: string | null;
+  heightIncrease?: string | null;
+  request?: string | null;
+};
 
-
-export type SingleCart = CabinetCart | HardwareCart | AccessoryCart | FinishCart;
+export type SingleCart = CabinetCart | HardwareCart | AccessoryCart | FinishCart | DoorCart;
 
 interface SingleCartState {
-    cart: SingleCart;
-    setCart: (cart: SingleCart) => void;
-    reset: () => void;
+  cart: SingleCart;
+  setCart: (cart: SingleCart) => void;
+  reset: () => void;
 }
 
 export const useSingleCartStore = create<SingleCartState>()(
-    persist(
-        (set) => ({
-            cart: {} as SingleCart,
-            setCart: (cart: SingleCart) => set({ cart }),
-            reset: () => set({ cart: {} as SingleCart }),
-        }),
-        {
-            name: 'single-cart-storage', // localStorage key
-        }
-    )
+  persist(
+    set => ({
+      cart: {} as SingleCart,
+      setCart: (cart: SingleCart) => set({ cart }),
+      reset: () => set({ cart: {} as SingleCart }),
+    }),
+    {
+      name: "single-cart-storage", // localStorage key
+    },
+  ),
 );
 
 // interface SingleCartState {
@@ -117,4 +128,4 @@ export const useSingleCartStore = create<SingleCartState>()(
 //             name: 'single-cart-storage', // localStorage key
 //         }
 //     )
-// ); 
+// );

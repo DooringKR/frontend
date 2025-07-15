@@ -16,6 +16,8 @@ import BoxedInput from "@/components/Input/BoxedInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
+import { CabinetCart, useSingleCartStore } from "@/store/singleCartStore";
+
 import DrawerCabinetForm from "./_components/DrawerCabinetForm";
 import FlapCabinetForm from "./_components/FlapCabinetForm";
 import LowerCabinetForm from "./_components/LowerCabinetForm";
@@ -24,7 +26,6 @@ import UpperCabinetForm from "./_components/UpperCabinetForm";
 import CabinetIcon1 from "./_components/cabinetIcon1";
 import CabinetIcon2 from "./_components/cabinetIcon2";
 import CabinetIcon3 from "./_components/cabinetIcon3";
-import { CabinetCart, useSingleCartStore } from "@/store/singleCartStore";
 
 // 공통 props 타입 정의
 type CabinetFormProps = {
@@ -94,56 +95,51 @@ type OpenCabinetFormProps = CabinetFormProps & {
   setFinishType: (v: string) => void;
 };
 
-// 기존 DoorInfoInputPage를 CabinetPageContent로 이름 변경
 function CabinetPageContent() {
   const category = useSingleCartStore(state => (state.cart as CabinetCart).category);
   const color = useSingleCartStore(state => (state.cart as CabinetCart).color ?? "");
-
 
   // category(slug)에 맞는 header 값 찾기
   const currentCategory = CABINET_CATEGORY_LIST.find(item => item.slug === category);
   const headerTitle = currentCategory?.header || category;
 
   const router = useRouter();
-  const searchParams = useSearchParams();
-
-  // ...existing code...
 
   const [DoorWidth, setDoorWidth] = useState<number | null>(
-    (useSingleCartStore.getState().cart as CabinetCart).width ?? null
+    (useSingleCartStore.getState().cart as CabinetCart).width ?? null,
   );
   const [DoorHeight, setDoorHeight] = useState<number | null>(
-    (useSingleCartStore.getState().cart as CabinetCart).height ?? null
+    (useSingleCartStore.getState().cart as CabinetCart).height ?? null,
   );
   const [DoorDepth, setDoorDepth] = useState<number | null>(
-    (useSingleCartStore.getState().cart as CabinetCart).depth ?? null
+    (useSingleCartStore.getState().cart as CabinetCart).depth ?? null,
   );
   const [request, setRequest] = useState(
-    (useSingleCartStore.getState().cart as CabinetCart).request ?? ""
+    (useSingleCartStore.getState().cart as CabinetCart).request ?? "",
   );
   const [bodyMaterial, setBodyMaterial] = useState(
-    (useSingleCartStore.getState().cart as CabinetCart).bodyMaterial ?? ""
+    (useSingleCartStore.getState().cart as CabinetCart).bodyMaterial ?? "",
   );
   const [handleType, setHandleType] = useState(
-    (useSingleCartStore.getState().cart as CabinetCart).handleType ?? ""
+    (useSingleCartStore.getState().cart as CabinetCart).handleType ?? "",
   );
   const [finishType, setFinishType] = useState(
-    (useSingleCartStore.getState().cart as CabinetCart).finishType ?? ""
+    (useSingleCartStore.getState().cart as CabinetCart).finishType ?? "",
   );
   const [showBar, setShowBar] = useState(
-    (useSingleCartStore.getState().cart as CabinetCart).showBar ?? ""
+    (useSingleCartStore.getState().cart as CabinetCart).showBar ?? "",
   );
   const [drawerType, setDrawerType] = useState(
-    (useSingleCartStore.getState().cart as CabinetCart).drawerType ?? ""
+    (useSingleCartStore.getState().cart as CabinetCart).drawerType ?? "",
   );
   const [railType, setRailType] = useState(
-    (useSingleCartStore.getState().cart as CabinetCart).railType ?? ""
+    (useSingleCartStore.getState().cart as CabinetCart).railType ?? "",
   );
   const [riceRail, setRiceRail] = useState(
-    (useSingleCartStore.getState().cart as CabinetCart).riceRail ?? ""
+    (useSingleCartStore.getState().cart as CabinetCart).riceRail ?? "",
   );
   const [lowerDrawer, setLowerDrawer] = useState(
-    (useSingleCartStore.getState().cart as CabinetCart).lowerDrawer ?? ""
+    (useSingleCartStore.getState().cart as CabinetCart).lowerDrawer ?? "",
   );
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const [isShowBarSheetOpen, setIsShowBarSheetOpen] = useState(false);
@@ -266,7 +262,6 @@ function CabinetPageContent() {
         onClose={() => setIsBottomSheetOpen(false)}
         value={bodyMaterial}
         onChange={setBodyMaterial}
-        searchParams={searchParams}
       />
       <ShowBarInputSheet
         isOpen={isShowBarSheetOpen}
@@ -327,15 +322,12 @@ function BodyMaterialManualInputSheet({
   onClose,
   value,
   onChange,
-  searchParams,
 }: {
   isOpen: boolean;
   onClose: () => void;
   value: string;
   onChange: (v: string) => void;
-  searchParams: ReturnType<typeof useSearchParams>;
 }) {
-  const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
 
   // 미리 정의된 옵션

@@ -11,6 +11,8 @@ import OrderSummaryCard from "@/components/OrderSummaryCard";
 import QuantitySelector from "@/components/QuantitySelector/QuantitySelector";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
+import { useSingleCartStore } from "@/store/singleCartStore";
+import { DoorCart } from "@/store/singleCartStore";
 import formatColor from "@/utils/formatColor";
 import formatSize from "@/utils/formatSize";
 
@@ -57,37 +59,38 @@ function formatBoringDirection(dir: string | null) {
 function DoorConfirmPageContent() {
   const router = useRouter();
 
-  const searchParams = useSearchParams();
-  const category = searchParams.get("category");
-  const color = searchParams.get("color");
-  const width = searchParams.get("width");
-  const height = searchParams.get("height");
-  const boringDirection = searchParams.get("boringDirection");
-  const boringSize = searchParams.get("boringSize");
-  const request = searchParams.get("request");
-  const isPredefined = isPredefinedColor(color);
+  const category = useSingleCartStore(state => (state.cart as DoorCart).category);
+  const color = useSingleCartStore(state => (state.cart as DoorCart).color);
+  const width = useSingleCartStore(state => (state.cart as DoorCart).width);
+  const height = useSingleCartStore(state => (state.cart as DoorCart).height);
+  const boringDirection = useSingleCartStore(state => (state.cart as DoorCart).boringDirection);
+  const boringSize = useSingleCartStore(state => (state.cart as DoorCart).boringSize);
+  const request = useSingleCartStore(state => (state.cart as DoorCart).request);
   const [quantity, setQuantity] = useState(1);
   return (
     <div>
       <TopNavigator />
-      <Header size="Large" title={`${getCategoryLabel(category)} 주문 개수를 선택해주세요`} />
+      <Header
+        size="Large"
+        title={`${getCategoryLabel(category ?? null)} 주문 개수를 선택해주세요`}
+      />
       <div className="flex flex-col gap-[20px] px-5 pb-[100px] pt-5">
         <ShoppingCartCard
           type="door"
-          title={getCategoryLabel(category)}
-          color={formatColor(color)}
-          width={formatSize(width)}
-          height={formatSize(height)}
-          hingeDirection={formatBoringDirection(boringDirection)}
-          hingeCount={boringSize ? JSON.parse(boringSize).length : 0}
-          boring={formatBoring(boringSize)}
+          title={getCategoryLabel(category ?? null)}
+          color={formatColor(color ?? null)}
+          width={formatSize(width?.toString() ?? null)}
+          height={formatSize(height?.toString() ?? null)}
+          hingeDirection={formatBoringDirection(boringDirection ?? null)}
+          hingeCount={boringSize ? JSON.stringify(boringSize).length : 0}
+          boring={formatBoring(boringSize?.toString() ?? null)}
           // 아래의 다른 컴포넌트로 전달할 예정이라 여기선 일단 0으로 전달
           quantity={0}
           trashable={false}
           showQuantitySelector={false}
           request={request ?? undefined}
           onOptionClick={() => {
-            router.push(`/order/door/?category=${category}&color=${color}`);
+            router.push(`/order/door`);
           }}
         />
         <OrderSummaryCard

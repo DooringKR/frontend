@@ -3,6 +3,15 @@
 import { useRouter } from "next/navigation";
 import React from "react";
 
+import {
+  AccessoryCart,
+  CabinetCart,
+  DoorCart,
+  FinishCart,
+  HardwareCart,
+  useSingleCartStore,
+} from "@/store/singleCartStore";
+
 import HomeProductButton from "./HomeProductButton";
 import AttachedIcon from "./Icons/Attached";
 import CustomOrderIcon from "./Icons/CustomOrder";
@@ -10,7 +19,6 @@ import DoorIcon from "./Icons/Door";
 import FinishingMaterialsIcon from "./Icons/FinishingMaterials";
 import HardWareIcon from "./Icons/HardWare";
 import SectionHeadIcon from "./Icons/SectionHead";
-import { AccessoryCart, CabinetCart, FinishCart, HardwareCart, useSingleCartStore } from "@/store/singleCartStore";
 
 const productList = [
   { label: "문짝", icon: <DoorIcon />, slug: "door" },
@@ -58,7 +66,11 @@ const HomeProductContainer: React.FC = () => {
       };
       setCart(initialAccessoryCart);
       router.push(`/order`);
-    } else {
+    } else if (slug === "door") {
+      const initialDoorCart: DoorCart = {
+        type: "door",
+      };
+      setCart(initialDoorCart);
       router.push(`/order`);
     }
   };

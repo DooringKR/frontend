@@ -9,15 +9,17 @@ import {
 import { COLOR_LIST } from "@/constants/colorList";
 import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
+
 import Header from "@/components/Header/Header";
 import BoxedInput from "@/components/Input/BoxedInput";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+
+import { CabinetCart, DoorCart, FinishCart, useSingleCartStore } from "@/store/singleCartStore";
 
 import ColorManualInputGuide from "./_components/ColorManualInputGuide";
 import ColorManualInputSheet from "./_components/ColorManualInputSheet";
 import ColorSelectBottomButton from "./_components/ColorSelectBottomButton";
 import ColorSelectList from "./_components/ColorSelectList";
-import { CabinetCart, FinishCart, useSingleCartStore } from "@/store/singleCartStore";
 
 const categoryMap: Record<string, any[]> = {
   door: DOOR_CATEGORY_LIST,
@@ -26,6 +28,7 @@ const categoryMap: Record<string, any[]> = {
   hardware: HARDWARE_CATEGORY_LIST,
 };
 
+// 마감재의 경우, 카테고리 선택 없이 바로 색상 선택 페이지로 이동하기 때문에 따로 설정합니다.
 function getHeader(type: string | null, currentCategory: any) {
   if (type === "finish") return "마감재";
   return currentCategory?.header ?? "";
@@ -35,11 +38,13 @@ function ColorListPageContent() {
   const router = useRouter();
   // const searchParams = useSearchParams();
   const type = useSingleCartStore(state => state.cart.type);
-  const category = useSingleCartStore(state => (state.cart as CabinetCart).category);
+  const category = useSingleCartStore(state => (state.cart as CabinetCart | DoorCart).category);
   const setCartColor = useSingleCartStore(state => state.setCart);
 
   const [searchKeyword, setSearchKeyword] = useState("");
-  const initialColor = useSingleCartStore(state => ((state.cart as FinishCart) || (state.cart as CabinetCart)).color) ?? null;
+  const initialColor = useSingleCartStore(
+    state => (state.cart as FinishCart | CabinetCart | DoorCart).color ?? null,
+  );
   const [selectedColor, setSelectedColor] = useState<string | null>(initialColor);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
 
@@ -65,7 +70,7 @@ function ColorListPageContent() {
       <ColorSelectList
         filteredColors={filteredColors}
         selectedColor={selectedColor}
-        setSelectedColor={(color) => {
+        setSelectedColor={color => {
           setSelectedColor(color);
           setCartColor({
             type: type,
@@ -84,7 +89,7 @@ function ColorListPageContent() {
         isOpen={isBottomSheetOpen}
         onClose={() => setIsBottomSheetOpen(false)}
         value={selectedColor ?? ""}
-        onChange={(color) => {
+        onChange={color => {
           setSelectedColor(color);
           setCartColor({
             type: type,
