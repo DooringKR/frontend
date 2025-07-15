@@ -1,12 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Button from "@/components/Button/Button";
+import CurrentTime from "@/components/DeliveryTimeCheck/CurrentTime";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { useOrderStore } from "@/store/orderStore";
+import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 
 import UnavailableDeliveryFooter from "../_components/UnavailableDeliveryFooter";
 
@@ -14,12 +16,57 @@ function UnavailableClientPage() {
   const router = useRouter();
   const { address } = useOrderStore();
   const [isClicked, setIsClicked] = useState(false);
+  const [arrivalTimeFormatted, setArrivalTimeFormatted] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [remainingMinutes, setRemainingMinutes] = useState<number | null>(null);
 
   const handleEstimatedTimeClick = () => {
     console.log("클릭");
     setIsClicked(prev => !prev);
   };
 
+  // 최초 1회: remainingMinutes 받아오기
+  useEffect(() => {
+    const fetchDeliveryInfo = async () => {
+      if (!address.address1.trim()) return;
+      try {
+        setIsLoading(true);
+        const { remainingMinutes } = await calculateDeliveryInfo(address.address1);
+        setRemainingMinutes(remainingMinutes);
+      } catch (err) {
+        console.error("배송 시간 계산 실패:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDeliveryInfo();
+  }, [address.address1]);
+
+  // 현재 시각 + remainingMinutes 로 도착 시간 계산 (1분마다)
+  useEffect(() => {
+    if (remainingMinutes === null) return;
+
+    const updateArrivalTime = () => {
+      const now = new Date();
+      const arrival = new Date(now.getTime() + remainingMinutes * 60 * 1000);
+      const hours = String(arrival.getHours()).padStart(2, "0");
+      const minutes = String(arrival.getMinutes()).padStart(2, "0");
+      setArrivalTimeFormatted(`${hours}시 ${minutes}분`);
+    };
+
+    updateArrivalTime();
+    const interval = setInterval(updateArrivalTime, 60000);
+    return () => clearInterval(interval);
+  }, [remainingMinutes]);
+
+  // 예상 배송 시간 텍스트
+  const formatRemainingTime = () => {
+    if (remainingMinutes === null) return "계산 중...";
+    const h = Math.floor(remainingMinutes / 60);
+    const m = remainingMinutes % 60;
+    return `${h > 0 ? `${h}시간 ` : ""}${m}분`;
+  };
   return (
     <div className="flex min-h-screen flex-col">
       <TopNavigator />
@@ -45,7 +92,10 @@ function UnavailableClientPage() {
             >
               <span className="font-500 text-gray-500">예상 도착 시간</span>
               <div className="flex gap-1">
-                <span className="text-[17px] font-600 text-blue-500">20시 31분</span>
+                <span className="text-[17px] font-600 text-blue-500">
+                  {" "}
+                  {isLoading ? "계산 중..." : arrivalTimeFormatted}
+                </span>
                 {isClicked ? (
                   <img src={"/icons/chevron-down-thick.svg"} alt="아래쪽 화살표" />
                 ) : (
@@ -61,7 +111,9 @@ function UnavailableClientPage() {
                   <div className="flex flex-col gap-3">
                     <div className="flex justify-between font-500">
                       <div className="text-gray-500">현재 시각</div>
-                      <div>18시 41분</div>
+                      <div>
+                        <CurrentTime textColor="text-gray-800" />
+                      </div>
                     </div>
                     <div className="flex justify-between font-500">
                       <div className="text-gray-500">주문 접수 및 제작 시간</div>
@@ -69,7 +121,8 @@ function UnavailableClientPage() {
                     </div>
                     <div className="flex justify-between font-500">
                       <div className="text-gray-500">예상 배송 시간</div>
-                      <div>+ 1시간 20분</div>
+                      {/* <div>+ {formatMinutes(remainingMinutes)}</div> */}
+                      <div>+ {formatRemainingTime()}</div>
                     </div>
                   </div>
                   <div className="mt-2 whitespace-pre-wrap break-words rounded-xl border border-gray-200 bg-gray-100 px-4 py-3">

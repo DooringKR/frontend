@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from "react";
 
+interface CurrentTimeProps {
+  textColor?: string;
+}
+
 function getFormattedTime() {
   const now = new Date();
   const hours = now.getHours();
@@ -10,7 +14,7 @@ function getFormattedTime() {
   return `${hours}시 ${minutes}분`;
 }
 
-export default function CurrentTime() {
+export default function CurrentTime({ textColor }: CurrentTimeProps) {
   const [time, setTime] = useState(getFormattedTime());
 
   useEffect(() => {
@@ -23,5 +27,7 @@ export default function CurrentTime() {
     return () => clearInterval(interval);
   }, []);
 
-  return <div className="text-[17px] font-600 text-blue-500">{time}</div>;
+  return (
+    <div className={`text-[17px] font-600 ${textColor ? textColor : `text-blue-500`}`}>{time}</div>
+  );
 }

@@ -5,13 +5,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import Button from "@/components/BeforeEditByKi/Button/Button";
-import DeliveryTimeCheck from "@/components/DeliveryTimeCheck/DeliveryStatusChip";
+import DeliveryStatusChip from "@/components/DeliveryTimeCheck/DeliveryStatusChip";
 import Input from "@/components/Input/Input";
 import DaumPostcodePopup from "@/components/SearchAddress/DaumPostcode";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { useOrderStore } from "@/store/orderStore";
 import { DeliverTime } from "@/utils/CheckDeliveryTime";
+import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 
 import AddressChangeConfirmModal from "./_components/AddressChangeConfirm";
 
@@ -35,6 +36,7 @@ export default function AddressClientPage() {
   const [deliveryMessage, setDeliveryMessage] = useState<string | null>(null);
   const [deliveryMessageColor, setDeliveryMessageColor] = useState<string>("text-[#14ae5c]");
   const [isDeliveryPossible, setIsDeliveryPossible] = useState(false);
+  const [isCheckingDelivery, setIsCheckingDelivery] = useState(false);
 
   const { setAddress, address } = useOrderStore();
 
@@ -111,7 +113,7 @@ export default function AddressClientPage() {
 
   const handleSave = () => {
     // const isDeliveryBlocked = isModified && !isDeliveryPossible;
-    const isModified = isAddress1Changed || isAddress2Changed; // ← 이 줄 추가
+    const isModified = isAddress1Changed || isAddress2Changed;
     const isDeliveryBlocked = isModified && !isDeliveryPossible;
 
     if (isDeliveryBlocked && !confirmedAddressChange) {
@@ -132,6 +134,25 @@ export default function AddressClientPage() {
   const isButtonDisabled = !address1 || !address2;
   const isAddressEntered = address1.trim() !== "" && address2.trim() !== "";
 
+  useEffect(() => {
+    const fetchDeliveryAvailability = async () => {
+      if (!address1.trim()) return;
+
+      setIsCheckingDelivery(true);
+      try {
+        const { isToday } = await calculateDeliveryInfo(address1);
+        setIsDeliveryPossible(isToday);
+      } catch (error) {
+        console.error("배송 가능 여부 계산 중 오류:", error);
+        setIsDeliveryPossible(false);
+      } finally {
+        setIsCheckingDelivery(false);
+      }
+    };
+
+    fetchDeliveryAvailability();
+  }, [address1]);
+
   return (
     <div className="flex min-h-screen flex-col">
       <TopNavigator />
@@ -142,13 +163,13 @@ export default function AddressClientPage() {
           <label className="text-sm font-400 text-gray-600">주소</label>
           <DaumPostcodePopup address1={address1} onComplete={handleComplete} />
 
-          {deliveryMessage && (
+          {/* {deliveryMessage && (
             <p
               className={`mt-[-10px] h-[49px] w-full rounded-[10px] bg-[#f4f4f4] px-4 pt-[18px] text-base ${deliveryMessageColor}`}
             >
               {deliveryMessage}
             </p>
-          )}
+          )} */}
 
           <Input
             name="상세주소"
@@ -159,10 +180,12 @@ export default function AddressClientPage() {
             className="h-[50px] w-full px-4 py-3 text-base"
           />
 
-          <DeliveryTimeCheck
+          <DeliveryStatusChip
             isDeliveryPossible={isDeliveryPossible}
             isAddressEntered={isAddressEntered}
+            isChecking={isCheckingDelivery}
             onUnavailableClick={() => {
+              if (isCheckingDelivery) return;
               setAddress({ address1, address2 });
               router.push("/cart/checkorder/address/unavailable");
             }}
@@ -199,6 +222,7 @@ export default function AddressClientPage() {
           //     handleSave();
           //   }
           // }}
+          disabled={isButtonDisabled || isCheckingDelivery}
           onClick={() => {
             if (!isAddress1Changed && !isAddress2Changed) {
               router.back(); // 변경사항 없으면 확인 누르면 뒤로가기
@@ -212,11 +236,10 @@ export default function AddressClientPage() {
 
             handleSave(); // 나머지는 저장하기 동작
           }}
-          disabled={isButtonDisabled}
           selected={!isButtonDisabled}
           className="mt-6 w-full"
         >
-          {buttonText}
+          {isCheckingDelivery ? "확인 중..." : buttonText}
         </Button>
       </div>
     </div>

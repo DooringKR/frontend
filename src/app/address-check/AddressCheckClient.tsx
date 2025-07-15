@@ -5,7 +5,7 @@ import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
-import DeliveryTimeCheck from "@/components/DeliveryTimeCheck/DeliveryStatusChip";
+import DeliveryStatusChip from "@/components/DeliveryTimeCheck/DeliveryStatusChip";
 import Header from "@/components/Header/Header";
 import BoxedInput from "@/components/Input/BoxedInput";
 import DaumPostcodeEmbed from "@/components/SearchAddress/DaumPostcodeEmbed";
@@ -24,6 +24,8 @@ function AddressCheckClientPage() {
   const [showPostcode, setShowPostcode] = useState(false);
   // const [address1, setAddress1] = useState("");
   // const [address2, setAddress2] = useState("");
+  const [isCheckingDelivery, setIsCheckingDelivery] = useState(false);
+
   const scriptLoadedRef = useRef(false);
 
   const { address1, address2, setAddress } = useAddressStore();
@@ -64,12 +66,15 @@ function AddressCheckClientPage() {
   useEffect(() => {
     const checkTodayDelivery = async () => {
       if (isAddressEntered) {
+        setIsCheckingDelivery(true);
         try {
           const { isToday } = await calculateDeliveryInfo(address1);
-          setIsDeliveryPossible(isToday); // ✅ 오늘 배송 가능 여부만 사용
+          setIsDeliveryPossible(isToday);
         } catch (error) {
           console.error("배송 가능 여부 확인 실패:", error);
           setIsDeliveryPossible(false);
+        } finally {
+          setIsCheckingDelivery(false);
         }
       }
     };
@@ -121,10 +126,12 @@ function AddressCheckClientPage() {
         )}
       </div>
       <div className="mx-5 mt-3">
-        <DeliveryTimeCheck
+        <DeliveryStatusChip
           isDeliveryPossible={isDeliveryPossible}
           isAddressEntered={isAddressEntered}
+          isChecking={isCheckingDelivery}
           onUnavailableClick={() => {
+            if (isCheckingDelivery) return;
             router.push("/address-check/unavailable");
           }}
         />
@@ -136,6 +143,7 @@ function AddressCheckClientPage() {
           button1Text="다음"
           button1Type="Brand"
           onButton1Click={() => {
+            if (isCheckingDelivery) return;
             if (!address1 || !address2) {
               alert("주소와 상세주소를 모두 입력해주세요.");
               return;
