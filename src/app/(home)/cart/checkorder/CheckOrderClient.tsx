@@ -11,7 +11,7 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { useCurrentOrderStore } from "@/store/Items/currentOrderStore";
 import { useOrderStore } from "@/store/orderStore";
-import { DeliverTime } from "@/utils/CheckDeliveryTime";
+import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 
 import DeliveryAddressCard from "./_components/DeliveryAddressCard";
 import DeliveryRequestSelector from "./_components/DeliveryRequestSelector";
@@ -87,21 +87,13 @@ function CheckOrderClientPage() {
 
     const fetchDeliveryTime = async () => {
       if (selectedAddress !== "주소 없음") {
-        const { expectedArrivalMinutes } = await DeliverTime(selectedAddress);
-        const now = new Date();
-        const currentMinutes = now.getHours() * 60 + now.getMinutes();
-        const remainingMinutes = expectedArrivalMinutes - currentMinutes;
+        const { remainingMinutes, isToday, arrivalTimeFormatted } =
+          await calculateDeliveryInfo(selectedAddress);
 
         setExpectedArrivalMinutes(remainingMinutes);
 
-        const cutoff = 18 * 60;
-        const hours = Math.floor(expectedArrivalMinutes / 60)
-          .toString()
-          .padStart(2, "0");
-        const minutes = (expectedArrivalMinutes % 60).toString().padStart(2, "0");
-
-        if (expectedArrivalMinutes <= cutoff) {
-          setDeliveryMessage(`당일배송 가능 ${hours}:${minutes}`);
+        if (isToday) {
+          setDeliveryMessage(`당일배송 가능 ${arrivalTimeFormatted}`);
           setDeliveryMessageColor("bg-[#cbdcfb] text-[#215cff]");
         } else {
           setDeliveryMessage(`내일 배송되는 주소에요`);

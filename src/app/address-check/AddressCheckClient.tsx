@@ -12,6 +12,7 @@ import DaumPostcodeEmbed from "@/components/SearchAddress/DaumPostcodeEmbed";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import useAddressStore from "@/store/addressStore";
+import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 
 function AddressCheckClientPage() {
   const searchParams = useSearchParams();
@@ -59,6 +60,22 @@ function AddressCheckClientPage() {
   //   const isComplete = address1.trim() !== "" && address2.trim() !== "";
   //   setisAddressEntered(isComplete);
   // }, [address1, address2]);
+
+  useEffect(() => {
+    const checkTodayDelivery = async () => {
+      if (isAddressEntered) {
+        try {
+          const { isToday } = await calculateDeliveryInfo(address1);
+          setIsDeliveryPossible(isToday); // ✅ 오늘 배송 가능 여부만 사용
+        } catch (error) {
+          console.error("배송 가능 여부 확인 실패:", error);
+          setIsDeliveryPossible(false);
+        }
+      }
+    };
+
+    checkTodayDelivery();
+  }, [address1, address2]);
 
   return (
     <div>
