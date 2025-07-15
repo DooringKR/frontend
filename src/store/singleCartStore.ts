@@ -7,7 +7,7 @@ export type DoorCart = {
   color?: string | null;
   width?: number | null;
   height?: number | null;
-  boringNum?: number | null;
+  boringNum?: 2 | 3 | 4 | null;
   boringDirection?: string | null;
   boringSize?: (number | null)[];
   request?: string | null;

@@ -23,25 +23,28 @@ function getCategoryLabel(category: string | null) {
   return "문짝";
 }
 
-function isPredefinedColor(color: string | null) {
-  if (!color) return false;
-  return COLOR_LIST.some(item => item.name === color);
-}
 
-function formatBoring(boringSize: string | null) {
-  if (!boringSize) return "";
-  let arr: (number | null)[] = [];
-  try {
-    arr = JSON.parse(boringSize);
-  } catch {
-    return "";
+function formatBoring(boringSize: (number | null)[], category?: string | null) {
+  if (!boringSize || !Array.isArray(boringSize)) return "";
+
+  const arr = boringSize;
+
+  // category에 따라 다른 라벨 사용
+  let labelMap: string[][];
+  if (category === "flap") {
+    labelMap = [
+      ["좌", "우"],
+      ["좌", "중", "우"],
+      ["좌", "중좌", "중우", "우"],
+    ];
+  } else {
+    labelMap = [
+      ["상", "하"],
+      ["상", "중", "하"],
+      ["상", "중상", "중하", "하"],
+    ];
   }
-  if (!Array.isArray(arr)) return "";
-  const labelMap = [
-    ["상", "하"],
-    ["상", "중", "하"],
-    ["상", "중상", "중하", "하"],
-  ];
+
   const label = labelMap[arr.length - 2];
   if (!label) return arr.join(", ");
   return arr
@@ -82,8 +85,8 @@ function DoorConfirmPageContent() {
           width={formatSize(width?.toString() ?? null)}
           height={formatSize(height?.toString() ?? null)}
           hingeDirection={formatBoringDirection(boringDirection ?? null)}
-          hingeCount={boringSize ? JSON.stringify(boringSize).length : 0}
-          boring={formatBoring(boringSize?.toString() ?? null)}
+          hingeCount={boringSize ? JSON.stringify(boringSize).length : undefined}
+          boring={formatBoring(boringSize || [], category)}
           // 아래의 다른 컴포넌트로 전달할 예정이라 여기선 일단 0으로 전달
           quantity={0}
           trashable={false}
@@ -104,7 +107,7 @@ function DoorConfirmPageContent() {
         type={"1button"}
         button1Text={"장바구니 담기"}
         className="fixed bottom-0 w-full max-w-[500px] bg-white px-5 pb-5"
-        onButton1Click={() => {}}
+        onButton1Click={() => { }}
       />
     </div>
   );
