@@ -14,6 +14,8 @@ import Button from "@/components/BeforeEditByKi/Button/Button";
 
 import { useCurrentOrderStore } from "@/store/Items/currentOrderStore";
 
+import PickUpAddressCard from "../pickup/_components/PickUpAddressCard";
+
 export default function OrderConfirmPage() {
   const router = useRouter();
   const [order, setOrder] = useState<any>(null);
@@ -101,7 +103,7 @@ export default function OrderConfirmPage() {
   if (!order) {
     return <p className="p-5">주문 정보가 없습니다.</p>;
   }
-
+  console.log("receiveMethod:", order.receiveMethod);
   return (
     <>
       <div className="flex flex-col px-5 pt-[60px]">
@@ -183,8 +185,20 @@ export default function OrderConfirmPage() {
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-gray-500">
                 4
               </div>
-              <div>퀵 ∙ 용달로 오늘까지 배송해드려요</div>
+              <div>
+                {order.receiveMethod === "pickup"
+                  ? "아래 주소에서 픽업할 수 있어요"
+                  : "퀵 ∙ 용달로 오늘까지 배송해드려요"}
+              </div>
             </div>
+            {order.receiveMethod === "pickup" ? (
+              <div className="mt-2 flex">
+                <div className="mx-[14.5px] w-[3px] rounded-full bg-gray-200"></div>
+                <PickUpAddressCard page="pickup" />
+              </div>
+            ) : (
+              ""
+            )}
           </div>
         </div>
       </div>
@@ -208,7 +222,9 @@ export default function OrderConfirmPage() {
 
                 const commonPrice = (
                   <p className="mt-1 text-[15px] font-500 text-gray-800">
-                    {item.price?.toLocaleString()}원 {item.count}개
+                    {/* {item.price?.toLocaleString()}원 {item.count}개 */}
+                    {Number((item.price ?? 0) * (item.count ?? 1)).toLocaleString()}원 {item.count}
+                    개
                   </p>
                 );
 
@@ -302,7 +318,11 @@ export default function OrderConfirmPage() {
               })}
               <div className="mb-2 mt-3 border-b border-gray-200 pb-3 text-gray-500">
                 <p className="mb-1 text-[17px] font-600 text-gray-800">배송일정</p>
-                <p>{getDeliveryLabel(order.deliveryDate)}</p>
+                {order.receiveMethod === "pickup" ? (
+                  <p>당일배송</p>
+                ) : (
+                  <p>{getDeliveryLabel(order.deliveryDate)}</p>
+                )}
               </div>
               <div className="my-4 border-b border-gray-200 pb-3 text-gray-500">
                 <p className="mb-1 text-[17px] font-600 text-gray-800">배송주소</p>
@@ -346,7 +366,7 @@ export default function OrderConfirmPage() {
           홈으로
         </Button>
         <Button selected className="flex-1" onClick={handleCopyAccount}>
-          계좌 복사
+          계좌번호 복사
         </Button>
       </div>
     </>

@@ -13,7 +13,7 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import useAddressStore from "@/store/addressStore";
 
-function AddressPageClient() {
+function AddressCheckClientPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const category = searchParams.get("category");
@@ -84,6 +84,7 @@ function AddressPageClient() {
           value={address1}
           onClick={() => setShowPostcode(true)} // 클릭 시 embed 표시
           onChange={() => {}} // 직접 입력 방지
+          className={"mb-2"}
         />
         <BoxedInput
           placeholder="상세주소 (예: 101동 501호 / 단독주택)"
@@ -136,4 +137,4 @@ function AddressPageClient() {
   );
 }
 
-export default AddressPageClient;
+export default AddressCheckClientPage;

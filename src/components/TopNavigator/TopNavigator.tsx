@@ -34,9 +34,11 @@ const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, isCartEmpty })
       {page === CUSTOMER_SERVICE_PAGE || page === HOME_PAGE || page === MY_PAGE ? (
         <div></div>
       ) : (
-        <button className="flex items-center justify-center">
-          <HeadphonesIcon />
-        </button>
+        <Link href={"/customer-service"}>
+          <button className="flex items-center justify-center">
+            <HeadphonesIcon />
+          </button>
+        </Link>
       )}
 
       {page === HOME_PAGE ? (

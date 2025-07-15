@@ -1,0 +1,90 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+import Button from "@/components/BeforeEditByKi/Button/Button";
+import SelectToggleButton from "@/components/Button/SelectToggleButton";
+import Input from "@/components/Input/Input";
+import TopNavigator from "@/components/TopNavigator/TopNavigator";
+
+import { useOrderStore } from "@/store/orderStore";
+
+export default function VehicleClientPage() {
+  const router = useRouter();
+
+  const pickupInfo = useOrderStore(state => state.pickupInfo);
+  const setPickupInfo = useOrderStore(state => state.setPickupInfo);
+
+  const [tempVehicleType, setTempVehicleType] = useState(pickupInfo.vehicleType || "");
+  const [tempCustomNote, setTempCustomNote] = useState(pickupInfo.customVehicleNote || "");
+
+  useEffect(() => {
+    setTempVehicleType(pickupInfo.vehicleType || "");
+    setTempCustomNote(pickupInfo.customVehicleNote || "");
+  }, [pickupInfo]);
+
+  const handleSelect = (type: string) => {
+    setTempVehicleType(type);
+  };
+
+  const handleSave = () => {
+    setPickupInfo({
+      vehicleType: tempVehicleType,
+      customVehicleNote: tempVehicleType === "직접 입력" ? tempCustomNote : "",
+    });
+    router.back();
+  };
+
+  return (
+    <div className="flex h-screen flex-col bg-white pb-5">
+      <TopNavigator />
+
+      <div className="flex flex-grow flex-col">
+        <h1 className="mx-5 mt-5 text-[23px] font-700">픽업차량 종류</h1>
+
+        <div className="mt-5 flex flex-col gap-3">
+          <SelectToggleButton
+            label="트럭"
+            onClick={() => handleSelect("트럭")}
+            checked={tempVehicleType === "트럭"}
+          />
+          <SelectToggleButton
+            label="승용차"
+            onClick={() => handleSelect("승용차")}
+            checked={tempVehicleType === "승용차"}
+          />
+
+          <div>
+            <SelectToggleButton
+              label="직접 입력"
+              onClick={() => handleSelect("직접 입력")}
+              checked={tempVehicleType === "직접 입력"}
+            />
+            {tempVehicleType === "직접 입력" && (
+              <div className="flex gap-2 px-4">
+                <div className="mx-2 h-12 w-1 rounded-full bg-gray-200"></div>
+                <div className="flex flex-1 flex-col">
+                  <Input
+                    label=""
+                    name="customVehicleNote"
+                    type="text"
+                    value={tempCustomNote}
+                    onChange={e => setTempCustomNote(e.target.value)}
+                    placeholder="예: 흰색 다마스"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="px-5">
+        <Button selected={true} onClick={handleSave} className="w-full rounded-md">
+          저장하기
+        </Button>
+      </div>
+    </div>
+  );
+}

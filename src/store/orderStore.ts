@@ -1,4 +1,3 @@
-// store/orderStore.ts
 import { create } from "zustand";
 
 interface FoyerAccessType {
@@ -12,6 +11,13 @@ interface Address {
   address2: string;
 }
 
+type ReceiveMethod = "delivery" | "pickup" | null;
+
+interface PickupInfo {
+  vehicleType: string; // "승용차", "트럭", "기타"
+  customVehicleNote: string; // 기타 설명 직접 입력
+}
+
 interface OrderStore {
   address: Address;
   recipientPhoneNumber: string;
@@ -19,6 +25,8 @@ interface OrderStore {
   customerRequest: string;
   foyerAccessType: FoyerAccessType;
   deliveryDate: string | null;
+  receiveMethod: ReceiveMethod;
+  pickupInfo: PickupInfo;
 
   setAddress: (addr: Address) => void;
   setRecipientPhoneNumber: (phone: string) => void;
@@ -26,6 +34,8 @@ interface OrderStore {
   setCustomerRequest: (message: string) => void;
   setFoyerAccessType: (data: FoyerAccessType) => void;
   setDeliveryDate: (date: string | null) => void;
+  setReceiveMethod: (method: ReceiveMethod) => void;
+  setPickupInfo: (info: PickupInfo) => void;
   clearOrder: () => void;
 }
 
@@ -40,6 +50,11 @@ export const useOrderStore = create<OrderStore>(set => ({
     customRequest: null,
   },
   deliveryDate: null,
+  receiveMethod: null,
+  pickupInfo: {
+    vehicleType: "",
+    customVehicleNote: "",
+  },
 
   setAddress: address => set({ address }),
   setRecipientPhoneNumber: phone => set({ recipientPhoneNumber: phone }),
@@ -47,6 +62,8 @@ export const useOrderStore = create<OrderStore>(set => ({
   setCustomerRequest: message => set({ customerRequest: message }),
   setFoyerAccessType: data => set({ foyerAccessType: data }),
   setDeliveryDate: date => set({ deliveryDate: date }),
+  setReceiveMethod: method => set({ receiveMethod: method }),
+  setPickupInfo: info => set({ pickupInfo: info }),
   clearOrder: () =>
     set({
       address: { address1: "", address2: "" },
@@ -59,5 +76,10 @@ export const useOrderStore = create<OrderStore>(set => ({
         customRequest: null,
       },
       deliveryDate: null,
+      receiveMethod: null,
+      pickupInfo: {
+        vehicleType: "",
+        customVehicleNote: "",
+      },
     }),
 }));

@@ -1,11 +1,11 @@
 import { Suspense } from "react";
 
-import AddressPageClient from "./AddressCheckPageClient";
+import AddressCheckClientPage from "./AddressCheckClient";
 
 function AddressPage() {
   return (
     <Suspense fallback={null}>
-      <AddressPageClient />
+      <AddressCheckClientPage />
     </Suspense>
   );
 }
