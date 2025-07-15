@@ -3,6 +3,15 @@
 import { useRouter } from "next/navigation";
 import React from "react";
 
+import {
+  AccessoryCart,
+  CabinetCart,
+  DoorCart,
+  FinishCart,
+  HardwareCart,
+  useSingleCartStore,
+} from "@/store/singleCartStore";
+
 import HomeProductButton from "./HomeProductButton";
 import AttachedIcon from "./Icons/Attached";
 import CustomOrderIcon from "./Icons/CustomOrder";
@@ -22,10 +31,11 @@ const productList = [
 
 const HomeProductContainer: React.FC = () => {
   const router = useRouter();
+  const setCart = useSingleCartStore(state => state.setCart);
 
   const handleCategoryClick = (slug: string) => {
     if (slug === "custom") {
-      router.push("/custom-order"); // 직접 주문일 경우 예외 처리
+      router.push("/custom-order");
       return;
     }
 
@@ -33,10 +43,35 @@ const HomeProductContainer: React.FC = () => {
     if (!addressStorage) {
       router.push(`/address-check?category=${slug}`);
     } else if (slug === "finish") {
-      // 마감재일 경우 바로 색상 선택 페이지로 이동
+      const initialFinishCart: FinishCart = {
+        type: "finish",
+      };
+      setCart(initialFinishCart);
       router.push(`/order/color?type=${slug}`);
-    } else {
-      router.push(`/order?type=${slug}`);
+    } else if (slug === "hardware") {
+      const initialHardwareCart: HardwareCart = {
+        type: "hardware",
+      };
+      setCart(initialHardwareCart);
+      router.push(`/order`);
+    } else if (slug === "accessory") {
+      const initialAccessoryCart: AccessoryCart = {
+        type: "accessory",
+      };
+      setCart(initialAccessoryCart);
+      router.push(`/order`);
+    } else if (slug === "cabinet") {
+      const initialAccessoryCart: CabinetCart = {
+        type: "cabinet",
+      };
+      setCart(initialAccessoryCart);
+      router.push(`/order`);
+    } else if (slug === "door") {
+      const initialDoorCart: DoorCart = {
+        type: "door",
+      };
+      setCart(initialDoorCart);
+      router.push(`/order`);
     }
   };
 

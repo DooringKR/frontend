@@ -7,18 +7,19 @@ import {
   HARDWARE_CATEGORY_LIST,
 } from "@/constants/category";
 import { COLOR_LIST } from "@/constants/colorList";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
+
 import Header from "@/components/Header/Header";
 import BoxedInput from "@/components/Input/BoxedInput";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+
+import { CabinetCart, DoorCart, FinishCart, useSingleCartStore } from "@/store/singleCartStore";
 
 import ColorManualInputGuide from "./_components/ColorManualInputGuide";
 import ColorManualInputSheet from "./_components/ColorManualInputSheet";
 import ColorSelectBottomButton from "./_components/ColorSelectBottomButton";
 import ColorSelectList from "./_components/ColorSelectList";
-import { navigateWithAllParams } from "./utils/navigateWithAllParams";
-import { useSingleCartStore } from "@/store/singleCartStore";
 
 const categoryMap: Record<string, any[]> = {
   door: DOOR_CATEGORY_LIST,
@@ -27,6 +28,7 @@ const categoryMap: Record<string, any[]> = {
   hardware: HARDWARE_CATEGORY_LIST,
 };
 
+// 마감재의 경우, 카테고리 선택 없이 바로 색상 선택 페이지로 이동하기 때문에 따로 설정합니다.
 function getHeader(type: string | null, currentCategory: any) {
   if (type === "finish") return "마감재";
   return currentCategory?.header ?? "";
@@ -34,15 +36,17 @@ function getHeader(type: string | null, currentCategory: any) {
 
 function ColorListPageContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const type = searchParams.get("type");
-  const category = searchParams.get("category"); // 쿼리스트링에서 category 가져오기
-  const [searchKeyword, setSearchKeyword] = useState("");
-  const [selectedColor, setSelectedColor] = useState<string | null>(searchParams.get("color"));
-  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  // const searchParams = useSearchParams();
+  const type = useSingleCartStore(state => state.cart.type);
+  const category = useSingleCartStore(state => (state.cart as CabinetCart | DoorCart).category);
+  const setCartColor = useSingleCartStore(state => state.setCart);
 
-  // zustand store 사용
-  const setCartColor = useSingleCartStore(state => state.setColor);
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const initialColor = useSingleCartStore(
+    state => (state.cart as FinishCart | CabinetCart | DoorCart).color ?? null,
+  );
+  const [selectedColor, setSelectedColor] = useState<string | null>(initialColor);
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
 
   const categoryList = categoryMap[type as keyof typeof categoryMap] || [];
   const currentCategory = categoryList.find(item => item.slug === category);
@@ -66,17 +70,13 @@ function ColorListPageContent() {
       <ColorSelectList
         filteredColors={filteredColors}
         selectedColor={selectedColor}
-        setSelectedColor={(color) => {
+        setSelectedColor={color => {
           setSelectedColor(color);
-          setCartColor(color); // zustand에 저장
-          // URL 업데이트
-          const params = new URLSearchParams(searchParams);
-          if (color) {
-            params.set("color", color);
-          } else {
-            params.delete("color");
-          }
-          router.replace(`?${params.toString()}`, { scroll: false });
+          setCartColor({
+            type: type,
+            category: category,
+            color: color,
+          });
         }}
       />
       {!isBottomSheetOpen && (
@@ -89,35 +89,36 @@ function ColorListPageContent() {
         isOpen={isBottomSheetOpen}
         onClose={() => setIsBottomSheetOpen(false)}
         value={selectedColor ?? ""}
-        onChange={(color) => {
+        onChange={color => {
           setSelectedColor(color);
-          setCartColor(color); // zustand에 저장
-          // URL 업데이트
-          const params = new URLSearchParams(searchParams);
-          if (color) {
-            params.set("color", color);
-          } else {
-            params.delete("color");
-          }
-          router.replace(`?${params.toString()}`, { scroll: false });
+          setCartColor({
+            type: type,
+            category: category,
+            color: color,
+          });
         }}
-        searchParams={searchParams}
         type={type ?? ""}
+        onNext={() => {
+          if (selectedColor) {
+            setCartColor({
+              type: type,
+              category: category,
+              color: selectedColor,
+            });
+            router.push(`/order/${type}`);
+          }
+        }}
       />
       {!isBottomSheetOpen && (
         <ColorSelectBottomButton
           selectedColor={selectedColor}
-          searchParams={searchParams}
           onClick={() => {
-            if (selectedColor) {
-              navigateWithAllParams({
-                router,
-                searchParams,
-                type: type ?? "",
-                category,
-                color: selectedColor,
-              });
-            }
+            setCartColor({
+              type: type,
+              category: category,
+              color: selectedColor,
+            });
+            router.push(`/order/${type}`);
           }}
         />
       )}

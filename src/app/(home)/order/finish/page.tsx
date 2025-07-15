@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import Header from "@/components/Header/Header";
@@ -11,18 +11,43 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import DepthInputSection from "./_components/DepthInputSection";
 import HeightInputSection from "./_components/HeightInputSection";
+import { FinishCart, useSingleCartStore } from "@/store/singleCartStore";
 
 function FinishPageContent() {
-  const searchParams = useSearchParams();
-  const color = searchParams.get("color");
+  const color = useSingleCartStore(state => (state.cart as FinishCart).color);
+  const setCart = useSingleCartStore(state => state.setCart);
   const router = useRouter();
-  const [depth, setDepth] = useState<number | null>(null);
-  const [height, setHeight] = useState<number | null>(null);
-  const [request, setRequest] = useState("");
+  const [depth, setDepth] = useState<string | null>(useSingleCartStore(state => (state.cart as FinishCart).depth) ?? null);
+  const [height, setHeight] = useState<string | null>(useSingleCartStore(state => (state.cart as FinishCart).height) ?? null);
+  const [request, setRequest] = useState<string | null>(useSingleCartStore(state => (state.cart as FinishCart).request) ?? null);
+  const [depthIncrease, setDepthIncrease] = useState<string | null>(
+    useSingleCartStore(state => (state.cart as FinishCart).depthIncrease) ?? null
+  );
+  const [heightIncrease, setHeightIncrease] = useState<string | null>(
+    useSingleCartStore(state => (state.cart as FinishCart).heightIncrease) ?? null
+  );
   const [isDepthIncrease, setIsDepthIncrease] = useState(false);
   const [isHeightIncrease, setIsHeightIncrease] = useState(false);
-  const [depthIncrease, setDepthIncrease] = useState<number | null>(null);
-  const [heightIncrease, setHeightIncrease] = useState<number | null>(null);
+
+  // 동기화
+  useEffect(() => {
+    setIsDepthIncrease(
+      depthIncrease !== null &&
+      depthIncrease !== undefined &&
+      depthIncrease !== "" &&
+      Number(depthIncrease) !== 0
+    );
+  }, [depthIncrease]);
+
+  useEffect(() => {
+    setIsHeightIncrease(
+      heightIncrease !== null &&
+      heightIncrease !== undefined &&
+      heightIncrease !== "" &&
+      Number(heightIncrease) !== 0
+    );
+  }, [heightIncrease]);
+
   return (
     <div>
       <TopNavigator />
@@ -31,28 +56,24 @@ function FinishPageContent() {
       <div className="flex flex-col gap-5 px-5">
         <BoxedSelect
           label="색상"
-          options={[]}
           value={color ?? ""}
           onClick={() => router.back()}
-          onChange={function (value: string): void {
-            throw new Error("Function not implemented.");
-          }}
         />
         <DepthInputSection
-          depth={depth}
-          setDepth={setDepth}
+          depth={depth ? parseInt(depth) : null}
+          setDepth={e => setDepth(e?.toString() ?? null)}
           isDepthIncrease={isDepthIncrease}
           setIsDepthIncrease={setIsDepthIncrease}
-          depthIncrease={depthIncrease}
-          setDepthIncrease={setDepthIncrease}
+          depthIncrease={depthIncrease ? parseInt(depthIncrease) : null}
+          setDepthIncrease={e => setDepthIncrease(e?.toString() ?? null)}
         />
         <HeightInputSection
-          height={height}
-          setHeight={setHeight}
+          height={height ? parseInt(height) : null}
+          setHeight={e => setHeight(e?.toString() ?? null)}
           isHeightIncrease={isHeightIncrease}
           setIsHeightIncrease={setIsHeightIncrease}
-          heightIncrease={heightIncrease}
-          setHeightIncrease={setHeightIncrease}
+          heightIncrease={heightIncrease ? parseInt(heightIncrease) : null}
+          setHeightIncrease={e => setHeightIncrease(e?.toString() ?? null)}
         />
         <BoxedInput
           label="제작 시 요청사항"
@@ -66,14 +87,16 @@ function FinishPageContent() {
           className="w-full max-w-[500px] bg-white pb-5"
           button1Disabled={height === null || depth === null}
           onButton1Click={() => {
-            const params = new URLSearchParams();
-            params.set("height", height?.toString() ?? "");
-            params.set("depth", depth?.toString() ?? "");
-            params.set("color", color ?? "");
-            params.set("depthIncrease", depthIncrease?.toString() ?? "");
-            params.set("heightIncrease", heightIncrease?.toString() ?? "");
-            params.set("request", request);
-            router.push(`/order/finish/confirm?${params.toString()}`);
+            setCart({
+              type: "finish",
+              color: color,
+              depth: depth,
+              height: height,
+              depthIncrease: depthIncrease,
+              heightIncrease: heightIncrease,
+              request: request,
+            });
+            router.push(`/order/finish/confirm`);
           }}
         />
       </div>

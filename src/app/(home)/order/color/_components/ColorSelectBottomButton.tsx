@@ -6,13 +6,11 @@ import React from "react";
 
 interface ColorSelectBottomButtonProps {
     selectedColor: string | null;
-    searchParams: ReturnType<any>;
     onClick: () => void;
 }
 
 const ColorSelectBottomButton: React.FC<ColorSelectBottomButtonProps> = ({
     selectedColor,
-    searchParams,
     onClick,
 }) => {
     return (

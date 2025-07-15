@@ -1,17 +1,17 @@
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import BoxedInput from "@/components/Input/BoxedInput";
 import BottomButton from "@/components/BottomButton/BottomButton";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import React from "react";
-import { navigateWithAllParams } from "../utils/navigateWithAllParams";
+import { useSingleCartStore } from "@/store/singleCartStore";
 
 interface ColorManualInputSheetProps {
     isOpen: boolean;
     onClose: () => void;
     value: string;
     onChange: (v: string) => void;
-    searchParams: ReturnType<typeof useSearchParams>;
     type: string;
+    onNext: () => void;
 }
 
 const ColorManualInputSheet: React.FC<ColorManualInputSheetProps> = ({
@@ -19,8 +19,8 @@ const ColorManualInputSheet: React.FC<ColorManualInputSheetProps> = ({
     onClose,
     value,
     onChange,
-    searchParams,
     type,
+    onNext,
 }) => {
     const router = useRouter();
     return (
@@ -43,15 +43,7 @@ const ColorManualInputSheet: React.FC<ColorManualInputSheetProps> = ({
                     button1Text={"다음"}
                     className="px-5 pb-5"
                     onButton1Click={() => {
-                        if (value) {
-                            navigateWithAllParams({
-                                router,
-                                searchParams,
-                                type,
-                                category: searchParams.get("category"),
-                                color: value,
-                            });
-                        }
+                        onNext();
                     }}
                 />
             </div>
