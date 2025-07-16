@@ -7,11 +7,29 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum OrderType {
+  DELIVERY    // 배달
+  PICK_UP     // 픽업
+}
+
+enum UserType {
+  INTERIOR    // 인테리어
+  FACTORY     // 자재공장
+}
+
+enum ProductType {
+  DOOR        // 문짝
+  FINISH      // 마감재
+  CABINET     // 부분장
+  HARDWARE    // 하드웨어
+  ACCESSORY   // 부속
+}
+
 // 사용자 테이블 (auth, app_user)
 model User {
   id                  Int     @id @default(autoincrement())
   user_phone          String  @unique @db.VarChar(11)
-  user_type           String
+  user_type           UserType
   user_road_address   String?
   user_detail_address String?
 
@@ -33,7 +51,7 @@ model CartItem {
   id           Int    @id @default(autoincrement())
   cart         Cart   @relation(fields: [cart_id], references: [id])
   cart_id      Int
-  product_type String
+  product_type ProductType
   item_count   Int
   item_options Json
 }
@@ -46,7 +64,7 @@ model Order {
   user_id         Int
   cart            Cart     @relation("CartToOrder", fields: [cart_id], references: [id])
   cart_id         Int
-  order_type      String
+  order_type      OrderType
   recipient_phone String   @db.VarChar(11)
   order_price     Int
   order_options   Json?
