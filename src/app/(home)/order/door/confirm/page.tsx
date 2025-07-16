@@ -1,5 +1,6 @@
 "use client";
 
+import { addCartItem } from "@/api/cartItemApi";
 import { COLOR_LIST } from "@/constants/colorList";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
@@ -22,7 +23,6 @@ function getCategoryLabel(category: string | null) {
   if (category === "drawer") return "서랍";
   return "문짝";
 }
-
 
 function formatBoring(boringSize: (number | null)[], category?: string | null) {
   if (!boringSize || !Array.isArray(boringSize)) return "";
@@ -85,7 +85,7 @@ function DoorConfirmPageContent() {
           width={formatSize(width?.toString() ?? null)}
           height={formatSize(height?.toString() ?? null)}
           hingeDirection={formatBoringDirection(boringDirection ?? null)}
-          hingeCount={boringSize ? JSON.stringify(boringSize).length : undefined}
+          hingeCount={boringSize ? boringSize.length : undefined}
           boring={formatBoring(boringSize || [], category)}
           // 아래의 다른 컴포넌트로 전달할 예정이라 여기선 일단 0으로 전달
           quantity={0}
@@ -107,7 +107,37 @@ function DoorConfirmPageContent() {
         type={"1button"}
         button1Text={"장바구니 담기"}
         className="fixed bottom-0 w-full max-w-[500px] bg-white px-5 pb-5"
-        onButton1Click={() => { }}
+        onButton1Click={async () => {
+          try {
+            const result = await addCartItem({
+              cart_id: 1,
+              product_type: "DOOR",
+              unit_price: 9000,
+              item_count: quantity,
+              item_options: {
+                door_type:
+                  category === "normal" ? "STANDARD" : category === "flap" ? "FLAP" : "DRAWER",
+                door_color: color,
+                door_width: width,
+                door_height: height,
+                ...(category === "normal" || category === "flap"
+                  ? {
+                      hinge_count: boringSize!.length,
+                      hinge_direction: boringDirection,
+                      first_hinge_size: boringSize![0] ?? undefined,
+                      second_hinge_size: boringSize![1] ?? undefined,
+                      third_hinge_size: boringSize![2] ?? undefined,
+                      fourth_hinge_size: boringSize![3] ?? undefined,
+                    }
+                  : {}),
+                door_request: request,
+              },
+            });
+            console.log(result);
+          } catch (error) {
+            console.error("장바구니 담기 실패:", error);
+          }
+        }}
       />
     </div>
   );
