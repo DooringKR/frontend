@@ -1,5 +1,6 @@
 "use client";
 
+import { addCartItem } from "@/api/cartItemApi";
 import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
 
@@ -9,9 +10,9 @@ import Header from "@/components/Header/Header";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
-import formatColor from "@/utils/formatColor";
 import { FinishCart } from "@/store/singleCartStore";
 import { useSingleCartStore } from "@/store/singleCartStore";
+import formatColor from "@/utils/formatColor";
 
 function ConfirmPageContent() {
   const router = useRouter();
@@ -56,7 +57,27 @@ function ConfirmPageContent() {
         type={"1button"}
         button1Text={"장바구니 담기"}
         className="fixed bottom-0 w-full max-w-[500px] bg-white px-5 pb-5"
-        onButton1Click={() => { }}
+        onButton1Click={async () => {
+          try {
+            const result = await addCartItem({
+              cart_id: 1,
+              product_type: "FINISH",
+              unit_price: 9000,
+              item_count: quantity,
+              item_options: {
+                finish_color: color,
+                finish_base_depth: depth,
+                finish_additional_depth: depthIncrease,
+                finish_base_height: height,
+                finish_additional_height: heightIncrease,
+                finish_request: request,
+              },
+            });
+            console.log(result);
+          } catch (error) {
+            console.error("장바구니 담기 실패:", error);
+          }
+        }}
       />
     </div>
   );

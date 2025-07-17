@@ -17,7 +17,6 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { DoorCart, useSingleCartStore } from "@/store/singleCartStore";
 
-
 function DoorPageContent() {
   const router = useRouter();
 
@@ -25,38 +24,29 @@ function DoorPageContent() {
   const currentCart = useSingleCartStore(state => state.cart) as DoorCart;
 
   // 초기값을 store에서 읽어오기
-  const [boringNum, setBoringNum] = useState<2 | 3 | 4>(
-    currentCart?.boringNum || 2,
-  );
+  const [boringNum, setBoringNum] = useState<2 | 3 | 4>(currentCart?.boringNum || 2);
   const [boringDirection, setBoringDirection] = useState<"left" | "right">(
     (currentCart?.boringDirection as "left" | "right") || "left",
   );
-  const [DoorWidth, setDoorWidth] = useState<number | null>(
-    currentCart?.width ?? null,
-  );
-  const [DoorHeight, setDoorHeight] = useState<number | null>(
-    currentCart?.height ?? null,
-  );
+  const [DoorWidth, setDoorWidth] = useState<number | null>(currentCart?.width ?? null);
+  const [DoorHeight, setDoorHeight] = useState<number | null>(currentCart?.height ?? null);
 
   // boringSize 초기값 설정
   const [boringSize, setBoringSize] = useState<(number | null)[]>(currentCart?.boringSize ?? []);
 
-  const [request, setRequest] = useState(
-    currentCart?.request ?? "",
-  );
+  const [request, setRequest] = useState(currentCart?.request ?? "");
 
   const category = useSingleCartStore(state => (state.cart as DoorCart).category);
   const color = useSingleCartStore(state => (state.cart as DoorCart).color);
 
   const doorCategory = DOOR_CATEGORY_LIST.find(item => item.slug === category);
 
-
   // boringNum이 바뀔 때 boringSize 길이 자동 조정 (일반문, 플랩문에만 적용)
   useEffect(() => {
     if (category === "normal" || category === "flap") {
       // 기존 값을 유지하면서 새로운 길이에 맞게 조정
       const newBoringSize = Array.from({ length: boringNum }, (_, i) =>
-        boringSize && boringSize[i] !== undefined ? boringSize[i] : null
+        boringSize && boringSize[i] !== undefined ? boringSize[i] : null,
       );
       setBoringSize(newBoringSize);
 
@@ -74,7 +64,6 @@ function DoorPageContent() {
   // boringSize가 바뀔 때 store 동기화 (일반문, 플랩문에만 적용)
   useEffect(() => {
     if (category === "normal" || category === "flap") {
-
       const currentCart = useSingleCartStore.getState().cart as DoorCart;
 
       const updatedCart = {
@@ -85,7 +74,6 @@ function DoorPageContent() {
       useSingleCartStore.setState({
         cart: updatedCart,
       });
-
     }
   }, [boringSize, category]);
 
@@ -194,20 +182,20 @@ function DoorPageContent() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex min-h-screen flex-col">
       <TopNavigator />
       <Header
         title={
           doorCategory ? `${doorCategory.header} 정보를 입력해주세요` : "문짝 정보를 입력해주세요"
         }
       />
-      <div className="flex flex-col gap-5 px-5 flex-1">
+      <div className="flex flex-1 flex-col gap-5 px-5">
         <BoxedSelect
           label="색상"
           options={[]}
           value={color ?? ""}
           onClick={() => router.back()}
-          onChange={() => { }}
+          onChange={() => {}}
         />
         {renderFormByCategory()}
         <BoxedInput
@@ -249,7 +237,6 @@ function DoorPage() {
 }
 
 export default DoorPage;
-
 
 // 일반문 폼 컴포넌트
 function NormalDoorForm({
@@ -402,7 +389,7 @@ function FlapDoorForm({
           />
         </div>
       </div>
-      <div className="flex items-center justify-center pt-5 pb-5">
+      <div className="flex items-center justify-center pb-5 pt-5">
         <FlapDoorPreview
           DoorWidth={DoorWidth}
           DoorHeight={DoorHeight}

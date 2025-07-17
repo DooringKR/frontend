@@ -1,5 +1,6 @@
 "use client";
 
+import { addCartItem } from "@/api/cartItemApi";
 import { ACCESSORY_CATEGORY_LIST } from "@/constants/category";
 import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
@@ -9,6 +10,7 @@ import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
 import Header from "@/components/Header/Header";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+
 import { AccessoryCart, useSingleCartStore } from "@/store/singleCartStore";
 
 function ConfirmPageContent() {
@@ -52,7 +54,25 @@ function ConfirmPageContent() {
         type={"1button"}
         button1Text={"장바구니 담기"}
         className="fixed bottom-0 w-full max-w-[500px] bg-white px-5 pb-5"
-        onButton1Click={() => { }}
+        onButton1Click={async () => {
+          try {
+            const result = await addCartItem({
+              cart_id: 1,
+              product_type: "ACCESSORY",
+              unit_price: 9000,
+              item_count: quantity,
+              item_options: {
+                accessory_type: category,
+                accessory_madeby: manufacturer,
+                accessory_model: modelName,
+                accessory_request: request,
+              },
+            });
+            console.log(result);
+          } catch (error) {
+            console.error("장바구니 담기 실패:", error);
+          }
+        }}
       />
     </div>
   );
