@@ -23,6 +23,7 @@ export interface NotionOrderPayload {
   recipientPhone: string;      // 📞 전화번호
   shippingMethod: string;      // ▽ 배송방법 (Select)
   materialType: string;        // ▽ 자재종류 (Select)
+  children?: any[];
 }
 
 /** Notion Database의 Select 유효값 정의 */
@@ -64,7 +65,8 @@ export async function createNotionOrderPage(payload: NotionOrderPayload): Promis
         "자재종류": {
           select: { name: payload.materialType }
         }
-      }
+      },
+      children: payload.children ?? [],
     };
 
     const response = await notion.pages.create(newPage);

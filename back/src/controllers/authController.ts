@@ -46,7 +46,7 @@ export async function signup(req: Request, res: Response) {
 
     return res
       .status(201)
-      .json({ message: "가입이 성공했습니다" });
+      .json({ user_id: newUser.id });
 
   } catch (e) {
     console.error("signup error:", e);

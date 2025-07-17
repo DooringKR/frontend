@@ -47,6 +47,52 @@ export async function createOrder(req: Request, res: Response) {
     const cartItems = await prisma.cartItem.findMany({
       where: { cart_id: order.cart_id },
     });
+
+    const orderJsonString = JSON.stringify(order, null, 2);
+    const cartItemJsonString = JSON.stringify(cartItems, null, 2);
+
+    const children = [
+      {
+        object: "block",
+        type: "heading_2",
+        heading_2: {
+          rich_text: [{
+            type: "text",
+            text: { content: "Order JSON" }
+          }]
+        }
+      },
+      {
+        object: "block",
+        type: "paragraph",
+        paragraph: {
+          rich_text: [{
+            type: "text",
+            text: { content: orderJsonString }
+          }]
+        }
+      },
+      {
+        object: "block",
+        type: "heading_2",
+        heading_2: {
+          rich_text: [{
+            type: "text",
+            text: { content: "Cart Items JSON" }
+          }]
+        }
+      },
+      {
+        object: "block",
+        type: "paragraph",
+        paragraph: {
+          rich_text: [{
+            type: "text",
+            text: { content: cartItemJsonString }
+          }]
+        }
+      }
+    ];
     // 대표 product_type 하나 선정(첫번째 기준)
     const productType: ProductType | null = cartItems.length > 0 ? cartItems[0].product_type : null;
     // Notion에 보낼 한글값으로 매핑
@@ -69,6 +115,7 @@ export async function createOrder(req: Request, res: Response) {
       recipientPhone: order.recipient_phone,
       shippingMethod,
       materialType,
+      children
     }).catch((err) => console.error("[Notion Sync Error]", err));
 
     // 5) 응답
