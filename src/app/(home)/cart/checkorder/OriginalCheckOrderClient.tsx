@@ -10,9 +10,7 @@ import ReceiveOptionBar from "@/components/ReceiveOptionBar/ReceiveOptionBar";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { useCurrentOrderStore } from "@/store/Items/currentOrderStore";
-import useAddressStore from "@/store/addressStore";
 import { useOrderStore } from "@/store/orderStore";
-import useUserStore from "@/store/userStore";
 import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 
 import DeliveryAddressCard from "./_components/DeliveryAddressCard";
@@ -33,40 +31,53 @@ function CheckOrderClientPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const {
-    address,
-    setAddress,
-    recipientPhoneNumber,
-    setRecipientPhoneNumber,
-    foyerAccessType,
-    setFoyerAccessType,
-    requestMessage,
-    setRequestMessage,
-    customerRequest,
-    setCustomerRequest,
-  } = useOrderStore();
+  const recipientPhoneNumber = useOrderStore(state => state.recipientPhoneNumber);
+  const setRecipientPhoneNumber = useOrderStore(state => state.setRecipientPhoneNumber);
+  const address = useOrderStore(state => state.address);
+  const setAddress = useOrderStore(state => state.setAddress);
 
-  const { address1: savedAddress1, address2: savedAddress2 } = useAddressStore();
-  const { user_phoneNumber } = useUserStore();
+  const foyerAccessType = useOrderStore(state => state.foyerAccessType);
+  const setFoyerAccessType = useOrderStore(state => state.setFoyerAccessType);
 
   const [expectedArrivalMinutes, setExpectedArrivalMinutes] = useState<number | null>(null);
   const [deliveryDate, setDeliveryDate] = useState<string | null>(null);
+  // const [address, setAddress] = useState({ address1: "", address2: "" });
+  const [phoneNumber, setPhoneNumber] = useState("");
+  // const [recipientPhoneNumber, setRecipientPhoneNumber] = useState("");
   const [deliveryMessage, setDeliveryMessage] = useState("");
   const [deliveryMessageColor, setDeliveryMessageColor] = useState("text-black");
+  const [requestMessage, setRequestMessage] = useState("");
+  const [customerRequest, setCustomerRequest] = useState("");
+  // const [foyerAccessType, setFoyerAccessType] = useState<{
+  //   type: "gate" | "call" | "doorfront" | "custom";
+  //   gatePassword: string | null;
+  //   customRequest: string | null;
+  // }>({
+  //   type: "call",
+  //   gatePassword: null,
+  //   customRequest: null,
+  // });
+
   const [cartItems, setCartItems] = useState<any[]>([]);
 
   useEffect(() => {
-    // 기본 주소 세팅
-    if (!address.address1 && !address.address2 && savedAddress1 && savedAddress2) {
-      setAddress({ address1: savedAddress1, address2: savedAddress2 });
+    const saved = JSON.parse(localStorage.getItem("address-storage") || "{}");
+    if (saved.state && !address.address1 && !address.address2) {
+      setAddress(saved.state);
+    }
+    const userRaw = localStorage.getItem("userData");
+
+    const selectedAddress = address.address1 || "주소 없음";
+
+    if (userRaw) {
+      const user = JSON.parse(userRaw).state;
+      setPhoneNumber(user?.user_phoneNumber || "");
+
+      if (!recipientPhoneNumber) {
+        setRecipientPhoneNumber(user?.user_phoneNumber || "");
+      }
     }
 
-    // 전화번호 세팅
-    if (!recipientPhoneNumber && user_phoneNumber) {
-      setRecipientPhoneNumber(user_phoneNumber);
-    }
-
-    // 장바구니 세팅
     if (searchParams.get("current") === "now") {
       setCartItems([currentItem]);
     } else {
@@ -75,10 +86,9 @@ function CheckOrderClientPage() {
     }
 
     const fetchDeliveryTime = async () => {
-      if (address.address1) {
-        const { remainingMinutes, isToday, arrivalTimeFormatted } = await calculateDeliveryInfo(
-          address.address1,
-        );
+      if (selectedAddress !== "주소 없음") {
+        const { remainingMinutes, isToday, arrivalTimeFormatted } =
+          await calculateDeliveryInfo(selectedAddress);
 
         setExpectedArrivalMinutes(remainingMinutes);
 
@@ -93,16 +103,48 @@ function CheckOrderClientPage() {
     };
 
     fetchDeliveryTime();
-  }, [
-    currentItem,
-    searchParams,
-    address,
-    recipientPhoneNumber,
-    savedAddress1,
-    savedAddress2,
-    user_phoneNumber,
-  ]);
+  }, [currentItem, searchParams, address]);
 
+  // const handleOrderSubmit = async () => {
+  //   const userRaw = JSON.parse(localStorage.getItem("userData") || "{}");
+  //   const user = userRaw.state || {};
+
+  //   const totalPrice = cartItems.reduce((sum, item) => sum + item.price, 0);
+
+  //   const payload = {
+  //     user: {
+  //       id: user.user_id || 0,
+  //       userType: user.userType || "company",
+  //       phoneNumber: phoneNumber,
+  //     },
+  //     recipientPhoneNumber: recipientPhoneNumber,
+  //     address1: address.address1,
+  //     address2: address.address2,
+  //     foyerAccessType: foyerAccessType,
+  //     deliveryDate: deliveryDate,
+  //     deliveryRequest: requestMessage,
+  //     otherRequests: customerRequest,
+  //     cartItems: cartItems,
+  //     totalPrice: totalPrice,
+  //   };
+
+  //   try {
+  //     await createOrder(payload);
+  //     const currentParam = searchParams.get("current");
+  //     if (currentParam !== "now") {
+  //       localStorage.removeItem("cartItems");
+  //     }
+
+  //     localStorage.removeItem("address-storage");
+  //     useCurrentOrderStore.getState().clearCurrentItem();
+  //     localStorage.setItem("recentOrder", JSON.stringify(payload));
+  //     router.push("/cart/confirm");
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
+
+  // 실제 주문 API 생략. api없이 confirm페이지 UI확인용
   const handleOrderSubmit = async () => {
     const totalPrice = cartItems.reduce((sum, item) => sum + item.price * (item.count || 1), 0);
 
@@ -130,8 +172,11 @@ function CheckOrderClientPage() {
     return acc;
   }, {});
 
-  const getTotalPrice = () =>
-    cartItems.reduce((sum, item) => sum + (item?.price ?? 0) * (item?.count ?? 1), 0);
+  const getTotalPrice = () => {
+    return cartItems.reduce((sum, item) => {
+      return sum + (item?.price ?? 0) * (item?.count ?? 1);
+    }, 0);
+  };
 
   const sanitizedCartGroups = Object.fromEntries(
     Object.entries(groupedCartItems).map(([key, items]) => [key, items.filter(Boolean)]),
@@ -149,9 +194,15 @@ function CheckOrderClientPage() {
       <div className="flex-grow px-5">
         <div className="flex flex-col gap-3 py-5">
           <h2 className="text-xl font-600 text-gray-800">주소 확인</h2>
-          <DeliveryAddressCard address={address} setAddress={setAddress} />
+          <DeliveryAddressCard
+            // foyerAccessType={foyerAccessType}
+            // setFoyerAccessType={setFoyerAccessType}
+            address={address}
+            // requestMessage={requestMessage}
+            // setRequestMessage={setRequestMessage}
+            setAddress={setAddress}
+          />
         </div>
-
         <DeliveryScheduleSelector
           expectedArrivalMinutes={expectedArrivalMinutes}
           setDeliveryDate={setDeliveryDate}
@@ -159,9 +210,11 @@ function CheckOrderClientPage() {
 
         <section className="flex flex-col gap-3 py-5">
           <h2 className="text-xl font-600 text-gray-800">배송정보 확인</h2>
+
           <RecipientPhoneNumber />
           <DeliveryRequestSelector />
         </section>
+        {/* <PriceCheckCard page={CHECK_ORDER_PAGE} /> */}
 
         <PriceSummaryCard
           cartGroups={sanitizedCartGroups}
@@ -170,7 +223,6 @@ function CheckOrderClientPage() {
           page={CHECK_ORDER_PAGE}
         />
       </div>
-
       <div className="w-full px-5 pb-5 pt-3">
         <Button selected={true} onClick={handleOrderSubmit} className="w-full">
           주문 접수하기
