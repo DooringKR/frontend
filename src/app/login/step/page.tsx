@@ -46,18 +46,38 @@ function LoginStepPage() {
   };
 
   const handleStart = async () => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    console.log(apiUrl);
-    // 현재 로컬에서 확인불가
-    // const response = await fetch(`${apiUrl}/api/auth/signup`, {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({ phoneNumber: user_phoneNumber, userType }),
-    // });
-    // const result = await response.json();
-    console.log("백엔드 응답");
-    // console.log("응답내용:", result);
-    router.push("/");
+    try {
+      // userType을 백엔드 형식으로 변환
+      const backendUserType = userType === "company" ? "INTERIOR" : "FACTORY";
+
+      // 전화번호에서 하이픈 제거
+      const cleanPhoneNumber = user_phoneNumber?.replace(/-/g, "") || "";
+
+      const response = await fetch("http://localhost:3001/auth", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_phone: cleanPhoneNumber,
+          user_type: backendUserType,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "회원가입에 실패했습니다.");
+      }
+
+      const result = await response.json();
+      console.log("회원가입 성공:", result);
+
+      // 회원가입 성공 후 홈으로 이동
+      router.push("/");
+    } catch (error) {
+      console.error("회원가입 오류:", error);
+      alert(error instanceof Error ? error.message : "회원가입 중 오류가 발생했습니다.");
+    }
   };
 
   return (
@@ -142,41 +162,6 @@ function LoginStepPage() {
             </div>
           }
         />
-        {/* <Modal isOpen={isUserTypeModalOpen} onClose={() => setIsUserTypeModalOpen(false)}>
-          <div>
-            <h2 className="pb-5 pt-2 text-xl font-bold">업체 유형을 선택해주세요</h2>
-            <div className="flex w-full gap-3">
-              <Button
-                type="button"
-                onClick={() => handleTypeSelect("company")}
-                selected={userType === "company"}
-                className="flex h-[100px] w-full flex-col items-center justify-center gap-3 border"
-              >
-                <Image
-                  src={userType === "company" ? "/icons/company.svg" : "/icons/company_disabled.svg"}
-                  width={40}
-                  height={40}
-                  alt="인테리어 업체"
-                />
-                인테리어 업체
-              </Button>
-              <Button
-                type="button"
-                onClick={() => handleTypeSelect("factory")}
-                selected={userType === "factory"}
-                className="flex h-[100px] w-full flex-col items-center justify-center gap-3 border"
-              >
-                <Image
-                  src={userType === "factory" ? "/icons/factory.svg" : "/icons/factory_disabled.svg"}
-                  width={40}
-                  height={40}
-                  alt="공장"
-                />
-                공장
-              </Button>
-            </div>
-          </div>
-        </Modal> */}
         <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
           <div className="flex flex-col gap-5">
             <h2 className="text-lg font-bold text-gray-800">

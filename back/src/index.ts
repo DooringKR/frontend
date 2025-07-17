@@ -5,8 +5,9 @@ import appUserRouter from './routes/app_user'
 import orderRouter from './routes/order'
 import cartRouter from './routes/cart'
 import cartItemRouter from './routes/cart_item'
+import dotenv from "dotenv"
 
-
+dotenv.config();
 const app = express();
 const PORT = parseInt(process.env.PORT || "3001", 10);
 

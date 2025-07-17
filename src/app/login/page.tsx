@@ -1,6 +1,6 @@
 "use client";
 
-import { signin } from "@/api/authApi";
+import { checkPhoneDuplicate, signin } from "@/api/authApi";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -36,32 +36,27 @@ function PhoneLoginPage() {
     inputRef.current?.focus();
   }, []);
 
-  // const onSubmit = async (data: PhoneFormData) => {
-  //   try {
-  //     const result = await signin({
-  //       phoneNumber: data.user_phoneNumber,
-  //     });
+  const onSubmit = async (data: PhoneFormData) => {
+    try {
+      // 전화번호 중복 확인
+      const isDuplicate = await checkPhoneDuplicate(data.user_phoneNumber);
 
-  //     if (result.isRegistered) {
-  //       router.push("/");
-  //     } else {
-  //       setUserPhoneNumber(data.user_phoneNumber);
-  //       router.push("/login/step");
-  //     }
-  //   } catch (error) {
-  //     console.error("로그인 요청 실패:", error);
-  //     alert("로그인 중 오류가 발생했습니다.");
-  //   }
-  // };
-
-  const onSubmit = (data: PhoneFormData) => {
-    const fakeToken = "temporary-token-1234";
-    document.cookie = `token=${fakeToken}; path=/; max-age=3600`;
-    if (true) {
-      setUserPhoneNumber(data.user_phoneNumber);
-      router.push("/login/step");
-    } else {
-      router.push("/");
+      if (isDuplicate) {
+        console.log("중복됨");
+        // 기존 사용자 - 로그인 처리
+        // const result = await signin({
+        //   phoneNumber: data.user_phoneNumber,
+        // });
+        // if (result.isRegistered) {
+        //   router.push("/");
+      } else {
+        console.log("중복아님");
+        setUserPhoneNumber(data.user_phoneNumber);
+        router.push("/login/step");
+      }
+    } catch (error) {
+      console.error("로그인 요청 실패:", error);
+      alert("로그인 중 오류가 발생했습니다.");
     }
   };
 
@@ -76,22 +71,6 @@ function PhoneLoginPage() {
       <TopNavigator title="테스트" />
       <Header title="휴대폰 번호를 입력해주세요" size="Large" />
       <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6 px-5">
-        {/* <Input
-          type="text"
-          label="휴대폰 번호"
-          name="user_phoneNumber"
-          placeholder="휴대폰 번호를 입력해주세요"
-          register={phoneRegister}
-          error={errors.user_phoneNumber}
-          onChange={e => {
-            const formatted = formatPhoneNumber(e.target.value);
-            setValue("user_phoneNumber", formatted, {
-              shouldValidate: true,
-              shouldDirty: true,
-            });
-          }}
-          onKeyDown={handlePhoneKeyDown}
-        /> */}
         <UnderlinedInput
           label="휴대폰 번호"
           value={watchedPhoneNumber || ""}

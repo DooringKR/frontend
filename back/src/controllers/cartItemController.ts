@@ -1,5 +1,8 @@
 import { Request, Response } from 'express';
 import prisma from '../prismaClient';
+import { ProductType } from '@prisma/client';
+
+const VALID_PRODUCT_TYPES = Object.values(ProductType);
 
 // GET /cart_item/:cart_item_id — 특정 장바구니 아이템 조회
 export async function getCartItem(req: Request, res: Response) {
@@ -27,7 +30,11 @@ export async function getCartItem(req: Request, res: Response) {
 // POST /cart_item — 장바구니에 상품 추가
 export async function addCartItem(req: Request, res: Response) {
   const { cart_id, product_type, item_count, item_options } = req.body;
-  if (typeof cart_id !== 'number' || typeof item_count !== 'number' || !product_type || typeof item_options !== 'object') {
+  if (typeof cart_id !== 'number' || 
+    typeof item_count !== 'number' || 
+    !product_type || 
+    typeof item_options !== 'object' ||
+    !VALID_PRODUCT_TYPES.includes(product_type)) {
     return res.status(400).json({ message: '잘못된 요청입니다' });
   }
 
