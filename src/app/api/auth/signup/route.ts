@@ -6,46 +6,67 @@ interface SignupRequestBody {
 }
 
 interface SignupResponse {
-  accessToken: string;
+  user_id: number;
 }
 
-async function requestSignup(signupData: SignupRequestBody) {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/signup`, {
+async function requestSignup(signupData: SignupRequestBody): Promise<{ data: SignupResponse } | NextResponse> {
+  // 백엔드 형식에 맞게 데이터 변환
+  const backendData = {
+    user_phone: signupData.phoneNumber,
+    user_type: signupData.userType === 'company' ? 'INTERIOR' : 'FACTORY',
+  };
+
+  console.log('백엔드로 전송할 데이터:', backendData);
+
+  const response = await fetch(`https://dooring-backend.onrender.com/auth`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(signupData),
+    body: JSON.stringify(backendData),
     credentials: 'include',
   });
 
+  console.log('백엔드 응답 상태:', response.status);
+
   if (!response.ok) {
+    const errorText = await response.text();
+    console.error('백엔드 오류 응답:', errorText);
+
+    // 409 오류는 이미 가입된 회원
+    if (response.status === 409) {
+      return NextResponse.json(
+        { error: '이미 가입된 회원입니다.' },
+        { status: 409 }
+      );
+    }
+
     throw new Error('회원가입 요청 실패');
   }
 
   const data: SignupResponse = await response.json();
-  const setCookieHeader = response.headers.get('set-cookie');
+  console.log('백엔드 응답 데이터:', data);
 
-  return { data, setCookieHeader };
+  return { data };
 }
 
 export async function POST(request: Request) {
-  const body = await request.json();
-  const { data, setCookieHeader } = await requestSignup(body);
+  try {
+    const body = await request.json();
+    console.log('받은 요청 데이터:', body);
 
-  const nextResponse = NextResponse.json({ success: true });
+    const result = await requestSignup(body);
 
-  if (setCookieHeader) {
-    nextResponse.headers.set('set-cookie', setCookieHeader);
+    // NextResponse가 반환된 경우 (에러 상황)
+    if (result instanceof NextResponse) {
+      return result;
+    }
+
+    // 성공한 경우
+    return NextResponse.json({ user_id: result.data.user_id });
+  } catch (error) {
+    console.error('회원가입 API 오류:', error);
+    return NextResponse.json(
+      { error: '회원가입 중 오류가 발생했습니다.' },
+      { status: 500 }
+    );
   }
-
-  if (data.accessToken) {
-    nextResponse.cookies.set('access-token', data.accessToken, {
-      secure: true,
-      httpOnly: true,
-      path: '/',
-      sameSite: 'strict',
-      maxAge: 60 * 30,
-    });
-  }
-
-  return nextResponse;
 }

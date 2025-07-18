@@ -7,7 +7,7 @@ export async function checkPhoneDuplicate(phoneNumber: string): Promise<boolean>
   // 하이픈 제거하여 11자리 숫자만 추출
   const cleanPhoneNumber = phoneNumber.replace(/-/g, "");
 
-  const response = await fetch(`http://localhost:3001/auth?user_phone=${cleanPhoneNumber}`, {
+  const response = await fetch(`/api/auth/check-phone?user_phone=${cleanPhoneNumber}`, {
     method: "HEAD",
   });
 
@@ -23,8 +23,8 @@ export async function checkPhoneDuplicate(phoneNumber: string): Promise<boolean>
   }
 }
 
-// 로그인 & 기존 유저 체크
-export async function signin(body: SigninUser): Promise<{ isRegistered: boolean }> {
+// 로그인
+export async function signin(body: SigninUser): Promise<void> {
   const response = await fetch("/api/auth/signin", {
     method: "POST",
     headers: {
@@ -39,22 +39,20 @@ export async function signin(body: SigninUser): Promise<{ isRegistered: boolean 
   }
 
   const data = await response.json();
+  //유저 정보(factory, interior 여부 등) 가져와서 local storage에 저장
 
-  if (!data.isRegistered) {
-    return { isRegistered: false };
-  }
-  const { id, userType, phoneNumber } = await getUserProfile();
+  const { id, userType, phoneNumber } = await getUserProfile(data.user_id);
 
   const userStore = useUserStore.getState();
   userStore.setUserId(id);
   userStore.setUserType(userType);
   userStore.setUserPhoneNumber(phoneNumber);
 
-  return { isRegistered: true };
+  return;
 }
 
 // 회원가입
-export async function signup(body: SignupUser): Promise<void> {
+export async function signup(body: SignupUser): Promise<{ user_id: number }> {
   const response = await fetch("/api/auth/signup", {
     method: "POST",
     headers: {
@@ -63,14 +61,15 @@ export async function signup(body: SignupUser): Promise<void> {
     credentials: "include", // 쿠키 포함
     body: JSON.stringify(body),
   });
-
+  console.log(response);
   if (!response.ok) {
     throw new Error("회원가입 요청 실패");
   }
 
-  const data = await response.json();
+  const data: { user_id: number } = await response.json();
 
-  const { id, userType, phoneNumber } = await getUserProfile();
+  // 회원가입 성공 후 사용자 정보를 store에 저장
+  const { id, userType, phoneNumber } = await getUserProfile(data.user_id);
 
   const userStore = useUserStore.getState();
   userStore.setUserId(id);
@@ -81,8 +80,8 @@ export async function signup(body: SignupUser): Promise<void> {
 }
 
 // 유저 정보 조회
-export async function getUserProfile(): Promise<User> {
-  const response = await fetch("/api/user", {
+export async function getUserProfile(userId: number): Promise<User> {
+  const response = await fetch(`/api/user?userId=${userId}`, {
     method: "GET",
     credentials: "include",
   });
