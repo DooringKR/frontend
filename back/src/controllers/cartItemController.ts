@@ -34,7 +34,7 @@ export async function addCartItem(req: Request, res: Response) {
   if (typeof cart_id !== 'number' || 
     typeof item_count !== 'number' || 
     !product_type || 
-    !unit_price ||
+    typeof unit_price !== 'number' ||
     typeof item_options !== 'object' ||
     !VALID_PRODUCT_TYPES.includes(product_type)) {
     return res.status(400).json({ message: '잘못된 요청입니다' });

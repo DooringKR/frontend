@@ -69,3 +69,35 @@ export async function checkDuplicate(req: Request, res: Response) {
   });
   return exists ? res.status(409).end() : res.status(200).end();
 }
+
+export async function login(req: Request, res: Response) {
+  const { user_phone } = req.body;
+
+  // 1) 필드 검증
+  if (
+    typeof user_phone !== "string" ||
+    !/^[0-9]{11}$/.test(user_phone)
+  ) {
+    return res
+      .status(400)
+      .json({ message: "user_phone은 11자리 숫자여야 합니다." });
+  }
+
+  // 2) DB 조회
+  const user = await prisma.user.findUnique({
+    where: { user_phone },
+  });
+  if (!user) {
+    return res
+      .status(404)
+      .json({ message: "등록된 회원이 아닙니다." });
+  }
+
+  // 3) 성공 응답 (user_id 포함)
+  return res
+    .status(200)
+    .json({
+      user_id: user.id,
+      message: "로그인 성공",
+    });
+}

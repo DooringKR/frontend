@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { signup, checkDuplicate } from "../controllers/authController";
+import { signup, checkDuplicate, login } from "../controllers/authController";
 
 const router = Router();
 
@@ -8,5 +8,8 @@ router.post("/", signup);
 
 // HEAD /auth?user_phone=...
 router.head("/", checkDuplicate);
+
+// POST /auth/login
+router.post("/login", login);
 
 export default router;
