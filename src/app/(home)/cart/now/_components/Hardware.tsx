@@ -25,7 +25,7 @@ function Hardware() {
         <div>
           <p>제조사 : {hardwareItem.madeBy}</p>
           <p>모델명 : {hardwareItem.model}</p>
-          {hardwareItem.hardwareRequests && <p>요청 사항 : {hardwareItem.hardwareRequests}</p>}
+          {hardwareItem.hardwareRequest && <p>요청 사항 : {hardwareItem.hardwareRequest}</p>}
         </div>
         <div className="flex justify-between">
           <div className="mt-4 text-lg font-bold">{total.toLocaleString()}원</div>

@@ -1,26 +1,5 @@
+import { DoorItem } from "@/types/itemTypes";
 import { create } from "zustand";
-
-export type DoorSlug = "normal" | "flap" | "drawer";
-
-export type DoorItem = {
-  category: "door";
-  slug: DoorSlug | null;
-  color: string;
-  width: number | null;
-  height: number | null;
-  hinge: {
-    hingeCount: number | null;
-    hingePosition: "left" | "right" | null;
-    topHinge: number | null;
-    bottomHinge: number | null;
-    middleHinge: number | null;
-    middleTopHinge: number | null;
-    middleBottomHinge: number | null;
-  };
-  doorRequest: string | null;
-  count: number | null;
-  price: number | null;
-};
 
 interface DoorStore {
   doorItem: DoorItem;
@@ -47,6 +26,7 @@ const initialState: DoorItem = {
   doorRequest: null,
   count: null,
   price: null,
+  cartItemId: undefined,
 };
 
 const useDoorStore = create<DoorStore>(set => ({

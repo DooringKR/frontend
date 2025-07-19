@@ -1,5 +1,6 @@
 "use client";
 
+import { createOrder } from "@/api/orderApi";
 import { CHECK_ORDER_PAGE } from "@/constants/pageName";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -10,7 +11,10 @@ import ReceiveOptionBar from "@/components/ReceiveOptionBar/ReceiveOptionBar";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { useCurrentOrderStore } from "@/store/Items/currentOrderStore";
+import useAddressStore from "@/store/addressStore";
+import useCartStore from "@/store/cartStore";
 import { useOrderStore } from "@/store/orderStore";
+import useUserStore from "@/store/userStore";
 import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 
 import DeliveryAddressCard from "./_components/DeliveryAddressCard";
@@ -31,64 +35,54 @@ function CheckOrderClientPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const recipientPhoneNumber = useOrderStore(state => state.recipientPhoneNumber);
-  const setRecipientPhoneNumber = useOrderStore(state => state.setRecipientPhoneNumber);
-  const address = useOrderStore(state => state.address);
-  const setAddress = useOrderStore(state => state.setAddress);
+  const {
+    address,
+    setAddress,
+    recipientPhoneNumber,
+    setRecipientPhoneNumber,
+    foyerAccessType,
+    setFoyerAccessType,
+    requestMessage,
+    setRequestMessage,
+    customerRequest,
+    setCustomerRequest,
+  } = useOrderStore();
 
-  const foyerAccessType = useOrderStore(state => state.foyerAccessType);
-  const setFoyerAccessType = useOrderStore(state => state.setFoyerAccessType);
+  const { address1: savedAddress1, address2: savedAddress2 } = useAddressStore();
+  const { user_phoneNumber } = useUserStore();
 
   const [expectedArrivalMinutes, setExpectedArrivalMinutes] = useState<number | null>(null);
   const [deliveryDate, setDeliveryDate] = useState<string | null>(null);
-  // const [address, setAddress] = useState({ address1: "", address2: "" });
-  const [phoneNumber, setPhoneNumber] = useState("");
-  // const [recipientPhoneNumber, setRecipientPhoneNumber] = useState("");
   const [deliveryMessage, setDeliveryMessage] = useState("");
   const [deliveryMessageColor, setDeliveryMessageColor] = useState("text-black");
-  const [requestMessage, setRequestMessage] = useState("");
-  const [customerRequest, setCustomerRequest] = useState("");
-  // const [foyerAccessType, setFoyerAccessType] = useState<{
-  //   type: "gate" | "call" | "doorfront" | "custom";
-  //   gatePassword: string | null;
-  //   customRequest: string | null;
-  // }>({
-  //   type: "call",
-  //   gatePassword: null,
-  //   customRequest: null,
-  // });
-
   const [cartItems, setCartItems] = useState<any[]>([]);
+  const { cartItems: globalCartItems } = useCartStore();
+  const { cartId } = useCartStore.getState();
+  console.log("🛒 저장된 cartId:", cartId);
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("address-storage") || "{}");
-    if (saved.state && !address.address1 && !address.address2) {
-      setAddress(saved.state);
-    }
-    const userRaw = localStorage.getItem("userData");
-
-    const selectedAddress = address.address1 || "주소 없음";
-
-    if (userRaw) {
-      const user = JSON.parse(userRaw).state;
-      setPhoneNumber(user?.user_phoneNumber || "");
-
-      if (!recipientPhoneNumber) {
-        setRecipientPhoneNumber(user?.user_phoneNumber || "");
-      }
+    // 기본 주소 세팅
+    if (!address.address1 && !address.address2 && savedAddress1 && savedAddress2) {
+      setAddress({ address1: savedAddress1, address2: savedAddress2 });
     }
 
+    // 전화번호 세팅
+    if (!recipientPhoneNumber && user_phoneNumber) {
+      setRecipientPhoneNumber(user_phoneNumber);
+    }
+
+    // 장바구니 세팅
     if (searchParams.get("current") === "now") {
       setCartItems([currentItem]);
     } else {
-      const localCart = JSON.parse(localStorage.getItem("cartItems") || "[]");
-      setCartItems(localCart);
+      setCartItems(globalCartItems);
     }
 
     const fetchDeliveryTime = async () => {
-      if (selectedAddress !== "주소 없음") {
-        const { remainingMinutes, isToday, arrivalTimeFormatted } =
-          await calculateDeliveryInfo(selectedAddress);
+      if (address.address1) {
+        const { remainingMinutes, isToday, arrivalTimeFormatted } = await calculateDeliveryInfo(
+          address.address1,
+        );
 
         setExpectedArrivalMinutes(remainingMinutes);
 
@@ -103,66 +97,74 @@ function CheckOrderClientPage() {
     };
 
     fetchDeliveryTime();
-  }, [currentItem, searchParams, address]);
+  }, [
+    currentItem,
+    searchParams,
+    address,
+    recipientPhoneNumber,
+    savedAddress1,
+    savedAddress2,
+    user_phoneNumber,
+  ]);
+  useEffect(() => {
+    console.log("✅ 실제 cartItems 값:", cartItems);
+  }, [cartItems]);
 
-  // const handleOrderSubmit = async () => {
-  //   const userRaw = JSON.parse(localStorage.getItem("userData") || "{}");
-  //   const user = userRaw.state || {};
-
-  //   const totalPrice = cartItems.reduce((sum, item) => sum + item.price, 0);
-
-  //   const payload = {
-  //     user: {
-  //       id: user.user_id || 0,
-  //       userType: user.userType || "company",
-  //       phoneNumber: phoneNumber,
-  //     },
-  //     recipientPhoneNumber: recipientPhoneNumber,
-  //     address1: address.address1,
-  //     address2: address.address2,
-  //     foyerAccessType: foyerAccessType,
-  //     deliveryDate: deliveryDate,
-  //     deliveryRequest: requestMessage,
-  //     otherRequests: customerRequest,
-  //     cartItems: cartItems,
-  //     totalPrice: totalPrice,
-  //   };
-
-  //   try {
-  //     await createOrder(payload);
-  //     const currentParam = searchParams.get("current");
-  //     if (currentParam !== "now") {
-  //       localStorage.removeItem("cartItems");
-  //     }
-
-  //     localStorage.removeItem("address-storage");
-  //     useCurrentOrderStore.getState().clearCurrentItem();
-  //     localStorage.setItem("recentOrder", JSON.stringify(payload));
-  //     router.push("/cart/confirm");
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
-
-  // 실제 주문 API 생략. api없이 confirm페이지 UI확인용
-  const handleOrderSubmit = async () => {
-    const totalPrice = cartItems.reduce((sum, item) => sum + item.price * (item.count || 1), 0);
-
-    const payload = {
-      recipientPhoneNumber,
-      totalPrice,
-      cartItems,
-      deliveryDate,
-      address1: address.address1,
-      address2: address.address2,
-      deliveryRequest: requestMessage,
-      foyerAccessType,
-      otherRequests: customerRequest,
+  const buildOrderOptions = () => {
+    const delivery: Record<string, any> = {
+      recipient_road_address: address.address1,
+      recipient_detail_address: address.address2,
+      delivery_type: expectedArrivalMinutes !== null ? "TODAY" : "TOMORROW",
     };
 
-    console.log("💾 저장할 데이터:", payload);
-    localStorage.setItem("recentOrder", JSON.stringify(payload));
-    router.push("/cart/confirm");
+    if (expectedArrivalMinutes === null) {
+      // 오늘 배송 불가 → 내일 도착 시간 필요
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(14, 0, 0, 0); // 예: 내일 오후 2시 예상
+      delivery.tomorrow_delivery_time = tomorrow.toISOString();
+    }
+
+    delivery.delivery_request = requestMessage;
+
+    if (requestMessage === "OPEN_GATE") {
+      delivery.gate_password = foyerAccessType.gatePassword;
+    }
+
+    if (requestMessage === "DIRECT_INPUT") {
+      delivery.delivery_request_direct_input = customerRequest;
+    }
+
+    return { delivery };
+  };
+
+  const handleOrderSubmit = async () => {
+    const totalPrice = cartItems.reduce((sum, item) => sum + item.price * (item.count || 1), 0);
+    // const { id: userId } = useUserStore.getState();
+    const userId = 1; // 임시 테스트용
+
+    if (!userId || !cartId) {
+      alert("주문을 위한 사용자 또는 장바구니 정보가 부족합니다.");
+      return;
+    }
+
+    const payload = {
+      user_id: userId,
+      cart_id: cartId,
+      order_type: "DELIVERY" as const,
+      recipient_phone: recipientPhoneNumber.replace(/[^0-9]/g, ""),
+      order_price: totalPrice,
+      order_options: buildOrderOptions(),
+    };
+
+    try {
+      const order = await createOrder(payload);
+      localStorage.setItem("recentOrder", JSON.stringify(order));
+      router.push("/cart/confirm");
+    } catch (error) {
+      console.error("❌ 주문 생성 실패:", error);
+      alert("주문 생성에 실패했습니다.");
+    }
   };
 
   const groupedCartItems = cartItems.reduce((acc: Record<string, any[]>, item) => {
@@ -172,11 +174,8 @@ function CheckOrderClientPage() {
     return acc;
   }, {});
 
-  const getTotalPrice = () => {
-    return cartItems.reduce((sum, item) => {
-      return sum + (item?.price ?? 0) * (item?.count ?? 1);
-    }, 0);
-  };
+  const getTotalPrice = () =>
+    cartItems.reduce((sum, item) => sum + (item?.price ?? 0) * (item?.count ?? 1), 0);
 
   const sanitizedCartGroups = Object.fromEntries(
     Object.entries(groupedCartItems).map(([key, items]) => [key, items.filter(Boolean)]),
@@ -194,15 +193,9 @@ function CheckOrderClientPage() {
       <div className="flex-grow px-5">
         <div className="flex flex-col gap-3 py-5">
           <h2 className="text-xl font-600 text-gray-800">주소 확인</h2>
-          <DeliveryAddressCard
-            // foyerAccessType={foyerAccessType}
-            // setFoyerAccessType={setFoyerAccessType}
-            address={address}
-            // requestMessage={requestMessage}
-            // setRequestMessage={setRequestMessage}
-            setAddress={setAddress}
-          />
+          <DeliveryAddressCard address={address} setAddress={setAddress} />
         </div>
+
         <DeliveryScheduleSelector
           expectedArrivalMinutes={expectedArrivalMinutes}
           setDeliveryDate={setDeliveryDate}
@@ -210,11 +203,9 @@ function CheckOrderClientPage() {
 
         <section className="flex flex-col gap-3 py-5">
           <h2 className="text-xl font-600 text-gray-800">배송정보 확인</h2>
-
           <RecipientPhoneNumber />
           <DeliveryRequestSelector />
         </section>
-        {/* <PriceCheckCard page={CHECK_ORDER_PAGE} /> */}
 
         <PriceSummaryCard
           cartGroups={sanitizedCartGroups}
@@ -223,6 +214,7 @@ function CheckOrderClientPage() {
           page={CHECK_ORDER_PAGE}
         />
       </div>
+
       <div className="w-full px-5 pb-5 pt-3">
         <Button selected={true} onClick={handleOrderSubmit} className="w-full">
           주문 접수하기
