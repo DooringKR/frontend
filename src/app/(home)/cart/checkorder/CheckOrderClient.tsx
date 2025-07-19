@@ -1,5 +1,6 @@
 "use client";
 
+import { createOrder } from "@/api/orderApi";
 import { CHECK_ORDER_PAGE } from "@/constants/pageName";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -11,6 +12,7 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { useCurrentOrderStore } from "@/store/Items/currentOrderStore";
 import useAddressStore from "@/store/addressStore";
+import useCartStore from "@/store/cartStore";
 import { useOrderStore } from "@/store/orderStore";
 import useUserStore from "@/store/userStore";
 import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
@@ -54,6 +56,9 @@ function CheckOrderClientPage() {
   const [deliveryMessage, setDeliveryMessage] = useState("");
   const [deliveryMessageColor, setDeliveryMessageColor] = useState("text-black");
   const [cartItems, setCartItems] = useState<any[]>([]);
+  const { cartItems: globalCartItems } = useCartStore();
+  const { cartId } = useCartStore.getState();
+  console.log("🛒 저장된 cartId:", cartId);
 
   useEffect(() => {
     // 기본 주소 세팅
@@ -70,8 +75,7 @@ function CheckOrderClientPage() {
     if (searchParams.get("current") === "now") {
       setCartItems([currentItem]);
     } else {
-      const localCart = JSON.parse(localStorage.getItem("cartItems") || "[]");
-      setCartItems(localCart);
+      setCartItems(globalCartItems);
     }
 
     const fetchDeliveryTime = async () => {
@@ -102,25 +106,65 @@ function CheckOrderClientPage() {
     savedAddress2,
     user_phoneNumber,
   ]);
+  useEffect(() => {
+    console.log("✅ 실제 cartItems 값:", cartItems);
+  }, [cartItems]);
+
+  const buildOrderOptions = () => {
+    const delivery: Record<string, any> = {
+      recipient_road_address: address.address1,
+      recipient_detail_address: address.address2,
+      delivery_type: expectedArrivalMinutes !== null ? "TODAY" : "TOMORROW",
+    };
+
+    if (expectedArrivalMinutes === null) {
+      // 오늘 배송 불가 → 내일 도착 시간 필요
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(14, 0, 0, 0); // 예: 내일 오후 2시 예상
+      delivery.tomorrow_delivery_time = tomorrow.toISOString();
+    }
+
+    delivery.delivery_request = requestMessage;
+
+    if (requestMessage === "OPEN_GATE") {
+      delivery.gate_password = foyerAccessType.gatePassword;
+    }
+
+    if (requestMessage === "DIRECT_INPUT") {
+      delivery.delivery_request_direct_input = customerRequest;
+    }
+
+    return { delivery };
+  };
 
   const handleOrderSubmit = async () => {
     const totalPrice = cartItems.reduce((sum, item) => sum + item.price * (item.count || 1), 0);
+    // const { id: userId } = useUserStore.getState();
+    const userId = 1; // 임시 테스트용
+
+    if (!userId || !cartId) {
+      alert("주문을 위한 사용자 또는 장바구니 정보가 부족합니다.");
+      return;
+    }
 
     const payload = {
-      recipientPhoneNumber,
-      totalPrice,
-      cartItems,
-      deliveryDate,
-      address1: address.address1,
-      address2: address.address2,
-      deliveryRequest: requestMessage,
-      foyerAccessType,
-      otherRequests: customerRequest,
+      user_id: userId,
+      cart_id: cartId,
+      order_type: "DELIVERY" as const,
+      recipient_phone: recipientPhoneNumber.replace(/[^0-9]/g, ""),
+      order_price: totalPrice,
+      order_options: buildOrderOptions(),
     };
 
-    console.log("💾 저장할 데이터:", payload);
-    localStorage.setItem("recentOrder", JSON.stringify(payload));
-    router.push("/cart/confirm");
+    try {
+      const order = await createOrder(payload);
+      localStorage.setItem("recentOrder", JSON.stringify(order));
+      router.push("/cart/confirm");
+    } catch (error) {
+      console.error("❌ 주문 생성 실패:", error);
+      alert("주문 생성에 실패했습니다.");
+    }
   };
 
   const groupedCartItems = cartItems.reduce((acc: Record<string, any[]>, item) => {

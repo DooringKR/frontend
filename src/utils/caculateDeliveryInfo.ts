@@ -59,3 +59,8 @@ export const formatRemainingTimeRange = (startMinutes: number, range = 10): stri
 
   return `${startText}~${endText} 후 도착`;
 };
+
+export function isWeekend(date: Date) {
+  const day = date.getDay();
+  return day === 0 || day === 6; // 0: 일요일, 6: 토요일
+}

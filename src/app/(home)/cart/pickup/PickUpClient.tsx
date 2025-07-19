@@ -1,6 +1,8 @@
 "use client";
 
+import { createOrder } from "@/api/orderApi";
 import { CHECK_ORDER_PAGE } from "@/constants/pageName";
+import { AccessoryItem, CabinetItem, DoorItem, FinishItem, HardwareItem } from "@/types/itemTypes";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -10,11 +12,14 @@ import ReceiveOptionBar from "@/components/ReceiveOptionBar/ReceiveOptionBar";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { useCurrentOrderStore } from "@/store/Items/currentOrderStore";
+import useCartStore from "@/store/cartStore";
 import { useOrderStore } from "@/store/orderStore";
 
 import RecipientPhoneNumber from "../checkorder/_components/RecipientPhoneNumber";
 import PickUpAddressCard from "./_components/PickUpAddressCard";
 import PickUpVehicleSelector from "./_components/PickUpVehicleSelector";
+
+type AnyCartItem = DoorItem | CabinetItem | AccessoryItem | FinishItem | HardwareItem;
 
 const CATEGORY_MAP: Record<string, string> = {
   door: "문짝",
@@ -28,61 +33,109 @@ export default function PickUpClientPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [cartItems, setCartItems] = useState<any[]>([]);
+  const { cartItems: globalCartItems } = useCartStore();
+  const [groupedCartItems, setGroupedCartItems] = useState<Record<string, AnyCartItem[]>>({});
+  const { cartId } = useCartStore.getState();
+  const { currentItem } = useCurrentOrderStore();
 
   useEffect(() => {
-    const currentItem = useCurrentOrderStore.getState().currentItem;
-
     if (searchParams.get("current") === "now") {
       setCartItems([currentItem]);
     } else {
-      const localCart = JSON.parse(localStorage.getItem("cartItems") || "[]");
-      setCartItems(localCart);
+      setCartItems(globalCartItems);
     }
-  }, [searchParams]);
+  }, [searchParams, globalCartItems]);
 
-  const handleSubmit = () => {
+  useEffect(() => {
+    const grouped: Record<string, AnyCartItem[]> = {};
+    cartItems.forEach(item => {
+      if (!item || !item.category) return;
+      if (!grouped[item.category]) grouped[item.category] = [];
+      grouped[item.category].push(item);
+    });
+    setGroupedCartItems(grouped);
+  }, [cartItems]);
+
+  //   const totalPrice = cartItems.reduce((sum, item) => sum + item.price * (item.count || 1), 0);
+
+  //   const {
+  //     recipientPhoneNumber,
+  //     address,
+  //     deliveryDate,
+  //     requestMessage,
+  //     foyerAccessType,
+  //     customerRequest,
+  //     pickupInfo,
+  //   } = useOrderStore.getState();
+
+  //   const orderData = {
+  //     recipientPhoneNumber,
+  //     address1: address.address1,
+  //     address2: address.address2,
+  //     deliveryDate,
+  //     deliveryRequest: requestMessage,
+  //     foyerAccessType,
+  //     otherRequests: customerRequest,
+  //     pickupInfo,
+  //     receiveMethod: "pickup",
+  //     cartItems,
+  //     totalPrice,
+  //   };
+  //   console.log("💾 저장할 pickup 주문:", orderData);
+  //   localStorage.setItem("recentOrder", JSON.stringify(orderData));
+  //   router.push("/cart/confirm");
+  // };
+
+  const handleSubmit = async () => {
     const totalPrice = cartItems.reduce((sum, item) => sum + item.price * (item.count || 1), 0);
 
     const {
       recipientPhoneNumber,
       address,
-      deliveryDate,
       requestMessage,
       foyerAccessType,
       customerRequest,
       pickupInfo,
     } = useOrderStore.getState();
 
-    const orderData = {
-      recipientPhoneNumber,
-      address1: address.address1,
-      address2: address.address2,
-      deliveryDate,
-      deliveryRequest: requestMessage,
-      foyerAccessType,
-      otherRequests: customerRequest,
-      pickupInfo,
-      receiveMethod: "pickup",
-      cartItems,
-      totalPrice,
+    // const { id: userId } = useUserStore.getState();
+    const userId = 1;
+
+    if (!userId || !cartId) {
+      alert("주문에 필요한 정보가 부족합니다.");
+      return;
+    }
+
+    const payload = {
+      user_id: userId,
+      cart_id: cartId,
+      order_type: "PICK_UP" as const,
+      recipient_phone: recipientPhoneNumber.replace(/[^0-9]/g, ""),
+      order_price: totalPrice,
+      order_options: {
+        pickup: {
+          pickup_address1: address.address1,
+          pickup_address2: address.address2,
+          pickup_vehicle_type: pickupInfo.vehicleType,
+          pickup_custom_note: pickupInfo.customVehicleNote,
+        },
+        foyer_access_type: foyerAccessType,
+        other_requests: customerRequest,
+      },
     };
-    console.log("💾 저장할 pickup 주문:", orderData);
-    localStorage.setItem("recentOrder", JSON.stringify(orderData));
-    router.push("/cart/confirm");
+
+    try {
+      const order = await createOrder(payload);
+      localStorage.setItem("recentOrder", JSON.stringify(order));
+      router.push("/cart/confirm");
+    } catch (error) {
+      console.error("❌ 주문 생성 실패:", error);
+      alert("주문 생성에 실패했습니다.");
+    }
   };
 
-  const groupedCartItems = cartItems.reduce((acc: Record<string, any[]>, item) => {
-    if (!item || !item.category) return acc;
-    if (!acc[item.category]) acc[item.category] = [];
-    acc[item.category].push(item);
-    return acc;
-  }, {});
-
-  const getTotalPrice = () => {
-    return cartItems.reduce((sum, item) => {
-      return sum + (item?.price ?? 0) * (item?.count ?? 1);
-    }, 0);
-  };
+  const getTotalPrice = () =>
+    cartItems.reduce((sum, item) => sum + (item?.price ?? 0) * (item?.count ?? 1), 0);
 
   const sanitizedCartGroups = Object.fromEntries(
     Object.entries(groupedCartItems).map(([key, items]) => [key, items.filter(Boolean)]),
