@@ -52,6 +52,7 @@ model CartItem {
   cart         Cart   @relation(fields: [cart_id], references: [id])
   cart_id      Int
   product_type ProductType
+  unit_price   Int?
   item_count   Int
   item_options Json
 }

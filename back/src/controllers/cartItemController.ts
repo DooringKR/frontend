@@ -22,6 +22,7 @@ export async function getCartItem(req: Request, res: Response) {
     cart_item_id: item.id,
     cart_id:        item.cart_id,
     product_type:   item.product_type,
+    unit_price:     item.unit_price,
     item_count:     item.item_count,
     item_options:   item.item_options,
   });
@@ -29,23 +30,25 @@ export async function getCartItem(req: Request, res: Response) {
 
 // POST /cart_item — 장바구니에 상품 추가
 export async function addCartItem(req: Request, res: Response) {
-  const { cart_id, product_type, item_count, item_options } = req.body;
+  const { cart_id, product_type, unit_price, item_count, item_options } = req.body;
   if (typeof cart_id !== 'number' || 
     typeof item_count !== 'number' || 
     !product_type || 
+    typeof unit_price !== 'number' ||
     typeof item_options !== 'object' ||
     !VALID_PRODUCT_TYPES.includes(product_type)) {
     return res.status(400).json({ message: '잘못된 요청입니다' });
   }
 
   const newItem = await prisma.cartItem.create({
-    data: { cart_id, product_type, item_count, item_options },
+    data: { cart_id, product_type, unit_price, item_count, item_options },
   });
 
   return res.status(201).json({
     cart_item_id: newItem.id,
     cart_id:      newItem.cart_id,
     product_type: newItem.product_type,
+    unit_price:   newItem.unit_price,
     item_count:   newItem.item_count,
     item_options: newItem.item_options,
   });
@@ -71,6 +74,7 @@ export async function updateCartItem(req: Request, res: Response) {
       cart_item_id: updated.id,
       cart_id:      updated.cart_id,
       product_type: updated.product_type,
+      unit_price:   updated.unit_price,
       item_count:   updated.item_count,
       item_options: updated.item_options,
     });
