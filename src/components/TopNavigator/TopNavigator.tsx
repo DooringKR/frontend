@@ -10,10 +10,10 @@ import React from "react";
 interface TopNavigatorProps {
   title?: string;
   page?: string;
-  isCartEmpty?: boolean;
+  cartItemCount?: number;
 }
 
-const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, isCartEmpty }) => {
+const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, cartItemCount = 0 }) => {
   const router = useRouter();
   return (
     <div className="flex h-[60px] w-full flex-shrink-0 items-center justify-between gap-[12px] px-[20px]">
@@ -27,7 +27,7 @@ const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, isCartEmpty })
       )}
 
       {/* Title */}
-      <h1 className="text-[17px] font-[500] font-medium text-gray-600">{title}</h1>
+      <h1 className="text-[17px] font-[500] text-gray-600">{title}</h1>
 
       {/* Headphones Icon */}
 
@@ -45,11 +45,16 @@ const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, isCartEmpty })
         <div className="flex gap-6">
           <Link href={"/cart"} className="relative cursor-pointer">
             <img src={"/icons/shopping-cart.svg"} alt="장바구니 아이콘"></img>
-            {isCartEmpty ? (
+            {/* {isCartEmpty ? (
               ""
             ) : (
               <span className="absolute -right-2 -top-2 h-[18px] w-[18px] rounded-full bg-red-500 text-center text-[13px] font-500 text-white">
                 1
+              </span>
+            )} */}
+            {cartItemCount > 0 && (
+              <span className="absolute -right-2 -top-2 h-[18px] w-[18px] rounded-full bg-red-500 text-center text-[13px] font-500 text-white">
+                {cartItemCount}
               </span>
             )}
           </Link>

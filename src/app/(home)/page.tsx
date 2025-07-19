@@ -1,5 +1,6 @@
 "use client";
 
+import { getCartItems } from "@/api/cartApi";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { useEffect, useState } from "react";
@@ -12,7 +13,9 @@ import HomeProductContainer from "@/components/HomeProductContaines/HomeProductC
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import useAddressStore from "@/store/addressStore";
+import useCartStore from "@/store/cartStore";
 import { useSingleCartStore } from "@/store/singleCartStore";
+import useUserStore from "@/store/userStore";
 import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 
 import Footer from "./_components/Footer";
@@ -29,6 +32,10 @@ export default function Page() {
   const [deliverySchedule, setDeliverySchedule] = useState<"today" | "tomorrow" | "other" | "">("");
   const [timeLimit, setTimeLimit] = useState<string | undefined>(undefined);
   const [arrivalDate, setArrivalDate] = useState<string | undefined>(undefined);
+
+  const { id: userId } = useUserStore();
+  const { cartItems, setCartItems } = useCartStore();
+  const [cartItemCount, setCartItemCount] = useState(0);
 
   const formatOrderDeadline = (remainingMinutes: number): string => {
     const hours = Math.floor(remainingMinutes / 60);
@@ -92,6 +99,25 @@ export default function Page() {
   //   redirect("/login");
   // }
 
+  useEffect(() => {
+    const fetchCart = async () => {
+      // if (!userId) return;
+      // 임시로 하드코딩
+      const userId = 1;
+      try {
+        const cartData = await getCartItems(userId);
+        setCartItems(cartData.items);
+
+        const totalCount = cartData.items.reduce((sum, item) => sum + item.item_count, 0);
+        setCartItemCount(totalCount);
+      } catch (err) {
+        console.error("장바구니 불러오기 실패", err);
+      }
+    };
+
+    fetchCart();
+  }, [userId, setCartItems]);
+
   const user = null;
 
   let addressIndicatorProps: AddressIndicatorProps;
@@ -123,7 +149,7 @@ export default function Page() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <TopNavigator page="/" isCartEmpty={true} />
+      <TopNavigator page="/" cartItemCount={cartItemCount} />
       <Banner />
 
       <main className="mt-10 flex flex-grow flex-col gap-7">
