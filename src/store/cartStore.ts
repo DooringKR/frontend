@@ -17,6 +17,7 @@ interface CartStore {
   cartId: number | null;
   setCartItems: (items: any[]) => void;
   setCartId: (id: number) => void;
+  clearCartItems: () => void;
 }
 
 const useCartStore = create<CartStore>(set => ({
@@ -24,5 +25,6 @@ const useCartStore = create<CartStore>(set => ({
   cartId: null,
   setCartItems: items => set({ cartItems: items }),
   setCartId: id => set({ cartId: id }),
+  clearCartItems: () => set({ cartItems: [] }),
 }));
 export default useCartStore;

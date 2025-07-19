@@ -51,6 +51,8 @@ export default function OrderConfirmPage() {
     localStorage.removeItem("cartItems");
     localStorage.removeItem("recentOrder");
     useCurrentOrderStore.getState().clearCurrentItem();
+    useCartStore.getState().clearCartItems();
+    useOrderStore.getState().clearOrder();
     router.push("/");
   };
 
