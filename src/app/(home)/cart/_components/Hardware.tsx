@@ -1,6 +1,5 @@
 import { HARDWARE_CATEGORY_LIST } from "@/constants/category";
-
-import { HardwareItem } from "@/store/Items/hardwareStore";
+import { HardwareItem } from "@/types/itemTypes";
 
 function Hardware({ item }: { item: HardwareItem }) {
   const currentCategory = HARDWARE_CATEGORY_LIST.find(item => item.slug === item.slug);
@@ -13,7 +12,7 @@ function Hardware({ item }: { item: HardwareItem }) {
         <div>
           <p>제조사 : {item.madeBy}</p>
           <p>모델명 : {item.model}</p>
-          {item.hardwareRequests && <p>요청 사항 : {item.hardwareRequests}</p>}
+          {item.hardwareRequest && <p>요청 사항 : {item.hardwareRequest}</p>}
         </div>
       </div>
     </>

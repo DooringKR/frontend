@@ -70,6 +70,8 @@ export type DoorItem = {
 };
 
 export type FinishItem = {
+  height: any;
+  depth: any;
   category: "finish";
   color: string;
   baseDepth: number | null;

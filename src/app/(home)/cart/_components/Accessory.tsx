@@ -1,6 +1,5 @@
 import { ACCESSORY_CATEGORY_LIST } from "@/constants/category";
-
-import { AccessoryItem } from "@/store/Items/accessoryStore";
+import { AccessoryItem } from "@/types/itemTypes";
 
 function Accessory({ item }: { item: AccessoryItem }) {
   const currentCategory = ACCESSORY_CATEGORY_LIST.find(item => item.slug === item.slug);
@@ -13,7 +12,7 @@ function Accessory({ item }: { item: AccessoryItem }) {
         <div>
           <p>제조사 : {item.madeBy}</p>
           <p>모델명 : {item.model}</p>
-          {item.accessoryRequests && <p>요청 사항 : {item.accessoryRequests}</p>}
+          {item.accessoryRequest && <p>요청 사항 : {item.accessoryRequest}</p>}
         </div>
       </div>
     </>

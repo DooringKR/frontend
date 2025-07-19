@@ -19,6 +19,8 @@ const initialState: FinishItem = {
   count: null,
   price: null,
   cartItemId: undefined,
+  height: undefined,
+  depth: undefined,
 };
 
 const useFinishStore = create<FinishStore>(set => ({

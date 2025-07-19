@@ -1,4 +1,4 @@
-import { FinishItem } from "@/store/Items/finishStore";
+import { FinishItem } from "@/types/itemTypes";
 
 function Finish({ item }: { item: FinishItem }) {
   return (

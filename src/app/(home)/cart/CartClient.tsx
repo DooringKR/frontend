@@ -103,6 +103,8 @@ export default function CartClient() {
               count: item.item_count ?? 1,
               price: item.unit_price ?? 10000, // 가격 없으면 임시값
               cartItemId: item.cart_item_id,
+              height: undefined,
+              depth: undefined,
             };
 
             if (!grouped[category]) grouped[category] = [];
