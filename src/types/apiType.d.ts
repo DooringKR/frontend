@@ -1,9 +1,9 @@
 // auth type
 
 export type User = {
-  id: number;
-  userType: "company" | "factory";
-  phoneNumber: string;
+  user_id: number;
+  user_type: "company" | "factory";
+  user_phone: string;
 };
 
 export type SignupUser = Pick<User, "userType" | "phoneNumber">;

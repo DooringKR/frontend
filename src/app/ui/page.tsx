@@ -27,6 +27,7 @@ import BoxedSelect from "@/components/Select/BoxedSelect";
 import UnderlinedSelect from "@/components/Select/UnderlinedSelect";
 import SwitchDemo from "@/components/Switches/Switches";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import { signin } from "@/api/authApi";
 
 // SectionWrapper 컴포넌트 추가
 const SectionWrapper = ({ title, children }: { title: string; children: React.ReactNode }) => (
@@ -64,6 +65,19 @@ const Page = () => {
   return (
     <div className="flex flex-col gap-10 p-5">
       <h1 className="mb-4 text-2xl font-bold">컴포넌트 쇼케이스</h1>
+
+      <Button type="Brand" text="로그인" onClick={async () => {
+        try {
+          const userId = await signin({
+            phoneNumber: "01091731643",
+          });
+          console.log("로그인 성공:", userId);
+          router.replace("/");
+        } catch (error) {
+          console.error("로그인 실패:", error);
+          alert("로그인 중 오류가 발생했습니다.");
+        }
+      }} />
       <SectionWrapper title="Underlined Inputs">
         <UnderlinedInput
           label={"예시레이블"}
