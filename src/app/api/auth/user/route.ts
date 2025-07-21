@@ -1,31 +1,27 @@
-import { NextRequest, NextResponse } from "next/server";
+// import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
-  const accessToken = request.cookies.get("access-token")?.value;
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+// export async function GET(userId: number) {
+//   console.log("111");
+//   const res = await fetch(`https://dooring-backend.onrender.com/app_user/${userId}`, {
+//     method: "GET",
+//     headers: { "Content-Type": "application/json" },
+//   });
 
-  const res = await fetch(`${baseUrl}/auth/user`, {
-    method: "GET",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
-  });
+//   const data = await res.json();
 
-  const data = await res.json();
+//   return NextResponse.json(data);
+// }
 
-  return NextResponse.json(data);
-}
+// export async function PUT(request: NextRequest) {
+//   const body = await request.json();
+//   //미완
+//   const res = await fetch(`https://dooring-backend.onrender.com/auth/user`, {
+//     method: "PUT",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify(body),
+//   });
 
-export async function PUT(request: NextRequest) {
-  const accessToken = request.cookies.get("access-token")?.value;
-  const body = await request.json();
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+//   const data = await res.json();
 
-  const res = await fetch(`${baseUrl}/auth/user`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
-    body: JSON.stringify(body),
-  });
-
-  const data = await res.json();
-
-  return NextResponse.json(data);
-}
+//   return NextResponse.json(data);
+// }

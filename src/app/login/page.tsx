@@ -27,7 +27,7 @@ import PaintBruchVertical from "public/icons/paintbrush_vertical";
 
 function PhoneLoginPage() {
   const router = useRouter();
-  const { userType, setUserPhoneNumber, setUserType } = useUserStore();
+  const { userType, setUserPhoneNumber, setUserType, id } = useUserStore();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false);
   const [duplicateStatus, setDuplicateStatus] = useState<'none' | 'checking' | 'duplicate' | 'available'>('none');
@@ -46,6 +46,14 @@ function PhoneLoginPage() {
     resolver: zodResolver(baseSchema),
     mode: "onChange",
   });
+
+  // 이미 로그인된 사용자 체크
+  useEffect(() => {
+    if (id) {
+      console.log("이미 로그인된 사용자입니다. 홈 화면으로 이동합니다.");
+      router.replace("/");
+    }
+  }, [id, router]);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -209,7 +217,7 @@ function PhoneLoginPage() {
         </div>
       )}
 
-      {/* 중복된 전화번호 BottomSheet */}
+      {/* 로그인하는 경우: 중복된 전화번호 BottomSheet */}
       <BottomSheet
         isOpen={showDuplicateBottomSheet}
         onClose={() => setShowDuplicateBottomSheet(false)}
@@ -237,9 +245,11 @@ function PhoneLoginPage() {
                 button1Text="로그인하기"
                 onButton1Click={async () => {
                   try {
-                    // TODO 로그인 처리(아직 코드 쓰지 마세요)
-                    // 1 로그인 api 호출
-                    // 2 홈화면으로 replace
+                    const userId = await signin({
+                      phoneNumber: watchedPhoneNumber,
+                    });
+                    console.log("로그인 성공:", userId);
+                    router.replace("/");
                   } catch (error) {
                     console.error("로그인 실패:", error);
                     alert("로그인 중 오류가 발생했습니다.");
