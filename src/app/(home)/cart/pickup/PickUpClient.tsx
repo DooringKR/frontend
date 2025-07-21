@@ -14,6 +14,7 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import { useCurrentOrderStore } from "@/store/Items/currentOrderStore";
 import useCartStore from "@/store/cartStore";
 import { useOrderStore } from "@/store/orderStore";
+import useUserStore from "@/store/userStore";
 
 import RecipientPhoneNumber from "../checkorder/_components/RecipientPhoneNumber";
 import PickUpAddressCard from "./_components/PickUpAddressCard";
@@ -37,7 +38,16 @@ export default function PickUpClientPage() {
   const [groupedCartItems, setGroupedCartItems] = useState<Record<string, AnyCartItem[]>>({});
   const { cartId } = useCartStore.getState();
   const { currentItem } = useCurrentOrderStore();
+  const { user_phoneNumber } = useUserStore();
+  const { recipientPhoneNumber, setRecipientPhoneNumber } = useOrderStore();
 
+  const { id: userId } = useUserStore.getState();
+
+  useEffect(() => {
+    if (!recipientPhoneNumber && user_phoneNumber) {
+      setRecipientPhoneNumber(user_phoneNumber);
+    }
+  }, [recipientPhoneNumber, user_phoneNumber]);
   useEffect(() => {
     if (searchParams.get("current") === "now") {
       setCartItems([currentItem]);
@@ -97,9 +107,6 @@ export default function PickUpClientPage() {
       customerRequest,
       pickupInfo,
     } = useOrderStore.getState();
-
-    // const { id: userId } = useUserStore.getState();
-    const userId = 1;
 
     if (!userId || !cartId) {
       alert("주문에 필요한 정보가 부족합니다.");

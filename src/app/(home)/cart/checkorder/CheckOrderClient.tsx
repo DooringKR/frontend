@@ -58,7 +58,7 @@ function CheckOrderClientPage() {
   const [cartItems, setCartItems] = useState<any[]>([]);
   const { cartItems: globalCartItems } = useCartStore();
   const { cartId } = useCartStore.getState();
-  console.log("🛒 저장된 cartId:", cartId);
+  const { id: userId } = useUserStore.getState();
 
   useEffect(() => {
     // 기본 주소 세팅
@@ -140,8 +140,6 @@ function CheckOrderClientPage() {
 
   const handleOrderSubmit = async () => {
     const totalPrice = cartItems.reduce((sum, item) => sum + item.price * (item.count || 1), 0);
-    // const { id: userId } = useUserStore.getState();
-    const userId = 1; // 임시 테스트용
 
     if (!userId || !cartId) {
       alert("주문을 위한 사용자 또는 장바구니 정보가 부족합니다.");

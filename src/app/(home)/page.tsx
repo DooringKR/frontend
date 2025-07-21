@@ -101,9 +101,7 @@ export default function Page() {
 
   useEffect(() => {
     const fetchCart = async () => {
-      // if (!userId) return;
-      // 임시로 하드코딩
-      const userId = 1;
+      if (!userId) return;
       try {
         const cartData = await getCartItems(userId);
         setCartItems(cartData.items);

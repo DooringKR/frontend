@@ -32,6 +32,7 @@ export async function getCartItems(userId: number): Promise<CartResponse> {
 
 //아이템 삭제
 export const deleteCartItem = async (cartItemId: number) => {
+  console.log("삭제 요청 보냄:", cartItemId); // ✅ 추가
   const res = await fetch(`http://localhost:3001/cart_item/${cartItemId}`, {
     method: "DELETE",
     headers: {
@@ -40,6 +41,11 @@ export const deleteCartItem = async (cartItemId: number) => {
   });
 
   if (!res.ok) {
+    if (res.status === 404) {
+      throw new Error("해당 장바구니 아이템이 존재하지 않습니다.");
+    }
     throw new Error("장바구니 아이템 삭제 실패");
   }
+
+  console.log("삭제 성공:", cartItemId); // ✅ 추가
 };

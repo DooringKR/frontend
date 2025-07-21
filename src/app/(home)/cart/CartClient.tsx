@@ -12,6 +12,7 @@ import PriceSummaryCard from "@/components/PriceCheckCard/PriceSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import useCartStore from "@/store/cartStore";
+import useUserStore from "@/store/userStore";
 
 const DOOR_TYPE_KR_MAP: Record<string, string> = {
   normal: "일반문",
@@ -45,19 +46,15 @@ export default function CartClient() {
   //   const [hasItems, setHasItems] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { setCartItems, setCartId } = useCartStore();
+  const { id: userId } = useUserStore.getState();
   useEffect(() => {
     const fetchCart = async () => {
       try {
-        const userId = 1;
-        // const { id: userId } = useUserStore.getState();
-
-        // if (!userId) {
-        //   console.warn("유저 ID가 없습니다. 장바구니를 불러올 수 없습니다.");
-        //   return;
-        // }
+        if (!userId) {
+          console.warn("유저 ID가 없습니다. 장바구니를 불러올 수 없습니다.");
+          return;
+        }
         const data = await getCartItems(userId);
-        console.log("🛒 받아온 장바구니 데이터:", data);
-        console.log("✅ 장바구니 ID:", data.cart_id);
 
         const convertedItems: AnyCartItem[] = [];
         const grouped: Record<string, OrderItem[]> = {};
@@ -141,7 +138,6 @@ export default function CartClient() {
               price: item.unit_price ?? 10000, // 가격 없으면 임시 값
               cartItemId: item.cart_item_id,
 
-              // 직접입력 필드 (백에서 내려줄 수도 있음)
               compartmentCount: options.compartment_count ?? null,
               flapStayType: options.flap_stay_type ?? null,
               material: options.material ?? "",
@@ -172,7 +168,7 @@ export default function CartClient() {
           if (category === "accessory") {
             const convertedItem: AccessoryItem = {
               category: "accessory",
-              slug: item.item_options.accessory_type?.toLowerCase() ?? null, // 예: "sink_bowl"
+              slug: item.item_options.accessory_type?.toLowerCase() ?? null,
               madeBy: item.item_options.accessory_madeby ?? "",
               model: item.item_options.accessory_model ?? "",
               accessoryRequest: item.item_options.accessory_request ?? null,
@@ -189,11 +185,11 @@ export default function CartClient() {
         setCartGroups(grouped);
         // setHasItems(data.items.length > 0);
         setCartItems(convertedItems);
-        setCartId(data.cart_id); // ✅ 저장
+        setCartId(data.cart_id);
       } catch (err) {
         console.error("장바구니 불러오기 실패:", err);
       } finally {
-        setIsLoading(false); // ✅ 로딩 완료
+        setIsLoading(false);
       }
     };
 

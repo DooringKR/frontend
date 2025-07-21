@@ -1,5 +1,6 @@
 "use client";
 
+import { deleteCartItem } from "@/api/cartApi";
 import {
   ACCESSORY_CATEGORY_LIST,
   CABINET_CATEGORY_LIST,
@@ -22,7 +23,7 @@ export default function OrderConfirmPage() {
   const router = useRouter();
   const [recentOrder, setRecentOrder] = useState<any>(null);
   const [showDetails, setShowDetails] = useState(true);
-  const { address, requestMessage, customerRequest, foyerAccessType, deliveryDate } =
+  const { address, requestMessage, customerRequest, foyerAccessType, deliveryDate, pickupInfo } =
     useOrderStore();
   const { cartItems } = useCartStore();
   console.log(cartItems);
@@ -47,12 +48,35 @@ export default function OrderConfirmPage() {
     alert("계좌번호가 복사되었습니다!");
   };
 
-  const handleGoHome = () => {
+  // const handleGoHome = () => {
+  //   localStorage.removeItem("cartItems");
+  //   localStorage.removeItem("recentOrder");
+  //   useCurrentOrderStore.getState().clearCurrentItem();
+  //   useCartStore.getState().clearCartItems();
+  //   useOrderStore.getState().clearOrder();
+  //   router.push("/");
+  // };
+
+  const handleGoHome = async () => {
+    console.log("🧾 cartItems:", cartItems);
+    try {
+      // 서버에서 장바구니 항목들 병렬 삭제
+      await Promise.all(
+        cartItems.map(
+          item => (item.cart_item_id ? deleteCartItem(item.cartItemId) : Promise.resolve()), // cartItemId 없으면 생략
+        ),
+      );
+    } catch (err) {
+      console.error("장바구니 비우기 실패:", err);
+    }
+
+    // 클라이언트 상태 초기화
     localStorage.removeItem("cartItems");
     localStorage.removeItem("recentOrder");
     useCurrentOrderStore.getState().clearCurrentItem();
     useCartStore.getState().clearCartItems();
     useOrderStore.getState().clearOrder();
+
     router.push("/");
   };
 
@@ -200,8 +224,8 @@ export default function OrderConfirmPage() {
                 const commonPrice = (
                   <p className="mt-1 text-[15px] font-500 text-gray-800">
                     {/* {item.price?.toLocaleString()}원 {item.count}개 */}
-                    {Number((item.price ?? 0) * (item.count ?? 1)).toLocaleString()}원 {item.count}
-                    개
+                    {Number((item.price ?? 0) * (item.count ?? 1)).toLocaleString()}원 ∙{" "}
+                    {item.count}개
                   </p>
                 );
 
@@ -301,12 +325,49 @@ export default function OrderConfirmPage() {
                   <p>{getDeliveryLabel(deliveryDate ?? "")}</p>
                 )}
               </div>
-              <div className="my-4 border-b border-gray-200 pb-3 text-gray-500">
-                <p className="mb-1 text-[17px] font-600 text-gray-800">배송주소</p>
-                <p>{address.address1}</p>
-                <p>{address.address2}</p>
-              </div>
-              <div className="my-4 border-b border-gray-200 pb-3 text-gray-500">
+              {order_type !== "PICK_UP" && (
+                <div className="my-4 border-b border-gray-200 pb-3 text-gray-500">
+                  <p className="mb-1 text-[17px] font-600 text-gray-800">배송주소</p>
+                  <p>{address.address1}</p>
+                  <p>{address.address2}</p>
+                </div>
+              )}
+
+              {order_type === "PICK_UP" ? (
+                <div className="my-4 border-b border-gray-200 pb-3 text-gray-500">
+                  <p className="mb-1 text-[17px] font-600 text-gray-800">픽업 차량 정보</p>
+                  {pickupInfo.vehicleType === "직접 입력" ? (
+                    <>
+                      <p>직접입력</p>
+                      <p>{pickupInfo.customVehicleNote || "내용 없음"}</p>
+                    </>
+                  ) : (
+                    <p>{pickupInfo.vehicleType || "미입력"}</p>
+                  )}
+                </div>
+              ) : (
+                <div className="my-4 border-b border-gray-200 pb-3 text-gray-500">
+                  <p className="mb-1 text-[17px] font-600 text-gray-800">배송기사 요청사항</p>
+                  {foyerAccessType?.type === "gate" && (
+                    <>
+                      <p>공동현관으로 올라오세요</p>
+                      {foyerAccessType.gatePassword && (
+                        <p>공동현관 비밀번호: {foyerAccessType.gatePassword}</p>
+                      )}
+                    </>
+                  )}
+                  {foyerAccessType?.type === "call" && <p>전화주시면 마중 나갈게요</p>}
+                  {foyerAccessType?.type === "doorfront" && <p>문 앞에 두면 가져갈게요</p>}
+                  {foyerAccessType?.type === "custom" && foyerAccessType.customRequest && (
+                    <>
+                      <p>직접입력</p>
+                      <p>{foyerAccessType.customRequest}</p>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* <div className="my-4 border-b border-gray-200 pb-3 text-gray-500">
                 <p className="mb-1 text-[17px] font-600 text-gray-800">배송기사 요청사항</p>
                 {foyerAccessType?.type === "gate" && (
                   <>
@@ -327,7 +388,7 @@ export default function OrderConfirmPage() {
                     <p>{foyerAccessType.customRequest}</p>
                   </>
                 )}
-              </div>
+              </div> */}
               <div className="text-gray-500">
                 <p className="mb-1 text-[17px] font-600 text-gray-800">받는 분 휴대폰 번호</p>
                 <p>{recipient_phone}</p>
