@@ -110,7 +110,6 @@ function DoorConfirmPageContent() {
         onButton1Click={async () => {
           try {
             const result = await addCartItem({
-              cart_id: 1,
               product_type: "DOOR",
               unit_price: 9000,
               item_count: quantity,
@@ -122,18 +121,19 @@ function DoorConfirmPageContent() {
                 door_height: height,
                 ...(category === "normal" || category === "flap"
                   ? {
-                      hinge_count: boringSize!.length,
-                      hinge_direction: boringDirection,
-                      first_hinge_size: boringSize![0] ?? undefined,
-                      second_hinge_size: boringSize![1] ?? undefined,
-                      third_hinge_size: boringSize![2] ?? undefined,
-                      fourth_hinge_size: boringSize![3] ?? undefined,
-                    }
+                    hinge_count: boringSize!.length,
+                    hinge_direction: boringDirection,
+                    first_hinge_size: boringSize![0] ?? undefined,
+                    second_hinge_size: boringSize![1] ?? undefined,
+                    third_hinge_size: boringSize![2] ?? undefined,
+                    fourth_hinge_size: boringSize![3] ?? undefined,
+                  }
                   : {}),
                 door_request: request,
               },
             });
             console.log(result);
+            router.replace("/cart");
           } catch (error) {
             console.error("장바구니 담기 실패:", error);
           }

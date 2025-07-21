@@ -91,6 +91,32 @@ export async function getUserProfile(userId: number): Promise<User> {
     user_phone: resData.user_phone
   };
 
+  // 장바구니 정보 조회
+  try {
+    const cartResponse = await fetch(`https://dooring-backend.onrender.com/cart/${userId}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
+
+    if (cartResponse.ok) {
+      const cartData = await cartResponse.json();
+      console.log("장바구니 정보 응답:", cartData);
+
+      // cart_id가 있으면 설정
+      if (cartData.cart_id) {
+        const userStore = useUserStore.getState();
+        userStore.setCartId(cartData.cart_id);
+        console.log("장바구니 ID 설정:", cartData.cart_id);
+      }
+    } else {
+      console.log("장바구니 정보 조회 실패:", cartResponse.status);
+    }
+  } catch (error) {
+    console.error("장바구니 정보 조회 중 에러:", error);
+    // 장바구니 조회 실패해도 유저 정보는 정상 처리
+  }
+
   // localStorage 저장 통합 관리
   const userStore = useUserStore.getState();
   userStore.setUserId(userInfo.user_id);

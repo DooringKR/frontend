@@ -5,9 +5,13 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import useUserStore from "@/store/userStore";
 
 import Footer from "../_components/Footer";
+import Button from "@/components/Button/Button";
+import { logout } from "@/api/authApi";
+import { useRouter } from "next/navigation";
 
 function MyPageClient() {
-  const { user_phoneNumber } = useUserStore();
+  const router = useRouter();
+  const { id, userType, user_phoneNumber, cart_id } = useUserStore();
 
   if (!user_phoneNumber) {
     return <div>로그인이 필요합니다</div>;
@@ -22,7 +26,43 @@ function MyPageClient() {
         <h3 className="text-[23px] font-700 text-gray-900">
           {user_phoneNumber || "010-1111-1111"}
         </h3>
+
+        {/* 테스트용: 모든 UserStore 정보 표시 */}
+        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+          <h4 className="text-sm font-600 text-gray-700 mb-3">🔍 UserStore 정보 (테스트용)</h4>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-gray-600">User ID:</span>
+              <span className="font-500">{id || "null"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">User Type:</span>
+              <span className="font-500">{userType || "null"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Phone Number:</span>
+              <span className="font-500">{user_phoneNumber || "null"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Cart ID:</span>
+              <span className="font-500">{cart_id || "null"}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="h-[20px]"></div>
+        <Button
+          className="w-[80px]"
+          text="로그아웃"
+          type={"GrayMedium"}
+          onClick={() => {
+            console.log("로그아웃");
+            logout();
+            router.replace("/login");
+          }}
+        />
       </div>
+      <div className="h-[60px]"></div>
       <Footer />
     </div>
   );

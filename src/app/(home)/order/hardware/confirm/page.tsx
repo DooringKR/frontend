@@ -56,7 +56,6 @@ function HardwareConfirmPageContent() {
         onButton1Click={async () => {
           try {
             const result = await addCartItem({
-              cart_id: 1,
               product_type: "HARDWARE",
               unit_price: 9000,
               item_count: quantity,
@@ -68,6 +67,7 @@ function HardwareConfirmPageContent() {
               },
             });
             console.log(result);
+            router.replace("/cart");
           } catch (error) {
             console.error("장바구니 담기 실패:", error);
           }
