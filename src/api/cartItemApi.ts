@@ -9,7 +9,7 @@ export interface CartItemRequest {
 
 // 장바구니 아이템 추가
 export async function addCartItem(cartItem: CartItemRequest): Promise<any> {
-  const response = await fetch("http://localhost:3001/cart_item", {
+  const response = await fetch("https://dooring-backend.onrender.com/cart_item", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

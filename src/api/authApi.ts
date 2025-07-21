@@ -42,13 +42,8 @@ export async function signin(body: SigninUser): Promise<number> {
   const data = await response.json();
   console.log("로그인 응답:", data);
 
-  // 유저 정보(factory, interior 여부 등) 가져와서 local storage에 저장
+  // getUserProfile에서 localStorage 저장까지 처리
   const userInfo = await getUserProfile(data.user_id);
-
-  const userStore = useUserStore.getState();
-  userStore.setUserId(userInfo.user_id);
-  userStore.setUserType(userInfo.user_type);
-  userStore.setUserPhoneNumber(userInfo.user_phone);
 
   return data.user_id;
 }
@@ -70,18 +65,13 @@ export async function signup(body: SignupUser): Promise<{ user_id: number }> {
 
   const data: { user_id: number } = await response.json();
 
-  // 회원가입 성공 후 사용자 정보를 store에 저장
-  const { user_id, user_type, user_phone } = await getUserProfile(data.user_id);
-
-  const userStore = useUserStore.getState();
-  userStore.setUserId(user_id);
-  userStore.setUserType(user_type);
-  userStore.setUserPhoneNumber(user_phone);
+  // getUserProfile에서 localStorage 저장까지 처리
+  await getUserProfile(data.user_id);
 
   return data;
 }
 
-// 유저 정보 조회
+// 유저 정보 조회 + localStorage 저장 통합 관리
 export async function getUserProfile(userId: number): Promise<User> {
   const response = await fetch(`/api/app_user/${userId}`, {
     method: "GET",
@@ -95,10 +85,42 @@ export async function getUserProfile(userId: number): Promise<User> {
   const resData = await response.json();
   console.log("유저 정보 응답:", resData);
 
-  const data: User = {
+  const userInfo: User = {
     user_id: userId,
     user_type: resData.user_type,
     user_phone: resData.user_phone
   };
-  return data;
+
+  // localStorage 저장 통합 관리
+  const userStore = useUserStore.getState();
+  userStore.setUserId(userInfo.user_id);
+  userStore.setUserType(userInfo.user_type);
+  userStore.setUserPhoneNumber(userInfo.user_phone);
+
+  return userInfo;
+}
+
+// 앱 시작시 자동 로그인 체크
+export async function checkAutoLogin(): Promise<User | null> {
+  const userStore = useUserStore.getState();
+  const userId = userStore.id;
+
+  if (userId) {
+    try {
+      return await getUserProfile(userId);
+    } catch (error) {
+      console.error("자동 로그인 실패:", error);
+      userStore.resetUser();
+      return null;
+    }
+  }
+
+  return null;
+}
+
+// 로그아웃 - localStorage 초기화
+export function logout(): void {
+  const userStore = useUserStore.getState();
+  userStore.resetUser();
+  console.log("로그아웃 완료 - localStorage 초기화");
 }
