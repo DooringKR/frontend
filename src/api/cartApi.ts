@@ -1,5 +1,3 @@
-// /api/cartApi.ts
-
 export interface CartItem {
   cart_item_id: number;
   product_type: "DOOR" | "FINISH" | "CABINET" | "HARDWARE" | "ACCESSORY";
@@ -29,7 +27,7 @@ export async function getCartItems(userId: number): Promise<CartResponse> {
     throw new Error(errorData.message || "장바구니 조회에 실패했습니다.");
   }
 
-  return await response.json(); // { cart_id, user_id, cart_count, items: [...] }
+  return await response.json();
 }
 
 //아이템 삭제
