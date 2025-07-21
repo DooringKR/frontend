@@ -82,9 +82,8 @@ const UnderlinedInput: React.FC<UnderlinedInputProps> = ({
         <input
           ref={inputRef} // ref 연결
           type={type}
-          className={`w-full rounded-none border-b-2 bg-transparent py-2 pr-8 text-[23px] outline-none transition-all ${
-            error ? "border-red-500 focus:border-red-500" : "border-gray-300 focus:border-brand-500"
-          }`}
+          className={`w-full rounded-none border-b-2 bg-transparent py-2 pr-8 text-[23px] outline-none transition-all ${error ? "border-red-500 focus:border-red-500" : "border-gray-300 focus:border-brand-500"
+            }`}
           value={inputValue}
           placeholder={isFocused ? "" : label}
           onFocus={() => setIsFocused(true)}

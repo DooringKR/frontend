@@ -50,7 +50,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
         </div>
         <div className="flex flex-col items-start gap-1 px-5 pt-2">
           <div className="flex items-center justify-between w-full">
-            <h2 className="text-[20px] font-700 text-gray-900">{title}</h2>
+            <h2 className="text-[20px]/[28px] font-700 text-gray-900">{title}</h2>
             {headerButtonText && (
               <div onClick={onHeaderButtonClick} className="text-gray-400 text-[15px]/[22px] font-500 cursor-pointer">
                 {headerButtonText}
