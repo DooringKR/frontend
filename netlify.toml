@@ -11,6 +11,13 @@
   status = 200
 
 [[headers]]
+  for = "/api/auth/check-phone"
+  [headers.values]
+    Access-Control-Allow-Methods = "GET, POST, HEAD, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type"
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
   for = "/*"
   [headers.values]
     X-Frame-Options = "DENY"

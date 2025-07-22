@@ -31,4 +31,16 @@ export async function HEAD(request: NextRequest) {
         // 배포 환경에서 백엔드 서버 연결 실패시 500 에러 반환
         return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 });
     }
+}
+
+// CORS preflight 요청 처리
+export async function OPTIONS(request: NextRequest) {
+    return new NextResponse(null, {
+        status: 200,
+        headers: {
+            'Access-Control-Allow-Methods': 'GET, POST, HEAD, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Origin': '*',
+        },
+    });
 } 
