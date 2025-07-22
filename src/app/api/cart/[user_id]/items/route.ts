@@ -35,12 +35,13 @@ async function getCartItemsFromBackend(userId: number) {
 
 export async function GET(
     request: Request,
-    { params }: { params: { user_id: string } }
+    { params }: { params: Promise<{ user_id: string }> }
 ) {
     console.log("🚀 /api/cart/[user_id]/items GET 요청 시작");
 
     try {
-        const userId = parseInt(params.user_id);
+        const resolvedParams = await params;
+        const userId = parseInt(resolvedParams.user_id);
         console.log("📝 요청된 user_id:", userId);
 
         if (isNaN(userId)) {

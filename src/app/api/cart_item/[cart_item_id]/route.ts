@@ -24,12 +24,13 @@ async function deleteCartItemFromBackend(cartItemId: number) {
 
 export async function DELETE(
     request: Request,
-    { params }: { params: { cart_item_id: string } }
+    { params }: { params: Promise<{ cart_item_id: string }> }
 ) {
     console.log("🚀 /api/cart_item/[cart_item_id] DELETE 요청 시작");
 
     try {
-        const cartItemId = parseInt(params.cart_item_id);
+        const resolvedParams = await params;
+        const cartItemId = parseInt(resolvedParams.cart_item_id);
         console.log("📝 요청된 cart_item_id:", cartItemId);
 
         if (isNaN(cartItemId)) {
