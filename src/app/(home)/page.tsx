@@ -3,6 +3,7 @@
 import { getCartItems } from "@/api/cartApi";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import AddressIndicator, {
@@ -21,6 +22,7 @@ import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 import Footer from "./_components/Footer";
 
 export default function Page() {
+  const router = useRouter();
   const resetCart = useSingleCartStore(state => state.reset);
   const { address1, address2 } = useAddressStore();
   const fullAddress = address1 && address2 ? `${address1} ${address2}` : "";
@@ -36,7 +38,10 @@ export default function Page() {
   const { id: userId } = useUserStore();
   const { cartItems, setCartItems } = useCartStore();
   const [cartItemCount, setCartItemCount] = useState(0);
-
+  useEffect(() => {
+    const totalCount = cartItems.reduce((sum, item) => sum + item.item_count, 0);
+    setCartItemCount(totalCount);
+  }, [cartItems]);
   const formatOrderDeadline = (remainingMinutes: number): string => {
     const hours = Math.floor(remainingMinutes / 60);
     const minutes = remainingMinutes % 60;
@@ -105,18 +110,13 @@ export default function Page() {
       try {
         const cartData = await getCartItems(userId);
         setCartItems(cartData.items);
-
-        const totalCount = cartData.items.reduce((sum, item) => sum + item.item_count, 0);
-        setCartItemCount(totalCount);
       } catch (err) {
         console.error("장바구니 불러오기 실패", err);
       }
     };
 
     fetchCart();
-  }, [userId, setCartItems]);
-
-  const user = null;
+  }, [userId]);
 
   let addressIndicatorProps: AddressIndicatorProps;
 

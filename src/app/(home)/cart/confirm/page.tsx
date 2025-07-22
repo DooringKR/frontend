@@ -63,7 +63,7 @@ export default function OrderConfirmPage() {
       // 서버에서 장바구니 항목들 병렬 삭제
       await Promise.all(
         cartItems.map(
-          item => (item.cart_item_id ? deleteCartItem(item.cartItemId) : Promise.resolve()), // cartItemId 없으면 생략
+          item => (item.cartItemId ? deleteCartItem(item.cartItemId) : Promise.resolve()), // cartItemId 없으면 생략
         ),
       );
     } catch (err) {
