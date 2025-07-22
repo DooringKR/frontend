@@ -1,15 +1,11 @@
 "use client";
 
+import { AccessoryItem, CabinetItem, DoorItem, FinishItem, HardwareItem } from "@/types/itemTypes";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import Button from "@/components/BeforeEditByKi/Button/Button";
 
-import { AccessoryItem } from "@/store/Items/accessoryStore";
-import { CabinetItem } from "@/store/Items/cabinetStore";
-import { DoorItem } from "@/store/Items/doorStore";
-import { FinishItem } from "@/store/Items/finishStore";
-import { HardwareItem } from "@/store/Items/hardwareStore";
 import { DeliverTime } from "@/utils/CheckDeliveryTime";
 
 import CartItemDetail from "./_components/CartItemDetail";

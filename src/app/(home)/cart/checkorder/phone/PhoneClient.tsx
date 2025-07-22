@@ -21,7 +21,7 @@ export default function PhoneClientPage() {
 
   useEffect(() => {
     setTempPhoneNumber(recipientPhoneNumber);
-  }, []);
+  }, [recipientPhoneNumber]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const numeric = e.target.value.replace(/\D/g, "").slice(0, 11);

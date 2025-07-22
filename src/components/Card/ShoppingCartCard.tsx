@@ -1,12 +1,10 @@
-import MinusIcon from "public/icons/minus";
-import PlusIcon from "public/icons/plus";
-import TrashCan from "public/icons/trash_can";
 import React from "react";
 
-import DoorPreviewIcon from "../DoorPreviewIcon/DoorPreviewIcon";
-import Button from "../Button/Button";
-import QuantitySelector from "../QuantitySelector/QuantitySelector";
 import formatSize from "@/utils/formatSize";
+
+import Button from "../Button/Button";
+import DoorPreviewIcon from "../DoorPreviewIcon/DoorPreviewIcon";
+import QuantitySelector from "../QuantitySelector/QuantitySelector";
 
 interface ShoppingCartCardProps {
   type: "door" | "cabinet" | "finish" | "accessory" | "hardware";
@@ -76,17 +74,27 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
       {/* 상품 정보 */}
       <div className="flex justify-between gap-[20px]">
         <div className="flex flex-col gap-2">
-          <div className="text-[17px} font-600 text-gray-800">{title}</div>
+          <div className="text-[17px] font-600 text-gray-800">{title}</div>
           <div className="flex flex-col text-[15px] font-400 text-gray-500">
             {color && <div>색상 : {color}</div>}
             {bodyMaterial && <div>몸통 소재 및 두께 : {bodyMaterial}</div>}
             {width && <div>{type === "cabinet" ? `너비 : ${width}` : `가로 길이 : ${width}`}</div>}
-            {height && <div>{type === "cabinet" || type === "finish" ? `높이 : ${formatSize(height)}` : `세로 길이 : ${formatSize(height)}`}</div>}
+            {height && (
+              <div>
+                {type === "cabinet" || type === "finish"
+                  ? `높이 : ${formatSize(height)}`
+                  : `세로 길이 : ${formatSize(height)}`}
+              </div>
+            )}
             {heightIncrease && <div>⤷ 높이 키우기 : {formatSize(heightIncrease)}</div>}
-            {heightIncrease && <div>⤷ 합산 높이 : {formatSize(String(Number(height) + Number(heightIncrease)))}</div>}
+            {heightIncrease && (
+              <div>⤷ 합산 높이 : {formatSize(String(Number(height) + Number(heightIncrease)))}</div>
+            )}
             {depth && <div>깊이 : {formatSize(depth)}</div>}
             {depthIncrease && <div>⤷ 깊이 키우기 : {formatSize(depthIncrease)}</div>}
-            {depthIncrease && <div>⤷ 합산 깊이 : {formatSize(String(Number(depth) + Number(depthIncrease)))}</div>}
+            {depthIncrease && (
+              <div>⤷ 합산 깊이 : {formatSize(String(Number(depth) + Number(depthIncrease)))}</div>
+            )}
             {hingeCount && <div>경첩 개수 : {hingeCount}개</div>}
             {hingeDirection && <div>경첩 방향 : {hingeDirection}</div>}
             {boring && <div>보링 치수 : {boring}</div>}
@@ -103,13 +111,14 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
             {request && <div>제작 시 요청 사항 : {request}</div>}
           </div>
         </div>
-        {type === "door" && hingeCount && hingeDirection && <DoorPreviewIcon
-          DoorType={"플랩문"}
-          FatOrTall={"Tall"}
-          BoringDirection={hingeDirection === "우경" ? "right" : "left"}
-          BoringNum={([2, 3, 4].includes(hingeCount) ? hingeCount : 2) as 2 | 3 | 4}
-        />
-        }
+        {type === "door" && hingeCount && hingeDirection && (
+          <DoorPreviewIcon
+            DoorType={"플랩문"}
+            FatOrTall={"Tall"}
+            BoringDirection={hingeDirection === "우경" ? "right" : "left"}
+            BoringNum={([2, 3, 4].includes(hingeCount) ? hingeCount : 2) as 2 | 3 | 4}
+          />
+        )}
       </div>
       {/* button section */}
       <div className="ml-auto flex w-fit items-center gap-3">

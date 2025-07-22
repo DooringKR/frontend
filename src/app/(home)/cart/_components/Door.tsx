@@ -1,4 +1,4 @@
-import { DoorItem } from "@/store/Items/doorStore";
+import { DoorItem } from "@/types/itemTypes";
 
 function Door({ item }: { item: DoorItem }) {
   return (

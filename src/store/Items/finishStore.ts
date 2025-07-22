@@ -1,20 +1,5 @@
+import { FinishItem } from "@/types/itemTypes";
 import { create } from "zustand";
-
-export type FinishItem = {
-  category: "finish";
-  color: string;
-  depth: {
-    baseDepth: number | null;
-    additionalDepth: number | null;
-  };
-  height: {
-    baseHeight: number | null;
-    additionalHeight: number | null;
-  };
-  finishRequest: string | null;
-  count: number | null;
-  price: number | null;
-};
 
 interface FinishStore {
   finishItem: FinishItem;
@@ -26,11 +11,16 @@ interface FinishStore {
 const initialState: FinishItem = {
   category: "finish",
   color: "",
-  depth: { baseDepth: null, additionalDepth: null },
-  height: { baseHeight: null, additionalHeight: null },
+  baseDepth: null,
+  additionalDepth: null,
+  baseHeight: null,
+  additionalHeight: null,
   finishRequest: null,
   count: null,
   price: null,
+  cartItemId: undefined,
+  height: undefined,
+  depth: undefined,
 };
 
 const useFinishStore = create<FinishStore>(set => ({

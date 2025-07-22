@@ -1,6 +1,5 @@
 import { CABINET_ITEMS_NAME } from "@/constants/modelList";
-
-import { CabinetItem } from "@/store/Items/cabinetStore";
+import { CabinetItem } from "@/types/itemTypes";
 
 function Cabinet({ item }: { item: CabinetItem }) {
   return (

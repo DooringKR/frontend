@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import Modal from "@/components/Modal/Modal";
 import TimePickerSimple from "@/components/TimePicker";
 
+import { formatDeliveryTimeRange, formatRemainingTimeRange } from "@/utils/caculateDeliveryInfo";
+
 interface DeliveryScheduleSelectorProps {
   expectedArrivalMinutes: number | null;
   setDeliveryDate: (date: string) => void;
@@ -79,13 +81,31 @@ export default function DeliveryScheduleSelector({
         <div className="flex justify-between">
           {/* <span>바로배송</span> */}
           <span className="text-[17px] font-600">오늘배송</span>
-          <span className="text-blue-500">
-            {expectedArrivalMinutes !== null ? `약 ${expectedArrivalMinutes}분` : "계산 중..."}
-          </span>
+          {deliveryType !== "today" && (
+            <span className="text-blue-500">
+              {expectedArrivalMinutes !== null
+                ? `${expectedArrivalMinutes}~${expectedArrivalMinutes + 10}분 후 도착`
+                : "계산 중..."}
+            </span>
+          )}
         </div>
-        <p className="text-base font-400 text-gray-500">
-          {/* {isTodayDeliveryAvailable ? "오늘 오후 6시 전으로 배송돼요." : "바로 배송이 불가능해요."} */}
-          {isTodayDeliveryAvailable ? "오늘 16:28~17:45 도착예정" : "바로 배송이 불가능해요."}
+        {/* <p className="text-base font-400 text-gray-500">
+          {isTodayDeliveryAvailable && expectedArrivalMinutes !== null
+            ? `오늘 ${formatDeliveryTimeRange(expectedArrivalMinutes)} 도착 예정`
+            : "바로 배송이 불가능해요."}
+        </p> */}
+        <p
+          className={`text-base font-400 ${
+            isTodayDeliveryAvailable && expectedArrivalMinutes !== null && deliveryType === "today"
+              ? "text-gray-800"
+              : "text-gray-500"
+          }`}
+        >
+          {isTodayDeliveryAvailable && expectedArrivalMinutes !== null
+            ? deliveryType === "today"
+              ? formatRemainingTimeRange(expectedArrivalMinutes)
+              : `오늘 ${formatDeliveryTimeRange(expectedArrivalMinutes)} 도착 예정`
+            : "바로 배송이 불가능해요."}
         </p>
       </div>
 

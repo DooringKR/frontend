@@ -1,24 +1,102 @@
 "use client";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 
-import AddressIndicator from "@/components/AddressIndicator/AddressIndicator";
+import { getCartItems } from "@/api/cartApi";
+import { format } from "date-fns";
+import { ko } from "date-fns/locale";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+import AddressIndicator, {
+  AddressIndicatorProps,
+} from "@/components/AddressIndicator/AddressIndicator";
 import Banner from "@/components/Banner/Banner";
 import HomeProductContainer from "@/components/HomeProductContaines/HomeProductContainer";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
-import Footer from "./_components/Footer";
-import { useEffect } from "react";
+import useAddressStore from "@/store/addressStore";
+import useCartStore from "@/store/cartStore";
 import { useSingleCartStore } from "@/store/singleCartStore";
+import useUserStore from "@/store/userStore";
+import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
+
+import Footer from "./_components/Footer";
 
 export default function Page() {
+  const router = useRouter();
   const resetCart = useSingleCartStore(state => state.reset);
-
+  const { address1, address2 } = useAddressStore();
+  const fullAddress = address1 && address2 ? `${address1} ${address2}` : "";
   useEffect(() => {
     useSingleCartStore.persist.clearStorage();
     resetCart();
   }, []);
 
+  const [deliverySchedule, setDeliverySchedule] = useState<"today" | "tomorrow" | "other" | "">("");
+  const [timeLimit, setTimeLimit] = useState<string | undefined>(undefined);
+  const [arrivalDate, setArrivalDate] = useState<string | undefined>(undefined);
+
+  const { id: userId } = useUserStore();
+  const { cartItems, setCartItems } = useCartStore();
+  const [cartItemCount, setCartItemCount] = useState(0);
+  useEffect(() => {
+    const totalCount = cartItems.reduce((sum, item) => sum + item.item_count, 0);
+    setCartItemCount(totalCount);
+  }, [cartItems]);
+  const formatOrderDeadline = (remainingMinutes: number): string => {
+    const hours = Math.floor(remainingMinutes / 60);
+    const minutes = remainingMinutes % 60;
+
+    if (remainingMinutes <= 0) return "주문 마감";
+
+    return `${hours > 0 ? `${hours}시간 ` : ""}${minutes}분 내 주문 시`;
+  };
+
+  useEffect(() => {
+    const checkDelivery = async () => {
+      if (address1) {
+        try {
+          const info = await calculateDeliveryInfo(address1);
+
+          if (info.isToday) {
+            setDeliverySchedule("today");
+            setTimeLimit(`${formatOrderDeadline(info.remainingMinutes)}`);
+            setArrivalDate(undefined);
+          } else {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+
+            const isTomorrow = info.expectedArrivalMinutes <= (24 + 24) * 60; // 내일 이내 도착이면 tomorrow로 취급
+
+            if (isTomorrow) {
+              setDeliverySchedule("tomorrow");
+              setTimeLimit("밤 12시 전 주문 시");
+              setArrivalDate(undefined);
+            } else {
+              setDeliverySchedule("other");
+
+              const futureDate = new Date();
+              futureDate.setMinutes(futureDate.getMinutes() + info.remainingMinutes);
+              const formatted = format(futureDate, "M/dd(E)", { locale: ko }); // 예: 7/18(목)
+
+              setArrivalDate(formatted);
+              setTimeLimit(`${formatted} 밤 12시 전 주문 시`);
+            }
+          }
+        } catch (err) {
+          console.error("배송 정보 계산 실패", err);
+          setDeliverySchedule("other");
+          setTimeLimit(undefined);
+          setArrivalDate(undefined);
+        }
+      } else {
+        setDeliverySchedule("");
+        setTimeLimit(undefined);
+        setArrivalDate(undefined);
+      }
+    };
+
+    checkDelivery();
+  }, [address1]);
   // const cookieStore = await cookies();
   // const token = cookieStore.get("token");
 
@@ -26,15 +104,54 @@ export default function Page() {
   //   redirect("/login");
   // }
 
-  const user = null;
+  useEffect(() => {
+    const fetchCart = async () => {
+      if (!userId) return;
+      try {
+        const cartData = await getCartItems(userId);
+        setCartItems(cartData.items);
+      } catch (err) {
+        console.error("장바구니 불러오기 실패", err);
+      }
+    };
+
+    fetchCart();
+  }, [userId]);
+
+  let addressIndicatorProps: AddressIndicatorProps;
+
+  if (!address1) {
+    addressIndicatorProps = {
+      deliverySchedule: "",
+    };
+  } else if (deliverySchedule === "today" && timeLimit) {
+    addressIndicatorProps = {
+      address: fullAddress,
+      deliverySchedule: "today",
+      timeLimit,
+    };
+  } else if (deliverySchedule === "tomorrow" && timeLimit) {
+    addressIndicatorProps = {
+      address: fullAddress,
+      deliverySchedule: "tomorrow",
+      timeLimit,
+    };
+  } else {
+    addressIndicatorProps = {
+      address: fullAddress,
+      deliverySchedule: "other",
+      timeLimit,
+      arrivalDate,
+    };
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
-      <TopNavigator page="/" isCartEmpty={true} />
+      <TopNavigator page="/" cartItemCount={cartItemCount} />
       <Banner />
 
       <main className="mt-10 flex flex-grow flex-col gap-7">
-        <AddressIndicator deliverySchedule="" />
+        <AddressIndicator {...addressIndicatorProps} />
         <HomeProductContainer />
       </main>
 
@@ -42,4 +159,3 @@ export default function Page() {
     </div>
   );
 }
-

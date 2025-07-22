@@ -6,10 +6,10 @@ export async function POST(req: Request) {
     {
       method: "GET",
       headers: {
-        "X-NCP-APIGW-API-KEY-ID": process.env.NAVER_CLIENT_ID!,
-        "X-NCP-APIGW-API-KEY": process.env.NAVER_CLIENT_SECRET!,
+        "x-ncp-apigw-api-key-id": process.env.NAVER_CLIENT_ID!,
+        "x-ncp-apigw-api-key": process.env.NAVER_CLIENT_SECRET!,
       },
-    }
+    },
   );
 
   const data = await res.json();

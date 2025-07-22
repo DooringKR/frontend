@@ -5,13 +5,14 @@ import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
-import DeliveryTimeCheck from "@/components/DeliveryTimeCheck/DeliveryStatusChip";
+import DeliveryStatusChip from "@/components/DeliveryTimeCheck/DeliveryStatusChip";
 import Header from "@/components/Header/Header";
 import BoxedInput from "@/components/Input/BoxedInput";
-import DaumPostcodeEmbed from "@/components/SearchAddress/DaumPostcodeEmbed";
+import DaumPostcodePopup from "@/components/SearchAddress/DaumPostcode";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import useAddressStore from "@/store/addressStore";
+import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 
 function AddressCheckClientPage() {
   const searchParams = useSearchParams();
@@ -23,6 +24,8 @@ function AddressCheckClientPage() {
   const [showPostcode, setShowPostcode] = useState(false);
   // const [address1, setAddress1] = useState("");
   // const [address2, setAddress2] = useState("");
+  const [isCheckingDelivery, setIsCheckingDelivery] = useState(false);
+
   const scriptLoadedRef = useRef(false);
 
   const { address1, address2, setAddress } = useAddressStore();
@@ -60,6 +63,25 @@ function AddressCheckClientPage() {
   //   setisAddressEntered(isComplete);
   // }, [address1, address2]);
 
+  useEffect(() => {
+    const checkTodayDelivery = async () => {
+      if (isAddressEntered) {
+        setIsCheckingDelivery(true);
+        try {
+          const { isToday } = await calculateDeliveryInfo(address1);
+          setIsDeliveryPossible(isToday);
+        } catch (error) {
+          console.error("배송 가능 여부 확인 실패:", error);
+          setIsDeliveryPossible(false);
+        } finally {
+          setIsCheckingDelivery(false);
+        }
+      }
+    };
+
+    checkTodayDelivery();
+  }, [address1, address2]);
+
   return (
     <div>
       <Script
@@ -77,21 +99,30 @@ function AddressCheckClientPage() {
         }
         size="Large"
       />
-      <div className="gap-2 px-[20px] pt-[20px]">
-        <BoxedInput
+      <div className="flex flex-col gap-2 px-[20px] pt-[20px]">
+        {/* <BoxedInput
           label={"주소"}
           placeholder="건물, 지번 또는 도로명 검색"
           value={address1}
           onClick={() => setShowPostcode(true)} // 클릭 시 embed 표시
           onChange={() => { }} // 직접 입력 방지
           className={"mb-2"}
+        /> */}
+        <h1 className="text-sm font-400 text-gray-600">주소</h1>
+
+        <DaumPostcodePopup
+          address1={address1}
+          onComplete={selected => {
+            setAddress(selected, address2);
+          }}
         />
+
         <BoxedInput
           placeholder="상세주소 (예: 101동 501호 / 단독주택)"
           value={address2}
           onChange={e => setAddress(address1, e.target.value)}
         />
-        {showPostcode && (
+        {/* {showPostcode && (
           <div className="fixed bottom-5 left-4 right-4 top-4 z-50 overflow-y-auto bg-gray-200">
             <DaumPostcodeEmbed
               onComplete={selected => {
@@ -101,13 +132,15 @@ function AddressCheckClientPage() {
               onClose={() => setShowPostcode(false)} // 닫기
             />
           </div>
-        )}
+        )} */}
       </div>
       <div className="mx-5 mt-3">
-        <DeliveryTimeCheck
+        <DeliveryStatusChip
           isDeliveryPossible={isDeliveryPossible}
           isAddressEntered={isAddressEntered}
+          isChecking={isCheckingDelivery}
           onUnavailableClick={() => {
+            if (isCheckingDelivery) return;
             router.push("/address-check/unavailable");
           }}
         />
@@ -119,6 +152,7 @@ function AddressCheckClientPage() {
           button1Text="다음"
           button1Type="Brand"
           onButton1Click={() => {
+            if (isCheckingDelivery) return;
             if (!address1 || !address2) {
               alert("주소와 상세주소를 모두 입력해주세요.");
               return;

@@ -1,14 +1,5 @@
+import { AccessoryItem } from "@/types/itemTypes";
 import { create } from "zustand";
-
-export type AccessoryItem = {
-  category: "accessory";
-  slug: "sinkBowl" | "hood" | "cooktop" | null;
-  madeBy: string;
-  model: string;
-  accessoryRequests: string | null;
-  count: number | null;
-  price: number | null;
-};
 
 interface AccessoryStore {
   accessoryItem: AccessoryItem;
@@ -22,16 +13,18 @@ const initialState: AccessoryItem = {
   slug: null,
   madeBy: "",
   model: "",
-  accessoryRequests: null,
+  accessoryRequest: null,
   count: null,
   price: null,
+  cartItemId: undefined,
 };
 
 const useAccessoryStore = create<AccessoryStore>(set => ({
   accessoryItem: initialState,
-  updateItem: payload => set(state => ({
-    accessoryItem: { ...state.accessoryItem, ...payload },
-  })),
+  updateItem: payload =>
+    set(state => ({
+      accessoryItem: { ...state.accessoryItem, ...payload },
+    })),
   updatePriceAndCount: (price, count) =>
     set(state => ({ accessoryItem: { ...state.accessoryItem, price, count } })),
   resetAccessoryItem: () => set({ accessoryItem: initialState }),

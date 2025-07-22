@@ -1,10 +1,6 @@
 "use client";
 
-import { AccessoryItem } from "@/store/Items/accessoryStore";
-import { CabinetItem } from "@/store/Items/cabinetStore";
-import { DoorItem } from "@/store/Items/doorStore";
-import { FinishItem } from "@/store/Items/finishStore";
-import { HardwareItem } from "@/store/Items/hardwareStore";
+import { AccessoryItem, CabinetItem, DoorItem, FinishItem, HardwareItem } from "@/types/itemTypes";
 
 import Accessory from "./Accessory";
 import Cabinet from "./Cabinet";
@@ -26,7 +22,7 @@ export default function CartItemDetail({ item, onCountChange }: CartItemDetailPr
 
   return (
     <div className="relative rounded border border-gray-300 bg-gray-50 p-4">
-      {item.category === "door" && <Door item={item}/>}
+      {item.category === "door" && <Door item={item} />}
       {item.category === "finish" && <Finish item={item} />}
       {item.category === "cabinet" && <Cabinet item={item} />}
       {item.category === "accessory" && <Accessory item={item} />}
