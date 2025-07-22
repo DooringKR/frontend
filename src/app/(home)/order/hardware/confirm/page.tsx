@@ -10,6 +10,7 @@ import Header from "@/components/Header/Header";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import { HardwareCart, useSingleCartStore } from "@/store/singleCartStore";
+import { addCartItem } from "@/api/cartItemApi";
 
 function HardwareConfirmPageContent() {
   const router = useRouter();
@@ -52,7 +53,25 @@ function HardwareConfirmPageContent() {
         type={"1button"}
         button1Text={"장바구니 담기"}
         className="fixed bottom-0 w-full max-w-[500px] bg-white px-5 pb-5"
-        onButton1Click={() => { }}
+        onButton1Click={async () => {
+          try {
+            const result = await addCartItem({
+              product_type: "HARDWARE",
+              unit_price: 9000,
+              item_count: quantity,
+              item_options: {
+                hardware_type: category,
+                hardware_madeby: manufacturer,
+                hardware_size: size,
+                hardware_request: request,
+              },
+            });
+            console.log(result);
+            router.replace("/cart");
+          } catch (error) {
+            console.error("장바구니 담기 실패:", error);
+          }
+        }}
       />
     </div>
   );
