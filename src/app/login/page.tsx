@@ -245,8 +245,9 @@ function PhoneLoginPage() {
                 button1Text="로그인하기"
                 onButton1Click={async () => {
                   try {
+                    const cleanPhoneNumber = watchedPhoneNumber?.replace(/-/g, "") || "";
                     const userId = await signin({
-                      phoneNumber: watchedPhoneNumber,
+                      phoneNumber: cleanPhoneNumber,
                     });
                     console.log("로그인 성공:", userId);
                     router.replace("/");
