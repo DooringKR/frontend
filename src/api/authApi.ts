@@ -2,30 +2,13 @@ import { SigninUser, SignupUser, User } from "@/types/apiType";
 
 import useUserStore from "@/store/userStore";
 
-// 환경별 API 베이스 URL 설정
-const getApiBaseUrl = () => {
-  // 배포 환경에서는 직접 백엔드 호출
-  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
-    return 'https://dooring-backend.onrender.com';
-  }
-  // 개발 환경에서는 Next.js API 라우트 사용
-  return '';
-};
-
 // 전화번호 중복 확인 (HEAD 방식)
 export async function checkPhoneDuplicate(phoneNumber: string): Promise<boolean> {
   // 하이픈 제거하여 11자리 숫자만 추출
   const cleanPhoneNumber = phoneNumber.replace(/-/g, "");
-  const apiBaseUrl = getApiBaseUrl();
 
   try {
-    const apiUrl = apiBaseUrl
-      ? `${apiBaseUrl}/auth?user_phone=${cleanPhoneNumber}`
-      : `/api/auth/check-phone?user_phone=${cleanPhoneNumber}`;
-
-    console.log(`API 호출 URL: ${apiUrl} (환경: ${apiBaseUrl ? 'production' : 'development'})`);
-
-    const response = await fetch(apiUrl, {
+    const response = await fetch(`/api/auth/check-phone?user_phone=${cleanPhoneNumber}`, {
       method: "HEAD",
     });
 
@@ -58,13 +41,9 @@ export async function checkPhoneDuplicate(phoneNumber: string): Promise<boolean>
 
 // 로그인
 export async function signin(body: SigninUser): Promise<number> {
-  console.log("111");
-  const apiBaseUrl = getApiBaseUrl();
-  const apiUrl = apiBaseUrl ? `${apiBaseUrl}/auth/login` : "/api/auth/signin";
+  console.log("로그인 API 호출 시작");
 
-  console.log(`로그인 API 호출: ${apiUrl}`);
-
-  const response = await fetch(apiUrl, {
+  const response = await fetch("/api/auth/signin", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -88,12 +67,9 @@ export async function signin(body: SigninUser): Promise<number> {
 
 // 회원가입
 export async function signup(body: SignupUser): Promise<{ user_id: number }> {
-  const apiBaseUrl = getApiBaseUrl();
-  const apiUrl = apiBaseUrl ? `${apiBaseUrl}/auth/signup` : "/api/auth/signup";
+  console.log("회원가입 API 호출 시작");
 
-  console.log(`회원가입 API 호출: ${apiUrl}`);
-
-  const response = await fetch(apiUrl, {
+  const response = await fetch("/api/auth/signup", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -101,7 +77,9 @@ export async function signup(body: SignupUser): Promise<{ user_id: number }> {
     credentials: "include", // 쿠키 포함
     body: JSON.stringify(body),
   });
-  console.log(response);
+
+  console.log("회원가입 응답:", response);
+
   if (!response.ok) {
     throw new Error("회원가입 요청 실패");
   }
@@ -116,12 +94,9 @@ export async function signup(body: SignupUser): Promise<{ user_id: number }> {
 
 // 유저 정보 조회 + localStorage 저장 통합 관리
 export async function getUserProfile(userId: number): Promise<User> {
-  const apiBaseUrl = getApiBaseUrl();
-  const apiUrl = apiBaseUrl ? `${apiBaseUrl}/app_user/${userId}` : `/api/app_user/${userId}`;
+  console.log("유저 정보 조회 API 호출 시작");
 
-  console.log(`유저 정보 조회 API 호출: ${apiUrl}`);
-
-  const response = await fetch(apiUrl, {
+  const response = await fetch(`/api/app_user/${userId}`, {
     method: "GET",
     credentials: "include",
   });
@@ -139,11 +114,10 @@ export async function getUserProfile(userId: number): Promise<User> {
     user_phone: resData.user_phone
   };
 
-  // 장바구니 정보 조회
+  // 장바구니 정보 조회 (프록시 API 사용)
   try {
-    const cartResponse = await fetch(`${apiBaseUrl}/cart/${userId}`, {
+    const cartResponse = await fetch(`/api/cart/${userId}`, {
       method: "GET",
-      headers: { "Content-Type": "application/json" },
       credentials: "include",
     });
 
