@@ -2,23 +2,21 @@ import { SigninUser, SignupUser, User } from "@/types/apiType";
 
 import useUserStore from "@/store/userStore";
 
-// 전화번호 중복 확인 (HEAD 방식)
+// 전화번호 중복 확인 (GET 방식)
 export async function checkPhoneDuplicate(phoneNumber: string): Promise<boolean> {
   // 하이픈 제거하여 11자리 숫자만 추출
   const cleanPhoneNumber = phoneNumber.replace(/-/g, "");
 
   try {
     const response = await fetch(`/api/auth/check-phone?user_phone=${cleanPhoneNumber}`, {
-      method: "HEAD",
+      method: "GET",
     });
 
     console.log("전화번호 중복 확인 응답:", response.status);
 
-    // 200: 중복되지 않음 (사용 가능)
-    // 409: 중복됨 (이미 존재)
-    // 400: 잘못된 형식
-    if (response.status === 200) {
-      return false; // 중복되지 않음
+    if (response.ok) {
+      const data = await response.json();
+      return data.isDuplicate; // 중복 여부 반환
     } else if (response.status === 409) {
       return true; // 중복됨
     } else if (response.status === 400) {
