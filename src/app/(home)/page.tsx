@@ -28,6 +28,13 @@ export default function Page() {
   const fullAddress = address1 && address2 ? `${address1} ${address2}` : "";
   const { id: userId } = useUserStore();
 
+  // 모든 Hook을 먼저 호출
+  const [deliverySchedule, setDeliverySchedule] = useState<"today" | "tomorrow" | "other" | "">("");
+  const [timeLimit, setTimeLimit] = useState<string | undefined>(undefined);
+  const [arrivalDate, setArrivalDate] = useState<string | undefined>(undefined);
+  const { cartItems, setCartItems } = useCartStore();
+  const [cartItemCount, setCartItemCount] = useState(0);
+
   // 로그인 상태 체크
   useEffect(() => {
     if (!userId) {
@@ -36,30 +43,16 @@ export default function Page() {
     }
   }, [userId, router]);
 
-  // 로그인되지 않은 경우 로딩 화면 표시
-  if (!userId) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-gray-500">로그인 확인 중...</div>
-      </div>
-    );
-  }
-
   useEffect(() => {
     useSingleCartStore.persist.clearStorage();
     resetCart();
   }, []);
 
-  const [deliverySchedule, setDeliverySchedule] = useState<"today" | "tomorrow" | "other" | "">("");
-  const [timeLimit, setTimeLimit] = useState<string | undefined>(undefined);
-  const [arrivalDate, setArrivalDate] = useState<string | undefined>(undefined);
-
-  const { cartItems, setCartItems } = useCartStore();
-  const [cartItemCount, setCartItemCount] = useState(0);
   useEffect(() => {
     const totalCount = cartItems.reduce((sum, item) => sum + item.item_count, 0);
     setCartItemCount(totalCount);
   }, [cartItems]);
+
   const formatOrderDeadline = (remainingMinutes: number): string => {
     const hours = Math.floor(remainingMinutes / 60);
     const minutes = remainingMinutes % 60;
@@ -115,12 +108,6 @@ export default function Page() {
 
     checkDelivery();
   }, [address1]);
-  // const cookieStore = await cookies();
-  // const token = cookieStore.get("token");
-
-  // if (!token) {
-  //   redirect("/login");
-  // }
 
   useEffect(() => {
     const fetchCart = async () => {
@@ -135,6 +122,15 @@ export default function Page() {
 
     fetchCart();
   }, [userId]);
+
+  // 로그인되지 않은 경우 로딩 화면 표시
+  if (!userId) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-gray-500">로그인 확인 중...</div>
+      </div>
+    );
+  }
 
   let addressIndicatorProps: AddressIndicatorProps;
 
