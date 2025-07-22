@@ -7,19 +7,35 @@ export async function checkPhoneDuplicate(phoneNumber: string): Promise<boolean>
   // 하이픈 제거하여 11자리 숫자만 추출
   const cleanPhoneNumber = phoneNumber.replace(/-/g, "");
 
-  const response = await fetch(`/api/auth/check-phone?user_phone=${cleanPhoneNumber}`, {
-    method: "HEAD",
-  });
+  try {
+    const response = await fetch(`/api/auth/check-phone?user_phone=${cleanPhoneNumber}`, {
+      method: "HEAD",
+    });
 
-  // 200: 중복되지 않음 (사용 가능)
-  // 409: 중복됨 (이미 존재)
-  // 400: 잘못된 형식
-  if (response.status === 200) {
-    return false; // 중복되지 않음
-  } else if (response.status === 409) {
-    return true; // 중복됨
-  } else {
-    throw new Error("전화번호 형식이 올바르지 않습니다.");
+    console.log("전화번호 중복 확인 응답:", response.status);
+
+    // 200: 중복되지 않음 (사용 가능)
+    // 409: 중복됨 (이미 존재)
+    // 400: 잘못된 형식
+    if (response.status === 200) {
+      return false; // 중복되지 않음
+    } else if (response.status === 409) {
+      return true; // 중복됨
+    } else if (response.status === 400) {
+      throw new Error("전화번호 형식이 올바르지 않습니다.");
+    } else {
+      console.error("예상치 못한 응답 상태:", response.status);
+      throw new Error("전화번호 확인 중 오류가 발생했습니다.");
+    }
+  } catch (error) {
+    console.error("전화번호 중복 확인 중 에러:", error);
+
+    // 네트워크 에러나 기타 에러의 경우
+    if (error instanceof Error) {
+      throw error;
+    } else {
+      throw new Error("전화번호 확인 중 오류가 발생했습니다.");
+    }
   }
 }
 

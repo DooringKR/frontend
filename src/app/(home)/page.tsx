@@ -26,6 +26,25 @@ export default function Page() {
   const resetCart = useSingleCartStore(state => state.reset);
   const { address1, address2 } = useAddressStore();
   const fullAddress = address1 && address2 ? `${address1} ${address2}` : "";
+  const { id: userId } = useUserStore();
+
+  // 로그인 상태 체크
+  useEffect(() => {
+    if (!userId) {
+      console.log("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
+      router.replace("/login");
+    }
+  }, [userId, router]);
+
+  // 로그인되지 않은 경우 로딩 화면 표시
+  if (!userId) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-gray-500">로그인 확인 중...</div>
+      </div>
+    );
+  }
+
   useEffect(() => {
     useSingleCartStore.persist.clearStorage();
     resetCart();
@@ -35,7 +54,6 @@ export default function Page() {
   const [timeLimit, setTimeLimit] = useState<string | undefined>(undefined);
   const [arrivalDate, setArrivalDate] = useState<string | undefined>(undefined);
 
-  const { id: userId } = useUserStore();
   const { cartItems, setCartItems } = useCartStore();
   const [cartItemCount, setCartItemCount] = useState(0);
   useEffect(() => {
