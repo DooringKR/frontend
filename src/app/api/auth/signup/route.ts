@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 interface SignupRequestBody {
   phoneNumber: string;
-  userType: "company" | "factory";
+  userType: "INTERIOR" | "FACTORY";
 }
 
 interface SignupResponse {
@@ -19,8 +19,8 @@ async function requestSignup(signupData: SignupRequestBody) {
 
     // 백엔드 필드명으로 변경
     const backendData = {
+      user_type: signupData.userType,
       user_phone: cleanPhoneNumber,
-      user_type: signupData.userType
     };
 
     console.log("📱 정리된 전화번호:", cleanPhoneNumber);

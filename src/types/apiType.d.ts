@@ -2,7 +2,7 @@
 
 export type User = {
   user_id: number;
-  user_type: "company" | "factory";
+  user_type: "INTERIOR" | "FACTORY";
   user_phone: string;
 };
 

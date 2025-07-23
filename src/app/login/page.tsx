@@ -59,7 +59,7 @@ function PhoneLoginPage() {
     inputRef.current?.focus();
   }, []);
 
-  const handleTypeSelect = (type: "" | "company" | "factory") => {
+  const handleTypeSelect = (type: "" | "INTERIOR" | "FACTORY") => {
     if (type) {
       setUserType(type);
     }
@@ -89,7 +89,7 @@ function PhoneLoginPage() {
 
       const result = await signup({
         phoneNumber: cleanPhoneNumber,
-        userType: userType as "company" | "factory",
+        userType: userType as "INTERIOR" | "FACTORY",
       });
 
       console.log("회원가입 성공:", result.user_id);
@@ -196,7 +196,7 @@ function PhoneLoginPage() {
             <UnderlinedSelect
               label="업체 유형 선택"
               options={[]}
-              value={userType === "company" ? "인테리어 업체" : userType === "factory" ? "공장" : ""}
+              value={userType === "INTERIOR" ? "인테리어 업체" : userType === "FACTORY" ? "공장" : ""}
               onClick={() => setShowUserTypeBottomSheet(true)}
               onChange={function (): void {
                 throw new Error("Function not implemented.");
@@ -278,12 +278,12 @@ function PhoneLoginPage() {
               <CompanyTypeButton
                 text="인테리어 업체"
                 icon={<PaintBruchVertical />}
-                onClick={() => handleTypeSelect("company")}
+                onClick={() => handleTypeSelect("INTERIOR")}
               />
               <CompanyTypeButton
                 text="자재 공장"
                 icon={<Factory />}
-                onClick={() => handleTypeSelect("factory")}
+                onClick={() => handleTypeSelect("FACTORY")}
               />
             </div></>
 
