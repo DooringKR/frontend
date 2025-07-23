@@ -3,11 +3,11 @@ import { createJSONStorage, persist } from "zustand/middleware";
 
 interface UserStore {
   id: number | null;
-  userType: "company" | "factory" | null;
+  userType: "INTERIOR" | "FACTORY" | null;
   user_phoneNumber: string | null;
   cart_id: number | null;
   setUserId: (id: number) => void;
-  setUserType: (userType: "company" | "factory") => void;
+  setUserType: (userType: "INTERIOR" | "FACTORY") => void;
   setUserPhoneNumber: (phone: string) => void;
   setCartId: (cartId: number) => void;
   resetUser: () => void;
