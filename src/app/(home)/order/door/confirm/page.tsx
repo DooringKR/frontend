@@ -1,19 +1,16 @@
 "use client";
 
 import { addCartItem } from "@/api/cartItemApi";
-import { COLOR_LIST } from "@/constants/colorList";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
 import Header from "@/components/Header/Header";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
-import QuantitySelector from "@/components/QuantitySelector/QuantitySelector";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
-import { useSingleCartStore } from "@/store/singleCartStore";
-import { DoorCart } from "@/store/singleCartStore";
+import { DoorCart, useSingleCartStore } from "@/store/singleCartStore";
 import formatColor from "@/utils/formatColor";
 import formatSize from "@/utils/formatSize";
 
@@ -24,7 +21,7 @@ function getCategoryLabel(category: string | null) {
   return "문짝";
 }
 
-function formatBoring(boringSize: (number | null)[], category?: string | null) {
+export function formatBoring(boringSize: (number | null)[], category?: string | null) {
   if (!boringSize || !Array.isArray(boringSize)) return "";
 
   const arr = boringSize;
@@ -53,7 +50,7 @@ function formatBoring(boringSize: (number | null)[], category?: string | null) {
     .join(", ");
 }
 
-function formatBoringDirection(dir: string | null) {
+export function formatBoringDirection(dir: string | null) {
   if (dir === "left") return "좌경";
   if (dir === "right") return "우경";
   return dir ?? "";
@@ -121,13 +118,13 @@ function DoorConfirmPageContent() {
                 door_height: height,
                 ...(category === "normal" || category === "flap"
                   ? {
-                    hinge_count: boringSize!.length,
-                    hinge_direction: boringDirection,
-                    first_hinge_size: boringSize![0] ?? undefined,
-                    second_hinge_size: boringSize![1] ?? undefined,
-                    third_hinge_size: boringSize![2] ?? undefined,
-                    fourth_hinge_size: boringSize![3] ?? undefined,
-                  }
+                      hinge_count: boringSize!.length,
+                      hinge_direction: boringDirection,
+                      first_hinge_size: boringSize![0] ?? undefined,
+                      second_hinge_size: boringSize![1] ?? undefined,
+                      third_hinge_size: boringSize![2] ?? undefined,
+                      fourth_hinge_size: boringSize![3] ?? undefined,
+                    }
                   : {}),
                 door_request: request,
               },

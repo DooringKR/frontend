@@ -166,7 +166,6 @@ export default function PickUpClientPage() {
         </div>
         <div className="px-5">
           <PriceSummaryCard
-            cartGroups={sanitizedCartGroups}
             getTotalPrice={getTotalPrice}
             categoryMap={CATEGORY_MAP}
             page={CHECK_ORDER_PAGE}

@@ -1,6 +1,8 @@
 import { CHECK_ORDER_PAGE } from "@/constants/pageName";
 import React from "react";
 
+import useCartStore from "@/store/cartStore";
+
 // type OrderItem = {
 //   price?: number;
 //   count?: number;
@@ -11,19 +13,25 @@ type OrderItem = {
 };
 
 interface PriceSummaryCardProps {
-  //   cartGroups: Record<string, OrderItem[]>;
-  cartGroups: Record<string, (OrderItem | null)[]>;
+  // cartGroups: Record<string, (OrderItem | null)[]>;
+
   getTotalPrice: () => number;
   categoryMap: Record<string, string>;
   page?: string;
 }
 
 const PriceSummaryCard: React.FC<PriceSummaryCardProps> = ({
-  cartGroups,
   getTotalPrice,
   categoryMap,
   page,
 }) => {
+  const cartItems = useCartStore(state => state.cartItems);
+  const groupedItems = (cartItems ?? []).reduce<Record<string, OrderItem[]>>((acc, item) => {
+    const category = (item.category ?? "기타").toLowerCase();
+    if (!acc[category]) acc[category] = [];
+    acc[category].push(item);
+    return acc;
+  }, {});
   return (
     <div className="flex flex-col gap-3 py-5">
       <div className="text-xl font-600 text-gray-800">
@@ -50,7 +58,7 @@ const PriceSummaryCard: React.FC<PriceSummaryCardProps> = ({
 
         <div className="h-[2px] w-full bg-gray-200"></div>
         <div className="flex flex-col gap-1 text-[15px] font-400 text-gray-500">
-          {Object.entries(cartGroups).map(([category, items]) => {
+          {/* {Object.entries(cartGroups).map(([category, items]) => {
             const categoryTotal = items.reduce((sum, item) => {
               if (!item) return sum;
               return sum + (item.price ?? 0) * (item.count ?? 1);
@@ -59,6 +67,39 @@ const PriceSummaryCard: React.FC<PriceSummaryCardProps> = ({
             return (
               <div key={category} className="mb-1 flex justify-between">
                 <span>{categoryMap[category] || category}</span>
+                <span>{categoryTotal.toLocaleString()}원</span>
+              </div>
+            );
+          })} */}
+          {/* {Object.entries(
+            cartItems.reduce<Record<string, OrderItem[]>>((acc, item) => {
+              const category = item.category ?? "기타";
+              if (!acc[category]) acc[category] = [];
+              acc[category].push(item);
+              return acc;
+            }, {}),
+          ).map(([category, items]) => {
+            const categoryTotal = items.reduce((sum, item) => {
+              return sum + (item.price ?? 0) * (item.count ?? 1);
+            }, 0);
+
+            return (
+              <div key={category} className="mb-1 flex justify-between">
+                <span>{categoryMap[category] || category}</span>
+                <span>{categoryTotal.toLocaleString()}원</span>
+              </div>
+            );
+          })}
+           */}
+
+          {Object.entries(groupedItems).map(([category, items]) => {
+            const categoryTotal = items.reduce((sum, item) => {
+              return sum + (item.price ?? 0) * (item.count ?? 1);
+            }, 0);
+
+            return (
+              <div key={category} className="mb-1 flex justify-between">
+                <span>{categoryMap[category] ?? category}</span>
                 <span>{categoryTotal.toLocaleString()}원</span>
               </div>
             );

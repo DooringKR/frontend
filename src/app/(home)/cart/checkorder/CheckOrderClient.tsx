@@ -57,7 +57,7 @@ function CheckOrderClientPage() {
   const [deliveryMessageColor, setDeliveryMessageColor] = useState("text-black");
   const cartId = useCartStore(state => state.cartId);
   const cartItems = useCartStore(state => state.cartItems);
-  const userId = useUserStore(state => state.id);
+  const userId = useUserStore.getState().id;
 
   useEffect(() => {
     // 기본 주소 세팅
@@ -98,6 +98,7 @@ function CheckOrderClientPage() {
     savedAddress2,
     user_phoneNumber,
   ]);
+
   useEffect(() => {
     console.log("💡 Zustand의 cartItems:", cartItems);
     console.log("💾 localStorage.cartItems:", localStorage.getItem("cartItems"));
@@ -159,19 +160,19 @@ function CheckOrderClientPage() {
     }
   };
 
-  const groupedCartItems = cartItems.reduce((acc: Record<string, any[]>, item) => {
-    if (!item || !item.category) return acc;
-    if (!acc[item.category]) acc[item.category] = [];
-    acc[item.category].push(item);
-    return acc;
-  }, {});
+  // const groupedCartItems = cartItems.reduce((acc: Record<string, any[]>, item) => {
+  //   if (!item || !item.category) return acc;
+  //   if (!acc[item.category]) acc[item.category] = [];
+  //   acc[item.category].push(item);
+  //   return acc;
+  // }, {});
 
   const getTotalPrice = () =>
     cartItems.reduce((sum, item) => sum + (item?.price ?? 0) * (item?.count ?? 1), 0);
 
-  const sanitizedCartGroups = Object.fromEntries(
-    Object.entries(groupedCartItems).map(([key, items]) => [key, items.filter(Boolean)]),
-  );
+  // const sanitizedCartGroups = Object.fromEntries(
+  //   Object.entries(groupedCartItems).map(([key, items]) => [key, items.filter(Boolean)]),
+  // );
 
   return (
     <div className="flex min-h-screen flex-col justify-between">
@@ -200,7 +201,6 @@ function CheckOrderClientPage() {
         </section>
 
         <PriceSummaryCard
-          cartGroups={sanitizedCartGroups}
           getTotalPrice={getTotalPrice}
           categoryMap={CATEGORY_MAP}
           page={CHECK_ORDER_PAGE}
