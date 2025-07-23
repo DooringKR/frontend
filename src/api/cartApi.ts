@@ -15,7 +15,9 @@ export interface CartResponse {
 
 // 장바구니 get
 export async function getCartItems(userId: number): Promise<CartResponse> {
-  const response = await fetch(`http://localhost:3001/cart/${userId}`, {
+  console.log("장바구니 아이템 조회 API 호출:", userId);
+
+  const response = await fetch(`/api/cart/${userId}/items`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -32,8 +34,9 @@ export async function getCartItems(userId: number): Promise<CartResponse> {
 
 //아이템 삭제
 export const deleteCartItem = async (cartItemId: number) => {
-  console.log("삭제 요청 보냄:", cartItemId); // ✅ 추가
-  const res = await fetch(`http://localhost:3001/cart_item/${cartItemId}`, {
+  console.log("삭제 요청 보냄:", cartItemId);
+
+  const res = await fetch(`/api/cart_item/${cartItemId}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
@@ -47,5 +50,5 @@ export const deleteCartItem = async (cartItemId: number) => {
     throw new Error("장바구니 아이템 삭제 실패");
   }
 
-  console.log("삭제 성공:", cartItemId); // ✅ 추가
+  console.log("삭제 성공:", cartItemId);
 };

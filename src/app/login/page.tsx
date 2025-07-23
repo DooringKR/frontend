@@ -66,6 +66,22 @@ function PhoneLoginPage() {
     setShowUserTypeBottomSheet(false);
   };
 
+  // 로그인 처리 함수
+  const handleLogin = async () => {
+    try {
+      const cleanPhoneNumber = watchedPhoneNumber?.replace(/-/g, "") || "";
+      const userId = await signin({
+        phoneNumber: cleanPhoneNumber,
+      });
+      console.log("로그인 성공:", userId);
+      router.replace("/");
+    } catch (error) {
+      console.error("로그인 실패:", error);
+      alert("로그인 중 오류가 발생했습니다.");
+    }
+    setShowDuplicateBottomSheet(false);
+  };
+
   const handleSignup = async () => {
     try {
       // 전화번호에서 하이픈 제거
@@ -162,6 +178,7 @@ function PhoneLoginPage() {
           label="휴대폰 번호"
           value={watchedPhoneNumber || ""}
           placeholder="휴대폰 번호"
+          type="tel"
           error={!!errors.user_phoneNumber}
           helperText={
             errors.user_phoneNumber?.message ||
@@ -243,19 +260,7 @@ function PhoneLoginPage() {
               <BottomButton
                 type="1button"
                 button1Text="로그인하기"
-                onButton1Click={async () => {
-                  try {
-                    const userId = await signin({
-                      phoneNumber: watchedPhoneNumber,
-                    });
-                    console.log("로그인 성공:", userId);
-                    router.replace("/");
-                  } catch (error) {
-                    console.error("로그인 실패:", error);
-                    alert("로그인 중 오류가 발생했습니다.");
-                  }
-                  setShowDuplicateBottomSheet(false);
-                }}
+                onButton1Click={handleLogin}
               />
             </div>
           </div>

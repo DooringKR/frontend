@@ -1,71 +1,71 @@
 import { NextResponse } from 'next/server';
 
 interface SignupRequestBody {
-  userType: 'company' | 'factory';
   phoneNumber: string;
+  userType: "company" | "factory";
 }
 
 interface SignupResponse {
   user_id: number;
+  message: string;
 }
 
-async function requestSignup(signupData: SignupRequestBody): Promise<{ data: SignupResponse } | NextResponse> {
-  // 백엔드 형식에 맞게 데이터 변환
-  const backendData = {
-    user_phone: signupData.phoneNumber,
-    user_type: signupData.userType === 'company' ? 'INTERIOR' : 'FACTORY',
-  };
+async function requestSignup(signupData: SignupRequestBody) {
+  console.log("🔐 백엔드 회원가입 요청 시작:", signupData);
 
-  console.log('백엔드로 전송할 데이터:', backendData);
+  try {
+    // 전화번호에서 하이픈 제거하여 11자리 숫자만 추출
+    const cleanPhoneNumber = signupData.phoneNumber.replace(/-/g, "");
 
-  const response = await fetch(`https://dooring-backend.onrender.com/auth`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(backendData),
-    credentials: 'include',
-  });
+    // 백엔드 필드명으로 변경
+    const backendData = {
+      user_phone: cleanPhoneNumber,
+      user_type: signupData.userType
+    };
 
-  console.log('백엔드 응답 상태:', response.status);
+    console.log("📱 정리된 전화번호:", cleanPhoneNumber);
+    console.log("🏢 사용자 타입:", signupData.userType);
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('백엔드 오류 응답:', errorText);
+    const response = await fetch(`https://dooring-backend.onrender.com/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(backendData),
+      credentials: 'include',
+    });
 
-    // 409 오류는 이미 가입된 회원
-    if (response.status === 409) {
-      return NextResponse.json(
-        { error: '이미 가입된 회원입니다.' },
-        { status: 409 }
-      );
+    console.log("📡 백엔드 응답 상태:", response.status, response.statusText);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("❌ 백엔드 회원가입 실패:", response.status, response.statusText, errorText);
+      throw new Error(`회원가입 요청 실패: ${response.status} ${response.statusText}`);
     }
 
-    throw new Error('회원가입 요청 실패');
+    const data: SignupResponse = await response.json();
+    console.log("✅ 백엔드 회원가입 성공:", data);
+
+    return data;
+  } catch (error) {
+    console.error("🔍 백엔드 요청 중 네트워크 에러:", error);
+    throw error;
   }
-
-  const data: SignupResponse = await response.json();
-  console.log('백엔드 응답 데이터:', data);
-
-  return { data };
 }
 
 export async function POST(request: Request) {
+  console.log("🚀 /api/auth/signup POST 요청 시작");
+
   try {
     const body = await request.json();
-    console.log('받은 요청 데이터:', body);
+    console.log("📝 요청 바디:", body);
 
-    const result = await requestSignup(body);
+    const signupData = await requestSignup(body);
+    console.log("🎉 회원가입 처리 완료:", signupData);
 
-    // NextResponse가 반환된 경우 (에러 상황)
-    if (result instanceof NextResponse) {
-      return result;
-    }
-
-    // 성공한 경우
-    return NextResponse.json({ user_id: result.data.user_id });
+    return NextResponse.json(signupData);
   } catch (error) {
-    console.error('회원가입 API 오류:', error);
+    console.error("💥 회원가입 처리 중 에러:", error);
     return NextResponse.json(
-      { error: '회원가입 중 오류가 발생했습니다.' },
+      { error: `회원가입 처리 중 오류가 발생했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}` },
       { status: 500 }
     );
   }

@@ -1,0 +1,4 @@
+/api/auth/check-phone
+  Access-Control-Allow-Methods: GET, POST, HEAD, OPTIONS
+  Access-Control-Allow-Headers: Content-Type
+  Access-Control-Allow-Origin: * 

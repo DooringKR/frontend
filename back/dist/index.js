@@ -15,7 +15,8 @@ const PORT = parseInt(process.env.PORT || "3001", 10);
 app.use((0, cors_1.default)({
     origin: [
         'https://dooringkr.vercel.app/login',
-        'http://localhost:3000'
+        'http://localhost:3000',
+        'https://lucky-peony-1eeae4.netlify.app/',
     ],
     credentials: true,
 }));

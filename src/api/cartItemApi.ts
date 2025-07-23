@@ -22,7 +22,9 @@ export async function addCartItem(cartItem: CartItemRequest): Promise<any> {
     cart_id: cart_id
   };
 
-  const response = await fetch("https://dooring-backend.onrender.com/cart_item", {
+  console.log("장바구니 아이템 추가 API 호출:", requestData);
+
+  const response = await fetch("/api/cart_item", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

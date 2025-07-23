@@ -39,7 +39,9 @@ export interface CreateOrderResponse {
 }
 
 export async function createOrder(payload: CreateOrderPayload): Promise<CreateOrderResponse> {
-  const res = await fetch(`http://localhost:3001/order`, {
+  console.log("주문 생성 API 호출:", payload);
+
+  const res = await fetch(`/api/order`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

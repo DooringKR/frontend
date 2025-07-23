@@ -13,6 +13,8 @@ export async function getUserInfo(req: Request, res: Response) {
     select: {
       user_phone: true,
       user_type: true,
+      user_road_address: true,
+      user_detail_address: true,
     },
   });
 

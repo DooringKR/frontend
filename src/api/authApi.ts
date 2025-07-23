@@ -3,30 +3,45 @@ import { SigninUser, SignupUser, User } from "@/types/apiType";
 import useAddressStore from "@/store/addressStore";
 import useUserStore from "@/store/userStore";
 
-// 전화번호 중복 확인 (HEAD 방식)
+// 전화번호 중복 확인 (GET 방식)
 export async function checkPhoneDuplicate(phoneNumber: string): Promise<boolean> {
   // 하이픈 제거하여 11자리 숫자만 추출
   const cleanPhoneNumber = phoneNumber.replace(/-/g, "");
 
-  const response = await fetch(`/api/auth/check-phone?user_phone=${cleanPhoneNumber}`, {
-    method: "HEAD",
-  });
+  try {
+    const response = await fetch(`/api/auth/check-phone?user_phone=${cleanPhoneNumber}`, {
+      method: "GET",
+    });
 
-  // 200: 중복되지 않음 (사용 가능)
-  // 409: 중복됨 (이미 존재)
-  // 400: 잘못된 형식
-  if (response.status === 200) {
-    return false; // 중복되지 않음
-  } else if (response.status === 409) {
-    return true; // 중복됨
-  } else {
-    throw new Error("전화번호 형식이 올바르지 않습니다.");
+    console.log("전화번호 중복 확인 응답:", response.status);
+
+    if (response.ok) {
+      const data = await response.json();
+      return data.isDuplicate; // 중복 여부 반환
+    } else if (response.status === 409) {
+      return true; // 중복됨
+    } else if (response.status === 400) {
+      throw new Error("전화번호 형식이 올바르지 않습니다.");
+    } else {
+      console.error("예상치 못한 응답 상태:", response.status);
+      throw new Error("전화번호 확인 중 오류가 발생했습니다.");
+    }
+  } catch (error) {
+    console.error("전화번호 중복 확인 중 에러:", error);
+
+    // 네트워크 에러나 기타 에러의 경우
+    if (error instanceof Error) {
+      throw error;
+    } else {
+      throw new Error("전화번호 확인 중 오류가 발생했습니다.");
+    }
   }
 }
 
 // 로그인
 export async function signin(body: SigninUser): Promise<number> {
-  console.log("111");
+  console.log("로그인 API 호출 시작");
+
   const response = await fetch("/api/auth/signin", {
     method: "POST",
     headers: {
@@ -51,6 +66,8 @@ export async function signin(body: SigninUser): Promise<number> {
 
 // 회원가입
 export async function signup(body: SignupUser): Promise<{ user_id: number }> {
+  console.log("회원가입 API 호출 시작");
+
   const response = await fetch("/api/auth/signup", {
     method: "POST",
     headers: {
@@ -59,7 +76,9 @@ export async function signup(body: SignupUser): Promise<{ user_id: number }> {
     credentials: "include", // 쿠키 포함
     body: JSON.stringify(body),
   });
-  console.log(response);
+
+  console.log("회원가입 응답:", response);
+
   if (!response.ok) {
     throw new Error("회원가입 요청 실패");
   }
@@ -74,6 +93,8 @@ export async function signup(body: SignupUser): Promise<{ user_id: number }> {
 
 // 유저 정보 조회 + localStorage 저장 통합 관리
 export async function getUserProfile(userId: number): Promise<User> {
+  console.log("유저 정보 조회 API 호출 시작");
+
   const response = await fetch(`/api/app_user/${userId}`, {
     method: "GET",
     credentials: "include",
@@ -92,11 +113,10 @@ export async function getUserProfile(userId: number): Promise<User> {
     user_phone: resData.user_phone,
   };
 
-  // 장바구니 정보 조회
+  // 장바구니 정보 조회 (프록시 API 사용)
   try {
-    const cartResponse = await fetch(`https://dooring-backend.onrender.com/cart/${userId}`, {
+    const cartResponse = await fetch(`/api/cart/${userId}`, {
       method: "GET",
-      headers: { "Content-Type": "application/json" },
       credentials: "include",
     });
 
