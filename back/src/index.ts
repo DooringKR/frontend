@@ -5,6 +5,7 @@ import appUserRouter from './routes/app_user'
 import orderRouter from './routes/order'
 import cartRouter from './routes/cart'
 import cartItemRouter from './routes/cart_item'
+import orderItemRouter from './routes/order_item'
 import dotenv from "dotenv"
 
 dotenv.config();
@@ -26,6 +27,7 @@ app.use('/order', orderRouter);
 app.use('/app_user', appUserRouter);
 app.use('/cart', cartRouter);
 app.use('/cart_item', cartItemRouter);
+app.use('/order_item', orderItemRouter);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

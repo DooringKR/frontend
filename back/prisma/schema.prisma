@@ -63,6 +63,7 @@ model Order {
   seq             Int      @default(0)
   user            User     @relation(fields: [user_id], references: [id])
   user_id         Int
+  order_items     OrderItem[]
   cart            Cart     @relation("CartToOrder", fields: [cart_id], references: [id])
   cart_id         Int
   order_type      OrderType
@@ -70,4 +71,17 @@ model Order {
   order_price     Int
   order_options   Json?
   created_at      DateTime @default(now())
+}
+
+// 주문 아이템 테이블
+model OrderItem {
+  order_item_id   Int        @id @default(autoincrement())
+  order_id        String
+  product_type    ProductType
+  unit_price      Int
+  item_count      Int
+  item_options    Json
+  created_at      DateTime   @default(now())
+  last_updated_at DateTime   @updatedAt
+  order           Order      @relation(fields: [order_id], references: [order_id])
 }
