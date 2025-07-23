@@ -1,5 +1,6 @@
 import { SigninUser, SignupUser, User } from "@/types/apiType";
 
+import useAddressStore from "@/store/addressStore";
 import useUserStore from "@/store/userStore";
 
 // 전화번호 중복 확인 (HEAD 방식)
@@ -88,7 +89,7 @@ export async function getUserProfile(userId: number): Promise<User> {
   const userInfo: User = {
     user_id: userId,
     user_type: resData.user_type,
-    user_phone: resData.user_phone
+    user_phone: resData.user_phone,
   };
 
   // 장바구니 정보 조회
@@ -148,5 +149,7 @@ export async function checkAutoLogin(): Promise<User | null> {
 export function logout(): void {
   const userStore = useUserStore.getState();
   userStore.resetUser();
+  useAddressStore.getState().clearAddress();
+  useAddressStore.persist.clearStorage();
   console.log("로그아웃 완료 - localStorage 초기화");
 }

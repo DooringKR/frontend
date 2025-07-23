@@ -55,10 +55,9 @@ function CheckOrderClientPage() {
   const [deliveryDate, setDeliveryDate] = useState<string | null>(null);
   const [deliveryMessage, setDeliveryMessage] = useState("");
   const [deliveryMessageColor, setDeliveryMessageColor] = useState("text-black");
-  const [cartItems, setCartItems] = useState<any[]>([]);
-  const { cartItems: globalCartItems } = useCartStore();
-  const { cartId } = useCartStore.getState();
-  const { id: userId } = useUserStore.getState();
+  const cartId = useCartStore(state => state.cartId);
+  const cartItems = useCartStore(state => state.cartItems);
+  const userId = useUserStore(state => state.id);
 
   useEffect(() => {
     // 기본 주소 세팅
@@ -69,13 +68,6 @@ function CheckOrderClientPage() {
     // 전화번호 세팅
     if (!recipientPhoneNumber && user_phoneNumber) {
       setRecipientPhoneNumber(user_phoneNumber);
-    }
-
-    // 장바구니 세팅
-    if (searchParams.get("current") === "now") {
-      setCartItems([currentItem]);
-    } else {
-      setCartItems(globalCartItems);
     }
 
     const fetchDeliveryTime = async () => {
@@ -107,8 +99,10 @@ function CheckOrderClientPage() {
     user_phoneNumber,
   ]);
   useEffect(() => {
-    console.log("✅ 실제 cartItems 값:", cartItems);
-  }, [cartItems]);
+    console.log("💡 Zustand의 cartItems:", cartItems);
+    console.log("💾 localStorage.cartItems:", localStorage.getItem("cartItems"));
+  }, []);
+  console.log("렌더");
 
   const buildOrderOptions = () => {
     const delivery: Record<string, any> = {

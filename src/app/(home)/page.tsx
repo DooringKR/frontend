@@ -35,13 +35,16 @@ export default function Page() {
   const [timeLimit, setTimeLimit] = useState<string | undefined>(undefined);
   const [arrivalDate, setArrivalDate] = useState<string | undefined>(undefined);
 
-  const { id: userId } = useUserStore();
-  const { cartItems, setCartItems } = useCartStore();
+  const userId = useUserStore(state => state.id);
+  const setCartItems = useCartStore(state => state.setCartItems);
+  const cartItems = useCartStore(state => state.cartItems);
   const [cartItemCount, setCartItemCount] = useState(0);
+
   useEffect(() => {
     const totalCount = cartItems.reduce((sum, item) => sum + item.item_count, 0);
     setCartItemCount(totalCount);
   }, [cartItems]);
+
   const formatOrderDeadline = (remainingMinutes: number): string => {
     const hours = Math.floor(remainingMinutes / 60);
     const minutes = remainingMinutes % 60;

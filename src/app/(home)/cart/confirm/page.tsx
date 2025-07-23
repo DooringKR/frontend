@@ -25,7 +25,7 @@ export default function OrderConfirmPage() {
   const [showDetails, setShowDetails] = useState(true);
   const { address, requestMessage, customerRequest, foyerAccessType, deliveryDate, pickupInfo } =
     useOrderStore();
-  const { cartItems } = useCartStore();
+  const cartItems = useCartStore(state => state.cartItems);
   console.log(cartItems);
 
   const ALL_CATEGORIES = [
@@ -74,8 +74,11 @@ export default function OrderConfirmPage() {
     localStorage.removeItem("cartItems");
     localStorage.removeItem("recentOrder");
     useCurrentOrderStore.getState().clearCurrentItem();
+
     useCartStore.getState().clearCartItems();
+
     useOrderStore.getState().clearOrder();
+    useOrderStore.persist?.clearStorage?.();
 
     router.push("/");
   };
@@ -260,11 +263,15 @@ export default function OrderConfirmPage() {
                         <p>색상 : {item.color}</p>
                         <p>깊이 : {item.depth.baseDepth?.toLocaleString()}mm</p>
                         {item.depth.additionalDepth && (
-                          <p>⤷ 깊이 키움 : {item.depth.additionalDepth?.toLocaleString()}mm</p>
+                          <p>
+                            ⤷ 깊이 키움 : {item.depth.additionalDepth?.toLocaleString() ?? ""}mm
+                          </p>
                         )}
-                        <p>높이 : {item.height.baseHeight?.toLocaleString()}mm</p>
+                        <p>높이 : {item.height.baseHeight?.toLocaleString() ?? ""}mm</p>
                         {item.height.additionalHeight && (
-                          <p>⤷ 높이 키움 : {item.height.additionalHeight?.toLocaleString()}mm</p>
+                          <p>
+                            ⤷ 높이 키움 : {item.height.additionalHeight?.toLocaleString() ?? ""}mm
+                          </p>
                         )}
                         {item.finishRequest && <p>요청 사항 : {item.finishRequest}</p>}
                         {commonPrice}

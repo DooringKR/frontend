@@ -43,10 +43,11 @@ export default function CartClient() {
   const router = useRouter();
 
   const [cartGroups, setCartGroups] = useState<Record<string, OrderItem[]>>({});
-  //   const [hasItems, setHasItems] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const { setCartItems, setCartId } = useCartStore();
-  const { id: userId } = useUserStore.getState();
+  const setCartItems = useCartStore(state => state.setCartItems);
+  const setCartId = useCartStore(state => state.setCartId);
+  const cartItems = useCartStore(state => state.cartItems);
+  const userId = useUserStore(state => state.id);
   useEffect(() => {
     const fetchCart = async () => {
       try {
@@ -197,10 +198,6 @@ export default function CartClient() {
   }, []);
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("address-storage") || "{}");
-    const cartItems: OrderItem[] = JSON.parse(localStorage.getItem("cartItems") || "[]");
-    const address1 = saved.state?.address1 || "주소 없음";
-
     const grouped: Record<string, OrderItem[]> = {};
     cartItems.forEach(item => {
       if (!item) return;
@@ -209,7 +206,6 @@ export default function CartClient() {
     });
 
     setCartGroups(grouped);
-    // setHasItems(cartItems.length > 0);
   }, []);
 
   const getTotalPrice = () => {
@@ -234,7 +230,8 @@ export default function CartClient() {
           const updatedGroups = { ...prev };
           const filteredItems = updatedGroups[category].filter((_, i) => i !== index);
           updatedGroups[category] = filteredItems;
-          localStorage.setItem("cartItems", JSON.stringify(Object.values(updatedGroups).flat()));
+          const updatedItems = Object.values(updatedGroups).flat().filter(Boolean);
+          setCartItems(updatedItems);
           return updatedGroups;
         });
       } catch (err) {
@@ -254,7 +251,8 @@ export default function CartClient() {
         }
 
         newGroups[category] = updatedItems;
-        localStorage.setItem("cartItems", JSON.stringify(Object.values(newGroups).flat()));
+        const allItems = Object.values(newGroups).flat().filter(Boolean);
+        setCartItems(allItems);
         return newGroups;
       });
     }
