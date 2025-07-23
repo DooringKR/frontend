@@ -4,7 +4,7 @@ import { signup, checkDuplicate, login } from "../controllers/authController";
 const router = Router();
 
 // POST /auth
-router.post("/", signup);
+router.post("/signup", signup);
 
 // HEAD /auth?user_phone=...
 router.head("/", checkDuplicate);
