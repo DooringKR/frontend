@@ -1,16 +1,14 @@
-import { create } from "zustand";
-
 // interface CartStore {
 //   cartItems: any[];
 //   setCartItems: (items: any[]) => void;
 // }
-
 // const useCartStore = create<CartStore>((set) => ({
 //   cartItems: [],
 //   setCartItems: (items) => set({ cartItems: items }),
 // }));
-
 // export default useCartStore;
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface CartStore {
   cartItems: any[];
@@ -20,11 +18,19 @@ interface CartStore {
   clearCartItems: () => void;
 }
 
-const useCartStore = create<CartStore>(set => ({
-  cartItems: [],
-  cartId: null,
-  setCartItems: items => set({ cartItems: items }),
-  setCartId: id => set({ cartId: id }),
-  clearCartItems: () => set({ cartItems: [] }),
-}));
+const useCartStore = create<CartStore>()(
+  persist(
+    set => ({
+      cartItems: [],
+      cartId: null,
+      setCartItems: items => set({ cartItems: items }),
+      setCartId: id => set({ cartId: id }),
+      clearCartItems: () => set({ cartItems: [], cartId: null }),
+    }),
+    {
+      name: "cart-storage", // localStorage 키 이름
+    },
+  ),
+);
+
 export default useCartStore;

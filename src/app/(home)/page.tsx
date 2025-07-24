@@ -24,16 +24,26 @@ import Footer from "./_components/Footer";
 export default function Page() {
   const router = useRouter();
   const resetCart = useSingleCartStore(state => state.reset);
-  const { address1, address2 } = useAddressStore();
+  const { address1, address2, setAddress } = useAddressStore();
   const fullAddress = address1 && address2 ? `${address1} ${address2}` : "";
-  const { id: userId } = useUserStore();
 
   // 모든 Hook을 먼저 호출
   const [deliverySchedule, setDeliverySchedule] = useState<"today" | "tomorrow" | "other" | "">("");
   const [timeLimit, setTimeLimit] = useState<string | undefined>(undefined);
   const [arrivalDate, setArrivalDate] = useState<string | undefined>(undefined);
-  const { cartItems, setCartItems } = useCartStore();
+
+  const userId = useUserStore(state => state.id);
+  const userAddress1 = useUserStore(state => state.user_road_address);
+  const userAddress2 = useUserStore(state => state.user_detail_address);
+  const setCartItems = useCartStore(state => state.setCartItems);
+  const cartItems = useCartStore(state => state.cartItems);
   const [cartItemCount, setCartItemCount] = useState(0);
+
+  useEffect(() => {
+    if (userAddress1 && userAddress2) {
+      setAddress(userAddress1, userAddress2);
+    }
+  }, [userAddress1, userAddress2]);
 
   // 로그인 상태 체크
   useEffect(() => {

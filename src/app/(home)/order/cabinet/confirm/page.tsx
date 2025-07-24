@@ -1,7 +1,6 @@
 "use client";
 
 import { addCartItem } from "@/api/cartItemApi";
-import { CABINET_CATEGORY_LIST } from "@/constants/category";
 import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
 
@@ -12,6 +11,7 @@ import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { CabinetCart, useSingleCartStore } from "@/store/singleCartStore";
+import { getCategoryLabel } from "@/utils/categoryLabel";
 import formatColor from "@/utils/formatColor";
 import formatSize from "@/utils/formatSize";
 
@@ -100,50 +100,50 @@ function CabinetConfirmPageContent() {
                         ? "PATAGONIA_CREAM_LPM_18T"
                         : "DIRECT_INPUT",
                 ...(bodyMaterial !== "헤링본 PP 15T" &&
-                  bodyMaterial !== "헤링본 PP 18T" &&
-                  bodyMaterial !== "파타고니아 크림 LPM 18T"
+                bodyMaterial !== "헤링본 PP 18T" &&
+                bodyMaterial !== "파타고니아 크림 LPM 18T"
                   ? { body_type_direct_input: bodyMaterial }
                   : {}),
                 ...(category === "upper" || category === "lower" || category === "flap"
                   ? {
-                    handle_type:
-                      handleType === "찬넬"
-                        ? "CHANNEL"
-                        : handleType === "겉손잡이"
-                          ? "OUTER"
-                          : "PULL_DOWN",
-                  }
+                      handle_type:
+                        handleType === "찬넬"
+                          ? "CHANNEL"
+                          : handleType === "겉손잡이"
+                            ? "OUTER"
+                            : "PULL_DOWN",
+                    }
                   : {}),
                 finish_type: finishType === "막우라" ? "MAK_URA" : "URAHOME",
                 // showBar 값: ‘NONE’, ‘MOONJU_AVENTOS’, ‘BLUM_AVENTOS’, ‘GAS’, ‘FOLDABLE’, ‘DIRECT_INPUT’)
                 ...(category === "flap"
                   ? {
-                    absorber_type:
-                      showBar === "쇼바 없음"
-                        ? "NONE"
-                        : showBar === "문주 아벤토스 쇼바"
-                          ? "MOONJU_AVENTOS"
-                          : showBar === "블룸 아벤토스 쇼바"
-                            ? "BLUM_AVENTOS"
-                            : showBar === "가스 쇼바"
-                              ? "GAS"
-                              : showBar === "접이식 쇼바"
-                                ? "FOLDABLE"
-                                : "DIRECT_INPUT",
-                    ...(showBar !== "쇼바 없음" &&
+                      absorber_type:
+                        showBar === "쇼바 없음"
+                          ? "NONE"
+                          : showBar === "문주 아벤토스 쇼바"
+                            ? "MOONJU_AVENTOS"
+                            : showBar === "블룸 아벤토스 쇼바"
+                              ? "BLUM_AVENTOS"
+                              : showBar === "가스 쇼바"
+                                ? "GAS"
+                                : showBar === "접이식 쇼바"
+                                  ? "FOLDABLE"
+                                  : "DIRECT_INPUT",
+                      ...(showBar !== "쇼바 없음" &&
                       showBar !== "문주 아벤토스 쇼바" &&
                       showBar !== "블룸 아벤토스 쇼바" &&
                       showBar !== "가스 쇼바" &&
                       showBar !== "접이식 쇼바"
-                      ? { absorber_type_direct_input: showBar }
-                      : {}),
-                  }
+                        ? { absorber_type_direct_input: showBar }
+                        : {}),
+                    }
                   : {}),
                 ...(category === "drawer"
                   ? {
-                    drawer_type: drawerType,
-                    rail_type: railType,
-                  }
+                      drawer_type: drawerType,
+                      rail_type: railType,
+                    }
                   : {}),
                 ...(category === "open"
                   ? { add_rice_cooker_rail: riceRail === "추가" ? true : false }
@@ -173,9 +173,3 @@ function CabinetConfirmPage() {
 }
 
 export default CabinetConfirmPage;
-
-function getCategoryLabel(category: string | null) {
-  if (!category) return "부분장";
-  const found = CABINET_CATEGORY_LIST.find(item => item.slug === category);
-  return found ? found.header : "부분장";
-}

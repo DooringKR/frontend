@@ -56,3 +56,29 @@ export async function createOrder(payload: CreateOrderPayload): Promise<CreateOr
 
   return res.json();
 }
+
+export const createOrderItem = async (itemPayload: {
+  order_id: string;
+  product_type: "DOOR" | "FINISH" | "CABINET" | "HARDWARE" | "ACCESSORY";
+  unit_price: number;
+  item_count: number;
+  item_options: any;
+}) => {
+  console.log("📦 order_item 요청 보냄:", itemPayload);
+
+  const res = await fetch(`/api/order_item`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(itemPayload),
+  });
+
+  if (!res.ok) {
+    console.error("❌ order_item 생성 실패:", await res.text());
+    throw new Error("order_item 생성 실패");
+  }
+
+  const data = await res.json();
+  console.log("✅ order_item 생성 성공:", data);
+
+  return data;
+};

@@ -4,6 +4,8 @@ export type User = {
   user_id: number;
   user_type: "INTERIOR" | "FACTORY";
   user_phone: string;
+  user_road_address?: string;
+  user_detail_address?: string;
 };
 
 export type SignupUser = Pick<User, "userType" | "phoneNumber">;

@@ -1,5 +1,6 @@
 import { SigninUser, SignupUser, User } from "@/types/apiType";
 
+import useAddressStore from "@/store/addressStore";
 import useUserStore from "@/store/userStore";
 
 // 전화번호 중복 확인 (GET 방식)
@@ -109,7 +110,9 @@ export async function getUserProfile(userId: number): Promise<User> {
   const userInfo: User = {
     user_id: userId,
     user_type: resData.user_type,
-    user_phone: resData.user_phone
+    user_phone: resData.user_phone,
+    user_road_address: resData.user_road_address,
+    user_detail_address: resData.user_detail_address,
   };
 
   // 장바구니 정보 조회 (프록시 API 사용)
@@ -142,6 +145,9 @@ export async function getUserProfile(userId: number): Promise<User> {
   userStore.setUserId(userInfo.user_id);
   userStore.setUserType(userInfo.user_type);
   userStore.setUserPhoneNumber(userInfo.user_phone);
+  if (userInfo.user_road_address && userInfo.user_detail_address) {
+    userStore.setUserAddress(userInfo.user_road_address, userInfo.user_detail_address);
+  }
 
   return userInfo;
 }
@@ -168,5 +174,39 @@ export async function checkAutoLogin(): Promise<User | null> {
 export function logout(): void {
   const userStore = useUserStore.getState();
   userStore.resetUser();
+  useAddressStore.getState().clearAddress();
+  useAddressStore.persist.clearStorage();
   console.log("로그아웃 완료 - localStorage 초기화");
+}
+
+// 유저 주소 수정 API 호출
+export async function updateUserAddress(
+  userId: number,
+  userRoadAddress: string,
+  userDetailAddress: string,
+): Promise<void> {
+  try {
+    const res = await fetch(`/api/app_user/${userId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_road_address: userRoadAddress,
+        user_detail_address: userDetailAddress,
+      }),
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error("주소 수정 실패 응답:", errorText);
+      throw new Error("주소 수정 요청 실패");
+    }
+
+    const data = await res.json();
+    console.log("✅ 주소 수정 완료:", data);
+  } catch (error) {
+    console.error("주소 수정 API 에러:", error);
+    throw error;
+  }
 }

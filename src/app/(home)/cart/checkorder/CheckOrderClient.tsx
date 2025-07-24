@@ -1,6 +1,6 @@
 "use client";
 
-import { createOrder } from "@/api/orderApi";
+import { createOrder, createOrderItem } from "@/api/orderApi";
 import { CHECK_ORDER_PAGE } from "@/constants/pageName";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -55,10 +55,9 @@ function CheckOrderClientPage() {
   const [deliveryDate, setDeliveryDate] = useState<string | null>(null);
   const [deliveryMessage, setDeliveryMessage] = useState("");
   const [deliveryMessageColor, setDeliveryMessageColor] = useState("text-black");
-  const [cartItems, setCartItems] = useState<any[]>([]);
-  const { cartItems: globalCartItems } = useCartStore();
-  const { cartId } = useCartStore.getState();
-  const { id: userId } = useUserStore.getState();
+  const cartId = useCartStore(state => state.cartId);
+  const cartItems = useCartStore(state => state.cartItems);
+  const userId = useUserStore.getState().id;
 
   useEffect(() => {
     // 기본 주소 세팅
@@ -69,13 +68,6 @@ function CheckOrderClientPage() {
     // 전화번호 세팅
     if (!recipientPhoneNumber && user_phoneNumber) {
       setRecipientPhoneNumber(user_phoneNumber);
-    }
-
-    // 장바구니 세팅
-    if (searchParams.get("current") === "now") {
-      setCartItems([currentItem]);
-    } else {
-      setCartItems(globalCartItems);
     }
 
     const fetchDeliveryTime = async () => {
@@ -106,9 +98,12 @@ function CheckOrderClientPage() {
     savedAddress2,
     user_phoneNumber,
   ]);
+
   useEffect(() => {
-    console.log("✅ 실제 cartItems 값:", cartItems);
-  }, [cartItems]);
+    console.log("💡 Zustand의 cartItems:", cartItems);
+    console.log("💾 localStorage.cartItems:", localStorage.getItem("cartItems"));
+  }, []);
+  console.log("렌더");
 
   const buildOrderOptions = () => {
     const delivery: Record<string, any> = {
@@ -157,6 +152,24 @@ function CheckOrderClientPage() {
 
     try {
       const order = await createOrder(payload);
+      const orderId = order.order_id;
+
+      // 장바구니 항목을 기반으로 order_item 생성
+      await Promise.all(
+        cartItems.map(item => {
+          const itemPayload = {
+            order_id: orderId,
+            product_type: item.category?.toUpperCase(),
+            unit_price: item.price,
+            item_count: item.count ?? 1,
+            item_options: item,
+          };
+
+          console.log("🧾 order_item 요청 payload:", itemPayload); // 로그 찍기
+          return createOrderItem(itemPayload);
+        }),
+      );
+      console.log("🚚 order_item 요청 payload:", payload); // 🔍 여기 추가
       localStorage.setItem("recentOrder", JSON.stringify(order));
       router.push("/cart/confirm");
     } catch (error) {
@@ -165,19 +178,19 @@ function CheckOrderClientPage() {
     }
   };
 
-  const groupedCartItems = cartItems.reduce((acc: Record<string, any[]>, item) => {
-    if (!item || !item.category) return acc;
-    if (!acc[item.category]) acc[item.category] = [];
-    acc[item.category].push(item);
-    return acc;
-  }, {});
+  // const groupedCartItems = cartItems.reduce((acc: Record<string, any[]>, item) => {
+  //   if (!item || !item.category) return acc;
+  //   if (!acc[item.category]) acc[item.category] = [];
+  //   acc[item.category].push(item);
+  //   return acc;
+  // }, {});
 
   const getTotalPrice = () =>
     cartItems.reduce((sum, item) => sum + (item?.price ?? 0) * (item?.count ?? 1), 0);
 
-  const sanitizedCartGroups = Object.fromEntries(
-    Object.entries(groupedCartItems).map(([key, items]) => [key, items.filter(Boolean)]),
-  );
+  // const sanitizedCartGroups = Object.fromEntries(
+  //   Object.entries(groupedCartItems).map(([key, items]) => [key, items.filter(Boolean)]),
+  // );
 
   return (
     <div className="flex min-h-screen flex-col justify-between">
@@ -206,7 +219,6 @@ function CheckOrderClientPage() {
         </section>
 
         <PriceSummaryCard
-          cartGroups={sanitizedCartGroups}
           getTotalPrice={getTotalPrice}
           categoryMap={CATEGORY_MAP}
           page={CHECK_ORDER_PAGE}

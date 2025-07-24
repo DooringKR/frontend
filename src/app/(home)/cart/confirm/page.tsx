@@ -16,6 +16,7 @@ import Button from "@/components/BeforeEditByKi/Button/Button";
 import { useCurrentOrderStore } from "@/store/Items/currentOrderStore";
 import useCartStore from "@/store/cartStore";
 import { useOrderStore } from "@/store/orderStore";
+import formatColor from "@/utils/formatColor";
 
 import PickUpAddressCard from "../pickup/_components/PickUpAddressCard";
 
@@ -25,7 +26,7 @@ export default function OrderConfirmPage() {
   const [showDetails, setShowDetails] = useState(true);
   const { address, requestMessage, customerRequest, foyerAccessType, deliveryDate, pickupInfo } =
     useOrderStore();
-  const { cartItems } = useCartStore();
+  const cartItems = useCartStore(state => state.cartItems);
   console.log(cartItems);
 
   const ALL_CATEGORIES = [
@@ -48,41 +49,45 @@ export default function OrderConfirmPage() {
     alert("계좌번호가 복사되었습니다!");
   };
 
-  // const handleGoHome = () => {
-  //   localStorage.removeItem("cartItems");
-  //   localStorage.removeItem("recentOrder");
-  //   useCurrentOrderStore.getState().clearCurrentItem();
-  //   useCartStore.getState().clearCartItems();
-  //   useOrderStore.getState().clearOrder();
-  //   router.push("/");
-  // };
-
   const handleGoHome = async () => {
     console.log("🧾 cartItems:", cartItems);
+
     try {
-      // 서버에서 장바구니 항목들 병렬 삭제
-      await Promise.all(
-        cartItems.map(
-          item => (item.cartItemId ? deleteCartItem(item.cartItemId) : Promise.resolve()), // cartItemId 없으면 생략
-        ),
+      const results = await Promise.all(
+        cartItems.map(item => {
+          if (!item.cartItemId) return Promise.resolve(true); // cartItemId 없는 경우는 성공으로 간주
+
+          return deleteCartItem(item.cartItemId)
+            .then(() => true)
+            .catch(err => {
+              console.error(`❌ 삭제 실패: ${item.cartItemId}`, err);
+              return false;
+            });
+        }),
       );
+
+      const allSucceeded = results.every(result => result === true);
+
+      if (allSucceeded) {
+        console.log("✅ 모든 장바구니 항목이 성공적으로 삭제되었습니다.");
+      } else {
+        console.warn("⚠ 일부 장바구니 항목 삭제에 실패했습니다.");
+      }
     } catch (err) {
-      console.error("장바구니 비우기 실패:", err);
+      console.error("장바구니 비우기 중 알 수 없는 에러 발생:", err);
     }
 
     // 클라이언트 상태 초기화
     localStorage.removeItem("cartItems");
     localStorage.removeItem("recentOrder");
     useCurrentOrderStore.getState().clearCurrentItem();
+
     useCartStore.getState().clearCartItems();
+
     useOrderStore.getState().clearOrder();
+    useOrderStore.persist?.clearStorage?.();
 
     router.push("/");
-  };
-
-  const getHeaderFromSlug = (slug: string): string => {
-    const found = ALL_CATEGORIES.find(item => item.slug === slug);
-    return found?.header ?? slug;
   };
 
   const getDeliveryLabel = (deliveryDate: string) => {
@@ -104,7 +109,10 @@ export default function OrderConfirmPage() {
     return <p className="p-5">주문 정보가 없습니다.</p>;
   }
 
+  console.log("🛒 cartItems 상태:", cartItems);
+  console.log("🔥 recentOrder 상태:", recentOrder);
   const { order_type, recipient_phone, order_price, order_options } = recentOrder;
+
   return (
     <>
       <div className="flex flex-col px-5 pt-[60px]">
@@ -223,7 +231,6 @@ export default function OrderConfirmPage() {
 
                 const commonPrice = (
                   <p className="mt-1 text-[15px] font-500 text-gray-800">
-                    {/* {item.price?.toLocaleString()}원 {item.count}개 */}
                     {Number((item.price ?? 0) * (item.count ?? 1)).toLocaleString()}원 ∙{" "}
                     {item.count}개
                   </p>
@@ -237,47 +244,53 @@ export default function OrderConfirmPage() {
                         className="mb-3 border-b border-gray-200 pb-2 text-[15px] font-400 text-gray-500"
                       >
                         <p className="mb-1 text-[17px] font-600 text-gray-800">문짝</p>
-                        {/* <p className="font-semibold">{getHeaderFromSlug(item.slug)}</p> */}
-                        <p>색상 : {item.color}</p>
-                        <p>가로 길이 : {item.width?.toLocaleString()}mm</p>
-                        <p>세로 길이 : {item.height?.toLocaleString()}mm</p>
-                        <p>경첩 개수 : {item.hinge?.hingeCount ?? "-"}</p>
-                        <p>경첩 방향 : {item.hinge?.hingePosition === "left" ? "좌경" : "우경"}</p>
-                        <p>
-                          보링 치수 : 상{item.hinge?.topHinge ?? "-"}
-                          {item.hinge?.middleHinge ? `, 중${item.hinge.middleHinge}` : ""}
-                          {item.hinge?.bottomHinge ? `, 하${item.hinge.bottomHinge}` : ""}
-                        </p>
-                        {item.doorRequest && <p>추가 요청: {item.doorRequest}</p>}
+                        <p>색상 : {formatColor(item.color)}</p>
+                        <p>가로 길이 : {Number(item.width).toLocaleString()}mm</p>
+                        <p>세로 길이 : {Number(item.height).toLocaleString()}mm</p>
+                        <p>경첩 개수 : {item.hingeCount ?? "-"}</p>
+                        <p>경첩 방향 : {item.hingeDirection === "left" ? "좌경" : "우경"}</p>
+                        <p>보링 치수 : {item.boring || "-"}</p>
+                        {item.doorRequest && <p>제작 시 요청사항 : {item.doorRequest}</p>}
                         {commonPrice}
                       </div>
                     );
-
                   case "finish":
+                    const baseDepth = Number(item.baseDepth ?? 0);
+                    const additionalDepth = Number(item.additionalDepth ?? 0);
+                    const totalDepth = baseDepth + additionalDepth;
+
+                    const baseHeight = Number(item.baseHeight ?? 0);
+                    const additionalHeight = Number(item.additionalHeight ?? 0);
+                    const totalHeight = baseHeight + additionalHeight;
+
                     return (
-                      <div key={idx} className="mb-3 border-b border-gray-200 pb-2">
-                        <p className="font-semibold">마감재</p>
-                        <p>색상 : {item.color}</p>
-                        <p>깊이 : {item.depth.baseDepth?.toLocaleString()}mm</p>
-                        {item.depth.additionalDepth && (
-                          <p>⤷ 깊이 키움 : {item.depth.additionalDepth?.toLocaleString()}mm</p>
+                      <div
+                        key={idx}
+                        className="mb-3 border-b border-gray-200 pb-2 text-[15px] font-400 text-gray-500"
+                      >
+                        <p className="mb-1 text-[17px] font-600 text-gray-800">마감재</p>
+                        <p>색상 : {formatColor(item.color)}</p>
+                        <p>깊이 : {baseDepth.toLocaleString()}mm</p>
+                        {additionalDepth > 0 && (
+                          <p>⤷ 깊이 키우기 : {additionalDepth.toLocaleString()}mm</p>
                         )}
-                        <p>높이 : {item.height.baseHeight?.toLocaleString()}mm</p>
-                        {item.height.additionalHeight && (
-                          <p>⤷ 높이 키움 : {item.height.additionalHeight?.toLocaleString()}mm</p>
+                        <p>⤷ 합산 깊이 : {totalDepth.toLocaleString()}mm</p>
+                        <p>높이 : {baseHeight.toLocaleString()}mm</p>
+                        {additionalHeight > 0 && (
+                          <p>⤷ 높이 키우기 : {additionalHeight.toLocaleString()}mm</p>
                         )}
-                        {item.finishRequest && <p>요청 사항 : {item.finishRequest}</p>}
+                        <p>⤷ 합산 높이 : {totalHeight.toLocaleString()}mm</p>
+                        {item.finishRequest && <p>제작 시 요청사항 : {item.finishRequest}</p>}
                         {commonPrice}
                       </div>
                     );
-
                   case "hardware":
                     return (
                       <div key={idx} className="mb-3 border-b border-gray-200 pb-2">
-                        <p className="font-semibold">{getHeaderFromSlug(item.slug)}</p>
+                        <p className="font-semibold">하드웨어</p>
                         <p>제조사 : {item.madeBy}</p>
-                        <p>모델명 : {item.model}</p>
-                        {item.hardwareRequests && <p>요청 사항 : {item.hardwareRequests}</p>}
+                        <p>사이즈 : {item.size?.toLocaleString()}mm</p>
+                        {item.hardwareRequests && <p>제작 시 요청사항 : {item.hardwareRequests}</p>}
                         {commonPrice}
                       </div>
                     );
@@ -285,11 +298,11 @@ export default function OrderConfirmPage() {
                   case "cabinet":
                     return (
                       <div key={idx} className="mb-3 border-b border-gray-200 pb-2">
-                        <p className="font-semibold">{getHeaderFromSlug(item.slug)}</p>
+                        <p className="font-semibold">수납장</p>
                         {item.handleType && <p>손잡이 종류: {item.handleType}</p>}
                         {item.compartmentCount !== 0 && <p>구성 칸 수: {item.compartmentCount}</p>}
                         {item.flapStayType && <p>쇼바 종류: {item.flapStayType}</p>}
-                        <p>색상: {item.color}</p>
+                        <p>색상 : {formatColor(item.color)}</p>
                         <p>두께: {item.thickness}</p>
                         <p>너비: {item.width}mm</p>
                         <p>깊이: {item.depth}mm</p>
@@ -297,7 +310,7 @@ export default function OrderConfirmPage() {
                         <p>마감 방식: {item.finishType ? item.finishType : "선택 안됨"}</p>
                         <p>서랍 종류: {item.drawerType}</p>
                         <p>레일 종류: {item.railType}</p>
-                        {item.cabinetRequests && <p>기타 요청 사항: {item.cabinetRequests}</p>}
+                        {item.cabinetRequests && <p>제작 시 요청사항 : {item.cabinetRequests}</p>}
                         {commonPrice}
                       </div>
                     );
@@ -305,10 +318,12 @@ export default function OrderConfirmPage() {
                   case "accessory":
                     return (
                       <div key={idx} className="mb-3 border-b border-gray-200 pb-2">
-                        <p className="font-semibold">{getHeaderFromSlug(item.slug)}</p>
+                        <p className="font-semibold">액세서리</p>
                         <p>제조사 : {item.madeBy}</p>
                         <p>모델명 : {item.model}</p>
-                        {item.accessoryRequests && <p>요청 사항 : {item.accessoryRequests}</p>}
+                        {item.accessoryRequests && (
+                          <p>제작 시 요청사항 : {item.accessoryRequests}</p>
+                        )}
                         {commonPrice}
                       </div>
                     );
@@ -367,28 +382,6 @@ export default function OrderConfirmPage() {
                 </div>
               )}
 
-              {/* <div className="my-4 border-b border-gray-200 pb-3 text-gray-500">
-                <p className="mb-1 text-[17px] font-600 text-gray-800">배송기사 요청사항</p>
-                {foyerAccessType?.type === "gate" && (
-                  <>
-                    <p>공동현관으로 올라오세요</p>
-                    {foyerAccessType.gatePassword && (
-                      <p>공동현관 비밀번호: {foyerAccessType.gatePassword}</p>
-                    )}
-                  </>
-                )}
-
-                {foyerAccessType?.type === "call" && <p>전화주시면 마중 나갈게요</p>}
-
-                {foyerAccessType?.type === "doorfront" && <p>문 앞에 두면 가져갈게요</p>}
-
-                {foyerAccessType?.type === "custom" && foyerAccessType.customRequest && (
-                  <>
-                    <p>직접입력</p>
-                    <p>{foyerAccessType.customRequest}</p>
-                  </>
-                )}
-              </div> */}
               <div className="text-gray-500">
                 <p className="mb-1 text-[17px] font-600 text-gray-800">받는 분 휴대폰 번호</p>
                 <p>{recipient_phone}</p>

@@ -2,7 +2,13 @@
 
 import { createOrder } from "@/api/orderApi";
 import { CHECK_ORDER_PAGE } from "@/constants/pageName";
-import { AccessoryItem, CabinetItem, DoorItem, FinishItem, HardwareItem } from "@/types/itemTypes";
+import {
+  AccessoryItem,
+  CabinetItem,
+  DoorItem,
+  FinishItem,
+  HardwareItem,
+} from "@/types/newItemTypes";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -166,7 +172,6 @@ export default function PickUpClientPage() {
         </div>
         <div className="px-5">
           <PriceSummaryCard
-            cartGroups={sanitizedCartGroups}
             getTotalPrice={getTotalPrice}
             categoryMap={CATEGORY_MAP}
             page={CHECK_ORDER_PAGE}

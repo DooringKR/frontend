@@ -1,5 +1,6 @@
 "use client";
 
+import { updateUserAddress } from "@/api/authApi";
 import { useRouter, useSearchParams } from "next/navigation";
 import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
@@ -12,42 +13,41 @@ import DaumPostcodePopup from "@/components/SearchAddress/DaumPostcode";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import useAddressStore from "@/store/addressStore";
+import useUserStore from "@/store/userStore";
 import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 
 function AddressCheckClientPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const category = searchParams.get("category");
 
   const [isDeliveryPossible, setIsDeliveryPossible] = useState(false);
-  // const [isAddressEntered, setisAddressEntered] = useState(false);
-  const [showPostcode, setShowPostcode] = useState(false);
-  // const [address1, setAddress1] = useState("");
-  // const [address2, setAddress2] = useState("");
+
+  // const [showPostcode, setShowPostcode] = useState(false);
+
   const [isCheckingDelivery, setIsCheckingDelivery] = useState(false);
 
   const scriptLoadedRef = useRef(false);
 
   const { address1, address2, setAddress } = useAddressStore();
+  const userId = useUserStore.getState().id;
 
   const handleScriptLoad = () => {
     scriptLoadedRef.current = true;
   };
-  //다음 주소 api 팝업용 함수
-  const handleAddressClick = () => {
-    if (!scriptLoadedRef.current || !window.daum?.Postcode) {
-      alert("주소 검색 스크립트가 아직 로드되지 않았습니다. 잠시 후 다시 시도해주세요.");
-      return;
-    }
+  // //다음 주소 api 팝업용 함수
+  // const handleAddressClick = () => {
+  //   if (!scriptLoadedRef.current || !window.daum?.Postcode) {
+  //     alert("주소 검색 스크립트가 아직 로드되지 않았습니다. 잠시 후 다시 시도해주세요.");
+  //     return;
+  //   }
 
-    new window.daum.Postcode({
-      oncomplete: data => {
-        const selectedAddress = data.roadAddress || data.address;
-        // setAddress1(selectedAddress);
-        setAddress(selectedAddress, address2); // 상세주소 유지
-      },
-    }).open();
-  };
+  //   new window.daum.Postcode({
+  //     oncomplete: data => {
+  //       const selectedAddress = data.roadAddress || data.address;
+  //       setAddress(selectedAddress, address2); // 상세주소 유지
+  //     },
+  //   }).open();
+  // };
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.daum?.Postcode) {
@@ -57,11 +57,6 @@ function AddressCheckClientPage() {
 
   // 상태에 따라 주소 입력 완료 여부 판단
   const isAddressEntered = address1.trim() !== "" && address2.trim() !== "";
-
-  // useEffect(() => {
-  //   const isComplete = address1.trim() !== "" && address2.trim() !== "";
-  //   setisAddressEntered(isComplete);
-  // }, [address1, address2]);
 
   useEffect(() => {
     const checkTodayDelivery = async () => {
@@ -82,6 +77,29 @@ function AddressCheckClientPage() {
     checkTodayDelivery();
   }, [address1, address2]);
 
+  const handleSubmit = async () => {
+    if (isCheckingDelivery) return;
+
+    if (!address1 || !address2) {
+      alert("주소와 상세주소를 모두 입력해주세요.");
+      return;
+    }
+
+    if (userId === null) {
+      alert("로그인 정보가 없습니다.");
+      return;
+    }
+
+    try {
+      await updateUserAddress(userId, address1, address2);
+      console.log("📦 주소 업데이트 완료 후 후처리 시작");
+
+      router.replace("/");
+    } catch (error) {
+      alert("주소 저장 중 오류가 발생했습니다.");
+    }
+  };
+
   return (
     <div>
       <Script
@@ -100,14 +118,6 @@ function AddressCheckClientPage() {
         size="Large"
       />
       <div className="flex flex-col gap-2 px-[20px] pt-[20px]">
-        {/* <BoxedInput
-          label={"주소"}
-          placeholder="건물, 지번 또는 도로명 검색"
-          value={address1}
-          onClick={() => setShowPostcode(true)} // 클릭 시 embed 표시
-          onChange={() => { }} // 직접 입력 방지
-          className={"mb-2"}
-        /> */}
         <h1 className="text-sm font-400 text-gray-600">주소</h1>
 
         <DaumPostcodePopup
@@ -122,17 +132,6 @@ function AddressCheckClientPage() {
           value={address2}
           onChange={e => setAddress(address1, e.target.value)}
         />
-        {/* {showPostcode && (
-          <div className="fixed bottom-5 left-4 right-4 top-4 z-50 overflow-y-auto bg-gray-200">
-            <DaumPostcodeEmbed
-              onComplete={selected => {
-                setAddress(selected, address2);
-                setShowPostcode(false);
-              }}
-              onClose={() => setShowPostcode(false)} // 닫기
-            />
-          </div>
-        )} */}
       </div>
       <div className="mx-5 mt-3">
         <DeliveryStatusChip
@@ -151,15 +150,7 @@ function AddressCheckClientPage() {
           type="1button"
           button1Text="다음"
           button1Type="Brand"
-          onButton1Click={() => {
-            if (isCheckingDelivery) return;
-            if (!address1 || !address2) {
-              alert("주소와 상세주소를 모두 입력해주세요.");
-              return;
-            }
-
-            router.replace(`/`);
-          }}
+          onButton1Click={handleSubmit}
         />
       </div>
     </div>
