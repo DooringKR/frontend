@@ -30,14 +30,14 @@ function ConfirmPageContent() {
       <Header size="Large" title={`마감재 주문 개수를 선택해주세요`} />
       <div className="flex flex-col gap-[20px] px-5 pb-[100px] pt-5">
         <ShoppingCartCard
-          type="door"
+          type="finish"
           title={"마감재"}
           color={formatColor(color ?? "")}
-          depth={depth ?? undefined}
-          height={height ?? undefined}
-          depthIncrease={depthIncrease ?? undefined}
-          heightIncrease={heightIncrease ?? undefined}
-          // 아래의 다른 컴포넌트로 전달할 예정이라 여기선 일단 0으로 전달
+          depth={depth ? Number(depth) : undefined}
+          height={height ? Number(height) : undefined}
+          depthIncrease={depthIncrease ? Number(depthIncrease) : undefined}
+          heightIncrease={heightIncrease ? Number(heightIncrease) : undefined}
+          // 아래의 OrderSummaryCard 컴포넌트로 전달함. 여기선 0으로 전달
           quantity={0}
           trashable={false}
           showQuantitySelector={false}

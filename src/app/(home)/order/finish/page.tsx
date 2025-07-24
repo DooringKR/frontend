@@ -19,19 +19,19 @@ function FinishPageContent() {
   const setCart = useSingleCartStore(state => state.setCart);
   const router = useRouter();
   const [depth, setDepth] = useState<string | null>(
-    useSingleCartStore(state => (state.cart as FinishCart).depth) ?? null,
+    useSingleCartStore(state => (state.cart as FinishCart).depth?.toString() ?? null),
   );
   const [height, setHeight] = useState<string | null>(
-    useSingleCartStore(state => (state.cart as FinishCart).height) ?? null,
+    useSingleCartStore(state => (state.cart as FinishCart).height?.toString() ?? null),
   );
   const [request, setRequest] = useState<string | null>(
     useSingleCartStore(state => (state.cart as FinishCart).request) ?? null,
   );
   const [depthIncrease, setDepthIncrease] = useState<string | null>(
-    useSingleCartStore(state => (state.cart as FinishCart).depthIncrease) ?? null,
+    useSingleCartStore(state => (state.cart as FinishCart).depthIncrease?.toString() ?? null),
   );
   const [heightIncrease, setHeightIncrease] = useState<string | null>(
-    useSingleCartStore(state => (state.cart as FinishCart).heightIncrease) ?? null,
+    useSingleCartStore(state => (state.cart as FinishCart).heightIncrease?.toString() ?? null),
   );
   const [isDepthIncrease, setIsDepthIncrease] = useState(false);
   const [isHeightIncrease, setIsHeightIncrease] = useState(false);
@@ -40,18 +40,18 @@ function FinishPageContent() {
   useEffect(() => {
     setIsDepthIncrease(
       depthIncrease !== null &&
-        depthIncrease !== undefined &&
-        depthIncrease !== "" &&
-        Number(depthIncrease) !== 0,
+      depthIncrease !== undefined &&
+      depthIncrease !== "" &&
+      Number(depthIncrease) !== 0,
     );
   }, [depthIncrease]);
 
   useEffect(() => {
     setIsHeightIncrease(
       heightIncrease !== null &&
-        heightIncrease !== undefined &&
-        heightIncrease !== "" &&
-        Number(heightIncrease) !== 0,
+      heightIncrease !== undefined &&
+      heightIncrease !== "" &&
+      Number(heightIncrease) !== 0,
     );
   }, [heightIncrease]);
 
@@ -63,19 +63,19 @@ function FinishPageContent() {
       <div className="flex flex-col gap-5 px-5">
         <BoxedSelect label="색상" value={color ?? ""} onClick={() => router.back()} />
         <DepthInputSection
-          depth={depth ? parseInt(depth) : null}
+          depth={depth ? Number(depth) : null}
           setDepth={e => setDepth(e?.toString() ?? null)}
           isDepthIncrease={isDepthIncrease}
           setIsDepthIncrease={setIsDepthIncrease}
-          depthIncrease={depthIncrease ? parseInt(depthIncrease) : null}
+          depthIncrease={depthIncrease ? Number(depthIncrease) : null}
           setDepthIncrease={e => setDepthIncrease(e?.toString() ?? null)}
         />
         <HeightInputSection
-          height={height ? parseInt(height) : null}
+          height={height ? Number(height) : null}
           setHeight={e => setHeight(e?.toString() ?? null)}
           isHeightIncrease={isHeightIncrease}
           setIsHeightIncrease={setIsHeightIncrease}
-          heightIncrease={heightIncrease ? parseInt(heightIncrease) : null}
+          heightIncrease={heightIncrease ? Number(heightIncrease) : null}
           setHeightIncrease={e => setHeightIncrease(e?.toString() ?? null)}
         />
         <BoxedInput
@@ -93,10 +93,10 @@ function FinishPageContent() {
             setCart({
               type: "finish",
               color: color,
-              depth: depth,
-              height: height,
-              depthIncrease: depthIncrease,
-              heightIncrease: heightIncrease,
+              depth: depth ? Number(depth) : null,
+              height: height ? Number(height) : null,
+              depthIncrease: depthIncrease ? Number(depthIncrease) : null,
+              heightIncrease: heightIncrease ? Number(heightIncrease) : null,
               request: request,
             });
             router.push(`/order/finish/confirm`);

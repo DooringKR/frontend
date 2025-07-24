@@ -82,8 +82,8 @@ function DoorConfirmPageContent() {
           type="door"
           title={getCategoryLabel(category ?? null)}
           color={formatColor(color ?? null)}
-          width={formatSize(width?.toString() ?? null)}
-          height={formatSize(height?.toString() ?? null)}
+          width={width ?? undefined}
+          height={height ?? undefined}
           hingeDirection={formatBoringDirection(boringDirection ?? null)}
           hingeCount={boringSize ? boringSize.length : undefined}
           boring={formatBoring(boringSize || [], category)}

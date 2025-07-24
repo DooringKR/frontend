@@ -50,10 +50,10 @@ export type AccessoryCart = {
 export type FinishCart = {
   type: "finish";
   color?: string | null;
-  depth?: string | null;
-  height?: string | null;
-  depthIncrease?: string | null;
-  heightIncrease?: string | null;
+  depth?: number | null;
+  height?: number | null;
+  depthIncrease?: number | null;
+  heightIncrease?: number | null;
   request?: string | null;
 };
 

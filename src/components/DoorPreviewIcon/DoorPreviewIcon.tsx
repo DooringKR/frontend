@@ -3,7 +3,7 @@ import React from "react";
 interface DoorPreviewIconProps {
   DoorType: "일반문" | "플랩문";
   FatOrTall: "Fat" | "Tall" | "Same";
-  BoringDirection: "left" | "right";
+  BoringDirection: "left" | "right" | null;
   BoringNum: 2 | 3 | 4; // 보어링 개수는 2, 3, 4 중 하나
 }
 
