@@ -8,6 +8,7 @@ import BottomButton from "@/components/BottomButton/BottomButton";
 import Header from "@/components/Header/Header";
 import BoxedInput from "@/components/Input/BoxedInput";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+
 import { HardwareCart, useSingleCartStore } from "@/store/singleCartStore";
 
 function HardwarePageContent() {
@@ -15,17 +16,16 @@ function HardwarePageContent() {
   // const searchParams = useSearchParams();
   const category = useSingleCartStore(state => (state.cart as HardwareCart).category);
 
-  const [manufacturer, setManufacturer] = useState(
-    useSingleCartStore(state => (state.cart as HardwareCart).manufacturer) ?? ""
+  const [hardware_madeby, setHardware_madeby] = useState(
+    useSingleCartStore(state => (state.cart as HardwareCart).hardware_madeby) ?? "",
   );
-  const [size, setSize] = useState(
-    useSingleCartStore(state => (state.cart as HardwareCart).size) ?? ""
+  const [hardware_size, setHardware_size] = useState(
+    useSingleCartStore(state => (state.cart as HardwareCart).hardware_size) ?? "",
   );
   const [request, setRequest] = useState(
-    useSingleCartStore(state => (state.cart as HardwareCart).request) ?? ""
+    useSingleCartStore(state => (state.cart as HardwareCart).request) ?? "",
   );
   const setCart = useSingleCartStore(state => state.setCart);
-
 
   // const category = searchParams.get("category") ?? "";
   // category(slug)에 맞는 header 값 찾기
@@ -42,18 +42,18 @@ function HardwarePageContent() {
           type="text"
           label="제조사"
           placeholder="제조사를 입력해주세요"
-          value={manufacturer}
+          value={hardware_madeby}
           onChange={e => {
-            setManufacturer(e.target.value);
+            setHardware_madeby(e.target.value);
           }}
         />
         <BoxedInput
           type="number"
           label="사이즈(mm)"
           placeholder="사이즈를 입력해주세요"
-          value={size}
+          value={hardware_size}
           onChange={e => {
-            setSize(e.target.value);
+            setHardware_size(e.target.value);
           }}
         />
         <BoxedInput
@@ -67,13 +67,13 @@ function HardwarePageContent() {
         type={"1button"}
         button1Text={"다음"}
         className="fixed bottom-0 w-full max-w-[500px] bg-white px-5 pb-5"
-        button1Disabled={manufacturer === "" || size === ""}
+        button1Disabled={hardware_madeby === "" || hardware_size === ""}
         onButton1Click={() => {
           setCart({
             type: "hardware",
             category: category ?? null,
-            manufacturer: manufacturer ?? null,
-            size: size ?? null,
+            hardware_madeby: hardware_madeby,
+            hardware_size: hardware_size,
             request: request ?? null,
           });
           router.push(`/order/hardware/confirm`);
