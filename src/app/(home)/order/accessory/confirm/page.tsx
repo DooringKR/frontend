@@ -16,8 +16,12 @@ import { AccessoryCart, useSingleCartStore } from "@/store/singleCartStore";
 function ConfirmPageContent() {
   const router = useRouter();
   const category = useSingleCartStore(state => (state.cart as AccessoryCart).category);
-  const manufacturer = useSingleCartStore(state => (state.cart as AccessoryCart).manufacturer);
-  const modelName = useSingleCartStore(state => (state.cart as AccessoryCart).modelName);
+  const accessory_madeby = useSingleCartStore(
+    state => (state.cart as AccessoryCart).accessory_madeby,
+  );
+  const accessory_model = useSingleCartStore(
+    state => (state.cart as AccessoryCart).accessory_model,
+  );
   const request = useSingleCartStore(state => (state.cart as AccessoryCart).request);
 
   const [quantity, setQuantity] = useState(1);
@@ -35,8 +39,8 @@ function ConfirmPageContent() {
           title={`${ACCESSORY_CATEGORY_LIST.find(item => item.slug === category)?.header}`}
           showQuantitySelector={false}
           request={request ?? undefined}
-          manufacturer={manufacturer ?? undefined}
-          modelName={modelName ?? undefined}
+          manufacturer={accessory_madeby ?? undefined}
+          modelName={accessory_model ?? undefined}
           onOptionClick={() => {
             router.push(`/order/accessory`);
           }}
@@ -62,8 +66,8 @@ function ConfirmPageContent() {
               item_count: quantity,
               item_options: {
                 accessory_type: category,
-                accessory_madeby: manufacturer,
-                accessory_model: modelName,
+                accessory_madeby: accessory_madeby,
+                accessory_model: accessory_model,
                 accessory_request: request,
               },
             });
