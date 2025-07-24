@@ -1,7 +1,13 @@
 "use client";
 
 import { deleteCartItem, getCartItems } from "@/api/cartApi";
-import { AccessoryItem, CabinetItem, DoorItem, FinishItem, HardwareItem } from "@/types/itemTypes";
+import {
+  AccessoryItem,
+  CabinetItem,
+  DoorItem,
+  FinishItem,
+  HardwareItem,
+} from "@/types/newItemTypes";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 

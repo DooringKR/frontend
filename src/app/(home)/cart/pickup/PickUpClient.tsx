@@ -2,7 +2,13 @@
 
 import { createOrder } from "@/api/orderApi";
 import { CHECK_ORDER_PAGE } from "@/constants/pageName";
-import { AccessoryItem, CabinetItem, DoorItem, FinishItem, HardwareItem } from "@/types/itemTypes";
+import {
+  AccessoryItem,
+  CabinetItem,
+  DoorItem,
+  FinishItem,
+  HardwareItem,
+} from "@/types/newItemTypes";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
