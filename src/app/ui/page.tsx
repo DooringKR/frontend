@@ -168,13 +168,13 @@ const Page = () => {
       </SectionWrapper>
       <SectionWrapper title="Shopping Cart Cards(Steppers, Door Preview Icons 포함)">
         <ShoppingCartCard
-          title={""}
-          color={""}
-          width={""}
-          height={""}
+          title={"문짝"}
+          color={"한솔크림화이트"}
+          width={0}
+          height={0}
           hingeCount={0}
-          hingeDirection={""}
-          boring={""}
+          hingeDirection={"우경"}
+          boring={"상 40 하 100"}
           quantity={0}
           trashable={false}
           type="door"
