@@ -1,12 +1,11 @@
 "use client";
 
 import {
-  ACCESSORY_CATEGORY_LIST,
   CABINET_CATEGORY_LIST,
   DOOR_CATEGORY_LIST,
-  HARDWARE_CATEGORY_LIST,
+  ACCESSORY_CATEGORY_LIST,
 } from "@/constants/category";
-import { COLOR_LIST } from "@/constants/colorList";
+import { COLOR_LIST_BY_TYPE } from "@/constants/colorList";
 import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
 
@@ -25,7 +24,6 @@ const categoryMap: Record<string, any[]> = {
   door: DOOR_CATEGORY_LIST,
   cabinet: CABINET_CATEGORY_LIST,
   accessory: ACCESSORY_CATEGORY_LIST,
-  hardware: HARDWARE_CATEGORY_LIST,
 };
 
 // 마감재의 경우, 카테고리 선택 없이 바로 색상 선택 페이지로 이동하기 때문에 따로 설정합니다.
@@ -52,7 +50,8 @@ function ColorListPageContent() {
   const currentCategory = categoryList.find(item => item.slug === category);
   const header = getHeader(type, currentCategory);
 
-  const filteredColors = COLOR_LIST.filter(item =>
+  const colorList = COLOR_LIST_BY_TYPE[type as keyof typeof COLOR_LIST_BY_TYPE] || [];
+  const filteredColors = colorList.filter(item =>
     item.name.toLowerCase().includes(searchKeyword.toLowerCase()),
   );
 
@@ -112,6 +111,7 @@ function ColorListPageContent() {
       {!isBottomSheetOpen && (
         <ColorSelectBottomButton
           selectedColor={selectedColor}
+          type={type ?? ""}
           onClick={() => {
             setCartColor({
               type: type,

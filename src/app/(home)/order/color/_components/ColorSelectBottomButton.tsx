@@ -1,17 +1,19 @@
 import BottomButton from "@/components/BottomButton/BottomButton";
 import Image from "next/image";
-import { COLOR_LIST } from "@/constants/colorList";
+import { COLOR_LIST_BY_TYPE } from "@/constants/colorList";
 import { parseColorName } from "./ColorSelectList";
 import React from "react";
 
 interface ColorSelectBottomButtonProps {
     selectedColor: string | null;
     onClick: () => void;
+    type: string;
 }
 
 const ColorSelectBottomButton: React.FC<ColorSelectBottomButtonProps> = ({
     selectedColor,
     onClick,
+    type,
 }) => {
     return (
         <BottomButton
@@ -19,7 +21,7 @@ const ColorSelectBottomButton: React.FC<ColorSelectBottomButtonProps> = ({
                 selectedColor && (
                     <div className="flex items-center justify-center gap-2 bg-white px-5 pb-4 pt-2">
                         <Image
-                            src={COLOR_LIST.find(item => item.name === selectedColor)?.image || ""}
+                            src={COLOR_LIST_BY_TYPE[type as keyof typeof COLOR_LIST_BY_TYPE]?.find(item => item.name === selectedColor)?.image || ""}
                             alt={selectedColor}
                             width={20}
                             height={20}
