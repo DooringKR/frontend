@@ -14,10 +14,9 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import useCartStore from "@/store/cartStore";
 import useUserStore from "@/store/userStore";
 import { getCategoryLabel } from "@/utils/categoryLabel";
+import { formatBoring, formatBoringDirection } from "@/utils/formatBoring";
 import formatColor from "@/utils/formatColor";
 import formatSize from "@/utils/formatSize";
-
-import { formatBoring, formatBoringDirection } from "../order/door/confirm/page";
 
 const DOOR_TYPE_KR_MAP: Record<string, string> = {
   normal: "일반문",
