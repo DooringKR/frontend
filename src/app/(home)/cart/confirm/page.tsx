@@ -49,63 +49,6 @@ export default function OrderConfirmPage() {
     alert("계좌번호가 복사되었습니다!");
   };
 
-  // const handleGoHome = async () => {
-  //   console.log("🧾 cartItems:", cartItems);
-  //   try {
-  //     // 서버에서 장바구니 항목들 병렬 삭제
-  //     await Promise.all(
-  //       cartItems.map(
-  //         item => (item.cartItemId ? deleteCartItem(item.cartItemId) : Promise.resolve()), // cartItemId 없으면 생략
-  //       ),
-  //     );
-  //   } catch (err) {
-  //     console.error("장바구니 비우기 실패:", err);
-  //   }
-
-  //   // 클라이언트 상태 초기화
-  //   localStorage.removeItem("cartItems");
-  //   localStorage.removeItem("recentOrder");
-  //   useCurrentOrderStore.getState().clearCurrentItem();
-
-  //   useCartStore.getState().clearCartItems();
-
-  //   useOrderStore.getState().clearOrder();
-  //   useOrderStore.persist?.clearStorage?.();
-
-  //   router.push("/");
-  // };
-
-  // const handleGoHome = async () => {
-  //   console.log("🧾 cartItems:", cartItems);
-
-  //   try {
-  //     // 서버에서 장바구니 항목들 병렬 삭제 (개별 실패 로그 추가)
-  //     await Promise.all(
-  //       cartItems.map(item => {
-  //         if (!item.cartItemId) return Promise.resolve();
-
-  //         return deleteCartItem(item.cartItemId).catch(err => {
-  //           console.error(`❌ 삭제 실패: ${item.cartItemId}`, err);
-  //         });
-  //       }),
-  //     );
-  //   } catch (err) {
-  //     console.error("장바구니 비우기 중 알 수 없는 에러 발생:", err);
-  //   }
-
-  //   // 클라이언트 상태 초기화
-  //   localStorage.removeItem("cartItems");
-  //   localStorage.removeItem("recentOrder");
-  //   useCurrentOrderStore.getState().clearCurrentItem();
-
-  //   useCartStore.getState().clearCartItems();
-
-  //   useOrderStore.getState().clearOrder();
-  //   useOrderStore.persist?.clearStorage?.();
-
-  //   router.push("/");
-  // };
-
   const handleGoHome = async () => {
     console.log("🧾 cartItems:", cartItems);
 
@@ -146,11 +89,6 @@ export default function OrderConfirmPage() {
 
     router.push("/");
   };
-
-  // const getHeaderFromSlug = (slug: string): string => {
-  //   const found = ALL_CATEGORIES.find(item => item.slug === slug);
-  //   return found?.header ?? slug;
-  // };
 
   const getDeliveryLabel = (deliveryDate: string) => {
     const date = new Date(deliveryDate);
@@ -293,7 +231,6 @@ export default function OrderConfirmPage() {
 
                 const commonPrice = (
                   <p className="mt-1 text-[15px] font-500 text-gray-800">
-                    {/* {item.price?.toLocaleString()}원 {item.count}개 */}
                     {Number((item.price ?? 0) * (item.count ?? 1)).toLocaleString()}원 ∙{" "}
                     {item.count}개
                   </p>
@@ -301,23 +238,6 @@ export default function OrderConfirmPage() {
 
                 switch (item.category) {
                   case "door":
-                    // return (
-                    //   <div
-                    //     key={idx}
-                    //     className="mb-3 border-b border-gray-200 pb-2 text-[15px] font-400 text-gray-500"
-                    //   >
-                    //     <p className="mb-1 text-[17px] font-600 text-gray-800">문짝</p>
-
-                    //     <p>색상 : {item.color}</p>
-                    //     <p>가로 길이 : {item.width?.toLocaleString()}mm</p>
-                    //     <p>세로 길이 : {item.height?.toLocaleString()}mm</p>
-                    //     <p>경첩 개수 : {item.hingeCount ?? "-"}</p>
-                    //     <p>경첩 방향 : {item.hingeDirection === "left" ? "좌경" : "우경"}</p>
-                    //     <p>보링 치수 : {item.boring}</p>
-                    //     {item.doorRequest && <p>추가 요청: {item.doorRequest}</p>}
-                    //     {commonPrice}
-                    //   </div>
-                    // );
                     return (
                       <div
                         key={idx}
@@ -335,26 +255,6 @@ export default function OrderConfirmPage() {
                       </div>
                     );
                   case "finish":
-                    // return (
-                    //   <div key={idx} className="mb-3 border-b border-gray-200 pb-2">
-                    //     <p className="font-semibold">마감재</p>
-                    //     <p>색상 : {item.color}</p>
-                    //     <p>깊이 : {item.depth.baseDepth?.toLocaleString()}mm</p>
-                    //     {item.depth.additionalDepth && (
-                    //       <p>
-                    //         ⤷ 깊이 키움 : {item.depth.additionalDepth?.toLocaleString() ?? ""}mm
-                    //       </p>
-                    //     )}
-                    //     <p>높이 : {item.height.baseHeight?.toLocaleString() ?? ""}mm</p>
-                    //     {item.height.additionalHeight && (
-                    //       <p>
-                    //         ⤷ 높이 키움 : {item.height.additionalHeight?.toLocaleString() ?? ""}mm
-                    //       </p>
-                    //     )}
-                    //     {item.finishRequest && <p>요청 사항 : {item.finishRequest}</p>}
-                    //     {commonPrice}
-                    //   </div>
-                    // );
                     const baseDepth = Number(item.baseDepth ?? 0);
                     const additionalDepth = Number(item.additionalDepth ?? 0);
                     const totalDepth = baseDepth + additionalDepth;
@@ -385,15 +285,6 @@ export default function OrderConfirmPage() {
                       </div>
                     );
                   case "hardware":
-                    // return (
-                    //   <div key={idx} className="mb-3 border-b border-gray-200 pb-2">
-                    //     <p className="font-semibold">하드웨어</p>
-                    //     <p>제조사 : {item.madeBy}</p>
-                    //     <p>모델명 : {item.model}</p>
-                    //     {item.hardwareRequests && <p>요청 사항 : {item.hardwareRequests}</p>}
-                    //     {commonPrice}
-                    //   </div>
-                    // );
                     return (
                       <div key={idx} className="mb-3 border-b border-gray-200 pb-2">
                         <p className="font-semibold">하드웨어</p>
@@ -491,28 +382,6 @@ export default function OrderConfirmPage() {
                 </div>
               )}
 
-              {/* <div className="my-4 border-b border-gray-200 pb-3 text-gray-500">
-                <p className="mb-1 text-[17px] font-600 text-gray-800">배송기사 요청사항</p>
-                {foyerAccessType?.type === "gate" && (
-                  <>
-                    <p>공동현관으로 올라오세요</p>
-                    {foyerAccessType.gatePassword && (
-                      <p>공동현관 비밀번호: {foyerAccessType.gatePassword}</p>
-                    )}
-                  </>
-                )}
-
-                {foyerAccessType?.type === "call" && <p>전화주시면 마중 나갈게요</p>}
-
-                {foyerAccessType?.type === "doorfront" && <p>문 앞에 두면 가져갈게요</p>}
-
-                {foyerAccessType?.type === "custom" && foyerAccessType.customRequest && (
-                  <>
-                    <p>직접입력</p>
-                    <p>{foyerAccessType.customRequest}</p>
-                  </>
-                )}
-              </div> */}
               <div className="text-gray-500">
                 <p className="mb-1 text-[17px] font-600 text-gray-800">받는 분 휴대폰 번호</p>
                 <p>{recipient_phone}</p>
