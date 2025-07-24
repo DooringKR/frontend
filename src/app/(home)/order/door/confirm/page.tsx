@@ -21,7 +21,7 @@ function getCategoryLabel(category: string | null) {
   return "문짝";
 }
 
-export function formatBoring(boringSize: (number | null)[], category?: string | null) {
+function formatBoring(boringSize: (number | null)[], category?: string | null) {
   if (!boringSize || !Array.isArray(boringSize)) return "";
 
   const arr = boringSize;
@@ -50,7 +50,7 @@ export function formatBoring(boringSize: (number | null)[], category?: string | 
     .join(", ");
 }
 
-export function formatBoringDirection(dir: string | null) {
+function formatBoringDirection(dir: string | null) {
   if (dir === "left") return "좌경";
   if (dir === "right") return "우경";
   return dir ?? "";
