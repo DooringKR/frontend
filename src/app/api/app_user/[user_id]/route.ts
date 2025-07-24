@@ -50,8 +50,8 @@ export async function GET(
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { user_id: string } }) {
-  const userId = parseInt(params.user_id);
+export async function PUT(request: NextRequest, context: { params: { user_id: string } }) {
+  const userId = parseInt(context.params.user_id);
   if (isNaN(userId)) {
     return NextResponse.json({ error: "유효하지 않은 user_id입니다." }, { status: 400 });
   }

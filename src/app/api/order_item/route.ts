@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    console.log("📩 order_item 요청 도착:", body); // ✅ 여기에 로그 추가
+    console.log("📩 order_item 요청 도착:", body);
 
     const response = await fetch(`https://dooring-backend.onrender.com/order_item`, {
       method: "POST",
