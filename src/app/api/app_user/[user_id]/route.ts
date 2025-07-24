@@ -49,3 +49,38 @@ export async function GET(
     return NextResponse.json({ error: "유저 정보 조회 중 오류가 발생했습니다." }, { status: 500 });
   }
 }
+
+export async function PUT(request: NextRequest, { params }: { params: { user_id: string } }) {
+  const userId = parseInt(params.user_id);
+  if (isNaN(userId)) {
+    return NextResponse.json({ error: "유효하지 않은 user_id입니다." }, { status: 400 });
+  }
+
+  try {
+    const body = await request.json();
+    const { user_road_address, user_detail_address } = body;
+
+    if (!user_road_address || !user_detail_address) {
+      return NextResponse.json({ error: "주소 정보가 누락되었습니다." }, { status: 400 });
+    }
+
+    const res = await fetch(`https://dooring-backend.onrender.com/app_user/${userId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_road_address,
+        user_detail_address,
+      }),
+    });
+
+    if (!res.ok) {
+      return NextResponse.json({ error: "주소 업데이트 실패" }, { status: res.status });
+    }
+
+    const data = await res.json();
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error("PUT 에러:", error);
+    return NextResponse.json({ error: "서버 에러" }, { status: 500 });
+  }
+}
