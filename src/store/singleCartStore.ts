@@ -34,16 +34,16 @@ export type CabinetCart = {
 export type HardwareCart = {
   type: "hardware";
   category?: string | null;
-  manufacturer?: string | null;
-  size?: string | null;
+  hardware_madeby?: string | null;
+  hardware_size?: string | null;
   request?: string | null | undefined;
 };
 
 export type AccessoryCart = {
   type: "accessory";
   category?: string | null;
-  manufacturer?: string | null;
-  modelName?: string | null;
+  accessory_madeby?: string | null;
+  accessory_model?: string | null;
   request?: string | null;
 };
 

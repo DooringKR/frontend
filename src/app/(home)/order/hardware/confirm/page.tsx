@@ -1,5 +1,6 @@
 "use client";
 
+import { addCartItem } from "@/api/cartItemApi";
 import { HARDWARE_CATEGORY_LIST } from "@/constants/category";
 import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
@@ -9,14 +10,14 @@ import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
 import Header from "@/components/Header/Header";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+
 import { HardwareCart, useSingleCartStore } from "@/store/singleCartStore";
-import { addCartItem } from "@/api/cartItemApi";
 
 function HardwareConfirmPageContent() {
   const router = useRouter();
   const category = useSingleCartStore(state => (state.cart as HardwareCart).category);
-  const manufacturer = useSingleCartStore(state => (state.cart as HardwareCart).manufacturer);
-  const size = useSingleCartStore(state => (state.cart as HardwareCart).size);
+  const hardware_madeby = useSingleCartStore(state => (state.cart as HardwareCart).hardware_madeby);
+  const hardware_size = useSingleCartStore(state => (state.cart as HardwareCart).hardware_size);
   const request = useSingleCartStore(state => (state.cart as HardwareCart).request);
 
   const [quantity, setQuantity] = useState(1);
@@ -34,8 +35,8 @@ function HardwareConfirmPageContent() {
           title={`${HARDWARE_CATEGORY_LIST.find(item => item.slug === category)?.header}`}
           showQuantitySelector={false}
           request={request ?? undefined}
-          manufacturer={manufacturer ?? undefined}
-          size={size ? `${size}mm` : undefined}
+          manufacturer={hardware_madeby ?? undefined}
+          size={hardware_size ? `${hardware_size}mm` : undefined}
           onOptionClick={() => {
             router.push(`/order/hardware`);
           }}
@@ -61,8 +62,8 @@ function HardwareConfirmPageContent() {
               item_count: quantity,
               item_options: {
                 hardware_type: category,
-                hardware_madeby: manufacturer,
-                hardware_size: size,
+                hardware_madeby: hardware_madeby,
+                hardware_size: hardware_size,
                 hardware_request: request,
               },
             });

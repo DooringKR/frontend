@@ -213,12 +213,18 @@ function CabinetPageContent() {
   let button1Disabled = false;
   if (category === "lower" || category === "upper") {
     button1Disabled =
-      DoorWidth === null || DoorHeight === null || DoorDepth === null || !handleType || !finishType;
+      DoorWidth === null ||
+      DoorHeight === null ||
+      DoorDepth === null ||
+      bodyMaterial === "" ||
+      !handleType ||
+      !finishType;
   } else if (category === "flap") {
     button1Disabled =
       DoorWidth === null ||
       DoorHeight === null ||
       DoorDepth === null ||
+      bodyMaterial === "" ||
       !handleType ||
       !finishType ||
       !showBar;
@@ -227,6 +233,7 @@ function CabinetPageContent() {
       DoorWidth === null ||
       DoorHeight === null ||
       DoorDepth === null ||
+      bodyMaterial === "" ||
       !drawerType ||
       !railType ||
       !finishType;
@@ -235,11 +242,13 @@ function CabinetPageContent() {
       DoorWidth === null ||
       DoorHeight === null ||
       DoorDepth === null ||
+      bodyMaterial === "" ||
       !riceRail ||
       !lowerDrawer ||
       !finishType;
   } else {
-    button1Disabled = DoorWidth === null || DoorHeight === null || DoorDepth === null;
+    button1Disabled =
+      DoorWidth === null || DoorHeight === null || DoorDepth === null || bodyMaterial === "";
   }
 
   return (

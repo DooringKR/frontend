@@ -9,22 +9,29 @@ import BoxedInput from "@/components/Input/BoxedInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
+import { FinishCart, useSingleCartStore } from "@/store/singleCartStore";
+
 import DepthInputSection from "./_components/DepthInputSection";
 import HeightInputSection from "./_components/HeightInputSection";
-import { FinishCart, useSingleCartStore } from "@/store/singleCartStore";
 
 function FinishPageContent() {
   const color = useSingleCartStore(state => (state.cart as FinishCart).color);
   const setCart = useSingleCartStore(state => state.setCart);
   const router = useRouter();
-  const [depth, setDepth] = useState<string | null>(useSingleCartStore(state => (state.cart as FinishCart).depth) ?? null);
-  const [height, setHeight] = useState<string | null>(useSingleCartStore(state => (state.cart as FinishCart).height) ?? null);
-  const [request, setRequest] = useState<string | null>(useSingleCartStore(state => (state.cart as FinishCart).request) ?? null);
+  const [depth, setDepth] = useState<string | null>(
+    useSingleCartStore(state => (state.cart as FinishCart).depth) ?? null,
+  );
+  const [height, setHeight] = useState<string | null>(
+    useSingleCartStore(state => (state.cart as FinishCart).height) ?? null,
+  );
+  const [request, setRequest] = useState<string | null>(
+    useSingleCartStore(state => (state.cart as FinishCart).request) ?? null,
+  );
   const [depthIncrease, setDepthIncrease] = useState<string | null>(
-    useSingleCartStore(state => (state.cart as FinishCart).depthIncrease) ?? null
+    useSingleCartStore(state => (state.cart as FinishCart).depthIncrease) ?? null,
   );
   const [heightIncrease, setHeightIncrease] = useState<string | null>(
-    useSingleCartStore(state => (state.cart as FinishCart).heightIncrease) ?? null
+    useSingleCartStore(state => (state.cart as FinishCart).heightIncrease) ?? null,
   );
   const [isDepthIncrease, setIsDepthIncrease] = useState(false);
   const [isHeightIncrease, setIsHeightIncrease] = useState(false);
@@ -33,18 +40,18 @@ function FinishPageContent() {
   useEffect(() => {
     setIsDepthIncrease(
       depthIncrease !== null &&
-      depthIncrease !== undefined &&
-      depthIncrease !== "" &&
-      Number(depthIncrease) !== 0
+        depthIncrease !== undefined &&
+        depthIncrease !== "" &&
+        Number(depthIncrease) !== 0,
     );
   }, [depthIncrease]);
 
   useEffect(() => {
     setIsHeightIncrease(
       heightIncrease !== null &&
-      heightIncrease !== undefined &&
-      heightIncrease !== "" &&
-      Number(heightIncrease) !== 0
+        heightIncrease !== undefined &&
+        heightIncrease !== "" &&
+        Number(heightIncrease) !== 0,
     );
   }, [heightIncrease]);
 
@@ -54,11 +61,7 @@ function FinishPageContent() {
       <Header size="Large" title={`마감재 정보를 입력해주세요`} />
       <div className="h-5"></div>
       <div className="flex flex-col gap-5 px-5">
-        <BoxedSelect
-          label="색상"
-          value={color ?? ""}
-          onClick={() => router.back()}
-        />
+        <BoxedSelect label="색상" value={color ?? ""} onClick={() => router.back()} />
         <DepthInputSection
           depth={depth ? parseInt(depth) : null}
           setDepth={e => setDepth(e?.toString() ?? null)}

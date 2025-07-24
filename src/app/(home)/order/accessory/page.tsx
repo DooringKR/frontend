@@ -8,6 +8,7 @@ import BottomButton from "@/components/BottomButton/BottomButton";
 import Header from "@/components/Header/Header";
 import BoxedInput from "@/components/Input/BoxedInput";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+
 import { AccessoryCart, useSingleCartStore } from "@/store/singleCartStore";
 
 function AccessoryPageContent() {
@@ -16,9 +17,15 @@ function AccessoryPageContent() {
 
   const category = useSingleCartStore(state => (state.cart as AccessoryCart).category);
 
-  const [manufacturer, setManufacturer] = useState(useSingleCartStore(state => (state.cart as AccessoryCart).manufacturer) ?? "");
-  const [modelName, setModelName] = useState(useSingleCartStore(state => (state.cart as AccessoryCart).modelName) ?? "");
-  const [request, setRequest] = useState(useSingleCartStore(state => (state.cart as AccessoryCart).request) ?? "");
+  const [accessory_madeby, setAccessory_madeby] = useState(
+    useSingleCartStore(state => (state.cart as AccessoryCart).accessory_madeby) ?? "",
+  );
+  const [accessory_model, setAccessory_model] = useState(
+    useSingleCartStore(state => (state.cart as AccessoryCart).accessory_model) ?? "",
+  );
+  const [request, setRequest] = useState(
+    useSingleCartStore(state => (state.cart as AccessoryCart).request) ?? "",
+  );
 
   const setCart = useSingleCartStore(state => state.setCart);
 
@@ -37,18 +44,18 @@ function AccessoryPageContent() {
           type="text"
           label="제조사"
           placeholder="제조사를 입력해주세요"
-          value={manufacturer}
+          value={accessory_madeby}
           onChange={e => {
-            setManufacturer(e.target.value);
+            setAccessory_madeby(e.target.value);
           }}
         />
         <BoxedInput
           type="text"
           label="모델명"
           placeholder="모델명을 입력해주세요"
-          value={modelName}
+          value={accessory_model}
           onChange={e => {
-            setModelName(e.target.value);
+            setAccessory_model(e.target.value);
           }}
         />
         <BoxedInput
@@ -62,13 +69,13 @@ function AccessoryPageContent() {
         type={"1button"}
         button1Text={"다음"}
         className="fixed bottom-0 w-full max-w-[500px] bg-white px-5 pb-5"
-        button1Disabled={manufacturer === "" || modelName === ""}
+        button1Disabled={accessory_madeby === "" || accessory_model === ""}
         onButton1Click={() => {
           setCart({
             type: "accessory",
             category: category ?? null,
-            manufacturer: manufacturer ?? null,
-            modelName: modelName ?? null,
+            accessory_madeby: accessory_madeby,
+            accessory_model: accessory_model,
             request: request ?? null,
           });
           router.push(`/order/accessory/confirm`);
