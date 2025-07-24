@@ -1,7 +1,6 @@
 "use client";
 
 import { addCartItem } from "@/api/cartItemApi";
-import { CABINET_CATEGORY_LIST } from "@/constants/category";
 import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
 
@@ -12,6 +11,7 @@ import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { CabinetCart, useSingleCartStore } from "@/store/singleCartStore";
+import { getCategoryLabel } from "@/utils/categoryLabel";
 import formatColor from "@/utils/formatColor";
 import formatSize from "@/utils/formatSize";
 
@@ -173,9 +173,3 @@ function CabinetConfirmPage() {
 }
 
 export default CabinetConfirmPage;
-
-export function getCategoryLabel(category: string | null) {
-  if (!category) return "부분장";
-  const found = CABINET_CATEGORY_LIST.find(item => item.slug === category);
-  return found ? found.header : "부분장";
-}
