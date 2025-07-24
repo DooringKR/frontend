@@ -1,6 +1,6 @@
 "use client";
 
-import { createOrder } from "@/api/orderApi";
+import { createOrder, createOrderItem } from "@/api/orderApi";
 import { CHECK_ORDER_PAGE } from "@/constants/pageName";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -152,6 +152,24 @@ function CheckOrderClientPage() {
 
     try {
       const order = await createOrder(payload);
+      const orderId = order.order_id;
+
+      // 장바구니 항목을 기반으로 order_item 생성
+      await Promise.all(
+        cartItems.map(item => {
+          const itemPayload = {
+            order_id: orderId,
+            product_type: item.category?.toUpperCase(),
+            unit_price: item.price,
+            item_count: item.count ?? 1,
+            item_options: item,
+          };
+
+          console.log("🧾 order_item 요청 payload:", itemPayload); // 로그 찍기
+          return createOrderItem(itemPayload);
+        }),
+      );
+      console.log("🚚 order_item 요청 payload:", payload); // 🔍 여기 추가
       localStorage.setItem("recentOrder", JSON.stringify(order));
       router.push("/cart/confirm");
     } catch (error) {
