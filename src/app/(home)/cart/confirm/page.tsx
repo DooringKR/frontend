@@ -7,6 +7,13 @@ import {
   DOOR_CATEGORY_LIST,
   HARDWARE_CATEGORY_LIST,
 } from "@/constants/category";
+import {
+  AccessoryItem,
+  CabinetItem,
+  DoorItem,
+  FinishItem,
+  HardwareItem,
+} from "@/types/newItemTypes";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -16,9 +23,12 @@ import Button from "@/components/BeforeEditByKi/Button/Button";
 import { useCurrentOrderStore } from "@/store/Items/currentOrderStore";
 import useCartStore from "@/store/cartStore";
 import { useOrderStore } from "@/store/orderStore";
+import { formatBoringDirection } from "@/utils/formatBoring";
 import formatColor from "@/utils/formatColor";
+import { getCategoryLabel } from "@/utils/getCategoryLabel";
 
 import PickUpAddressCard from "../pickup/_components/PickUpAddressCard";
+import OrderConfirmCard from "./_components/OrderConfirmCard";
 
 export default function OrderConfirmPage() {
   const router = useRouter();
@@ -226,112 +236,127 @@ export default function OrderConfirmPage() {
                 <span className="text-[17px] font-600">주문 상품</span>
               </div>
 
-              {cartItems.map((item: any, idx: number) => {
-                if (!item) return null;
+              <div className="flex flex-col gap-5 border-b border-gray-200 pb-3">
+                {cartItems.map((item, i) => {
+                  if (!item) return null;
+                  const category = item.category;
+                  const key = `${category}-${i}`;
 
-                const commonPrice = (
-                  <p className="mt-1 text-[15px] font-500 text-gray-800">
-                    {Number((item.price ?? 0) * (item.count ?? 1)).toLocaleString()}원 ∙{" "}
-                    {item.count}개
-                  </p>
-                );
+                  if (category === "door") {
+                    const doorItem = item as DoorItem;
 
-                switch (item.category) {
-                  case "door":
                     return (
-                      <div
-                        key={idx}
-                        className="mb-3 border-b border-gray-200 pb-2 text-[15px] font-400 text-gray-500"
-                      >
-                        <p className="mb-1 text-[17px] font-600 text-gray-800">문짝</p>
-                        <p>색상 : {formatColor(item.color)}</p>
-                        <p>가로 길이 : {Number(item.width).toLocaleString()}mm</p>
-                        <p>세로 길이 : {Number(item.height).toLocaleString()}mm</p>
-                        <p>경첩 개수 : {item.hingeCount ?? "-"}</p>
-                        <p>경첩 방향 : {item.hingeDirection === "left" ? "좌경" : "우경"}</p>
-                        <p>보링 치수 : {item.boring || "-"}</p>
-                        {item.doorRequest && <p>제작 시 요청사항 : {item.doorRequest}</p>}
-                        {commonPrice}
-                      </div>
+                      <OrderConfirmCard
+                        key={key}
+                        type="door"
+                        title={getCategoryLabel(doorItem.doorType, DOOR_CATEGORY_LIST, "문짝")}
+                        color={formatColor(doorItem.color)}
+                        width={Number(doorItem.width)}
+                        height={Number(doorItem.height)}
+                        hingeCount={doorItem.hingeCount > 0 ? doorItem.hingeCount : undefined}
+                        hingeDirection={formatBoringDirection(doorItem.hingeDirection)}
+                        boring={doorItem.boring}
+                        quantity={doorItem.count}
+                        price={item.price}
+                      />
                     );
-                  case "finish":
-                    const baseDepth = Number(item.baseDepth ?? 0);
-                    const additionalDepth = Number(item.additionalDepth ?? 0);
-                    const totalDepth = baseDepth + additionalDepth;
+                  }
 
-                    const baseHeight = Number(item.baseHeight ?? 0);
-                    const additionalHeight = Number(item.additionalHeight ?? 0);
-                    const totalHeight = baseHeight + additionalHeight;
+                  if (category === "finish") {
+                    const finishItem = item as FinishItem;
 
                     return (
-                      <div
-                        key={idx}
-                        className="mb-3 border-b border-gray-200 pb-2 text-[15px] font-400 text-gray-500"
-                      >
-                        <p className="mb-1 text-[17px] font-600 text-gray-800">마감재</p>
-                        <p>색상 : {formatColor(item.color)}</p>
-                        <p>깊이 : {baseDepth.toLocaleString()}mm</p>
-                        {additionalDepth > 0 && (
-                          <p>⤷ 깊이 키우기 : {additionalDepth.toLocaleString()}mm</p>
+                      <OrderConfirmCard
+                        key={key}
+                        type="finish"
+                        title="마감재"
+                        color={formatColor(finishItem.color)}
+                        depth={finishItem.baseDepth ?? undefined}
+                        depthIncrease={finishItem.additionalDepth ?? undefined}
+                        height={finishItem.baseHeight ?? undefined}
+                        heightIncrease={finishItem.additionalHeight ?? undefined}
+                        request={finishItem.finishRequest ?? undefined}
+                        quantity={finishItem.count ?? 0}
+                        price={item.price}
+                      />
+                    );
+                  }
+
+                  if (category === "cabinet") {
+                    const cabinetItem = item as CabinetItem;
+
+                    return (
+                      <OrderConfirmCard
+                        key={key}
+                        type="cabinet"
+                        title={getCategoryLabel(
+                          cabinetItem.cabinetType,
+                          CABINET_CATEGORY_LIST,
+                          "부분장",
                         )}
-                        <p>⤷ 합산 깊이 : {totalDepth.toLocaleString()}mm</p>
-                        <p>높이 : {baseHeight.toLocaleString()}mm</p>
-                        {additionalHeight > 0 && (
-                          <p>⤷ 높이 키우기 : {additionalHeight.toLocaleString()}mm</p>
+                        color={formatColor(cabinetItem.color ?? "")}
+                        width={Number(cabinetItem.width ?? 0)}
+                        height={Number(cabinetItem.height ?? 0)}
+                        depth={Number(cabinetItem.depth ?? 0)}
+                        bodyMaterial={cabinetItem.bodyMaterial ?? ""}
+                        handleType={cabinetItem.handleType ?? ""}
+                        finishType={cabinetItem.finishType ?? ""}
+                        showBar={cabinetItem.showBar ?? ""}
+                        drawerType={cabinetItem.drawerType ?? ""}
+                        railType={cabinetItem.railType ?? ""}
+                        request={cabinetItem.request ?? ""}
+                        quantity={cabinetItem.count ?? 0}
+                        price={item.price}
+                      />
+                    );
+                  }
+
+                  if (category === "accessory") {
+                    const accessoryItem = item as AccessoryItem;
+
+                    return (
+                      <OrderConfirmCard
+                        key={key}
+                        type="accessory"
+                        title={getCategoryLabel(
+                          accessoryItem.accessoryType,
+                          ACCESSORY_CATEGORY_LIST,
+                          "부속",
                         )}
-                        <p>⤷ 합산 높이 : {totalHeight.toLocaleString()}mm</p>
-                        {item.finishRequest && <p>제작 시 요청사항 : {item.finishRequest}</p>}
-                        {commonPrice}
-                      </div>
+                        manufacturer={accessoryItem.manufacturer}
+                        modelName={accessoryItem.modelName}
+                        size={accessoryItem.size}
+                        quantity={accessoryItem.count}
+                        request={accessoryItem.accessoryRequest ?? undefined}
+                        price={item.price}
+                      />
                     );
-                  case "hardware":
-                    return (
-                      <div key={idx} className="mb-3 border-b border-gray-200 pb-2">
-                        <p className="font-semibold">하드웨어</p>
-                        <p>제조사 : {item.madeBy}</p>
-                        <p>사이즈 : {item.size?.toLocaleString()}mm</p>
-                        {item.hardwareRequests && <p>제작 시 요청사항 : {item.hardwareRequests}</p>}
-                        {commonPrice}
-                      </div>
-                    );
+                  }
 
-                  case "cabinet":
+                  if (category === "hardware") {
+                    const hardwareItem = item as HardwareItem;
                     return (
-                      <div key={idx} className="mb-3 border-b border-gray-200 pb-2">
-                        <p className="font-semibold">수납장</p>
-                        {item.handleType && <p>손잡이 종류: {item.handleType}</p>}
-                        {item.compartmentCount !== 0 && <p>구성 칸 수: {item.compartmentCount}</p>}
-                        {item.flapStayType && <p>쇼바 종류: {item.flapStayType}</p>}
-                        <p>색상 : {formatColor(item.color)}</p>
-                        <p>두께: {item.thickness}</p>
-                        <p>너비: {item.width}mm</p>
-                        <p>깊이: {item.depth}mm</p>
-                        <p>높이: {item.height}mm</p>
-                        <p>마감 방식: {item.finishType ? item.finishType : "선택 안됨"}</p>
-                        <p>서랍 종류: {item.drawerType}</p>
-                        <p>레일 종류: {item.railType}</p>
-                        {item.cabinetRequests && <p>제작 시 요청사항 : {item.cabinetRequests}</p>}
-                        {commonPrice}
-                      </div>
-                    );
-
-                  case "accessory":
-                    return (
-                      <div key={idx} className="mb-3 border-b border-gray-200 pb-2">
-                        <p className="font-semibold">액세서리</p>
-                        <p>제조사 : {item.madeBy}</p>
-                        <p>모델명 : {item.model}</p>
-                        {item.accessoryRequests && (
-                          <p>제작 시 요청사항 : {item.accessoryRequests}</p>
+                      <OrderConfirmCard
+                        key={key}
+                        type="hardware"
+                        title={getCategoryLabel(
+                          hardwareItem.hardwareType,
+                          HARDWARE_CATEGORY_LIST,
+                          "하드웨어",
                         )}
-                        {commonPrice}
-                      </div>
+                        manufacturer={hardwareItem.madeBy}
+                        size={hardwareItem.size ? `${hardwareItem.size}mm` : ""}
+                        request={hardwareItem.hardwareRequest ?? ""}
+                        quantity={hardwareItem.count}
+                        price={item.price}
+                      />
                     );
+                  }
 
-                  default:
-                    return null;
-                }
-              })}
+                  return null;
+                })}
+              </div>
+
               <div className="mb-2 mt-3 border-b border-gray-200 pb-3 text-gray-500">
                 <p className="mb-1 text-[17px] font-600 text-gray-800">배송일정</p>
                 {order_type === "PICK_UP" ? (
