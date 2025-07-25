@@ -25,7 +25,7 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import useCartStore from "@/store/cartStore";
 import useUserStore from "@/store/userStore";
-import { formatBoring, formatBoringDirection } from "@/utils/formatBoring";
+import formatBoring, { formatBoringDirection } from "@/utils/formatBoring";
 import formatColor from "@/utils/formatColor";
 import { getCategoryLabel } from "@/utils/getCategoryLabel";
 
@@ -81,23 +81,39 @@ export default function CartClient() {
           const slug = DOOR_TYPE_SLUG_MAP[rawType] ?? rawType;
 
           if (category === "door") {
+            const hingeCount = Number(item.item_options.hinge_count ?? 0);
+
+            // hinge_count에 따라 boring 배열 동적 생성
+            const boringArray = [];
+            for (let i = 0; i < hingeCount; i++) {
+              switch (i) {
+                case 0:
+                  boringArray.push(item.item_options.first_hinge_size ?? null);
+                  break;
+                case 1:
+                  boringArray.push(item.item_options.second_hinge_size ?? null);
+                  break;
+                case 2:
+                  boringArray.push(item.item_options.third_hinge_size ?? null);
+                  break;
+                case 3:
+                  boringArray.push(item.item_options.fourth_hinge_size ?? null);
+                  break;
+                default:
+                  boringArray.push(null);
+              }
+            }
+
             const convertedItem: DoorItem = {
               category: "door",
               doorType: slug,
               color: item.item_options.door_color ?? "",
               width: String(item.item_options.door_width ?? ""),
               height: String(item.item_options.door_height ?? ""),
-              hingeCount: Number(item.item_options.hinge_count ?? 0),
+              hingeCount,
               hingeDirection: item.item_options.hinge_direction ?? "",
-              boring: formatBoring(
-                [
-                  item.item_options.first_hinge_size ?? null,
-                  item.item_options.second_hinge_size ?? null,
-                  item.item_options.third_hinge_size ?? null,
-                  item.item_options.fourth_hinge_size ?? null,
-                ],
-                item.item_options.door_type?.toLowerCase(),
-              ),
+              boring: boringArray,
+              boringCategory: item.item_options.door_type?.toLowerCase(),
               count: item.item_count ?? 1,
               price: item.unit_price ?? 10000,
               cartItemId: item.cart_item_id,
@@ -477,6 +493,7 @@ export default function CartClient() {
                     hingeCount={doorItem.hingeCount > 0 ? doorItem.hingeCount : undefined}
                     hingeDirection={formatBoringDirection(doorItem.hingeDirection)}
                     boring={doorItem.boring}
+                    boringCategory={doorItem.boringCategory}
                     quantity={doorItem.count}
                     trashable={true}
                     onIncrease={() => handleCountChange(category, i, doorItem.count + 1)}

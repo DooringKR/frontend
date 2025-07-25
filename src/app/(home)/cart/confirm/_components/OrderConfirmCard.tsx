@@ -2,6 +2,7 @@ import React from "react";
 
 import DoorPreviewIcon from "@/components/DoorPreviewIcon/DoorPreviewIcon";
 
+import formatBoring from "@/utils/formatBoring";
 import formatSize from "@/utils/formatSize";
 
 interface OrderConfirmCardProps {
@@ -13,7 +14,8 @@ interface OrderConfirmCardProps {
   depth?: number;
   hingeCount?: number;
   hingeDirection?: string;
-  boring?: string;
+  boring?: (number | null)[];
+  boringCategory?: string;
   quantity: number;
   request?: string;
   bodyMaterial?: string;
@@ -40,6 +42,7 @@ const OrderConfirmCard: React.FC<OrderConfirmCardProps> = ({
   hingeCount,
   hingeDirection,
   boring,
+  boringCategory,
   quantity,
   request,
   bodyMaterial,
@@ -85,7 +88,7 @@ const OrderConfirmCard: React.FC<OrderConfirmCardProps> = ({
         )}
         {hingeCount && <p>경첩 개수: {hingeCount}개</p>}
         {hingeDirection && <p>경첩 방향: {hingeDirection}</p>}
-        {boring && <p>보링 치수: {boring}</p>}
+        {boring && <p>보링 치수: {formatBoring(boring, boringCategory)}</p>}
         {bodyMaterial && <p>몸통 소재 및 두께: {bodyMaterial}</p>}
         {handleType && <p>손잡이 종류: {handleType}</p>}
         {finishType && <p>마감 방식: {finishType}</p>}

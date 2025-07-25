@@ -6,7 +6,8 @@ export type DoorItem = {
   height: string;
   hingeCount: number;
   hingeDirection: string;
-  boring: string;
+  boring: (number | null)[];
+  boringCategory?: string;
   count: number;
   price: number;
   cartItemId?: number;

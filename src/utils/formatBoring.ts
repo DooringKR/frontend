@@ -1,8 +1,12 @@
-export function formatBoring(boringSize: (number | null)[], category?: string | null) {
+function formatBoring(boringSize: (number | null)[], category?: string | null) {
   if (!boringSize || !Array.isArray(boringSize)) return "";
 
   const arr = boringSize;
 
+  // 배열이 비어있거나 너무 길면 빈 문자열 반환
+  if (arr.length === 0 || arr.length > 4) return "";
+
+  // category에 따라 다른 라벨 사용
   let labelMap: string[][];
   if (category === "flap") {
     labelMap = [
@@ -25,6 +29,8 @@ export function formatBoring(boringSize: (number | null)[], category?: string | 
     .filter(Boolean)
     .join(", ");
 }
+
+export default formatBoring;
 
 export function formatBoringDirection(dir: string | null) {
   if (dir === "left") return "좌경";

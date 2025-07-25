@@ -12,42 +12,12 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { DoorCart, useSingleCartStore } from "@/store/singleCartStore";
 import formatColor from "@/utils/formatColor";
-import formatSize from "@/utils/formatSize";
 
 function getCategoryLabel(category: string | null) {
   if (category === "normal") return "일반문";
   if (category === "flap") return "플랩문";
   if (category === "drawer") return "서랍";
   return "문짝";
-}
-
-function formatBoring(boringSize: (number | null)[], category?: string | null) {
-  if (!boringSize || !Array.isArray(boringSize)) return "";
-
-  const arr = boringSize;
-
-  // category에 따라 다른 라벨 사용
-  let labelMap: string[][];
-  if (category === "flap") {
-    labelMap = [
-      ["좌", "우"],
-      ["좌", "중", "우"],
-      ["좌", "중좌", "중우", "우"],
-    ];
-  } else {
-    labelMap = [
-      ["상", "하"],
-      ["상", "중", "하"],
-      ["상", "중상", "중하", "하"],
-    ];
-  }
-
-  const label = labelMap[arr.length - 2];
-  if (!label) return arr.join(", ");
-  return arr
-    .map((v, i) => (v !== null && v !== undefined ? `${label[i]}${v}` : null))
-    .filter(Boolean)
-    .join(", ");
 }
 
 function formatBoringDirection(dir: string | null) {
@@ -83,7 +53,8 @@ function DoorConfirmPageContent() {
           height={height ?? undefined}
           hingeDirection={formatBoringDirection(boringDirection ?? null)}
           hingeCount={boringSize ? boringSize.length : undefined}
-          boring={formatBoring(boringSize || [], category)}
+          boring={boringSize || []}
+          boringCategory={category || undefined}
           // 아래의 다른 컴포넌트로 전달할 예정이라 여기선 일단 0으로 전달
           quantity={0}
           trashable={false}
@@ -120,10 +91,18 @@ function DoorConfirmPageContent() {
                   ? {
                       hinge_count: boringSize!.length,
                       hinge_direction: boringDirection,
-                      first_hinge_size: boringSize![0] ?? undefined,
-                      second_hinge_size: boringSize![1] ?? undefined,
-                      third_hinge_size: boringSize![2] ?? undefined,
-                      fourth_hinge_size: boringSize![3] ?? undefined,
+                      ...(boringSize!.length >= 1 && {
+                        first_hinge_size: boringSize![0] ?? undefined,
+                      }),
+                      ...(boringSize!.length >= 2 && {
+                        second_hinge_size: boringSize![1] ?? undefined,
+                      }),
+                      ...(boringSize!.length >= 3 && {
+                        third_hinge_size: boringSize![2] ?? undefined,
+                      }),
+                      ...(boringSize!.length >= 4 && {
+                        fourth_hinge_size: boringSize![3] ?? undefined,
+                      }),
                     }
                   : {}),
                 door_request: request,
