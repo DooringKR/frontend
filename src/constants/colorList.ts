@@ -28,7 +28,6 @@ export const COLOR_LIST = [
 
 // 타입별 색상 리스트 (현재는 전체 컬러를 모두 포함)
 
-
 export const DOOR_COLOR_LIST = [
   { name: "MDF, 한솔, 18T, 크림화이트", image: "/img/color-list/hansol-cream-white.png" },
   { name: "MDF, 한솔, 18T, 퍼펙트화이트", image: "/img/color-list/hansol-perfect-white.png" },
@@ -92,3 +91,5 @@ export const COLOR_LIST_BY_TYPE = {
   cabinet: CABINET_COLOR_LIST,
   finish: FINISH_COLOR_LIST,
 } as const;
+
+export const BODY_MATERIAL_LIST = ["헤링본 PP 15T", "헤링본 PP 18T", "파타고니아 크림 LPM 18T"];

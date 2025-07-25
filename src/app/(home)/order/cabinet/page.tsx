@@ -1,6 +1,7 @@
 "use client";
 
 import { CABINET_CATEGORY_LIST } from "@/constants/category";
+import { BODY_MATERIAL_LIST } from "@/constants/colorList";
 import { useRouter, useSearchParams } from "next/navigation";
 import ToastIcon from "public/icons/toast";
 import { use, useEffect, useRef, useState } from "react";
@@ -340,7 +341,7 @@ function BodyMaterialManualInputSheet({
   const inputRef = useRef<HTMLInputElement>(null);
 
   // 미리 정의된 옵션
-  const options = ["헤링본 PP 15T", "헤링본 PP 18T", "파타고니아 크림 LPM 18T"];
+  const options = BODY_MATERIAL_LIST;
 
   return (
     <BottomSheet

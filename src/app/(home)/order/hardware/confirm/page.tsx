@@ -45,7 +45,7 @@ function HardwareConfirmPageContent() {
         />
         <OrderSummaryCard
           quantity={quantity}
-          unitPrice={9000}
+          unitPrice={0}
           onIncrease={() => setQuantity(q => q + 1)}
           onDecrease={() => setQuantity(q => Math.max(1, q - 1))}
         />
@@ -58,7 +58,7 @@ function HardwareConfirmPageContent() {
           try {
             const result = await addCartItem({
               product_type: "HARDWARE",
-              unit_price: 9000,
+              unit_price: 0,
               item_count: quantity,
               item_options: {
                 hardware_type: category,

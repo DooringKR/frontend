@@ -1,6 +1,7 @@
 "use client";
 
 import { addCartItem } from "@/api/cartItemApi";
+import { calculateUnitDoorPrice } from "@/services/pricing/doorPricing";
 import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
 
@@ -29,14 +30,22 @@ function formatBoringDirection(dir: string | null) {
 function DoorConfirmPageContent() {
   const router = useRouter();
 
-  const category = useSingleCartStore(state => (state.cart as DoorCart).category);
-  const color = useSingleCartStore(state => (state.cart as DoorCart).color);
-  const width = useSingleCartStore(state => (state.cart as DoorCart).width);
-  const height = useSingleCartStore(state => (state.cart as DoorCart).height);
-  const boringDirection = useSingleCartStore(state => (state.cart as DoorCart).boringDirection);
-  const boringSize = useSingleCartStore(state => (state.cart as DoorCart).boringSize);
-  const request = useSingleCartStore(state => (state.cart as DoorCart).request);
+  const cart = useSingleCartStore(state => state.cart);
+  const category = (cart as DoorCart)?.category;
+  const color = (cart as DoorCart)?.color;
+  const width = (cart as DoorCart)?.width;
+  const height = (cart as DoorCart)?.height;
+  const boringDirection = (cart as DoorCart)?.boringDirection;
+  const boringSize = (cart as DoorCart)?.boringSize;
+  const request = (cart as DoorCart)?.request;
   const [quantity, setQuantity] = useState(1);
+
+  // 빌드 시점에 cart가 비어있을 수 있으므로 안전한 처리
+  if (!cart || Object.keys(cart).length === 0) {
+    return <div>로딩 중...</div>;
+  }
+
+  const unitPrice = calculateUnitDoorPrice(color!, width!, height!);
   return (
     <div>
       <TopNavigator />
@@ -66,7 +75,7 @@ function DoorConfirmPageContent() {
         />
         <OrderSummaryCard
           quantity={quantity}
-          unitPrice={9000}
+          unitPrice={unitPrice}
           onIncrease={() => setQuantity(q => q + 1)}
           onDecrease={() => setQuantity(q => Math.max(1, q - 1))}
         />
@@ -79,7 +88,7 @@ function DoorConfirmPageContent() {
           try {
             const result = await addCartItem({
               product_type: "DOOR",
-              unit_price: 9000,
+              unit_price: unitPrice,
               item_count: quantity,
               item_options: {
                 door_type:

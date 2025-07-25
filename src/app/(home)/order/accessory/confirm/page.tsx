@@ -49,7 +49,7 @@ function ConfirmPageContent() {
         />
         <OrderSummaryCard
           quantity={quantity}
-          unitPrice={9000}
+          unitPrice={0}
           onIncrease={() => setQuantity(q => q + 1)}
           onDecrease={() => setQuantity(q => Math.max(1, q - 1))}
         />
@@ -62,7 +62,7 @@ function ConfirmPageContent() {
           try {
             const result = await addCartItem({
               product_type: "ACCESSORY",
-              unit_price: 9000,
+              unit_price: 0,
               item_count: quantity,
               item_options: {
                 accessory_type: category,

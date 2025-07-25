@@ -1,8 +1,9 @@
 "use client";
 
 import { addCartItem } from "@/api/cartItemApi";
+import { calculateUnitFinishPrice } from "@/services/pricing/finishPricing";
 import { useRouter } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
@@ -17,13 +18,28 @@ import formatColor from "@/utils/formatColor";
 function ConfirmPageContent() {
   const router = useRouter();
 
-  const color = useSingleCartStore(state => (state.cart as FinishCart).color);
-  const depth = useSingleCartStore(state => (state.cart as FinishCart).depth);
-  const height = useSingleCartStore(state => (state.cart as FinishCart).height);
-  const depthIncrease = useSingleCartStore(state => (state.cart as FinishCart).depthIncrease);
-  const heightIncrease = useSingleCartStore(state => (state.cart as FinishCart).heightIncrease);
-  const request = useSingleCartStore(state => (state.cart as FinishCart).request);
+  const cart = useSingleCartStore(state => state.cart);
+  const color = (cart as FinishCart)?.color;
+  const depth = (cart as FinishCart)?.depth;
+  const height = (cart as FinishCart)?.height;
+  const depthIncrease = (cart as FinishCart)?.depthIncrease;
+  const heightIncrease = (cart as FinishCart)?.heightIncrease;
+  const request = (cart as FinishCart)?.request;
   const [quantity, setQuantity] = useState(1);
+
+  // 빌드 시점에 cart가 비어있을 수 있으므로 안전한 처리
+  if (!cart || Object.keys(cart).length === 0) {
+    return <div>로딩 중...</div>;
+  }
+
+  const unitPrice = calculateUnitFinishPrice(
+    color!,
+    depth!,
+    depthIncrease ?? 0,
+    height!,
+    heightIncrease ?? 0,
+  );
+
   return (
     <div>
       <TopNavigator />
@@ -48,9 +64,13 @@ function ConfirmPageContent() {
         />
         <OrderSummaryCard
           quantity={quantity}
-          unitPrice={9000}
-          onIncrease={() => setQuantity(q => q + 1)}
-          onDecrease={() => setQuantity(q => Math.max(1, q - 1))}
+          unitPrice={unitPrice}
+          onIncrease={() => {
+            setQuantity(q => q + 1);
+          }}
+          onDecrease={() => {
+            setQuantity(q => Math.max(1, q - 1));
+          }}
         />
       </div>
       <BottomButton
@@ -61,7 +81,7 @@ function ConfirmPageContent() {
           try {
             const result = await addCartItem({
               product_type: "FINISH",
-              unit_price: 9000,
+              unit_price: unitPrice,
               item_count: quantity,
               item_options: {
                 finish_color: color,
