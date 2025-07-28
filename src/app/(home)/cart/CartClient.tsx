@@ -308,7 +308,7 @@ export default function CartClient() {
   }
 
   // 장바구니 비었을 때
-  if (!Object.keys(cartGroups).length) {
+  if (cartItems.length === 0) {
     return (
       <div className="flex min-h-screen flex-col">
         <TopNavigator title="장바구니" />
