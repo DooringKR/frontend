@@ -81,7 +81,15 @@ export default function VehicleClientPage() {
       </div>
 
       <div className="px-5">
-        <Button selected={true} onClick={handleSave} className="w-full rounded-md">
+        <Button
+          selected={true}
+          onClick={handleSave}
+          className="w-full rounded-md"
+          disabled={
+            tempVehicleType === "" ||
+            (tempVehicleType === "직접 입력" && tempCustomNote.trim() === "")
+          }
+        >
           저장하기
         </Button>
       </div>

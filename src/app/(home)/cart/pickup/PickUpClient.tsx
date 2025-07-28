@@ -46,6 +46,7 @@ export default function PickUpClientPage() {
   const { currentItem } = useCurrentOrderStore();
   const { user_phoneNumber } = useUserStore();
   const { recipientPhoneNumber, setRecipientPhoneNumber } = useOrderStore();
+  const { pickupInfo } = useOrderStore.getState();
 
   const { id: userId } = useUserStore.getState();
 
@@ -72,36 +73,6 @@ export default function PickUpClientPage() {
     setGroupedCartItems(grouped);
   }, [cartItems]);
 
-  //   const totalPrice = cartItems.reduce((sum, item) => sum + item.price * (item.count || 1), 0);
-
-  //   const {
-  //     recipientPhoneNumber,
-  //     address,
-  //     deliveryDate,
-  //     requestMessage,
-  //     foyerAccessType,
-  //     customerRequest,
-  //     pickupInfo,
-  //   } = useOrderStore.getState();
-
-  //   const orderData = {
-  //     recipientPhoneNumber,
-  //     address1: address.address1,
-  //     address2: address.address2,
-  //     deliveryDate,
-  //     deliveryRequest: requestMessage,
-  //     foyerAccessType,
-  //     otherRequests: customerRequest,
-  //     pickupInfo,
-  //     receiveMethod: "pickup",
-  //     cartItems,
-  //     totalPrice,
-  //   };
-  //   console.log("💾 저장할 pickup 주문:", orderData);
-  //   localStorage.setItem("recentOrder", JSON.stringify(orderData));
-  //   router.push("/cart/confirm");
-  // };
-
   const handleSubmit = async () => {
     const totalPrice = cartItems.reduce((sum, item) => sum + item.price * (item.count || 1), 0);
 
@@ -116,6 +87,10 @@ export default function PickUpClientPage() {
 
     if (!userId || !cartId) {
       alert("주문에 필요한 정보가 부족합니다.");
+      return;
+    }
+    if (!pickupInfo.vehicleType) {
+      alert("픽업 차량 종류를 선택해주세요.");
       return;
     }
 
@@ -150,9 +125,7 @@ export default function PickUpClientPage() {
   const getTotalPrice = () =>
     cartItems.reduce((sum, item) => sum + (item?.price ?? 0) * (item?.count ?? 1), 0);
 
-  const sanitizedCartGroups = Object.fromEntries(
-    Object.entries(groupedCartItems).map(([key, items]) => [key, items.filter(Boolean)]),
-  );
+  const isVehicleNotSelected = !pickupInfo.vehicleType || pickupInfo.vehicleType === "선택해주세요";
 
   return (
     <div>
@@ -182,7 +155,7 @@ export default function PickUpClientPage() {
       <BottomButton
         type={"1button"}
         button1Text="주문 접수하기"
-        className="p-5"
+        className={`p-5 ${isVehicleNotSelected ? "pointer-events-none opacity-50" : ""}`}
         onButton1Click={handleSubmit}
       />
     </div>
