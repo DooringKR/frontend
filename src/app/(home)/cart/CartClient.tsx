@@ -25,7 +25,7 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import useCartStore from "@/store/cartStore";
 import useUserStore from "@/store/userStore";
-import formatBoring, { formatBoringDirection } from "@/utils/formatBoring";
+import { formatBoringDirection } from "@/utils/formatBoring";
 import formatColor from "@/utils/formatColor";
 import { getCategoryLabel } from "@/utils/getCategoryLabel";
 
@@ -73,6 +73,7 @@ export default function CartClient() {
         }
         const data = await getCartItems(userId);
         console.log("🍎 아이템 data확인:", data);
+        console.log("🍎 price는?", data.items);
         const convertedItems: AnyCartItem[] = [];
 
         data.items.forEach((item: any) => {
