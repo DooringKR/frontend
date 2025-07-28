@@ -31,7 +31,7 @@ export async function createOrder(req: Request, res: Response) {
   }
 
   try {
-    // 1) 주문 생성
+    // 1. 주문 생성
     const order = await prisma.order.create({
       data: {
         user_id,
@@ -43,82 +43,33 @@ export async function createOrder(req: Request, res: Response) {
       },
     });
 
-    // 2) cart_item에서 자재종류(product_type) 추출 (ENUM으로 관리)
+    // 2. user 조회
+    const user = await prisma.user.findUnique({ where: { id: user_id } });
+    if (!user) return res.status(404).json({ message: '해당 user_id가 존재하지 않습니다.' });
+
+    // 3. cartItems 조회 (cart_id 기반)
     const cartItems = await prisma.cartItem.findMany({
-      where: { cart_id: order.cart_id },
+      where: { cart_id },
     });
 
-    const orderJsonString = JSON.stringify(order, null, 2);
-    const cartItemJsonString = JSON.stringify(cartItems, null, 2);
-
-    const children = [
-      {
-        object: "block",
-        type: "heading_2",
-        heading_2: {
-          rich_text: [{
-            type: "text",
-            text: { content: "Order JSON" }
-          }]
-        }
-      },
-      {
-        object: "block",
-        type: "paragraph",
-        paragraph: {
-          rich_text: [{
-            type: "text",
-            text: { content: orderJsonString }
-          }]
-        }
-      },
-      {
-        object: "block",
-        type: "heading_2",
-        heading_2: {
-          rich_text: [{
-            type: "text",
-            text: { content: "Cart Items JSON" }
-          }]
-        }
-      },
-      {
-        object: "block",
-        type: "paragraph",
-        paragraph: {
-          rich_text: [{
-            type: "text",
-            text: { content: cartItemJsonString }
-          }]
-        }
-      }
-    ];
-    // 대표 product_type 하나 선정(첫번째 기준)
-    const productType: ProductType | null = cartItems.length > 0 ? cartItems[0].product_type : null;
-    // Notion에 보낼 한글값으로 매핑
-    const materialType = productType ? NOTION_MATERIAL_TYPE_MAP[productType] : "";
-
-    if (productType && !VALID_MATERIAL_TYPES.includes(materialType)) {
-      console.warn(`[Notion Warning] 유효하지 않은 자재종류: ${materialType}`);
-    }
-
-    // 3) 배송방법 결정 (Notion DB 옵션과 완전히 일치해야 함)
-    const shippingMethod =
-      order.order_type === "DELIVERY"
-        ? "현장으로 배송해주세요"
-        : "픽업하러 오세요";
-
-    // 4) Notion Orders 테이블에 새 페이지 생성(비동기, 오류 무시)
-    createNotionOrderPage({
+    // 4. notionService 호출
+    await createNotionOrderPage({
       orderedAt: order.created_at,
-      customerName: String(order.user_id),
+      userRoadAddress: user?.user_road_address || "",
+      userPhone: user?.user_phone || "",
       recipientPhone: order.recipient_phone,
-      shippingMethod,
-      materialType,
-      children
-    }).catch((err) => console.error("[Notion Sync Error]", err));
+      orderType: order.order_type,
+      orderPrice: order.order_price,
+      orderOptions: order.order_options,
+      orderItems: cartItems.map(item => ({
+        product_type: item.product_type as ProductType,
+        item_count: item.item_count,
+        unit_price: item.unit_price ?? 0,
+        item_options: item.item_options,
+      })),
+    }).catch(err => console.error("[Notion Sync Error]", err));
 
-    // 5) 응답
+    // 5. 응답
     return res.status(201).json({
       order_id: order.order_id,
       user_id: order.user_id,
@@ -131,8 +82,6 @@ export async function createOrder(req: Request, res: Response) {
     });
   } catch (err: any) {
     console.error("Order creation error:", err.message);
-    return res
-      .status(500)
-      .json({ message: "서버 내부 오류로 주문을 처리할 수 없습니다." });
+    return res.status(500).json({ message: "서버 내부 오류로 주문을 처리할 수 없습니다." });
   }
 }
