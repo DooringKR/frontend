@@ -56,7 +56,8 @@ function AddressCheckClientPage() {
   }, []);
 
   // 상태에 따라 주소 입력 완료 여부 판단
-  const isAddressEntered = address1.trim() !== "" && address2.trim() !== "";
+  const isAddressEntered = address1.trim() !== "";
+  // const isAddressEntered = address1.trim() !== "" && address2.trim() !== "";
 
   useEffect(() => {
     const checkTodayDelivery = async () => {
@@ -75,7 +76,7 @@ function AddressCheckClientPage() {
     };
 
     checkTodayDelivery();
-  }, [address1, address2]);
+  }, [address1]);
 
   const handleSubmit = async () => {
     if (isCheckingDelivery) return;

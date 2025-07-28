@@ -25,7 +25,7 @@ export default function Page() {
   const router = useRouter();
   const resetCart = useSingleCartStore(state => state.reset);
   const { address1, address2, setAddress } = useAddressStore();
-  const fullAddress = address1 && address2 ? `${address1} ${address2}` : "";
+  const fullAddress = address1 || "";
 
   // 모든 Hook을 먼저 호출
   const [deliverySchedule, setDeliverySchedule] = useState<"today" | "tomorrow" | "other" | "">("");
@@ -59,8 +59,7 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    const totalCount = cartItems.reduce((sum, item) => sum + item.item_count, 0);
-    setCartItemCount(totalCount);
+    setCartItemCount(cartItems.length);
   }, [cartItems]);
 
   const formatOrderDeadline = (remainingMinutes: number): string => {
