@@ -34,8 +34,15 @@ export default function OrderConfirmPage() {
   const router = useRouter();
   const [recentOrder, setRecentOrder] = useState<any>(null);
   const [showDetails, setShowDetails] = useState(true);
-  const { address, requestMessage, customerRequest, foyerAccessType, deliveryDate, pickupInfo } =
-    useOrderStore();
+  const {
+    address,
+    requestMessage,
+    customerRequest,
+    foyerAccessType,
+    deliveryDate,
+    pickupInfo,
+    deliveryType,
+  } = useOrderStore();
   const cartItems = useCartStore(state => state.cartItems);
   console.log(cartItems);
 
@@ -100,20 +107,20 @@ export default function OrderConfirmPage() {
     router.push("/");
   };
 
-  const getDeliveryLabel = (deliveryDate: string) => {
-    const date = new Date(deliveryDate);
-    const now = new Date();
+  // const getDeliveryLabel = (deliveryDate: string) => {
+  //   const date = new Date(deliveryDate);
+  //   const now = new Date();
 
-    const isSameDay = date.toDateString() === now.toDateString();
+  //   const isSameDay = date.toDateString() === now.toDateString();
 
-    const tomorrow = new Date();
-    tomorrow.setDate(now.getDate() + 1);
-    const isTomorrow = date.toDateString() === tomorrow.toDateString();
+  //   const tomorrow = new Date();
+  //   tomorrow.setDate(now.getDate() + 1);
+  //   const isTomorrow = date.toDateString() === tomorrow.toDateString();
 
-    if (isSameDay) return "당일배송";
-    if (isTomorrow) return "익일배송";
-    return date.toLocaleDateString();
-  };
+  //   if (isSameDay) return "당일배송";
+  //   if (isTomorrow) return "익일배송";
+  //   return date.toLocaleDateString();
+  // };
 
   if (!recentOrder) {
     return <p className="p-5">주문 정보가 없습니다.</p>;
@@ -122,6 +129,7 @@ export default function OrderConfirmPage() {
   console.log("🛒 cartItems 상태:", cartItems);
   console.log("🔥 recentOrder 상태:", recentOrder);
   const { order_type, recipient_phone, order_price, order_options } = recentOrder;
+  const deliveryTypeFromServer = recentOrder.order_options?.delivery?.delivery_type?.toLowerCase();
 
   return (
     <>
@@ -360,9 +368,17 @@ export default function OrderConfirmPage() {
               <div className="mb-2 mt-3 border-b border-gray-200 pb-3 text-gray-500">
                 <p className="mb-1 text-[17px] font-600 text-gray-800">배송일정</p>
                 {order_type === "PICK_UP" ? (
-                  <p>당일배송</p>
+                  <p>픽업 예정</p> // 혹은 "방문 수령"
                 ) : (
-                  <p>{getDeliveryLabel(deliveryDate ?? "")}</p>
+                  <p>
+                    {deliveryType === "today"
+                      ? "당일배송"
+                      : deliveryType === "tomorrow"
+                        ? "익일배송"
+                        : deliveryDate
+                          ? new Date(deliveryDate).toLocaleDateString()
+                          : "배송일정 없음"}
+                  </p>
                 )}
               </div>
               {order_type !== "PICK_UP" && (

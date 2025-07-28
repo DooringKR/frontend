@@ -17,9 +17,9 @@ export default function ReceiveOptionClientPage() {
 
   const [isPickupAddressModalOpen, setIsPickupAddressModalOpen] = useState(false);
 
-  const handleSelect = (method: "delivery" | "pickup") => {
+  const handleSelect = (method: "DELIVERY" | "PICK_UP") => {
     setReceiveMethod(method);
-    if (method === "delivery") {
+    if (method === "DELIVERY") {
       router.push("/cart/checkorder");
     } else {
       router.push("/cart/pickup");
@@ -47,14 +47,14 @@ export default function ReceiveOptionClientPage() {
             alt={"트럭 아이콘"}
             title={"배송"}
             description={"입력한 주소로 배송해드려요."}
-            onClick={() => handleSelect("delivery")}
+            onClick={() => handleSelect("DELIVERY")}
           />
           <ReceiveOptionCard
             icon={"/icons/parcel.svg"}
             alt={"소포 아이콘"}
             title={"직접 픽업"}
             description={"공장에서 포장한 상품을 직접 픽업하세요."}
-            onClick={() => handleSelect("pickup")}
+            onClick={() => handleSelect("PICK_UP")}
           />
         </div>
         <button

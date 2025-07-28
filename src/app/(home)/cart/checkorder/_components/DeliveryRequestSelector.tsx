@@ -4,57 +4,10 @@ import { useRouter } from "next/navigation";
 
 import { useOrderStore } from "@/store/orderStore";
 
-// interface Props {
-//   requestMessage: string;
-//   setRequestMessage: (message: string) => void;
-//   foyerAccessType: {
-//     type: "gate" | "call" | "doorfront" | "custom";
-//     gatePassword: string | null;
-//     customRequest: string | null;
-//   };
-//   setFoyerAccessType: (data: {
-//     type: "gate" | "call" | "doorfront" | "custom";
-//     gatePassword: string | null;
-//     customRequest: string | null;
-//   }) => void;
-// }
-
 export default function DeliveryRequestSelector() {
-  // const [isModalOpen, setIsModalOpen] = useState(false);
-  // const [tempPassword, setTempPassword] = useState(foyerAccessType.gatePassword || "");
-  // const [tempCustomRequest, setTempCustomRequest] = useState(foyerAccessType.gatePassword || "");
-
   const router = useRouter();
   const requestMessage = useOrderStore(state => state.requestMessage);
   const foyerAccessType = useOrderStore(state => state.foyerAccessType);
-
-  // const handleSelect = (type: "gate" | "call" | "doorfront" | "custom") => {
-  //   setFoyerAccessType({
-  //     type,
-  //     gatePassword: type === "gate" ? tempPassword : null,
-  //     customRequest: type === "custom" ? tempCustomRequest : null,
-  //   });
-  // };
-
-  // const handleSave = () => {
-  //   if (foyerAccessType.type === "gate") {
-  //     setFoyerAccessType({ type: "gate", gatePassword: tempPassword, customRequest: null });
-  //     setRequestMessage("공동현관으로 올라오세요");
-  //   } else if (foyerAccessType.type === "custom") {
-  //     setFoyerAccessType({ type: "custom", gatePassword: null, customRequest: tempCustomRequest });
-  //     setRequestMessage("직접 입력");
-  //   } else if (foyerAccessType.type === "call") {
-  //     setRequestMessage("전화주시면 마중 나갈게요");
-  //   } else {
-  //     setRequestMessage("문 앞에 두면 가져갈게요");
-  //   }
-  //   setIsModalOpen(false);
-  // };
-
-  // useEffect(() => {
-  //   setTempPassword(foyerAccessType.gatePassword || "");
-  //   setTempCustomRequest(foyerAccessType.customRequest || "");
-  // }, [foyerAccessType]);
 
   return (
     <>

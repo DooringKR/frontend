@@ -51,6 +51,10 @@ export default function PickUpClientPage() {
   const { id: userId } = useUserStore.getState();
 
   useEffect(() => {
+    useOrderStore.getState().setReceiveMethod("PICK_UP");
+  }, []);
+
+  useEffect(() => {
     if (!recipientPhoneNumber && user_phoneNumber) {
       setRecipientPhoneNumber(user_phoneNumber);
     }

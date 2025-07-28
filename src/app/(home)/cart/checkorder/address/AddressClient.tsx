@@ -40,14 +40,6 @@ export default function AddressClientPage() {
 
   const { setAddress, address } = useOrderStore();
 
-  // 마운트 시 Zustand에서 불러온 주소 저장
-  // useEffect(() => {
-  //   setAddress1(address.address1 || "");
-  //   setAddress2(address.address2 || "");
-  //   setInitialAddress1(address.address1 || "");
-  //   setInitialAddress2(address.address2 || "");
-  // }, [address.address1, address.address2]);
-
   useEffect(() => {
     setAddress1(address.address1 || "");
     setAddress2(address.address2 || "");
@@ -62,11 +54,6 @@ export default function AddressClientPage() {
     }
   }, [address.address1, address.address2]);
 
-  // // 버튼 텍스트 조건
-  // // const isModified = address1 !== initialAddress1 || address2 !== initialAddress2;
-  // const isModified = address1 !== initialAddress1;
-  // // const buttonText = isModified ? "변경하기" : "저장하기";
-  // const buttonText = isModified && !confirmedAddressChange ? "변경하기" : "저장하기";
   const isAddress1Changed = address1 !== initialAddress1;
   const isAddress2Changed = address2 !== initialAddress2;
 
@@ -95,24 +82,7 @@ export default function AddressClientPage() {
     }
   };
 
-  // const handleSave = () => {
-  //   setAddress({ address1, address2 });
-  //   //  localStorage.setItem("order-address", JSON.stringify(addressData));
-  //   localStorage.setItem("address-storage", JSON.stringify({ state: { address1, address2 } }));
-  //   router.back(); // 뒤로가기
-  // };
-
-  // const handleSave = () => {
-  //   if (isModified && !isDeliveryPossible && !confirmedAddressChange) {
-  //     setShowConfirmModal(true);
-  //     return;
-  //   }
-
-  //   saveAndGoBack();
-  // };
-
   const handleSave = () => {
-    // const isDeliveryBlocked = isModified && !isDeliveryPossible;
     const isModified = isAddress1Changed || isAddress2Changed;
     const isDeliveryBlocked = isModified && !isDeliveryPossible;
 
@@ -132,7 +102,7 @@ export default function AddressClientPage() {
   };
 
   const isButtonDisabled = !address1 || !address2;
-  const isAddressEntered = address1.trim() !== "" && address2.trim() !== "";
+  const isAddressEntered = address1.trim() !== "";
 
   useEffect(() => {
     const fetchDeliveryAvailability = async () => {
@@ -163,14 +133,6 @@ export default function AddressClientPage() {
           <label className="text-sm font-400 text-gray-600">주소</label>
           <DaumPostcodePopup address1={address1} onComplete={handleComplete} />
 
-          {/* {deliveryMessage && (
-            <p
-              className={`mt-[-10px] h-[49px] w-full rounded-[10px] bg-[#f4f4f4] px-4 pt-[18px] text-base ${deliveryMessageColor}`}
-            >
-              {deliveryMessage}
-            </p>
-          )} */}
-
           <Input
             name="상세주소"
             type="text"
@@ -193,18 +155,12 @@ export default function AddressClientPage() {
 
           {showConfirmModal && (
             <AddressChangeConfirmModal
-              // onCancel={() => setShowConfirmModal(false)}
-              // onConfirm={() => {
-              //   handleSave();
-              //   setShowConfirmModal(false);
-              // }}
               onCancel={() => {
                 setAddress1(initialAddress1); // 초기값으로 되돌리기
                 setAddress2(initialAddress2); // 이건 상세주소까지 되돌리고 싶을 때
                 setShowConfirmModal(false); // 모달 닫기
               }}
               onConfirm={() => {
-                // saveAndGoBack(); // 바로 저장하고 뒤로가기
                 setConfirmedAddressChange(true); // 변경을 승인했음만 표시
                 setShowConfirmModal(false);
               }}
@@ -214,14 +170,6 @@ export default function AddressClientPage() {
 
         <Button
           type="button"
-          // onClick={handleSave}
-          // onClick={() => {
-          //   if (isModified && !isDeliveryPossible) {
-          //     setShowConfirmModal(true);
-          //   } else {
-          //     handleSave();
-          //   }
-          // }}
           disabled={isButtonDisabled || isCheckingDelivery}
           onClick={() => {
             if (!isAddress1Changed && !isAddress2Changed) {
