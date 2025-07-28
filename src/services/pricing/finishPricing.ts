@@ -60,7 +60,7 @@ function calculateOriginalPrice(color: string): number {
   // 헤링본 18T (30,000원)
   const herringbone18TColors = ["헤링본 18T"];
 
-  // 한솔 LPM이 파타고니아 크림인지 확실하지 않아서 확인 필요함
+  // 한솔 LPM이 파타고니아 크림이라고 함
   // 한솔 LPM (45,000원) - 파타고니아크림
   const lpmColors = ["한솔파타고니아크림"];
 
@@ -96,7 +96,7 @@ function calculateSplit(depth: number, height: number): number {
     return getSplitByHeight(height, [6, 4, 2]);
   } else if (depth >= 601 && depth <= 1000) {
     return getSplitByHeight(height, [3, 2, 1]);
-  } else if (depth >= 1001 && depth <= 1200) {
+  } else if (depth >= 1001 && depth <= 1220) {
     return 1;
   } else {
     // 기본값
@@ -112,10 +112,9 @@ function getSplitByHeight(height: number, splits: [number, number, number]): num
     return splits[0];
   } else if (height >= 401 && height <= 600) {
     return splits[1];
-  } else if (height >= 801 && height <= 2440) {
+  } else if (height >= 601 && height <= 2440) {
     return splits[2];
   } else {
-    // 601-800 범위는 명시되지 않았으므로 기본값 사용
-    return splits[1]; // 401-600과 동일하게 처리
+    return splits[2];
   }
 }

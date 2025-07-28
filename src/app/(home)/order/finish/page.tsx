@@ -13,6 +13,8 @@ import { FinishCart, useSingleCartStore } from "@/store/singleCartStore";
 
 import DepthInputSection from "./_components/DepthInputSection";
 import HeightInputSection from "./_components/HeightInputSection";
+// Hooks
+import { useFinishValidation } from "./hooks/useFinishValidation";
 
 function FinishPageContent() {
   const color = useSingleCartStore(state => (state.cart as FinishCart).color);
@@ -36,22 +38,30 @@ function FinishPageContent() {
   const [isDepthIncrease, setIsDepthIncrease] = useState(false);
   const [isHeightIncrease, setIsHeightIncrease] = useState(false);
 
+  // 유효성 검사 훅 사용
+  const { depthError, heightError, isFormValid } = useFinishValidation({
+    depth: depth ? Number(depth) : null,
+    height: height ? Number(height) : null,
+    depthIncrease: depthIncrease ? Number(depthIncrease) : null,
+    heightIncrease: heightIncrease ? Number(heightIncrease) : null,
+  });
+
   // 동기화
   useEffect(() => {
     setIsDepthIncrease(
       depthIncrease !== null &&
-      depthIncrease !== undefined &&
-      depthIncrease !== "" &&
-      Number(depthIncrease) !== 0,
+        depthIncrease !== undefined &&
+        depthIncrease !== "" &&
+        Number(depthIncrease) !== 0,
     );
   }, [depthIncrease]);
 
   useEffect(() => {
     setIsHeightIncrease(
       heightIncrease !== null &&
-      heightIncrease !== undefined &&
-      heightIncrease !== "" &&
-      Number(heightIncrease) !== 0,
+        heightIncrease !== undefined &&
+        heightIncrease !== "" &&
+        Number(heightIncrease) !== 0,
     );
   }, [heightIncrease]);
 
@@ -69,6 +79,7 @@ function FinishPageContent() {
           setIsDepthIncrease={setIsDepthIncrease}
           depthIncrease={depthIncrease ? Number(depthIncrease) : null}
           setDepthIncrease={e => setDepthIncrease(e?.toString() ?? null)}
+          depthError={depthError}
         />
         <HeightInputSection
           height={height ? Number(height) : null}
@@ -77,6 +88,7 @@ function FinishPageContent() {
           setIsHeightIncrease={setIsHeightIncrease}
           heightIncrease={heightIncrease ? Number(heightIncrease) : null}
           setHeightIncrease={e => setHeightIncrease(e?.toString() ?? null)}
+          heightError={heightError}
         />
         <BoxedInput
           label="제작 시 요청사항"
@@ -88,7 +100,7 @@ function FinishPageContent() {
           type={"1button"}
           button1Text={"다음"}
           className="w-full max-w-[500px] bg-white pb-5"
-          button1Disabled={height === null || depth === null}
+          button1Disabled={isFormValid()}
           onButton1Click={() => {
             setCart({
               type: "finish",

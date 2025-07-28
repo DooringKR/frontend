@@ -35,8 +35,6 @@ export function getPricingColorName(fullName: string): string {
     콘크리트화이트: "한솔콘크리트화이트",
     밀크화이트: "동화밀크화이트",
     카본그레이: "동화카본그레이",
-
-    // 마감재 LPM 색상 > UI에 없어서 UI 차원의 해결 필요함
     파타고니아크림: "한솔파타고니아크림",
   };
 

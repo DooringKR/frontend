@@ -67,7 +67,7 @@ function calculateSplit(width: number, height: number): number {
     return getSplitByHeight(height, [6, 4, 2]);
   } else if (width >= 601 && width <= 1000) {
     return getSplitByHeight(height, [3, 2, 1]);
-  } else if (width >= 1001 && width <= 1200) {
+  } else if (width >= 1001 && width <= 1220) {
     return 1;
   } else {
     // 기본값
@@ -83,10 +83,9 @@ function getSplitByHeight(height: number, splits: [number, number, number]): num
     return splits[0];
   } else if (height >= 401 && height <= 600) {
     return splits[1];
-  } else if (height >= 801 && height <= 2440) {
+  } else if (height >= 601 && height <= 2440) {
     return splits[2];
   } else {
-    // 601-800 범위는 명시되지 않았으므로 기본값 사용
-    return splits[1]; // 401-600과 동일하게 처리
+    return splits[2];
   }
 }
