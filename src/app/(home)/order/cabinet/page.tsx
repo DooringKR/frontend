@@ -27,6 +27,8 @@ import UpperCabinetForm from "./_components/UpperCabinetForm";
 import CabinetIcon1 from "./_components/cabinetIcon1";
 import CabinetIcon2 from "./_components/cabinetIcon2";
 import CabinetIcon3 from "./_components/cabinetIcon3";
+// Hooks
+import { useCabinetValidation } from "./hooks/useCabinetValidation";
 
 // 공통 props 타입 정의
 type CabinetFormProps = {
@@ -43,6 +45,9 @@ type CabinetFormProps = {
   setBodyMaterial: (value: string) => void;
   setIsBottomSheetOpen: (value: boolean) => void;
   router: ReturnType<typeof useRouter>;
+  widthError: string;
+  heightError: string;
+  depthError: string;
 };
 
 // 상부장 전용 props 타입 정의
@@ -147,6 +152,13 @@ function CabinetPageContent() {
   const [isDrawerTypeSheetOpen, setIsDrawerTypeSheetOpen] = useState(false);
   const [isRailTypeSheetOpen, setIsRailTypeSheetOpen] = useState(false);
 
+  // 유효성 검사 훅 사용
+  const { widthError, heightError, depthError, isFormValid } = useCabinetValidation({
+    DoorWidth,
+    DoorHeight,
+    DoorDepth,
+  });
+
   const formProps: CabinetFormProps = {
     color,
     bodyMaterial,
@@ -161,6 +173,9 @@ function CabinetPageContent() {
     setBodyMaterial,
     setIsBottomSheetOpen,
     router,
+    widthError,
+    heightError,
+    depthError,
   };
 
   const upperFormProps: UpperCabinetFormProps = {
@@ -211,45 +226,20 @@ function CabinetPageContent() {
     setFinishType,
   };
 
-  let button1Disabled = false;
+  let button1Disabled = isFormValid();
   if (category === "lower" || category === "upper") {
-    button1Disabled =
-      DoorWidth === null ||
-      DoorHeight === null ||
-      DoorDepth === null ||
-      bodyMaterial === "" ||
-      !handleType ||
-      !finishType;
+    button1Disabled = button1Disabled || bodyMaterial === "" || !handleType || !finishType;
   } else if (category === "flap") {
     button1Disabled =
-      DoorWidth === null ||
-      DoorHeight === null ||
-      DoorDepth === null ||
-      bodyMaterial === "" ||
-      !handleType ||
-      !finishType ||
-      !showBar;
+      button1Disabled || bodyMaterial === "" || !handleType || !finishType || !showBar;
   } else if (category === "drawer") {
     button1Disabled =
-      DoorWidth === null ||
-      DoorHeight === null ||
-      DoorDepth === null ||
-      bodyMaterial === "" ||
-      !drawerType ||
-      !railType ||
-      !finishType;
+      button1Disabled || bodyMaterial === "" || !drawerType || !railType || !finishType;
   } else if (category === "open") {
     button1Disabled =
-      DoorWidth === null ||
-      DoorHeight === null ||
-      DoorDepth === null ||
-      bodyMaterial === "" ||
-      !riceRail ||
-      !lowerDrawer ||
-      !finishType;
+      button1Disabled || bodyMaterial === "" || !riceRail || !lowerDrawer || !finishType;
   } else {
-    button1Disabled =
-      DoorWidth === null || DoorHeight === null || DoorDepth === null || bodyMaterial === "";
+    button1Disabled = button1Disabled || bodyMaterial === "";
   }
 
   return (
