@@ -19,6 +19,7 @@ export async function getCart(req: Request, res: Response) {
   const items = cart.cart_items.map(item => ({
     cart_item_id: item.id,
     product_type: item.product_type,
+    unit_price: item.unit_price,
     item_count: item.item_count,
     item_options: item.item_options,
   }));
