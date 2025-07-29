@@ -144,6 +144,8 @@ function PhoneLoginPage() {
           setDuplicateStatus('available');
           setShowBottomButton(false);
           setShowSignupFlow(true);
+          // 업체유형 선택 모달 바로 띄우기
+          setShowUserTypeBottomSheet(true);
           // 포커스 해제
           inputRef.current?.blur();
         }

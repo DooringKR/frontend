@@ -57,34 +57,38 @@ export async function addOrderItem(req: Request, res: Response) {
   });
 }
 
-// PUT /order_item/:order_item_id — 특정 주문 아이템 옵션 수정
+// PUT /order_item/:order_item_id
 export async function updateOrderItem(req: Request, res: Response) {
   const id = Number(req.params.order_item_id);
   if (isNaN(id)) {
     return res.status(400).json({ message: 'order_item_id는 정수여야 합니다' });
   }
-  const { item_options } = req.body;
+  const { item_options, item_count } = req.body;
   if (typeof item_options !== 'object') {
     return res.status(400).json({ message: 'item_options는 객체여야 합니다' });
   }
-
+  const updateData: any = { item_options };
+  if (typeof item_count === 'number' && item_count > 0) {
+    updateData.item_count = item_count;
+  }
   try {
     const updated = await prisma.orderItem.update({
       where: { order_item_id: id },
-      data: { item_options },
+      data: updateData,
     });
     return res.status(200).json({
       order_item_id: updated.order_item_id,
-      order_id:      updated.order_id,
-      product_type:  updated.product_type,
-      unit_price:    updated.unit_price,
-      item_count:    updated.item_count,
-      item_options:  updated.item_options,
+      order_id: updated.order_id,
+      product_type: updated.product_type,
+      unit_price: updated.unit_price,
+      item_count: updated.item_count,
+      item_options: updated.item_options,
     });
   } catch {
     return res.status(404).json({ message: '해당 주문 아이템이 없습니다' });
   }
 }
+
 
 // DELETE /order_item/:order_item_id — 특정 주문 아이템 삭제
 export async function deleteOrderItem(req: Request, res: Response) {
