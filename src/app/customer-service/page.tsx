@@ -23,14 +23,27 @@ function CustomerServicePage() {
             </h1>
           </div>
           <div className="pb-[100px] pt-10">
-            <div className="flex justify-between py-[10px]">
+            <div
+              className="flex cursor-pointer justify-between py-[10px]"
+              onClick={() => {
+                window.open("tel:010-9440-1874", "_blank");
+              }}
+            >
               <div className="flex gap-2">
                 <img src={"icons/phone.svg"} alt="전화기 아이콘" />
                 <span className="text-[17px] font-600">전화 문의</span>
               </div>
               <ContactStatusChip isContactAvailable={false} />
             </div>
-            <div className="flex justify-between py-[10px]">
+            <div
+              className="flex cursor-pointer justify-between py-[10px]"
+              onClick={() => {
+                window.open(
+                  "https://pf.kakao.com/_BlAHG",
+                  "_blank",
+                );
+              }}
+            >
               <div className="flex gap-2">
                 <img src={"icons/kakaoTalk.svg"} alt="카카오톡 아이콘" />
                 <span className="text-[17px] font-600">카카오톡 채널</span>
