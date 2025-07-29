@@ -1,12 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-
 function UnavailableDeliveryFooter() {
-  const router = useRouter();
-
   const handleClick = () => {
-    router.push("/customer-service");
+    window.open("tel:010-9440-1874", "_blank");
   };
 
   return (
