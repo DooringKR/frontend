@@ -54,34 +54,39 @@ export async function addCartItem(req: Request, res: Response) {
   });
 }
 
-// PUT /cart_item/:cart_item_id — 특정 상품 옵션 수정
+// PUT /cart_item/:cart_item_id
 export async function updateCartItem(req: Request, res: Response) {
   const id = Number(req.params.cart_item_id);
   if (isNaN(id)) {
     return res.status(400).json({ message: 'cart_item_id는 정수여야 합니다' });
   }
-  const { item_options } = req.body;
+  const { item_options, item_count } = req.body;
   if (typeof item_options !== 'object') {
     return res.status(400).json({ message: 'item_options는 객체여야 합니다' });
   }
-
+  // 동시에 둘다 바꿀 수도, item_options만 바꿀 수도 있음!
+  const updateData: any = { item_options };
+  if (typeof item_count === 'number' && item_count > 0) {
+    updateData.item_count = item_count;
+  }
   try {
     const updated = await prisma.cartItem.update({
       where: { id },
-      data: { item_options },
+      data: updateData,
     });
     return res.status(200).json({
       cart_item_id: updated.id,
-      cart_id:      updated.cart_id,
+      cart_id: updated.cart_id,
       product_type: updated.product_type,
-      unit_price:   updated.unit_price,
-      item_count:   updated.item_count,
+      unit_price: updated.unit_price,
+      item_count: updated.item_count,
       item_options: updated.item_options,
     });
   } catch {
     return res.status(404).json({ message: '해당 장바구니 아이템이 없습니다' });
   }
 }
+
 
 // DELETE /cart_item/:cart_item_id — 특정 장바구니 아이템 삭제
 export async function deleteCartItem(req: Request, res: Response) {
