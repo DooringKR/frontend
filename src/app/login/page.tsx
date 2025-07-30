@@ -117,7 +117,6 @@ function PhoneLoginPage() {
     const formatted = formatPhoneNumber(value);
     setValue("user_phoneNumber", formatted, {
       shouldValidate: true,
-      shouldDirty: true,
     });
 
     // 전화번호가 변경되면 상태 초기화
@@ -128,38 +127,46 @@ function PhoneLoginPage() {
     // 하이픈 제거 후 11자리인지 확인
     const cleanPhoneNumber = formatted.replace(/-/g, "");
     if (cleanPhoneNumber.length === 11) {
-      // 11자리가 되면 즉시 포커스 해제
-      setTimeout(() => {
+      // 유효성 검사를 위해 잠시 대기 (React 상태 업데이트 대기)
+      setTimeout(async () => {
+        // 유효성 검사가 실패하면 중복 체크를 진행하지 않음
+        if (errors.user_phoneNumber) {
+          setDuplicateStatus("none");
+          setShowBottomButton(false);
+          return;
+        }
+
+        // 11자리가 되면 즉시 포커스 해제
         if (document.activeElement instanceof HTMLElement) {
           document.activeElement.blur();
         }
-      }, 0);
 
-      try {
-        setIsCheckingDuplicate(true);
-        setDuplicateStatus("checking");
-        console.log("자동 중복 체크 시작:", formatted);
+        try {
+          setIsCheckingDuplicate(true);
+          setDuplicateStatus("checking");
+          console.log("자동 중복 체크 시작:", formatted);
 
-        const isDuplicate = await checkPhoneDuplicate(formatted);
-        console.log("중복 체크 결과:", isDuplicate ? "중복됨" : "중복아님");
+          const isDuplicate = await checkPhoneDuplicate(formatted);
+          console.log("중복 체크 결과:", isDuplicate ? "중복됨" : "중복아님");
 
-        if (isDuplicate) {
-          setDuplicateStatus("duplicate");
-          setShowBottomButton(true);
-        } else {
-          setDuplicateStatus("available");
-          setShowBottomButton(false);
-          setShowSignupFlow(true);
-          // 업체유형 선택 모달 바로 띄우기
-          setShowUserTypeBottomSheet(true);
+          if (isDuplicate) {
+            setDuplicateStatus("duplicate");
+            setShowBottomButton(true);
+          } else {
+            setDuplicateStatus("available");
+            setShowBottomButton(false);
+            setShowSignupFlow(true);
+            // 업체유형 선택 모달 바로 띄우기
+            setShowUserTypeBottomSheet(true);
+          }
+        } catch (error) {
+          console.error("자동 중복 체크 실패:", error);
+          setDuplicateStatus("none");
+          // 에러가 발생해도 사용자 입력은 계속 가능하도록 함
+        } finally {
+          setIsCheckingDuplicate(false);
         }
-      } catch (error) {
-        console.error("자동 중복 체크 실패:", error);
-        setDuplicateStatus("none");
-        // 에러가 발생해도 사용자 입력은 계속 가능하도록 함
-      } finally {
-        setIsCheckingDuplicate(false);
-      }
+      }, 0);
     } else {
       setDuplicateStatus("none");
       setShowBottomButton(false);
