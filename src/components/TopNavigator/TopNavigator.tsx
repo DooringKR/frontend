@@ -1,6 +1,6 @@
 "use client";
 
-import { CUSTOMER_SERVICE_PAGE, HOME_PAGE, MY_PAGE } from "@/constants/pageName";
+import { CUSTOMER_SERVICE_PAGE, HOME_PAGE, LICENSE_PAGE, MY_PAGE } from "@/constants/pageName";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import HeadphonesIcon from "public/icons/Headphones";
@@ -19,9 +19,12 @@ const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, cartItemCount 
     <div className="flex h-[60px] w-full flex-shrink-0 items-center justify-between gap-[12px] px-[20px]">
       {page === HOME_PAGE ? (
         <h3 className="text-xl font-700">바로가구</h3>
+      ) : page === MY_PAGE ? (
+        <button onClick={() => router.replace("/")} className="flex items-center justify-center">
+          <img src={"/icons/close.svg"} alt="엑스 아이콘" />
+        </button>
       ) : (
         <button onClick={() => router.back()} className="flex items-center justify-center">
-          {/* 뒤로가기 버튼 */}
           <ChevronLeft />
         </button>
       )}
@@ -31,8 +34,11 @@ const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, cartItemCount 
 
       {/* Headphones Icon */}
 
-      {page === CUSTOMER_SERVICE_PAGE || page === HOME_PAGE || page === MY_PAGE ? (
-        <div></div>
+      {page === CUSTOMER_SERVICE_PAGE ||
+      page === HOME_PAGE ||
+      page === MY_PAGE ||
+      page === LICENSE_PAGE ? (
+        <div className="h-6 w-6"></div>
       ) : (
         <Link href={"/customer-service"}>
           <button className="flex items-center justify-center">

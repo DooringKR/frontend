@@ -1,6 +1,8 @@
 import { SigninUser, SignupUser, User } from "@/types/apiType";
 
 import useAddressStore from "@/store/addressStore";
+import useCartStore from "@/store/cartStore";
+import { useOrderStore } from "@/store/orderStore";
 import useUserStore from "@/store/userStore";
 
 // 전화번호 중복 확인 (GET 방식)
@@ -177,6 +179,15 @@ export function logout(): void {
   useAddressStore.getState().clearAddress();
   useAddressStore.persist.clearStorage();
   console.log("로그아웃 완료 - localStorage 초기화");
+  // 주문 관련 상태 초기화
+  useOrderStore.getState().clearOrder();
+  useOrderStore.persist?.clearStorage?.();
+
+  // 장바구니 초기화
+  useCartStore.getState().clearCartItems();
+  useCartStore.persist?.clearStorage?.();
+
+  localStorage.removeItem("recentOrder");
 }
 
 // 유저 주소 수정 API 호출
