@@ -52,6 +52,8 @@ const DETAIL_KEY_LABEL_MAP: Record<string, string> = {
   "hardware_request": "하드웨어 요청사항",
 };
 
+const withExtraLine = (s: string) => s + "\n";
+
 function formatDateToYMDHM(date: Date): string {
   // YYYY-MM-DD HH:mm (초 생략)
   const yyyy = date.getFullYear();
@@ -172,7 +174,7 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
     paragraph: {
       rich_text: [
         { type: "text", text: { content:
-`${productTypesStats}
+`${productTypesStats}\n
 총 금액: ${payload.orderPrice.toLocaleString()}원
 주문 일시: ${orderedAtText}
 주문한 분 휴대전화 번호: ${payload.userPhone}
@@ -192,28 +194,26 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
       ? Object.entries(item.item_options)
           .map(([k, v]) => {
             const label = DETAIL_KEY_LABEL_MAP[k] || k;
-            return `${label}: ${v ?? "-"}`;
+            return `${label}: ${v ?? "-"}\n`;
           })
           .join(" | ")
       : "-";
   const total = (item.unit_price ?? 0) * item.item_count;
-  return {
-    object: "block",
-    type: "paragraph",
-    paragraph: {
-      rich_text: [
-        {
-          type: "text", text: {
-            content:
-`${i + 1}. [${PRODUCT_TYPE_LABEL[item.product_type]}]
-- 세부종류: ${optionStr}
+  const textContent = 
+  `${i + 1}. [${PRODUCT_TYPE_LABEL[item.product_type]}]
+- 세부종류: \n${optionStr}
 - 개수: ${item.item_count}
 - 단가: ${item.unit_price?.toLocaleString() ?? "-"}원
 - 총 금액: ${total?.toLocaleString() ?? "-"}원
-`
-          }
-        }
-      ]
+`;
+  
+  return {
+    object: "block",
+    type: "callout",
+    callout: {
+      rich_text: [
+        { type: "text", text: { content: textContent } }
+      ],
     }
   };
 });
