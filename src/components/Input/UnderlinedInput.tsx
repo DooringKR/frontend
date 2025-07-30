@@ -49,7 +49,23 @@ const UnderlinedInput: React.FC<UnderlinedInputProps> = ({
   const textColor = "text-[#1e1e1e]";
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
+    let newValue = e.target.value;
+
+    // 전화번호 타입일 때 하이픈 자동 추가
+    if (type === "tel") {
+      // 숫자만 추출
+      const numbers = newValue.replace(/[^0-9]/g, "");
+
+      // 하이픈 추가 로직
+      if (numbers.length <= 3) {
+        newValue = numbers;
+      } else if (numbers.length <= 7) {
+        newValue = `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+      } else {
+        newValue = `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
+      }
+    }
+
     setInputValue(newValue);
     if (onChange) {
       onChange(newValue);
