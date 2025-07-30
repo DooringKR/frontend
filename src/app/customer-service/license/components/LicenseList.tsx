@@ -1,6 +1,5 @@
+import { LicenseItem } from "@/constants/license/licenseData";
 import Link from "next/link";
-
-import { LicenseItem } from "../page";
 
 interface Props {
   list: LicenseItem[];

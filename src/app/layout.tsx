@@ -23,6 +23,23 @@ function RootLayout({
 }>) {
   return (
     <html lang="ko">
+      <head>
+        {/* Amplitude 스크립트 */}
+        <script src="https://cdn.amplitude.com/libs/analytics-browser-2.11.1-min.js.gz"></script>
+        <script src="https://cdn.amplitude.com/libs/plugin-session-replay-browser-1.8.0-min.js.gz"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.amplitude.add(window.sessionReplay.plugin({sampleRate: 1}));
+              window.amplitude.init('66eecfdad205c95650a11f88c68b1d96', {
+                "autocapture": {
+                  "elementInteractions": true
+                }
+              });
+            `,
+          }}
+        />
+      </head>
       <body className="mx-auto min-h-screen max-w-[500px]">{children}</body>
     </html>
   );

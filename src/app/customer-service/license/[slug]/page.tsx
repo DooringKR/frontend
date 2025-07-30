@@ -1,20 +1,13 @@
 // /customer-service/license/[slug]/page.tsx
-import { LICENSE_CONTENTS } from "@/constants/licenseContents";
+import { LICENSE_CONTENTS } from "@/constants/license/licenseContents";
+import { LICENSE_LIST } from "@/constants/license/licenseData";
 import { LICENSE_PAGE } from "@/constants/pageName";
 import { notFound } from "next/navigation";
 
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
-import { LICENSE_LIST } from "../page";
-
-type Params = {
-  params: {
-    slug: string;
-  };
-};
-
-export default function LicenseDetailPage({ params }: Params) {
-  const { slug } = params;
+export default async function LicenseDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const content = LICENSE_CONTENTS[slug];
   const license = LICENSE_LIST.find(item => item.slug === slug);
 
