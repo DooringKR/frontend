@@ -21,6 +21,14 @@ export default function DeliveryRequestClientPage() {
   const [tempPassword, setTempPassword] = useState(foyerAccessType.gatePassword || "");
   const [tempCustomRequest, setTempCustomRequest] = useState(foyerAccessType.customRequest || "");
 
+  const receiveMethod = useOrderStore(state => state.receiveMethod);
+
+  useEffect(() => {
+    if (receiveMethod !== "DELIVERY") {
+      router.replace("/cart/receive-option");
+    }
+  }, [receiveMethod]);
+
   useEffect(() => {
     setTempPassword(foyerAccessType.gatePassword || "");
     setTempCustomRequest(foyerAccessType.customRequest || "");
@@ -48,7 +56,10 @@ export default function DeliveryRequestClientPage() {
     }
     router.back();
   };
-
+  const isSaveDisabled =
+    !foyerAccessType.type ||
+    (foyerAccessType.type === "custom" && tempCustomRequest.trim() === "") ||
+    (foyerAccessType.type === "gate" && tempPassword.trim() === "");
   return (
     <div className="flex h-screen flex-col bg-white pb-5">
       <TopNavigator />
@@ -115,7 +126,12 @@ export default function DeliveryRequestClientPage() {
         </div>
       </div>
       <div className="px-5">
-        <Button selected={true} onClick={handleSave} className="w-full rounded-md">
+        <Button
+          selected={true}
+          onClick={handleSave}
+          className="w-full rounded-md"
+          disabled={isSaveDisabled}
+        >
           저장하기
         </Button>
       </div>

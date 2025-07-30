@@ -38,7 +38,7 @@ export default function Page() {
   const setCartItems = useCartStore(state => state.setCartItems);
   const cartItems = useCartStore(state => state.cartItems);
   const [cartItemCount, setCartItemCount] = useState(0);
-
+  const [isCheckingDelivery, setIsCheckingDelivery] = useState(false);
   useEffect(() => {
     if (userAddress1 && userAddress2) {
       setAddress(userAddress1, userAddress2);
@@ -74,6 +74,7 @@ export default function Page() {
   useEffect(() => {
     const checkDelivery = async () => {
       if (address1) {
+        setIsCheckingDelivery(true);
         try {
           const info = await calculateDeliveryInfo(address1);
 
@@ -107,6 +108,8 @@ export default function Page() {
           setDeliverySchedule("other");
           setTimeLimit(undefined);
           setArrivalDate(undefined);
+        } finally {
+          setIsCheckingDelivery(false);
         }
       } else {
         setDeliverySchedule("");
@@ -142,8 +145,12 @@ export default function Page() {
   }
 
   let addressIndicatorProps: AddressIndicatorProps;
-
-  if (!address1) {
+  if (isCheckingDelivery) {
+    addressIndicatorProps = {
+      deliverySchedule: "",
+      timeLimit: "배송 정보 계산 중...",
+    };
+  } else if (!address1) {
     addressIndicatorProps = {
       deliverySchedule: "",
     };

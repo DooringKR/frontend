@@ -72,7 +72,7 @@ export default function PhoneClientPage() {
           disabled={!!errorMessage}
           className="mt-4"
         >
-          저장하기
+          {tempPhoneNumber === recipientPhoneNumber ? "확인" : "저장하기"}
         </Button>
       </div>
     </div>
