@@ -384,6 +384,7 @@ export default function CartClient() {
                   <ShoppingCartCard
                     key={key}
                     type="door"
+                    totalPrice={doorItem.price * doorItem.count} // 총 금액
                     title={getCategoryLabel(doorItem.doorType, DOOR_CATEGORY_LIST, "문짝")}
                     color={formatColor(doorItem.color)}
                     width={Number(doorItem.width)}
@@ -407,6 +408,7 @@ export default function CartClient() {
                   <ShoppingCartCard
                     key={key}
                     type="finish"
+                    totalPrice={finishItem.price * finishItem.count} // 총 금액
                     title="마감재"
                     color={formatColor(finishItem.color)}
                     depth={finishItem.baseDepth}
@@ -428,6 +430,7 @@ export default function CartClient() {
                   <ShoppingCartCard
                     key={key}
                     type="cabinet"
+                    totalPrice={cabinetItem.price * cabinetItem.count} // 총 금액
                     title={getCategoryLabel(
                       cabinetItem.cabinetType,
                       CABINET_CATEGORY_LIST,
@@ -511,8 +514,8 @@ export default function CartClient() {
           <PriceSummaryCard getTotalPrice={getTotalPrice} categoryMap={CATEGORY_MAP} />
         </div>
       </div>
-
-      <div className="w-full max-w-[500px] bg-white">
+      <div className="h-[100px]"></div>
+      <div className="fixed bottom-0 w-full max-w-[500px] bg-white">
         <BottomButton
           type="textcombo+button"
           textComboText={{

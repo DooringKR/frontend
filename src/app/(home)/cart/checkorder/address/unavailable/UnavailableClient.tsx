@@ -1,21 +1,21 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import ClockIcon from "public/icons/clock";
+import TruckIcon from "public/icons/truck";
+import WrenchIcon from "public/icons/wrench";
 import { useEffect, useState } from "react";
 
+import BottomButton from "@/components/BottomButton/BottomButton";
 import Button from "@/components/Button/Button";
 import CurrentTime from "@/components/DeliveryTimeCheck/CurrentTime";
+import GrayVerticalLine from "@/components/GrayVerticalLine/GrayVerticalLine";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { useOrderStore } from "@/store/orderStore";
 import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 
 import UnavailableDeliveryFooter from "../_components/UnavailableDeliveryFooter";
-import TruckIcon from "public/icons/truck";
-import GrayVerticalLine from "@/components/GrayVerticalLine/GrayVerticalLine";
-import WrenchIcon from "public/icons/wrench";
-import ClockIcon from "public/icons/clock";
-import BottomButton from "@/components/BottomButton/BottomButton";
 
 function UnavailableClientPage() {
   const router = useRouter();
@@ -88,14 +88,12 @@ function UnavailableClientPage() {
         <div className="flex flex-grow flex-col gap-5">
           <img src={"/icons/exclamation-mark.svg"} alt="느낌표 아이콘" className="h-12 w-12" />
           <div className="flex flex-col gap-2">
-            <h1 className="text-[26px] font-700">
-              입력한 주소는 오늘배송 불가해요.
-            </h1>
+            <h1 className="text-[26px] font-700">입력한 주소는 오늘배송 불가해요.</h1>
             <span className="text-[17px] font-400 text-gray-500">
               예상 도착시간이 18시보다 늦으면 오늘배송 불가해요
             </span>
           </div>
-          <div className="flex flex-col py-[40px] px-5">
+          <div className="flex flex-col px-5 py-[40px]">
             {/* 예상 도착 시간 */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -108,7 +106,12 @@ function UnavailableClientPage() {
             </div>
             {/* 소요시간 계산 */}
             <div className="flex gap-3 py-2">
-              <GrayVerticalLine isExpanded={true} expandedMinHeight="72px" marginX="mx-[14.5px]" width="w-[3px]" />
+              <GrayVerticalLine
+                isExpanded={true}
+                expandedMinHeight="72px"
+                marginX="mx-[14.5px]"
+                width="w-[3px]"
+              />
               <span className="text-[16px]/[22px] font-400 text-gray-500">
                 {address.address1}까지 {formatRemainingTime()} 걸려요
               </span>
@@ -119,11 +122,18 @@ function UnavailableClientPage() {
                 <WrenchIcon width={32} height={32} />
                 <span className="text-[17px]/[24px] font-600 text-gray-800">주문 확인 및 제작</span>
               </div>
-              <span className="text-[17px]/[24px] font-600 text-blue-500">{formatCurrentTimePlus30()}</span>
+              <span className="text-[17px]/[24px] font-600 text-blue-500">
+                {formatCurrentTimePlus30()}
+              </span>
             </div>
             {/* 주문 접수 및 제작 시간 */}
             <div className="flex gap-3 py-2">
-              <GrayVerticalLine isExpanded={true} expandedMinHeight="72px" marginX="mx-[14.5px]" width="w-[3px]" />
+              <GrayVerticalLine
+                isExpanded={true}
+                expandedMinHeight="72px"
+                marginX="mx-[14.5px]"
+                width="w-[3px]"
+              />
               <span className="text-[16px]/[22px] font-400 text-gray-500">
                 주문 확인하고 제작까지 30분 걸려요
               </span>
@@ -190,8 +200,9 @@ function UnavailableClientPage() {
         </div>
         <UnavailableDeliveryFooter />
       </div>
+      <div className="h-[100px]"></div>
       <BottomButton
-        className="px-5"
+        className="fixed bottom-0 w-full max-w-[500px] px-5 pb-5 pt-3"
         type={"2buttons"}
         button1Type="BrandInverse"
         button1Text="확인했어요"

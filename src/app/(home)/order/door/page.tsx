@@ -213,10 +213,11 @@ function DoorPageContent() {
           onChange={e => setRequest(e.target.value)}
         />
       </div>
+      <div className="h-[100px]"></div>
       <BottomButton
         type={"1button"}
         button1Text={"다음"}
-        className="px-5 pb-5"
+        className="fixed bottom-0 w-full max-w-[500px] px-5 pb-5"
         button1Disabled={isFormValid()}
         onButton1Click={() => {
           useSingleCartStore.setState({

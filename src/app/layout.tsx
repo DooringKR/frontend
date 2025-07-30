@@ -24,6 +24,17 @@ function RootLayout({
   return (
     <html lang="ko">
       <head>
+        {/* Pretendard 폰트 preload */}
+        <link
+          rel="preload"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+          as="style"
+        />
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+        />
+
         {/* Amplitude 스크립트 */}
         <script src="https://cdn.amplitude.com/libs/analytics-browser-2.11.1-min.js.gz"></script>
         <script src="https://cdn.amplitude.com/libs/plugin-session-replay-browser-1.8.0-min.js.gz"></script>
