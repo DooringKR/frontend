@@ -52,3 +52,33 @@ export const deleteCartItem = async (cartItemId: number) => {
 
   console.log("삭제 성공:", cartItemId);
 };
+
+// 아이템 수량 변경
+
+export const updateCartItem = async (cartItemId: number, itemOptions: any, itemCount: number) => {
+  try {
+    const res = await fetch(`/api/cart_item/${cartItemId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        item_options: itemOptions,
+        item_count: itemCount,
+      }),
+    });
+
+    console.log("📡 응답 status:", res.status);
+    const text = await res.text();
+    console.log("📄 응답 내용:", text);
+
+    if (!res.ok) {
+      throw new Error(`수정 실패: ${res.status}`);
+    }
+
+    return JSON.parse(text);
+  } catch (err) {
+    console.error("❌ updateCartItem 오류:", err);
+    throw err;
+  }
+};

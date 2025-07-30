@@ -46,12 +46,12 @@ export default function OrderConfirmPage() {
   const cartItems = useCartStore(state => state.cartItems);
   console.log(cartItems);
 
-  const ALL_CATEGORIES = [
-    ...DOOR_CATEGORY_LIST,
-    ...ACCESSORY_CATEGORY_LIST,
-    ...HARDWARE_CATEGORY_LIST,
-    ...CABINET_CATEGORY_LIST,
-  ];
+  // const ALL_CATEGORIES = [
+  //   ...DOOR_CATEGORY_LIST,
+  //   ...ACCESSORY_CATEGORY_LIST,
+  //   ...HARDWARE_CATEGORY_LIST,
+  //   ...CABINET_CATEGORY_LIST,
+  // ];
 
   useEffect(() => {
     const recentOrderRaw = localStorage.getItem("recentOrder");
@@ -95,7 +95,6 @@ export default function OrderConfirmPage() {
     }
 
     // 클라이언트 상태 초기화
-    localStorage.removeItem("cartItems");
     localStorage.removeItem("recentOrder");
     useCurrentOrderStore.getState().clearCurrentItem();
 

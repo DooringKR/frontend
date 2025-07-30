@@ -56,6 +56,8 @@ function CheckOrderClientPage() {
   const [deliveryMessage, setDeliveryMessage] = useState("");
   const [deliveryMessageColor, setDeliveryMessageColor] = useState("text-black");
   const [isTodayAvailable, setIsTodayAvailable] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   const cartId = useCartStore(state => state.cartId);
   const cartItems = useCartStore(state => state.cartItems);
   const userId = useUserStore.getState().id;
@@ -66,6 +68,7 @@ function CheckOrderClientPage() {
   const hour = useOrderStore(state => state.deliveryHour);
 
   const minute = useOrderStore(state => state.deliveryMinute);
+
   useEffect(() => {
     useOrderStore.getState().setReceiveMethod("DELIVERY");
   }, []);
@@ -167,6 +170,7 @@ function CheckOrderClientPage() {
   };
 
   const handleOrderSubmit = async () => {
+    setIsLoading(true);
     const totalPrice = cartItems.reduce((sum, item) => sum + item.price * (item.count || 1), 0);
 
     if (!userId || !cartId) {
@@ -186,10 +190,13 @@ function CheckOrderClientPage() {
     try {
       const order = await createOrder(payload);
       const orderId = order.order_id;
+      console.log("오더아이디", orderId);
 
       // 장바구니 항목을 기반으로 order_item 생성
-      await Promise.all(
+      const createdItems = await Promise.all(
         cartItems.map(item => {
+          console.log("🧾 category 확인:", item.category);
+          console.log("내부에서 오더아이디", orderId);
           const itemPayload = {
             order_id: orderId,
             product_type: item.category?.toUpperCase(),
@@ -202,12 +209,15 @@ function CheckOrderClientPage() {
           return createOrderItem(itemPayload);
         }),
       );
+
       console.log("🚚 order_item 요청 payload:", payload);
       localStorage.setItem("recentOrder", JSON.stringify(order));
       router.push("/cart/confirm");
     } catch (error) {
       console.error("❌ 주문 생성 실패:", error);
       alert("주문 생성에 실패했습니다.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -254,9 +264,9 @@ function CheckOrderClientPage() {
           selected={true}
           onClick={handleOrderSubmit}
           className="w-full"
-          disabled={isRequestInvalid}
+          disabled={isRequestInvalid || isLoading}
         >
-          주문 접수하기
+          {isLoading ? "주문 요청 중..." : "주문 접수하기"}
         </Button>
       </div>
     </div>

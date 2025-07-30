@@ -1,6 +1,6 @@
 "use client";
 
-import { createOrder } from "@/api/orderApi";
+import { createOrder, createOrderItem } from "@/api/orderApi";
 import { CHECK_ORDER_PAGE } from "@/constants/pageName";
 import {
   AccessoryItem,
@@ -40,6 +40,7 @@ export default function PickUpClientPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [cartItems, setCartItems] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const { cartItems: globalCartItems } = useCartStore();
   const [groupedCartItems, setGroupedCartItems] = useState<Record<string, AnyCartItem[]>>({});
   const { cartId } = useCartStore.getState();
@@ -78,6 +79,7 @@ export default function PickUpClientPage() {
   }, [cartItems]);
 
   const handleSubmit = async () => {
+    setIsLoading(true);
     const totalPrice = cartItems.reduce((sum, item) => sum + item.price * (item.count || 1), 0);
 
     const {
@@ -91,10 +93,12 @@ export default function PickUpClientPage() {
 
     if (!userId || !cartId) {
       alert("주문에 필요한 정보가 부족합니다.");
+      setIsLoading(false);
       return;
     }
     if (!pickupInfo.vehicleType) {
       alert("픽업 차량 종류를 선택해주세요.");
+      setIsLoading(false);
       return;
     }
 
@@ -118,11 +122,28 @@ export default function PickUpClientPage() {
 
     try {
       const order = await createOrder(payload);
+      const orderId = order.order_id;
+      await Promise.all(
+        cartItems.map(item => {
+          const itemPayload = {
+            order_id: orderId,
+            product_type: item.category?.toUpperCase(),
+            unit_price: item.price,
+            item_count: item.count ?? 1,
+            item_options: item,
+          };
+          console.log("🧾 픽업용 order_item payload:", itemPayload);
+          return createOrderItem(itemPayload);
+        }),
+      );
+
       localStorage.setItem("recentOrder", JSON.stringify(order));
       router.push("/cart/confirm");
     } catch (error) {
       console.error("❌ 주문 생성 실패:", error);
       alert("주문 생성에 실패했습니다.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -130,7 +151,7 @@ export default function PickUpClientPage() {
     cartItems.reduce((sum, item) => sum + (item?.price ?? 0) * (item?.count ?? 1), 0);
 
   const isVehicleNotSelected = !pickupInfo.vehicleType || pickupInfo.vehicleType === "선택해주세요";
-
+  const isDisabled = isVehicleNotSelected || isLoading;
   return (
     <div>
       <TopNavigator title="주문하기" />
@@ -158,8 +179,8 @@ export default function PickUpClientPage() {
 
       <BottomButton
         type={"1button"}
-        button1Text="주문 접수하기"
-        className={`p-5 ${isVehicleNotSelected ? "pointer-events-none opacity-50" : ""}`}
+        button1Text={isLoading ? "주문 요청 중..." : "주문 접수하기"}
+        className={`p-5 ${isDisabled ? "pointer-events-none opacity-50" : ""}`}
         onButton1Click={handleSubmit}
       />
     </div>

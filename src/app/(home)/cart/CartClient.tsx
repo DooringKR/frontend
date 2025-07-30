@@ -1,6 +1,6 @@
 "use client";
 
-import { deleteCartItem, getCartItems } from "@/api/cartApi";
+import { deleteCartItem, getCartItems, updateCartItem } from "@/api/cartApi";
 import {
   ACCESSORY_CATEGORY_LIST,
   CABINET_CATEGORY_LIST,
@@ -64,6 +64,8 @@ export default function CartClient() {
   const cartItems = useCartStore(state => state.cartItems);
   const userId = useUserStore.getState().id;
 
+  const [originalItemOptionsMap, setOriginalItemOptionsMap] = useState<Record<number, any>>({});
+
   useEffect(() => {
     const fetchCart = async () => {
       try {
@@ -75,8 +77,11 @@ export default function CartClient() {
         console.log("🍎 아이템 data확인:", data);
         console.log("🍎 price는?", data.items);
         const convertedItems: AnyCartItem[] = [];
-
+        const itemOptionsMap: Record<number, any> = {};
         data.items.forEach((item: any) => {
+          const id = item.cart_item_id;
+          itemOptionsMap[id] = item.item_options;
+
           const category = item.product_type.toLowerCase();
           const rawType = item.item_options.door_type?.toLowerCase() ?? "";
           const slug = DOOR_TYPE_SLUG_MAP[rawType] ?? rawType;
@@ -193,14 +198,15 @@ export default function CartClient() {
           }
         });
 
+        setOriginalItemOptionsMap(itemOptionsMap);
+
         console.log("🧪 변환된 장바구니 아이템:", convertedItems);
-        // useCartStore.getState().setCartItems(convertedItems);
-        // setCartId(data.cart_id);
+
         console.log("🛒 setCartItems 호출 후 cartItems:", convertedItems);
 
-        queueMicrotask(() => {
+        setTimeout(() => {
           const store = useCartStore.getState();
-          store.setCartItems(convertedItems); // ❗ 렌더링 이후 호출
+          store.setCartItems(convertedItems);
           store.setCartId(data.cart_id);
 
           const sortedItems = [...convertedItems].sort(
@@ -213,7 +219,7 @@ export default function CartClient() {
             grouped[item.category].push(item);
           });
           setCartGroups(grouped);
-        });
+        }, 0); // 렌더링 이후 실행
       } catch (err) {
         console.error("장바구니 불러오기 실패:", err);
       } finally {
@@ -255,14 +261,13 @@ export default function CartClient() {
           .flat()
           .filter((item): item is AnyCartItem => item !== null);
 
-        // 4. queueMicrotask로 상태 업데이트
-        queueMicrotask(() => {
+        setTimeout(() => {
           try {
             useCartStore.getState().setCartItems(updatedItems);
           } catch (err) {
             console.error("🧨 상태 업데이트 실패:", err);
           }
-        });
+        }, 0);
       } catch (err) {
         console.error("❌ 장바구니 삭제 실패:", err);
       }
@@ -280,15 +285,40 @@ export default function CartClient() {
         }
 
         newGroups[category] = updatedItems;
-        const allItems = Object.values(newGroups).flat().filter(Boolean);
-        setCartItems(allItems);
+
         return newGroups;
       });
     }
   };
 
-  const handleGoToReceiveOption = () => {
-    router.push("/cart/receive-option");
+  useEffect(() => {
+    const allItems = Object.values(cartGroups)
+      .flat()
+      .filter((item): item is AnyCartItem => item !== null);
+
+    setCartItems(allItems);
+  }, [cartGroups]);
+
+  const getOriginalItemOptions = (item: AnyCartItem) => {
+    return originalItemOptionsMap[item.cartItemId ?? -1] ?? {};
+  };
+
+  const handleGoToReceiveOption = async () => {
+    try {
+      const promises = cartItems.map(item => {
+        if (!item.cartItemId) return null;
+
+        const itemOptions = getOriginalItemOptions(item);
+        console.log("🧾 updateCartItem 호출 직전 count:", item.count);
+        return updateCartItem(item.cartItemId, itemOptions, item.count);
+      });
+
+      await Promise.all(promises.filter(Boolean));
+      router.push("/cart/receive-option");
+    } catch (err) {
+      console.error("❌ 수량 반영 실패:", err);
+      alert("수량 반영 중 문제가 발생했어요.");
+    }
   };
 
   const handleAddProduct = () => {
@@ -334,141 +364,8 @@ export default function CartClient() {
       <div className="flex-1 overflow-y-auto pb-[150px]">
         <div className="p-5">
           <div className="pb-3 text-xl font-600">상품 {getTotalItemCount()}개</div>
-          {/* {Object.entries(cartGroups).map(([category, items], groupIdx) => (
-            <div key={category + groupIdx} className="mb-4 flex flex-col gap-3">
-              {items.map((item, i) => {
-                if (!item) return null;
 
-                const key = `${category}-${i}`;
-                const commonProps = {
-                  trashable: true,
-                  onIncrease: () => handleCountChange(category, i, (item.count ?? 0) + 1),
-                  onDecrease: () => handleCountChange(category, i, (item.count ?? 0) - 1),
-                };
-
-                if (category === "door") {
-                  const doorItem = item as DoorItem;
-
-                  return (
-                    <ShoppingCartCard
-                      key={key}
-                      type="door"
-                      title={getCategoryLabel(doorItem.doorType, DOOR_CATEGORY_LIST, "문짝")}
-                      color={formatColor(doorItem.color)}
-                      width={Number(doorItem.width)}
-                      height={Number(doorItem.height)}
-                      hingeCount={doorItem.hingeCount > 0 ? doorItem.hingeCount : undefined}
-                      hingeDirection={formatBoringDirection(doorItem.hingeDirection)}
-                      boring={doorItem.boring}
-                      quantity={doorItem.count}
-                      trashable={true}
-                      onIncrease={() => handleCountChange(category, i, doorItem.count + 1)}
-                      onDecrease={() => handleCountChange(category, i, doorItem.count - 1)}
-                    />
-                  );
-                }
-
-                if (category === "finish") {
-                  const finishItem = item as FinishItem;
-
-                  return (
-                    <ShoppingCartCard
-                      key={key}
-                      type="finish"
-                      title="마감재"
-                      color={formatColor(finishItem.color)}
-                      depth={finishItem.baseDepth}
-                      depthIncrease={finishItem.additionalDepth}
-                      height={finishItem.baseHeight}
-                      heightIncrease={finishItem.additionalHeight}
-                      request={finishItem.finishRequest}
-                      quantity={finishItem.count}
-                      showQuantitySelector={true}
-                      {...commonProps}
-                    />
-                  );
-                }
-
-                if (category === "cabinet") {
-                  const cabinetItem = item as CabinetItem;
-
-                  return (
-                    <ShoppingCartCard
-                      key={key}
-                      type="cabinet"
-                      title={getCategoryLabel(
-                        cabinetItem.cabinetType,
-                        CABINET_CATEGORY_LIST,
-                        "부분장",
-                      )}
-                      color={formatColor(cabinetItem.color ?? "")}
-                      width={Number(cabinetItem.width ?? 0)}
-                      height={Number(cabinetItem.height ?? 0)}
-                      depth={Number(cabinetItem.depth ?? 0)}
-                      bodyMaterial={cabinetItem.bodyMaterial ?? ""}
-                      handleType={cabinetItem.handleType ?? ""}
-                      finishType={cabinetItem.finishType ?? ""}
-                      showBar={cabinetItem.showBar ?? ""}
-                      drawerType={cabinetItem.drawerType ?? ""}
-                      railType={cabinetItem.railType ?? ""}
-                      request={cabinetItem.request ?? ""}
-                      quantity={cabinetItem.count ?? 0}
-                      showQuantitySelector={true}
-                      {...commonProps}
-                    />
-                  );
-                }
-
-                if (category === "accessory") {
-                  const accessoryItem = item as AccessoryItem;
-
-                  return (
-                    <ShoppingCartCard
-                      key={key}
-                      type="accessory"
-                      title={getCategoryLabel(
-                        accessoryItem.accessoryType,
-                        ACCESSORY_CATEGORY_LIST,
-                        "부속",
-                      )}
-                      manufacturer={accessoryItem.manufacturer}
-                      modelName={accessoryItem.modelName}
-                      size={accessoryItem.size}
-                      quantity={accessoryItem.count}
-                      request={accessoryItem.accessoryRequest ?? undefined}
-                      showQuantitySelector={true}
-                      {...commonProps}
-                    />
-                  );
-                }
-
-                if (category === "hardware") {
-                  const hardwareItem = item as HardwareItem;
-                  return (
-                    <ShoppingCartCard
-                      key={key}
-                      type="hardware"
-                      title={getCategoryLabel(
-                        hardwareItem.hardwareType,
-                        HARDWARE_CATEGORY_LIST,
-                        "하드웨어",
-                      )}
-                      manufacturer={hardwareItem.madeBy}
-                      size={hardwareItem.size ? `${hardwareItem.size}mm` : ""}
-                      request={hardwareItem.hardwareRequest ?? ""}
-                      quantity={hardwareItem.count}
-                      showQuantitySelector={true}
-                      {...commonProps}
-                    />
-                  );
-                }
-
-                return null;
-              })}
-            </div>
-          ))} */}
-
-          <div className="mb-4 flex flex-col gap-3 border">
+          <div className="mb-4 flex flex-col gap-3">
             {cartItems.map((item, i) => {
               if (!item) return null;
 
