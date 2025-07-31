@@ -59,9 +59,9 @@ const OrderConfirmCard: React.FC<OrderConfirmCardProps> = ({
   price,
 }) => {
   return (
-    <div>
-      <p className="mb-2 text-[17px] font-semibold text-gray-800">{title}</p>
-      <div className="text-sm text-gray-500">
+    <div className="flex w-full items-start justify-between gap-5">
+      <div className="flex flex-col text-[15px] text-gray-500">
+        <p className="mb-2 text-[17px] font-semibold text-gray-800">{title}</p>
         {color && <p>색상: {color}</p>}
         {width && (
           <p>
@@ -106,7 +106,7 @@ const OrderConfirmCard: React.FC<OrderConfirmCardProps> = ({
       </div>
 
       {type === "door" && (title === "플랩문" || title === "일반문") && hingeCount && (
-        <div className="mt-4">
+        <div>
           <DoorPreviewIcon
             DoorType={title}
             FatOrTall={
