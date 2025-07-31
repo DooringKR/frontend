@@ -223,7 +223,7 @@ function PhoneLoginPage() {
       {/* 중복된 전화번호일 때 BottomButton */}
       {showBottomButton && !showDuplicateBottomSheet && (
         <div className="pointer-events-none fixed inset-0 z-10 flex items-end justify-center">
-          <div className="pointer-events-auto mx-10 mb-5 w-full max-w-[500px] px-5">
+          <div className="pointer-events-auto mb-5 w-full max-w-[500px] px-5">
             <BottomButton
               type="1button"
               button1Text="다음"

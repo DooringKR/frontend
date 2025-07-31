@@ -55,7 +55,7 @@ const ColorManualInputSheet: React.FC<ColorManualInputSheetProps> = ({
         <BottomButton
           type={"1button"}
           button1Text={"다음"}
-          className="px-5 pb-5"
+          className="pb-5"
           onButton1Click={() => {
             onNext();
           }}

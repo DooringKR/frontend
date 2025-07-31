@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 
 interface BottomSheetProps {
   isOpen: boolean;
-  title: string;
+  title: string | React.ReactNode;
   description?: string;
   onClose: () => void;
   children?: React.ReactNode; // For additional elements like agreement, select options, etc.
@@ -50,7 +50,16 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
         </div>
         <div className="flex flex-col items-start gap-1 px-5 pt-2">
           <div className="flex w-full items-center justify-between">
-            <h2 className="text-[20px]/[28px] font-700 text-gray-900">{title}</h2>
+            <h2 className="text-[20px]/[28px] font-700 text-gray-900">
+              {typeof title === "string"
+                ? title.split("\n").map((line, index) => (
+                    <React.Fragment key={index}>
+                      {line}
+                      {index < title.split("\n").length - 1 && <br />}
+                    </React.Fragment>
+                  ))
+                : title}
+            </h2>
             {headerButtonText && (
               <div
                 onClick={onHeaderButtonClick}
