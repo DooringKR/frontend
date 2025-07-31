@@ -35,9 +35,9 @@ const AddressIndicator: React.FC<AddressIndicatorProps> = props => {
   const { address, deliverySchedule, timeLimit, arrivalDate } = props;
 
   return (
-    <div className="flex flex-col gap-2 px-5">
+    <div className="flex w-fit flex-col gap-2 px-5">
       <div
-        className="flex cursor-pointer flex-row gap-[6px]"
+        className="flex w-fit cursor-pointer flex-row gap-[6px]"
         // onClick={() => {
         //   if (!address) {
         //     router.push("/address-check");

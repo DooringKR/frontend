@@ -6,7 +6,7 @@ interface InputProps extends React.PropsWithChildren {
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
   onBlur?: React.FocusEventHandler<HTMLInputElement>;
   register?: UseFormRegisterReturn;
-  type: "text" | "email" | "password" | "number";
+  type: "text" | "email" | "password" | "number" | "tel";
   name: string;
   label?: string;
   placeholder: string;

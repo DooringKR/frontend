@@ -180,11 +180,10 @@ export default function Page() {
       <TopNavigator page="/" cartItemCount={cartItemCount} />
       <Banner />
 
-      <main className="mt-10 flex flex-grow flex-col gap-7">
+      <main className="mb-[100px] mt-10 flex flex-grow flex-col gap-7">
         <AddressIndicator {...addressIndicatorProps} />
         <HomeProductContainer />
       </main>
-
       <Footer />
     </div>
   );

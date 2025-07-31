@@ -15,19 +15,19 @@ export default function PhoneClientPage() {
   const router = useRouter();
   const { recipientPhoneNumber, setRecipientPhoneNumber } = useOrderStore();
 
-  // const [tempPhoneNumber, setTempPhoneNumber] = useState(recipientPhoneNumber);
-  const [tempPhoneNumber, setTempPhoneNumber] = useState(""); // 초기값 비움
+  const [tempPhoneNumber, setTempPhoneNumber] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    setTempPhoneNumber(recipientPhoneNumber);
+    const formatted = formatPhoneNumber(recipientPhoneNumber);
+    setTempPhoneNumber(formatted);
   }, [recipientPhoneNumber]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const numeric = e.target.value.replace(/\D/g, "").slice(0, 11);
     const formatted = formatPhoneNumber(numeric);
-    // setTempPhoneNumber(numeric);
-    setTempPhoneNumber(formatted); // 이 부분 수정
+
+    setTempPhoneNumber(formatted);
 
     const result = baseSchema.safeParse({ user_phoneNumber: formatted });
     setErrorMessage(result.success ? null : result.error.errors[0]?.message);
@@ -38,8 +38,6 @@ export default function PhoneClientPage() {
       user_phoneNumber: formatPhoneNumber(tempPhoneNumber),
     });
     if (result.success) {
-      // // setRecipientPhoneNumber(formatPhoneNumber(tempPhoneNumber));
-      // setRecipientPhoneNumber(tempPhoneNumber); // 상태 저장
       const formatted = formatPhoneNumber(tempPhoneNumber);
       setRecipientPhoneNumber(formatted);
       router.back();
@@ -56,9 +54,9 @@ export default function PhoneClientPage() {
           <h1 className="pb-5 pt-5 text-[23px] font-700 text-gray-900">받는 분 휴대폰 번호</h1>
           <Input
             label=""
-            type="text"
+            type="tel"
             name="수령자 전화번호"
-            value={tempPhoneNumber} // 포맷된 값 그대로 보여줌
+            value={tempPhoneNumber}
             onChange={handleInputChange}
             placeholder="010-1234-5678"
             className="w-full px-4 py-3 text-base"

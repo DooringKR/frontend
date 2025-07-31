@@ -13,8 +13,10 @@ function TimePicker({ initialHour, initialMinute, onConfirm, onClose }: TimePick
   const [hour, setHour] = useState(initialHour);
   const [minute, setMinute] = useState(initialMinute);
 
-  const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
-  const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, "0"));
+  // const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
+  // const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, "0"));
+  const hours = ["--", ...Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"))];
+  const minutes = ["--", ...Array.from({ length: 60 }, (_, i) => String(i).padStart(2, "0"))];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -59,8 +61,13 @@ function TimePicker({ initialHour, initialMinute, onConfirm, onClose }: TimePick
         </div>
 
         <button
-          className="mt-5 w-full rounded-xl bg-brand-500 py-2 text-white"
+          className="mt-5 w-full rounded-xl bg-brand-500 py-2 text-white disabled:bg-gray-300 disabled:text-gray-500"
+          disabled={hour === "--" || minute === "--"}
           onClick={() => {
+            if (hour === "--" || minute === "--") {
+              alert("시간을 선택해주세요");
+              return;
+            }
             onConfirm(hour, minute);
             onClose();
           }}

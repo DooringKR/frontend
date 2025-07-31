@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
-import Modal from "@/components/Modal/Modal";
+import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { useOrderStore } from "@/store/orderStore";
@@ -64,28 +64,28 @@ export default function ReceiveOptionClientPage() {
           픽업주소 (도어링 공장)
         </button>
         {isPickupAddressModalOpen && (
-          <Modal
+          <BottomSheet
             isOpen={isPickupAddressModalOpen}
+            title="픽업주소 (도어링 공장)"
             onClose={() => setIsPickupAddressModalOpen(false)}
-          >
-            <div className="mt-2">
-              <div className="flex flex-col gap-1">
-                <h1 className="text-xl font-700 text-gray-900">픽업주소 (도어링 공장)</h1>
+            children={
+              <div>
                 <h2 className="text-sm font-400 text-gray-400">
                   경기도 남양주시 오남읍 양지로139번길 11-14
                 </h2>
+
+                <BottomButton
+                  type={"2buttons"}
+                  button1Text="닫기"
+                  button2Text="주소 복사"
+                  button1Type="GrayLarge"
+                  className="px-0"
+                  onButton1Click={() => setIsPickupAddressModalOpen(false)}
+                  onButton2Click={handleCopyAddress}
+                />
               </div>
-            </div>
-            <BottomButton
-              type={"2buttons"}
-              button1Text="닫기"
-              button2Text="주소 복사"
-              button1Type="GrayLarge"
-              className="p-0 pt-5"
-              onButton1Click={() => setIsPickupAddressModalOpen(false)}
-              onButton2Click={handleCopyAddress}
-            />
-          </Modal>
+            }
+          />
         )}
       </div>
     </div>
