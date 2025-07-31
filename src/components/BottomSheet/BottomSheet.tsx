@@ -36,7 +36,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
 
   if (!isOpen) return null;
   return (
-    <>
+    <div>
       <div className="fixed inset-0 flex items-center justify-center">
         {/* 오버레이 배경: 가운데 500px만 적용 */}
         <div className="h-full w-full max-w-[500px] bg-black bg-opacity-20" onClick={onClose}></div>
@@ -49,10 +49,13 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
           <div className="h-[4px] w-[40px] rounded-[9999px] bg-gray-200"></div>
         </div>
         <div className="flex flex-col items-start gap-1 px-5 pt-2">
-          <div className="flex items-center justify-between w-full">
+          <div className="flex w-full items-center justify-between">
             <h2 className="text-[20px]/[28px] font-700 text-gray-900">{title}</h2>
             {headerButtonText && (
-              <div onClick={onHeaderButtonClick} className="text-gray-400 text-[15px]/[22px] font-500 cursor-pointer">
+              <div
+                onClick={onHeaderButtonClick}
+                className="cursor-pointer text-[15px]/[22px] font-500 text-gray-400"
+              >
                 {headerButtonText}
               </div>
             )}
@@ -62,7 +65,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
         {children && <div className={contentPadding}>{children}</div>}
         {buttonArea && <div>{buttonArea}</div>}
       </div>
-    </>
+    </div>
   );
 };
 

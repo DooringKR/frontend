@@ -14,15 +14,12 @@ import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import CompanyTypeButton from "@/components/Button/CompanyTypeButton";
 import Header from "@/components/Header/Header";
-import Input from "@/components/Input/Input";
 import UnderlinedInput from "@/components/Input/UnderlinedInput";
-import Modal from "@/components/Modal/Modal";
 import UnderlinedSelect from "@/components/Select/UnderlinedSelect";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import useUserStore from "@/store/userStore";
 import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
-import handlePhoneKeyDown from "@/utils/handlePhoneKeyDown";
 import baseSchema, { PhoneFormData } from "@/utils/schema";
 
 function PhoneLoginPage() {
@@ -37,7 +34,7 @@ function PhoneLoginPage() {
   const [showBottomButton, setShowBottomButton] = useState(false);
   const [showSignupFlow, setShowSignupFlow] = useState(false);
   const [showUserTypeBottomSheet, setShowUserTypeBottomSheet] = useState(false);
-  const [showSignupAgreementModal, setShowSignupAgreementModal] = useState(false);
+  const [showSignupAgreementBottomSheet, setShowSignupAgreementBottomSheet] = useState(false);
   const {
     register,
     handleSubmit,
@@ -102,7 +99,7 @@ function PhoneLoginPage() {
       // 409 오류는 이미 가입된 회원
       if (error instanceof Error && error.message.includes("409")) {
         alert("이미 가입된 회원입니다. 로그인을 시도해주세요.");
-        setShowSignupAgreementModal(false);
+        setShowSignupAgreementBottomSheet(false);
         setShowSignupFlow(false);
         setDuplicateStatus("duplicate");
         setShowBottomButton(true);
@@ -238,18 +235,21 @@ function PhoneLoginPage() {
       )}
 
       {/* 회원가입 플로우일 때 BottomButton */}
-      {showSignupFlow && userType && !showSignupAgreementModal && !showUserTypeBottomSheet && (
-        <div className="pointer-events-none fixed inset-0 z-10 flex items-end justify-center">
-          <div className="pointer-events-auto mx-10 mb-5 w-full max-w-[500px] px-5">
-            <BottomButton
-              type="1button"
-              button1Text="확인"
-              onButton1Click={() => setShowSignupAgreementModal(true)}
-              className="bg-white"
-            />
+      {showSignupFlow &&
+        userType &&
+        !showSignupAgreementBottomSheet &&
+        !showUserTypeBottomSheet && (
+          <div className="pointer-events-none fixed inset-0 z-10 flex items-end justify-center">
+            <div className="pointer-events-auto mx-10 mb-5 w-full max-w-[500px] px-5">
+              <BottomButton
+                type="1button"
+                button1Text="확인"
+                onButton1Click={() => setShowSignupAgreementBottomSheet(true)}
+                className="bg-white"
+              />
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* 로그인하는 경우: 중복된 전화번호 BottomSheet */}
       <BottomSheet
@@ -301,53 +301,56 @@ function PhoneLoginPage() {
           </>
         }
       />
+      <BottomSheet
+        isOpen={showSignupAgreementBottomSheet}
+        title={""}
+        onClose={() => setShowSignupAgreementBottomSheet(false)}
+        children={
+          <div className="flex flex-col gap-5">
+            <h2 className="text-lg font-bold text-gray-800">
+              바로가구 회원가입에 <br />꼭 필요한 동의만 추렸어요
+            </h2>
+            <div>
+              <div className="text-sm text-gray-400">필수 동의 총 2개</div>
 
-      {/* 회원가입 동의 Modal */}
-      <Modal isOpen={showSignupAgreementModal} onClose={() => setShowSignupAgreementModal(false)}>
-        <div className="flex flex-col gap-5">
-          <h2 className="text-lg font-bold text-gray-800">
-            바로가구 회원가입에 <br />꼭 필요한 동의만 추렸어요
-          </h2>
-          <div>
-            <div className="text-sm text-gray-400">필수 동의 총 2개</div>
-
-            <div className="border-1 ml-3 mt-2 flex flex-col gap-3 border-l-[4px] border-[#E2E2E2] pl-3">
-              <div className="flex items-center justify-between">
-                <p>
-                  <span className="font-semibold text-brand-500">필수 </span>
-                  <span className="text-gray-700">서비스 이용 동의</span>
-                </p>
-                <Image
-                  src="/icons/Arrow_Right.svg"
-                  width={20}
-                  alt="왼쪽 더보기 버튼"
-                  height={20}
-                  className="cursor-pointer"
-                />
+              <div className="border-1 ml-3 mt-2 flex flex-col gap-3 border-l-[4px] border-[#E2E2E2] pl-3">
+                <div className="flex items-center justify-between">
+                  <p>
+                    <span className="font-semibold text-brand-500">필수 </span>
+                    <span className="text-gray-700">서비스 이용 동의</span>
+                  </p>
+                  <Image
+                    src="/icons/Arrow_Right.svg"
+                    width={20}
+                    alt="왼쪽 더보기 버튼"
+                    height={20}
+                    className="cursor-pointer"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <p>
+                    <span className="font-semibold text-brand-500">필수 </span>
+                    <span className="text-gray-700">개인정보 수집 및 이용 동의</span>
+                  </p>
+                  <Image
+                    src="/icons/Arrow_Right.svg"
+                    width={20}
+                    alt="왼쪽 더보기 버튼"
+                    height={20}
+                    className="cursor-pointer"
+                  />
+                </div>
               </div>
-              <div className="flex items-center justify-between">
-                <p>
-                  <span className="font-semibold text-brand-500">필수 </span>
-                  <span className="text-gray-700">개인정보 수집 및 이용 동의</span>
-                </p>
-                <Image
-                  src="/icons/Arrow_Right.svg"
-                  width={20}
-                  alt="왼쪽 더보기 버튼"
-                  height={20}
-                  className="cursor-pointer"
-                />
-              </div>
+              <BottomButton
+                className="pb-5"
+                type="1button"
+                button1Text="모두 동의하고 회원가입"
+                onButton1Click={handleSignup}
+              />
             </div>
-            <BottomButton
-              className=""
-              type="1button"
-              button1Text="모두 동의하고 회원가입"
-              onButton1Click={handleSignup}
-            />
           </div>
-        </div>
-      </Modal>
+        }
+      ></BottomSheet>
     </div>
   );
 }
