@@ -46,13 +46,6 @@ export default function OrderConfirmPage() {
   const cartItems = useCartStore(state => state.cartItems);
   console.log(cartItems);
 
-  // const ALL_CATEGORIES = [
-  //   ...DOOR_CATEGORY_LIST,
-  //   ...ACCESSORY_CATEGORY_LIST,
-  //   ...HARDWARE_CATEGORY_LIST,
-  //   ...CABINET_CATEGORY_LIST,
-  // ];
-
   useEffect(() => {
     const recentOrderRaw = localStorage.getItem("recentOrder");
     if (recentOrderRaw) {
@@ -105,21 +98,6 @@ export default function OrderConfirmPage() {
 
     router.push("/");
   };
-
-  // const getDeliveryLabel = (deliveryDate: string) => {
-  //   const date = new Date(deliveryDate);
-  //   const now = new Date();
-
-  //   const isSameDay = date.toDateString() === now.toDateString();
-
-  //   const tomorrow = new Date();
-  //   tomorrow.setDate(now.getDate() + 1);
-  //   const isTomorrow = date.toDateString() === tomorrow.toDateString();
-
-  //   if (isSameDay) return "당일배송";
-  //   if (isTomorrow) return "익일배송";
-  //   return date.toLocaleDateString();
-  // };
 
   if (!recentOrder) {
     return <p className="p-5">주문 정보가 없습니다.</p>;
@@ -370,7 +348,7 @@ export default function OrderConfirmPage() {
                 <div className="mb-2 mt-3 border-b border-gray-200 pb-3 text-gray-500">
                   <p className="mb-1 text-[17px] font-600 text-gray-800">배송일정</p>
                   {order_type === "PICK_UP" ? (
-                    <p>픽업 예정</p> // 혹은 "방문 수령"
+                    <p>픽업 예정</p>
                   ) : (
                     <p>
                       {deliveryType === "today"
