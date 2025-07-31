@@ -26,7 +26,7 @@ export async function createOrder(req: Request, res: Response) {
     order_options,
   } = req.body;
 
-  if (!user_id || !cart_id || !order_type || !recipient_phone || !order_price) {
+  if (!user_id || !cart_id || !order_type || !recipient_phone || order_price == null) {
     return res.status(400).json({ message: "필수 필드가 누락되었습니다." });
   }
 
