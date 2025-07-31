@@ -22,7 +22,7 @@ export default function ReceiveOptionCard({
       <img src={icon} alt={alt} className="h-10 w-10" />
       <div className="flex flex-col items-start gap-1">
         <div className="text-[17px] font-600">{title}</div>
-        <p className="font-400 text-gray-500">{description}</p>
+        <p className="text-left font-400 text-gray-500">{description}</p>
       </div>
     </button>
   );
