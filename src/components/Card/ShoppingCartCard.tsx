@@ -10,6 +10,7 @@ import QuantitySelector from "../QuantitySelector/QuantitySelector";
 interface ShoppingCartCardProps {
   type: "door" | "cabinet" | "finish" | "accessory" | "hardware";
   title: string;
+  totalPrice?: number;
   color?: string;
   width?: number;
   height?: number;
@@ -43,6 +44,7 @@ interface ShoppingCartCardProps {
 const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   type,
   title,
+  totalPrice,
   color,
   width,
   height,
@@ -73,7 +75,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   size,
 }) => {
   return (
-    <div className="flex w-full flex-col gap-[20px] rounded-[16px] border-[1px] border-gray-200 bg-white p-[20px]">
+    <div className="flex w-full flex-col gap-3 rounded-[16px] border-[1px] border-gray-200 bg-white p-[20px]">
       {/* 상품 정보 */}
       <div className="flex justify-between gap-[20px]">
         <div className="flex flex-col gap-2">
@@ -153,6 +155,12 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
           />
         )}
       </div>
+      {/* 총 금액 */}
+      {totalPrice && (
+        <div className="flex items-end justify-end text-[20px]/[28px] font-600 text-gray-900">
+          {totalPrice}원
+        </div>
+      )}
       {/* button section */}
       <div className="ml-auto flex w-fit items-center gap-3">
         <Button type={"OutlinedMedium"} text={"옵션 변경"} onClick={onOptionClick} />

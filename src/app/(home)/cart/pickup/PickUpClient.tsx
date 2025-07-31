@@ -176,11 +176,12 @@ export default function PickUpClientPage() {
           />
         </div>
       </div>
+      <div className="h-[100px]"></div>
 
       <BottomButton
         type={"1button"}
         button1Text={isLoading ? "주문 요청 중..." : "주문 접수하기"}
-        className={`p-5 ${isDisabled ? "pointer-events-none opacity-50" : ""}`}
+        className={`fixed bottom-0 w-full max-w-[500px] px-5 pb-5 pt-3 ${isDisabled ? "pointer-events-none opacity-50" : ""}`}
         onButton1Click={handleSubmit}
       />
     </div>

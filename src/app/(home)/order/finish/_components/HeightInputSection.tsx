@@ -27,11 +27,12 @@ const HeightInputSection: React.FC<HeightInputSectionProps> = ({
   return (
     <div className="flex flex-col gap-2">
       <BoxedInput
-        label="높이 (세로)"
+        type="number"
+        label="높이(세로) (mm)"
         placeholder="높이를 입력해주세요"
-        value={height !== null ? `${height}mm` : ""}
+        value={height}
         onChange={e => {
-          const value = e.target.value.replace(/[^0-9]/g, "");
+          const value = e.target.value;
           setHeight(value ? Number(value) : null);
         }}
         error={!!heightError}
@@ -54,12 +55,12 @@ const HeightInputSection: React.FC<HeightInputSectionProps> = ({
           {isHeightIncrease && (
             <div className="flex flex-col items-center">
               <BoxedInput
-                type="text"
-                placeholder="추가할 높이를 입력해주세요"
+                type="number"
+                placeholder="추가할 높이(mm)를 입력해주세요"
                 className="w-full"
-                value={heightIncrease !== null ? `${heightIncrease}mm` : ""}
+                value={heightIncrease}
                 onChange={e => {
-                  const value = e.target.value.replace(/[^0-9]/g, "");
+                  const value = e.target.value;
                   setHeightIncrease(value ? Number(value) : null);
                 }}
               />

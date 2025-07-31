@@ -24,24 +24,24 @@ export default function DrawerDoorForm({
   return (
     <>
       <BoxedInput
-        type="text"
+        type="number"
         label="가로 길이(mm)"
         placeholder="가로 길이를 입력해주세요"
-        value={DoorWidth !== null ? `${DoorWidth}mm` : ""}
+        value={DoorWidth}
         onChange={e => {
-          const value = e.target.value.replace(/[^0-9]/g, "");
+          const value = e.target.value;
           setDoorWidth(value ? Number(value) : null);
         }}
         error={!!widthError}
         helperText={widthError}
       />
       <BoxedInput
-        type="text"
+        type="number"
         label="세로 길이(mm)"
         placeholder="세로 길이를 입력해주세요"
-        value={DoorHeight !== null ? `${DoorHeight}mm` : ""}
+        value={DoorHeight}
         onChange={e => {
-          const value = e.target.value.replace(/[^0-9]/g, "");
+          const value = e.target.value;
           setDoorHeight(value ? Number(value) : null);
         }}
         error={!!heightError}

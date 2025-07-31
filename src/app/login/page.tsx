@@ -4,6 +4,9 @@ import { checkPhoneDuplicate, signin, signup } from "@/api/authApi";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import ChildIcon from "public/icons/child";
+import Factory from "public/icons/factory";
+import PaintBruchVertical from "public/icons/paintbrush_vertical";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -21,16 +24,15 @@ import useUserStore from "@/store/userStore";
 import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 import handlePhoneKeyDown from "@/utils/handlePhoneKeyDown";
 import baseSchema, { PhoneFormData } from "@/utils/schema";
-import ChildIcon from "public/icons/child";
-import Factory from "public/icons/factory";
-import PaintBruchVertical from "public/icons/paintbrush_vertical";
 
 function PhoneLoginPage() {
   const router = useRouter();
   const { userType, setUserPhoneNumber, setUserType, id } = useUserStore();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false);
-  const [duplicateStatus, setDuplicateStatus] = useState<'none' | 'checking' | 'duplicate' | 'available'>('none');
+  const [duplicateStatus, setDuplicateStatus] = useState<
+    "none" | "checking" | "duplicate" | "available"
+  >("none");
   const [showDuplicateBottomSheet, setShowDuplicateBottomSheet] = useState(false);
   const [showBottomButton, setShowBottomButton] = useState(false);
   const [showSignupFlow, setShowSignupFlow] = useState(false);
@@ -98,11 +100,11 @@ function PhoneLoginPage() {
       console.error("회원가입 오류:", error);
 
       // 409 오류는 이미 가입된 회원
-      if (error instanceof Error && error.message.includes('409')) {
+      if (error instanceof Error && error.message.includes("409")) {
         alert("이미 가입된 회원입니다. 로그인을 시도해주세요.");
         setShowSignupAgreementModal(false);
         setShowSignupFlow(false);
-        setDuplicateStatus('duplicate');
+        setDuplicateStatus("duplicate");
         setShowBottomButton(true);
       } else {
         alert(error instanceof Error ? error.message : "회원가입 중 오류가 발생했습니다.");
@@ -110,13 +112,11 @@ function PhoneLoginPage() {
     }
   };
 
-
   // 전화번호가 11자리가 되면 자동으로 중복 체크
   const handlePhoneChange = async (value: string) => {
     const formatted = formatPhoneNumber(value);
     setValue("user_phoneNumber", formatted, {
       shouldValidate: true,
-      shouldDirty: true,
     });
 
     // 전화번호가 변경되면 상태 초기화
@@ -127,37 +127,48 @@ function PhoneLoginPage() {
     // 하이픈 제거 후 11자리인지 확인
     const cleanPhoneNumber = formatted.replace(/-/g, "");
     if (cleanPhoneNumber.length === 11) {
-      try {
-        setIsCheckingDuplicate(true);
-        setDuplicateStatus('checking');
-        console.log("자동 중복 체크 시작:", formatted);
-
-        const isDuplicate = await checkPhoneDuplicate(formatted);
-        console.log("중복 체크 결과:", isDuplicate ? "중복됨" : "중복아님");
-
-        if (isDuplicate) {
-          setDuplicateStatus('duplicate');
-          setShowBottomButton(true);
-          // 포커스 해제
-          inputRef.current?.blur();
-        } else {
-          setDuplicateStatus('available');
+      // 유효성 검사를 위해 잠시 대기 (React 상태 업데이트 대기)
+      setTimeout(async () => {
+        // 유효성 검사가 실패하면 중복 체크를 진행하지 않음
+        if (errors.user_phoneNumber) {
+          setDuplicateStatus("none");
           setShowBottomButton(false);
-          setShowSignupFlow(true);
-          // 업체유형 선택 모달 바로 띄우기
-          setShowUserTypeBottomSheet(true);
-          // 포커스 해제
-          inputRef.current?.blur();
+          return;
         }
-      } catch (error) {
-        console.error("자동 중복 체크 실패:", error);
-        setDuplicateStatus('none');
-        // 에러가 발생해도 사용자 입력은 계속 가능하도록 함
-      } finally {
-        setIsCheckingDuplicate(false);
-      }
+
+        // 11자리가 되면 즉시 포커스 해제
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
+
+        try {
+          setIsCheckingDuplicate(true);
+          setDuplicateStatus("checking");
+          console.log("자동 중복 체크 시작:", formatted);
+
+          const isDuplicate = await checkPhoneDuplicate(formatted);
+          console.log("중복 체크 결과:", isDuplicate ? "중복됨" : "중복아님");
+
+          if (isDuplicate) {
+            setDuplicateStatus("duplicate");
+            setShowBottomButton(true);
+          } else {
+            setDuplicateStatus("available");
+            setShowBottomButton(false);
+            setShowSignupFlow(true);
+            // 업체유형 선택 모달 바로 띄우기
+            setShowUserTypeBottomSheet(true);
+          }
+        } catch (error) {
+          console.error("자동 중복 체크 실패:", error);
+          setDuplicateStatus("none");
+          // 에러가 발생해도 사용자 입력은 계속 가능하도록 함
+        } finally {
+          setIsCheckingDuplicate(false);
+        }
+      }, 0);
     } else {
-      setDuplicateStatus('none');
+      setDuplicateStatus("none");
       setShowBottomButton(false);
     }
   };
@@ -170,7 +181,9 @@ function PhoneLoginPage() {
       <Header
         title={
           showSignupFlow
-            ? (userType ? "입력한 정보를 확인해주세요" : "어떤 업체에서 오셨어요?")
+            ? userType
+              ? "입력한 정보를 확인해주세요"
+              : "어떤 업체에서 오셨어요?"
             : "휴대폰 번호를 입력해주세요"
         }
         size="Large"
@@ -184,9 +197,9 @@ function PhoneLoginPage() {
           error={!!errors.user_phoneNumber}
           helperText={
             errors.user_phoneNumber?.message ||
-            (duplicateStatus === 'checking' && '가입 여부 확인 중...') ||
-            (duplicateStatus === 'duplicate' && '가입된 전화번호입니다.') ||
-            (duplicateStatus === 'available' && '사용 가능한 전화번호입니다.') ||
+            (duplicateStatus === "checking" && "가입 여부 확인 중...") ||
+            (duplicateStatus === "duplicate" && "가입된 전화번호입니다.") ||
+            (duplicateStatus === "available" && "사용 가능한 전화번호입니다.") ||
             ""
           }
           onChange={handlePhoneChange}
@@ -198,7 +211,9 @@ function PhoneLoginPage() {
             <UnderlinedSelect
               label="업체 유형 선택"
               options={[]}
-              value={userType === "INTERIOR" ? "인테리어 업체" : userType === "FACTORY" ? "공장" : ""}
+              value={
+                userType === "INTERIOR" ? "인테리어 업체" : userType === "FACTORY" ? "공장" : ""
+              }
               onClick={() => setShowUserTypeBottomSheet(true)}
               onChange={function (): void {
                 throw new Error("Function not implemented.");
@@ -210,8 +225,8 @@ function PhoneLoginPage() {
 
       {/* 중복된 전화번호일 때 BottomButton */}
       {showBottomButton && !showDuplicateBottomSheet && (
-        <div className="fixed inset-0 flex items-end justify-center z-10 pointer-events-none">
-          <div className="w-full max-w-[500px] mx-10 px-5 mb-5 pointer-events-auto">
+        <div className="pointer-events-none fixed inset-0 z-10 flex items-end justify-center">
+          <div className="pointer-events-auto mx-10 mb-5 w-full max-w-[500px] px-5">
             <BottomButton
               type="1button"
               button1Text="다음"
@@ -224,8 +239,8 @@ function PhoneLoginPage() {
 
       {/* 회원가입 플로우일 때 BottomButton */}
       {showSignupFlow && userType && !showSignupAgreementModal && !showUserTypeBottomSheet && (
-        <div className="fixed inset-0 flex items-end justify-center z-10 pointer-events-none">
-          <div className="w-full max-w-[500px] mx-10 px-5 mb-5 pointer-events-auto">
+        <div className="pointer-events-none fixed inset-0 z-10 flex items-end justify-center">
+          <div className="pointer-events-auto mx-10 mb-5 w-full max-w-[500px] px-5">
             <BottomButton
               type="1button"
               button1Text="확인"
@@ -246,24 +261,19 @@ function PhoneLoginPage() {
             <div className="py-3">
               <ChildIcon />
             </div>
-            <div className="flex flex-col gap-1 pt-2 px-5 items-center">
-              <div className="text-[20px]/[28px] font-700 text-center">
+            <div className="flex flex-col items-center gap-1 px-5 pt-2">
+              <div className="text-center text-[20px]/[28px] font-700">
                 <span className="text-blue-600">{watchedPhoneNumber}</span>님
                 <br />
                 반가워요, 또 뵙네요!
               </div>
-              <div className="font-400 text-center text-[16px]/[24px] text-gray-500">
+              <div className="text-center text-[16px]/[24px] font-400 text-gray-500">
                 안전한 로그인을 위해 휴대폰 번호가 맞는지
-                <br />
-                한 번 더 확인해주세요.
+                <br />한 번 더 확인해주세요.
               </div>
             </div>
             <div className="w-full px-5 pb-5">
-              <BottomButton
-                type="1button"
-                button1Text="로그인하기"
-                onButton1Click={handleLogin}
-              />
+              <BottomButton type="1button" button1Text="로그인하기" onButton1Click={handleLogin} />
             </div>
           </div>
         }
@@ -287,8 +297,8 @@ function PhoneLoginPage() {
                 icon={<Factory />}
                 onClick={() => handleTypeSelect("FACTORY")}
               />
-            </div></>
-
+            </div>
+          </>
         }
       />
 

@@ -27,11 +27,12 @@ const DepthInputSection: React.FC<DepthInputSectionProps> = ({
   return (
     <div className="flex flex-col gap-2">
       <BoxedInput
-        label="깊이 (가로)"
+        type="number"
+        label="깊이(가로) (mm)"
         placeholder="깊이를 입력해주세요"
-        value={depth !== null ? `${depth}mm` : ""}
+        value={depth}
         onChange={e => {
-          const value = e.target.value.replace(/[^0-9]/g, "");
+          const value = e.target.value;
           setDepth(value ? Number(value) : null);
         }}
         error={!!depthError}
@@ -54,12 +55,12 @@ const DepthInputSection: React.FC<DepthInputSectionProps> = ({
           {isDepthIncrease && (
             <div className="flex flex-col items-center">
               <BoxedInput
-                type="text"
-                placeholder="추가할 깊이를 입력해주세요"
+                type="number"
+                placeholder="추가할 깊이(mm)를 입력해주세요"
                 className="w-full"
-                value={depthIncrease !== null ? `${depthIncrease}mm` : ""}
+                value={depthIncrease}
                 onChange={e => {
-                  const value = e.target.value.replace(/[^0-9]/g, "");
+                  const value = e.target.value;
                   setDepthIncrease(value ? Number(value) : null);
                 }}
               />

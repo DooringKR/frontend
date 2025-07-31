@@ -72,36 +72,36 @@ const OpenCabinetForm: React.FC<OpenCabinetFormProps> = props => {
         onChange={() => {}}
       />
       <BoxedInput
-        type="text"
+        type="number"
         label="너비(mm)"
         placeholder="너비를 입력해주세요"
-        value={DoorWidth !== null ? `${DoorWidth}mm` : ""}
+        value={DoorWidth}
         onChange={e => {
-          const value = e.target.value.replace(/[^0-9]/g, "");
+          const value = e.target.value;
           setDoorWidth(value ? Number(value) : null);
         }}
         error={!!widthError}
         helperText={widthError}
       />
       <BoxedInput
-        type="text"
+        type="number"
         label="높이(mm)"
         placeholder="높이를 입력해주세요"
-        value={DoorHeight !== null ? `${DoorHeight}mm` : ""}
+        value={DoorHeight}
         onChange={e => {
-          const value = e.target.value.replace(/[^0-9]/g, "");
+          const value = e.target.value;
           setDoorHeight(value ? Number(value) : null);
         }}
         error={!!heightError}
         helperText={heightError}
       />
       <BoxedInput
-        type="text"
+        type="number"
         label="깊이(mm)"
         placeholder="깊이를 입력해주세요"
-        value={DoorDepth !== null ? `${DoorDepth}mm` : ""}
+        value={DoorDepth}
         onChange={e => {
-          const value = e.target.value.replace(/[^0-9]/g, "");
+          const value = e.target.value;
           setDoorDepth(value ? Number(value) : null);
         }}
         error={!!depthError}

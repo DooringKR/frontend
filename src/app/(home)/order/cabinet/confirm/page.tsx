@@ -56,6 +56,7 @@ function CabinetConfirmPageContent() {
         <ShoppingCartCard
           type="cabinet"
           title={`${getCategoryLabel(category ?? null)}`}
+          totalPrice={unitPrice * quantity}
           color={formatColor(color ?? null) ?? ""}
           bodyMaterial={bodyMaterial ?? ""}
           width={width ?? undefined}
