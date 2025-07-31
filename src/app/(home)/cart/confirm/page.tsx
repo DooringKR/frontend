@@ -106,7 +106,6 @@ export default function OrderConfirmPage() {
   console.log("🛒 cartItems 상태:", cartItems);
   console.log("🔥 recentOrder 상태:", recentOrder);
   const { order_type, recipient_phone, order_price, order_options } = recentOrder;
-  const deliveryTypeFromServer = recentOrder.order_options?.delivery?.delivery_type?.toLowerCase();
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -316,7 +315,8 @@ export default function OrderConfirmPage() {
                           size={accessoryItem.size}
                           quantity={accessoryItem.count}
                           request={accessoryItem.accessoryRequest ?? undefined}
-                          price={item.price}
+                          // price={item.price}
+                          price={"별도 견적"}
                         />
                       );
                     }
@@ -336,7 +336,8 @@ export default function OrderConfirmPage() {
                           size={hardwareItem.size ? `${hardwareItem.size}mm` : ""}
                           request={hardwareItem.hardwareRequest ?? ""}
                           quantity={hardwareItem.count}
-                          price={item.price}
+                          // price={item.price}
+                          price={"별도 견적"}
                         />
                       );
                     }

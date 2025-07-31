@@ -3,18 +3,12 @@ import React from "react";
 
 import useCartStore from "@/store/cartStore";
 
-// type OrderItem = {
-//   price?: number;
-//   count?: number;
-// } | null;
 type OrderItem = {
   price?: number | null;
   count?: number | null;
 };
 
 interface PriceSummaryCardProps {
-  // cartGroups: Record<string, (OrderItem | null)[]>;
-
   getTotalPrice: () => number;
   categoryMap: Record<string, string>;
   page?: string;
@@ -26,12 +20,18 @@ const PriceSummaryCard: React.FC<PriceSummaryCardProps> = ({
   page,
 }) => {
   const cartItems = useCartStore(state => state.cartItems);
+
   const groupedItems = (cartItems ?? []).reduce<Record<string, OrderItem[]>>((acc, item) => {
     const category = (item.category ?? "기타").toLowerCase();
     if (!acc[category]) acc[category] = [];
     acc[category].push(item);
     return acc;
   }, {});
+
+  const onlyExtraPriceItems =
+    cartItems.length > 0 &&
+    cartItems.every(item => item.category === "accessory" || item.category === "hardware");
+
   return (
     <div className="flex flex-col gap-3 py-5">
       <div className="text-xl font-600 text-gray-800">
@@ -41,11 +41,11 @@ const PriceSummaryCard: React.FC<PriceSummaryCardProps> = ({
         <div className="flex justify-between text-[17px] font-600 text-gray-800">
           <span>{page === CHECK_ORDER_PAGE ? "예상 주문금액" : "주문금액"}</span>
           <span>
-            {page === CHECK_ORDER_PAGE ? (
-              <>{getTotalPrice().toLocaleString()}원~</>
-            ) : (
-              <>{getTotalPrice().toLocaleString()}원</>
-            )}
+            {onlyExtraPriceItems
+              ? "별도 견적"
+              : page === CHECK_ORDER_PAGE
+                ? `${getTotalPrice().toLocaleString()}원~`
+                : `${getTotalPrice().toLocaleString()}원`}
           </span>
         </div>
         {page === CHECK_ORDER_PAGE ? (
@@ -58,33 +58,28 @@ const PriceSummaryCard: React.FC<PriceSummaryCardProps> = ({
 
         <div className="h-[2px] w-full bg-gray-200"></div>
         <div className="flex flex-col gap-1 text-[15px] font-400 text-gray-500">
-          {/* {Object.entries(groupedItems).map(([category, items]) => {
-            const categoryTotal = items.reduce((sum, item) => {
-              return sum + (item.price ?? 0) * (item.count ?? 1);
-            }, 0);
+          {Object.entries(groupedItems).flatMap(([category, items]) =>
+            items.map((item, index) => {
+              const label =
+                items.length > 1
+                  ? `${categoryMap[category] ?? category}`
+                  : (categoryMap[category] ?? category);
 
-            return (
-              <div key={category} className="mb-1 flex justify-between">
-                <span>{categoryMap[category] ?? category}</span>
-                <span>{categoryTotal.toLocaleString()}원</span>
-              </div>
-            );
-          })} */}
+              const isExtraPriceCategory = category === "accessory" || category === "hardware";
+              const displayPrice = isExtraPriceCategory
+                ? "별도 견적"
+                : `${((item.price ?? 0) * (item.count ?? 1)).toLocaleString()}원`;
 
-          {Object.entries(groupedItems).map(([category, items]) =>
-            items.map((item, index) => (
-              <div
-                key={`${category}-${index}`}
-                className="mb-1 flex justify-between text-[15px] font-400 text-gray-500"
-              >
-                <span>
-                  {items.length > 1
-                    ? `${categoryMap[category] ?? category}`
-                    : (categoryMap[category] ?? category)}
-                </span>
-                <span>{((item.price ?? 0) * (item.count ?? 1)).toLocaleString()}원</span>
-              </div>
-            )),
+              return (
+                <div
+                  key={`${category}-${index}`}
+                  className="mb-1 flex justify-between text-[15px] text-gray-500"
+                >
+                  <span>{label}</span>
+                  <span>{displayPrice}</span>
+                </div>
+              );
+            }),
           )}
         </div>
       </div>
