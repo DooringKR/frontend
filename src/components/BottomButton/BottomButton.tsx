@@ -12,19 +12,19 @@ interface BottomButtonProps {
   className?: string;
   children?: React.ReactNode;
   button1Type?:
-    | "Brand"
-    | "GrayLarge"
-    | "OutlinedLarge"
-    | "BrandInverse"
-    | "GrayMedium"
-    | "OutlinedMedium";
+  | "Brand"
+  | "GrayLarge"
+  | "OutlinedLarge"
+  | "BrandInverse"
+  | "GrayMedium"
+  | "OutlinedMedium";
   button2Type?:
-    | "Brand"
-    | "GrayLarge"
-    | "OutlinedLarge"
-    | "BrandInverse"
-    | "GrayMedium"
-    | "OutlinedMedium";
+  | "Brand"
+  | "GrayLarge"
+  | "OutlinedLarge"
+  | "BrandInverse"
+  | "GrayMedium"
+  | "OutlinedMedium";
   button1Disabled?: boolean;
 }
 
@@ -44,7 +44,10 @@ const BottomButton: React.FC<BottomButtonProps> = ({
   return (
     <div>
       {type === "1button" && (
-        <div className={`pt-5 ${className}`}>
+        <div className={`pt-5 ${className}`} style={{
+          background: 'linear-gradient(to top, white 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%)',
+          zIndex: 9999
+        }}>
           {children && <div>{children}</div>}
           <Button
             disabled={button1Disabled}
@@ -55,7 +58,10 @@ const BottomButton: React.FC<BottomButtonProps> = ({
         </div>
       )}
       {type === "2buttons" && (
-        <div className={`flex gap-3 p-5 ${className}`}>
+        <div className={`flex gap-3 p-5 ${className}`} style={{
+          background: 'linear-gradient(to top, white 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%)',
+          zIndex: 9999
+        }}>
           <Button
             disabled={button1Disabled}
             type={button1Type}
@@ -71,7 +77,10 @@ const BottomButton: React.FC<BottomButtonProps> = ({
         </div>
       )}
       {type === "textcombo+button" && (
-        <div className={`justify-bewteen flex items-center gap-3 p-5 ${className}`}>
+        <div className={`justify-bewteen flex items-center gap-3 p-5 ${className}`} style={{
+          background: 'linear-gradient(to top, white 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%)',
+          zIndex: 9999
+        }}>
           <div className="flex-1">
             <div className="flex flex-col">
               <span className="text-[17px] font-600 text-gray-700">{textComboText?.title}</span>
