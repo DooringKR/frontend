@@ -8,6 +8,7 @@ interface BoxedSelectProps {
   onChange?: (value: string) => void;
   onClick?: () => void; // onClick prop 추가
   error?: string; // error prop 추가
+  truncate?: boolean; // 텍스트 잘림 여부
 }
 
 const BoxedSelect: React.FC<BoxedSelectProps> = ({
@@ -17,6 +18,7 @@ const BoxedSelect: React.FC<BoxedSelectProps> = ({
   onChange,
   onClick,
   error,
+  truncate = false,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
 
@@ -43,7 +45,7 @@ const BoxedSelect: React.FC<BoxedSelectProps> = ({
           onChange?.(value);
         }}
       >
-        <div className={`${value && !error ? "text-gray-700" : "text-gray-300"} text-[17px]`}>
+        <div className={`${value && !error ? "text-gray-700" : "text-gray-300"} text-[17px] text-left ${truncate ? "truncate" : ""}`}>
           {error ? "잘못된 입력" : value || label}
         </div>
         <div className={`${isFocused && !error ? "text-brand-500" : "text-gray-200"}`}>

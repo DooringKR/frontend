@@ -203,7 +203,8 @@ function DoorPageContent() {
           options={[]}
           value={color ?? ""}
           onClick={() => router.back()}
-          onChange={() => {}}
+          onChange={() => { }}
+          truncate={true}
         />
         {renderFormByCategory()}
         <BoxedInput

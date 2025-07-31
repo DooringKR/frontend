@@ -17,7 +17,7 @@ const QuantitySelector: React.FC<QuantitySelectorProps> = ({
     onIncrease,
 }) => {
     return (
-        <div className="flex items-center">
+        <div className="flex items-center bg-white">
             <button
                 className="h-[40px] rounded-l-[10px] border-b border-l border-t px-2"
                 style={{

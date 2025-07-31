@@ -90,6 +90,7 @@ const BoxedInput = React.forwardRef<HTMLInputElement, BoxedInputProps>(
             value={inputValue ?? ""}
             onChange={handleInputChange}
             type={type}
+            inputMode={type === "number" ? "numeric" : undefined}
             required={required}
             disabled={disabled}
             ref={mergedRef}

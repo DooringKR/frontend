@@ -226,7 +226,7 @@ function PhoneLoginPage() {
       {/* 중복된 전화번호일 때 BottomButton */}
       {showBottomButton && !showDuplicateBottomSheet && (
         <div className="pointer-events-none fixed inset-0 z-10 flex items-end justify-center">
-          <div className="pointer-events-auto mx-10 mb-5 w-full max-w-[500px] px-5">
+          <div className="pointer-events-auto mb-5 w-full max-w-[500px] px-5">
             <BottomButton
               type="1button"
               button1Text="다음"
@@ -240,7 +240,7 @@ function PhoneLoginPage() {
       {/* 회원가입 플로우일 때 BottomButton */}
       {showSignupFlow && userType && !showSignupAgreementModal && !showUserTypeBottomSheet && (
         <div className="pointer-events-none fixed inset-0 z-10 flex items-end justify-center">
-          <div className="pointer-events-auto mx-10 mb-5 w-full max-w-[500px] px-5">
+          <div className="pointer-events-auto mb-5 w-full max-w-[500px] px-5">
             <BottomButton
               type="1button"
               button1Text="확인"
@@ -301,16 +301,21 @@ function PhoneLoginPage() {
           </>
         }
       />
-
-      {/* 회원가입 동의 Modal */}
-      <Modal isOpen={showSignupAgreementModal} onClose={() => setShowSignupAgreementModal(false)}>
-        <div className="flex flex-col gap-5">
-          <h2 className="text-lg font-bold text-gray-800">
-            바로가구 회원가입에 <br />꼭 필요한 동의만 추렸어요
-          </h2>
-          <div>
+      <BottomSheet
+        isOpen={showSignupAgreementModal}
+        title={<>바로가구 회원가입에<br />꼭 필요한 동의만 추렸어요</>}
+        onClose={() => setShowSignupAgreementModal(false)}
+        buttonArea={
+          <BottomButton
+            className="px-5 pb-5"
+            type="1button"
+            button1Text="모두 동의하고 회원가입"
+            onButton1Click={handleSignup}
+          />
+        }
+        children={
+          <div className="flex flex-col gap-2 pt-5">
             <div className="text-sm text-gray-400">필수 동의 총 2개</div>
-
             <div className="border-1 ml-3 mt-2 flex flex-col gap-3 border-l-[4px] border-[#E2E2E2] pl-3">
               <div className="flex items-center justify-between">
                 <p>
@@ -339,15 +344,10 @@ function PhoneLoginPage() {
                 />
               </div>
             </div>
-            <BottomButton
-              className=""
-              type="1button"
-              button1Text="모두 동의하고 회원가입"
-              onButton1Click={handleSignup}
-            />
+
           </div>
-        </div>
-      </Modal>
+        }
+      />
     </div>
   );
 }
