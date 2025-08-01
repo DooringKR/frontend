@@ -242,7 +242,8 @@ export default function CartClient() {
   };
 
   const handleCountChange = async (category: string, index: number, newCount: number) => {
-    const targetItem = cartGroups[category]?.[index];
+    // cartItems 배열에서 해당 인덱스의 아이템을 찾음
+    const targetItem = cartItems[index];
     if (!targetItem || targetItem.cartItemId == null) return;
 
     if (newCount < 1) {
@@ -250,42 +251,42 @@ export default function CartClient() {
         // 1. 서버에서 삭제
         await deleteCartItem(targetItem.cartItemId);
 
-        // 2. 그룹 상태 업데이트 (UI 갱신용)
-        const nextGroups = structuredClone(cartGroups); // 안전 복사
-        const filteredItems = nextGroups[category]?.filter((_, i) => i !== index) ?? [];
-        nextGroups[category] = filteredItems;
-        setCartGroups(nextGroups);
+        // 2. cartItems에서 해당 아이템 제거
+        const updatedItems = cartItems.filter(item => item?.cartItemId !== targetItem.cartItemId);
+        setCartItems(updatedItems);
 
-        // 3. 장바구니 아이템 업데이트는 별도로 처리
-        const updatedItems = Object.values(nextGroups)
-          .flat()
-          .filter((item): item is AnyCartItem => item !== null);
-
-        setTimeout(() => {
-          try {
-            useCartStore.getState().setCartItems(updatedItems);
-          } catch (err) {
-            console.error("🧨 상태 업데이트 실패:", err);
-          }
-        }, 0);
+        // 3. cartGroups도 업데이트
+        setCartGroups(prev => {
+          const newGroups = { ...prev };
+          newGroups[category] =
+            newGroups[category]?.filter(item => item?.cartItemId !== targetItem.cartItemId) ?? [];
+          return newGroups;
+        });
       } catch (err) {
         console.error("❌ 장바구니 삭제 실패:", err);
       }
     } else {
       // 수량만 업데이트
+      // cartItems 업데이트
+      const updatedItems: AnyCartItem[] = cartItems.map(item => {
+        if (item?.cartItemId === targetItem.cartItemId) {
+          return { ...item, count: newCount };
+        }
+        return item;
+      });
+      setCartItems(updatedItems);
+
+      // cartGroups도 업데이트
       setCartGroups(prev => {
         const newGroups = { ...prev };
-        const updatedItems = [...(newGroups[category] || [])];
-
-        if (updatedItems[index]) {
-          updatedItems[index] = {
-            ...updatedItems[index],
-            count: newCount,
-          };
-        }
-
-        newGroups[category] = updatedItems;
-
+        const categoryItems = newGroups[category] || [];
+        const updatedCategoryItems = categoryItems.map(item => {
+          if (item?.cartItemId === targetItem.cartItemId) {
+            return { ...item, count: newCount } as OrderItem;
+          }
+          return item;
+        });
+        newGroups[category] = updatedCategoryItems;
         return newGroups;
       });
     }
