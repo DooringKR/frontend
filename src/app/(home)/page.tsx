@@ -4,7 +4,7 @@ import { getCartItems } from "@/api/cartApi";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import AddressIndicator, {
   AddressIndicatorProps,
@@ -39,9 +39,17 @@ export default function Page() {
   const cartItems = useCartStore(state => state.cartItems);
   const [cartItemCount, setCartItemCount] = useState(0);
   const [isCheckingDelivery, setIsCheckingDelivery] = useState(false);
+  // useEffect(() => {
+  //   if (userAddress1 && userAddress2) {
+  //     setAddress(userAddress1, userAddress2);
+  //   }
+  // }, [userAddress1, userAddress2]);
+  const hasInitializedAddress = useRef(false);
+
   useEffect(() => {
-    if (userAddress1 && userAddress2) {
+    if (!hasInitializedAddress.current && userAddress1 && userAddress2) {
       setAddress(userAddress1, userAddress2);
+      hasInitializedAddress.current = true;
     }
   }, [userAddress1, userAddress2]);
 
@@ -62,14 +70,14 @@ export default function Page() {
     setCartItemCount(cartItems.length);
   }, [cartItems]);
 
-  const formatOrderDeadline = (remainingMinutes: number): string => {
-    const hours = Math.floor(remainingMinutes / 60);
-    const minutes = remainingMinutes % 60;
+  // const formatOrderDeadline = (remainingMinutes: number): string => {
+  //   const hours = Math.floor(remainingMinutes / 60);
+  //   const minutes = remainingMinutes % 60;
 
-    if (remainingMinutes <= 0) return "주문 마감";
+  //   if (remainingMinutes <= 0) return "주문 마감";
 
-    return `${hours > 0 ? `${hours}시간 ` : ""}${minutes}분 내 주문 시`;
-  };
+  //   return `${hours > 0 ? `${hours}시간 ` : ""}${minutes}분 내 주문 시`;
+  // };
 
   useEffect(() => {
     const checkDelivery = async () => {
@@ -79,8 +87,18 @@ export default function Page() {
           const info = await calculateDeliveryInfo(address1);
 
           if (info.isToday) {
+            const cutoffMinutes = 18 * 60;
+            const remainingMinutes = cutoffMinutes - info.expectedArrivalMinutes;
+            const hours = Math.floor(remainingMinutes / 60);
+            const minutes = remainingMinutes % 60;
+            const timeLimitMessage =
+              remainingMinutes <= 0
+                ? "주문 마감"
+                : `${hours > 0 ? `${hours}시간 ` : ""}${minutes}분 내 주문 시`;
+            // const timeLimitMessage = calculateOrderDeadline(info.expectedArrivalMinutes);
             setDeliverySchedule("today");
-            setTimeLimit(`${formatOrderDeadline(info.remainingMinutes)}`);
+            setTimeLimit(timeLimitMessage);
+            // setTimeLimit(`${formatOrderDeadline(info.remainingMinutes)}`);
             setArrivalDate(undefined);
           } else {
             const tomorrow = new Date();

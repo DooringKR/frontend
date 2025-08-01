@@ -7,10 +7,12 @@ interface DeliveryInfo {
   arrivalTimeFormatted: string;
 }
 
+// 배송 정보 계산 (배송 시간, 도착 시간 등)
 export const calculateDeliveryInfo = async (
   address: string,
   cutoffMinutes = 18 * 60,
 ): Promise<DeliveryInfo> => {
+  // expectedArrivalMinutes: 현재 시각 기준 예상 도착 시각
   const { expectedArrivalMinutes } = await DeliverTime(address);
 
   const now = new Date();
@@ -64,3 +66,36 @@ export function isWeekend(date: Date) {
   const day = date.getDay();
   return day === 0 || day === 6; // 0: 일요일, 6: 토요일
 }
+
+// 주문 마감까지 남은 시간 계산 (UI 표시용)
+export const calculateOrderDeadline = (
+  deliveryMinutes: number,
+  productionMinutes = 30,
+  cutoffHour = 18,
+): string => {
+  const now = new Date();
+  console.log("🕒 현재 시각:", now.toLocaleTimeString());
+
+  const cutoff = new Date();
+  cutoff.setHours(cutoffHour, 0, 0, 0); // 오후 6시
+
+  const timeUntilCutoffInMin = Math.floor((cutoff.getTime() - now.getTime()) / 60000);
+  console.log("🔔 오후 6시까지 남은 시간:", timeUntilCutoffInMin, "분");
+
+  console.log("🛠 제작 시간:", productionMinutes, "분");
+  console.log("🚚 배송 시간:", deliveryMinutes, "분");
+
+  const totalPrepTime = productionMinutes + deliveryMinutes;
+  console.log("📦 총 준비 시간 (제작+배송):", totalPrepTime, "분");
+
+  const arrival = new Date(now.getTime() + totalPrepTime * 60000);
+  console.log("🚚 예상 도착 시각:", arrival.toLocaleTimeString());
+  const remainingMinutes = timeUntilCutoffInMin - (deliveryMinutes + productionMinutes);
+
+  if (remainingMinutes <= 0) return "주문 마감";
+
+  const hours = Math.floor(remainingMinutes / 60);
+  const minutes = remainingMinutes % 60;
+
+  return `${hours > 0 ? `${hours}시간 ` : ""}${minutes}분 내 주문 시`;
+};

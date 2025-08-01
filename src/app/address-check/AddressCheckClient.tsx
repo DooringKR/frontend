@@ -94,7 +94,11 @@ function AddressCheckClientPage() {
     try {
       await updateUserAddress(userId, address1, address2);
       console.log("📦 주소 업데이트 완료 후 후처리 시작");
-
+      useUserStore.setState({
+        user_road_address: address1,
+        user_detail_address: address2,
+      });
+      setAddress(address1, address2);
       router.replace("/");
     } catch (error) {
       alert("주소 저장 중 오류가 발생했습니다.");
