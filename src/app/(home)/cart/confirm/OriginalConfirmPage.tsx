@@ -252,7 +252,7 @@ export default function OriginalConfirmPage() {
         </div>
       </div>
       <BottomButton
-        className="fixed bottom-0 left-0 right-0 z-50 border-t px-5 pb-5 pt-3"
+        className="fixed bottom-0 left-0 right-0 z-50 max-w-[460px] border-t"
         type="2buttons"
         button1Text="홈으로"
         button2Text="계좌 복사"

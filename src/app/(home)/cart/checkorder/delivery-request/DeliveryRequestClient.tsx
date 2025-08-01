@@ -126,7 +126,7 @@ export default function DeliveryRequestClientPage() {
         </div>
       </div>
 
-      <div className="fixed bottom-0 w-full max-w-[500px] bg-white px-5 pb-5">
+      <div className="fixed bottom-0 w-full max-w-[460px] p-5">
         <Button
           selected={true}
           onClick={handleSave}

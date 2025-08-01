@@ -169,7 +169,7 @@ export default function UnavailableDeliveryPage() {
       <div className="h-[100px]"></div>
       <div>
         <BottomButton
-          className="fixed bottom-0 w-full max-w-[500px] px-5 pb-5"
+          className="fixed bottom-0 w-full max-w-[460px]"
           type="2buttons"
           button1Text="확인했어요"
           button2Text="고객센터 전화"

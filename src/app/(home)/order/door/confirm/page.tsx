@@ -83,7 +83,7 @@ function DoorConfirmPageContent() {
       <BottomButton
         type={"1button"}
         button1Text={"장바구니 담기"}
-        className="fixed bottom-0 w-full max-w-[500px]"
+        className="fixed bottom-0 w-full max-w-[460px]"
         onButton1Click={async () => {
           try {
             const result = await addCartItem({

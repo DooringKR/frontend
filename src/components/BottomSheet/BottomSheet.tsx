@@ -39,10 +39,10 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
     <div>
       <div className="fixed inset-0 flex items-center justify-center">
         {/* 오버레이 배경: 가운데 500px만 적용 */}
-        <div className="h-full w-full max-w-[500px] bg-black bg-opacity-20" onClick={onClose}></div>
+        <div className="h-full w-full max-w-[460px] bg-black bg-opacity-20" onClick={onClose}></div>
       </div>
       <div
-        className="fixed bottom-[10px] left-1/2 flex w-[calc(100%-20px)] max-w-[500px] -translate-x-1/2 flex-col rounded-[24px] bg-white"
+        className="fixed bottom-[10px] left-1/2 flex w-[calc(100%-20px)] max-w-[460px] -translate-x-1/2 flex-col rounded-[24px] bg-white"
         onClick={e => e.stopPropagation()} // Prevent closing when clicking inside the container
       >
         <div className="flex justify-center px-5 py-3">

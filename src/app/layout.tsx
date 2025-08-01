@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 
+import FloatingButton from "@/components/FloatingButton";
+
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -51,7 +53,11 @@ function RootLayout({
           }}
         />
       </head>
-      <body className="mx-auto min-h-screen max-w-[500px]">{children}</body>
+      <body className="min-h-screen bg-gray-100">
+        <div className="mx-auto min-h-screen max-w-[460px] bg-white">{children}</div>
+        {/* 우측 하단 고정 버튼 */}
+        <FloatingButton />
+      </body>
     </html>
   );
 }

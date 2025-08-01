@@ -63,7 +63,7 @@ export default function PhoneClientPage() {
 
         {errorMessage && <p className="mt-2 text-sm text-red-500">{errorMessage}</p>}
       </div>
-      <div className="fixed bottom-0 w-full max-w-[500px] bg-white px-5 py-4">
+      <div className="fixed bottom-0 w-full max-w-[460px] p-5">
         <Button
           type="button"
           selected={!errorMessage}

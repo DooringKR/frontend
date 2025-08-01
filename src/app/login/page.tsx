@@ -12,6 +12,7 @@ import { useForm } from "react-hook-form";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
+import Button from "@/components/Button/Button";
 import CompanyTypeButton from "@/components/Button/CompanyTypeButton";
 import Header from "@/components/Header/Header";
 import UnderlinedInput from "@/components/Input/UnderlinedInput";
@@ -223,12 +224,12 @@ function PhoneLoginPage() {
       {/* 중복된 전화번호일 때 BottomButton */}
       {showBottomButton && !showDuplicateBottomSheet && (
         <div className="pointer-events-none fixed inset-0 z-10 flex items-end justify-center">
-          <div className="pointer-events-auto mb-5 w-full max-w-[500px] px-5">
+          <div className="pointer-events-auto mb-5 w-full max-w-[460px] px-5">
             <BottomButton
               type="1button"
               button1Text="다음"
               onButton1Click={() => setShowDuplicateBottomSheet(true)}
-              className="w-full max-w-[500px]"
+              className="w-full max-w-[460px]"
             />
           </div>
         </div>
@@ -240,12 +241,12 @@ function PhoneLoginPage() {
         !showSignupAgreementBottomSheet &&
         !showUserTypeBottomSheet && (
           <div className="pointer-events-none fixed inset-0 z-10 flex items-end justify-center">
-            <div className="pointer-events-auto mx-10 mb-5 w-full max-w-[500px] px-5">
+            <div className="pointer-events-auto w-full max-w-[460px]">
               <BottomButton
                 type="1button"
                 button1Text="확인"
                 onButton1Click={() => setShowSignupAgreementBottomSheet(true)}
-                className="w-full max-w-[500px]"
+                className="w-full max-w-[460px]"
               />
             </div>
           </div>
@@ -310,44 +311,46 @@ function PhoneLoginPage() {
             <h2 className="text-lg font-bold text-gray-800">
               바로가구 회원가입에 <br />꼭 필요한 동의만 추렸어요
             </h2>
-            <div>
-              <div className="text-sm text-gray-400">필수 동의 총 2개</div>
+            <div className="text-sm text-gray-400">필수 동의 총 2개</div>
 
-              <div className="border-1 ml-3 mt-2 flex flex-col gap-3 border-l-[4px] border-[#E2E2E2] pl-3">
-                <div className="flex items-center justify-between">
-                  <p>
-                    <span className="font-semibold text-brand-500">필수 </span>
-                    <span className="text-gray-700">서비스 이용 동의</span>
-                  </p>
-                  <Image
-                    src="/icons/Arrow_Right.svg"
-                    width={20}
-                    alt="왼쪽 더보기 버튼"
-                    height={20}
-                    className="cursor-pointer"
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <p>
-                    <span className="font-semibold text-brand-500">필수 </span>
-                    <span className="text-gray-700">개인정보 수집 및 이용 동의</span>
-                  </p>
-                  <Image
-                    src="/icons/Arrow_Right.svg"
-                    width={20}
-                    alt="왼쪽 더보기 버튼"
-                    height={20}
-                    className="cursor-pointer"
-                  />
-                </div>
+            <div className="border-1 ml-3 mt-2 flex flex-col gap-3 border-l-[4px] border-[#E2E2E2] pl-3">
+              <div className="flex items-center justify-between">
+                <p>
+                  <span className="font-semibold text-brand-500">필수 </span>
+                  <span className="text-gray-700">서비스 이용 동의</span>
+                </p>
+                <Image
+                  src="/icons/Arrow_Right.svg"
+                  width={20}
+                  alt="왼쪽 더보기 버튼"
+                  height={20}
+                  className="cursor-pointer"
+                />
               </div>
-              <BottomButton
-                className="pb-5"
-                type="1button"
-                button1Text="모두 동의하고 회원가입"
-                onButton1Click={handleSignup}
-              />
+              <div className="flex items-center justify-between">
+                <p>
+                  <span className="font-semibold text-brand-500">필수 </span>
+                  <span className="text-gray-700">개인정보 수집 및 이용 동의</span>
+                </p>
+                <Image
+                  src="/icons/Arrow_Right.svg"
+                  width={20}
+                  alt="왼쪽 더보기 버튼"
+                  height={20}
+                  className="cursor-pointer"
+                />
+              </div>
             </div>
+          </div>
+        }
+        buttonArea={
+          <div className="p-5">
+            <Button
+              type="Brand"
+              text="모두 동의하고 회원가입"
+              onClick={handleSignup}
+              className="w-full max-w-[460px]"
+            />
           </div>
         }
       ></BottomSheet>

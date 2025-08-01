@@ -414,8 +414,7 @@ export default function OrderConfirmPage() {
             )}
           </div>
         </div>
-
-        <div className="fixed bottom-0 z-50 flex w-full max-w-[500px] gap-3 bg-white p-5">
+        <div className="fixed bottom-0 z-50 flex w-full max-w-[460px] gap-3 bg-white p-5">
           <Button className="flex-1" onClick={handleGoHome}>
             홈으로
           </Button>

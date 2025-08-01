@@ -35,7 +35,7 @@ const HomeProductContainer: React.FC = () => {
 
   const handleCategoryClick = (slug: string) => {
     if (slug === "custom") {
-      router.push("/custom-order");
+      router.push("/customer-service");
       return;
     }
 

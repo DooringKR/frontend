@@ -196,7 +196,7 @@ export default function Page() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-white">
       <TopNavigator page="/" cartItemCount={cartItemCount} />
       <Banner />
 
@@ -204,6 +204,7 @@ export default function Page() {
         <AddressIndicator {...addressIndicatorProps} />
         <HomeProductContainer />
       </main>
+
       <Footer />
     </div>
   );

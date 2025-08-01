@@ -259,7 +259,7 @@ function CheckOrderClientPage() {
         />
       </div>
       <div className="h-[100px]"></div>
-      <div className="fixed bottom-0 w-full max-w-[500px] px-5 pb-5 pt-3">
+      <div className="fixed bottom-0 w-full max-w-[460px] p-5">
         <Button
           selected={true}
           onClick={handleOrderSubmit}

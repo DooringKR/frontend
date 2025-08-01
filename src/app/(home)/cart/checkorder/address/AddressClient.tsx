@@ -168,7 +168,7 @@ export default function AddressClientPage() {
           )}
         </div>
       </div>
-      <div className="fixed bottom-0 w-full max-w-[500px] bg-white px-5 py-4">
+      <div className="fixed bottom-0 w-full max-w-[460px] px-5 py-5">
         <Button
           type="button"
           disabled={isButtonDisabled || isCheckingDelivery}

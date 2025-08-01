@@ -68,7 +68,7 @@ function AccessoryPageContent() {
       <BottomButton
         type={"1button"}
         button1Text={"다음"}
-        className="fixed bottom-0 w-full max-w-[500px]"
+        className="fixed bottom-0 w-full max-w-[460px]"
         button1Disabled={accessory_madeby === "" || accessory_model === ""}
         onButton1Click={() => {
           setCart({
