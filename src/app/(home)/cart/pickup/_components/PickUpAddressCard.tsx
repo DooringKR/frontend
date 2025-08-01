@@ -12,7 +12,7 @@ export default function PickUpAddressCard({ page }: PickUpAddressCardProps) {
 
   return (
     <div
-      className={`flex justify-between rounded-xl border border-gray-200 px-5 py-4 ${page === "pickup" ? "" : "bg-gray-50"}`}
+      className={`flex items-center justify-between rounded-xl border border-gray-200 px-5 py-4 ${page === "pickup" ? "" : "bg-gray-50"}`}
     >
       <div className="flex gap-3">
         <img src={"/icons/map.svg"} alt="지도 아이콘" />
@@ -20,7 +20,7 @@ export default function PickUpAddressCard({ page }: PickUpAddressCardProps) {
           {page === "pickup" ? "" : <h1 className="text-[17px] font-600">픽업주소</h1>}
 
           <h2
-            className={` ${page === "pickup" ? `pr-3 text-[15px] font-400 text-gray-600` : `text-[17px] font-500`}`}
+            className={` ${page === "pickup" ? `pr-3 text-[15px] font-400 text-gray-600` : `text-[17px] font-500`} w-full max-w-[220px] break-keep leading-snug`}
           >
             {page === "pickup" ? (
               <>
@@ -34,13 +34,15 @@ export default function PickUpAddressCard({ page }: PickUpAddressCardProps) {
           </h2>
         </div>
       </div>
-      <button
-        onClick={handleCopyAddress}
-        type="button"
-        className="rounded-lg bg-gray-100 px-[10px] py-[5px] text-[15px] font-500 text-gray-700"
-      >
-        복사
-      </button>
+      <div>
+        <button
+          onClick={handleCopyAddress}
+          type="button"
+          className="whitespace-nowrap rounded-lg bg-gray-100 px-[10px] py-[5px] text-[15px] font-500 text-gray-700"
+        >
+          복사
+        </button>
+      </div>
     </div>
   );
 }

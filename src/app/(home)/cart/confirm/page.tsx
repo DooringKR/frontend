@@ -150,7 +150,7 @@ export default function OrderConfirmPage() {
                       {order_price.toLocaleString()}원
                     </span>
                   </div>
-                  <div className="flex justify-between gap-3">
+                  <div className="flex items-center justify-between">
                     <img
                       src={"/icons/bank.svg"}
                       alt="IBK기업은행 로고"
@@ -161,12 +161,14 @@ export default function OrderConfirmPage() {
                       <span className="text-[17px] font-500 text-gray-600">52307836904011</span>
                       <span className="text-sm font-500">IBK기업은행</span>
                     </div>
-                    <button
-                      className="rounded-lg bg-brand-50 px-[10px] py-2 text-[15px] font-500 text-brand-500"
-                      onClick={handleCopyAccount}
-                    >
-                      복사
-                    </button>
+                    <div>
+                      <button
+                        className="cursor-pointer rounded-lg bg-brand-50 px-[10px] py-[5px] text-[15px] font-500 text-brand-500"
+                        onClick={handleCopyAccount}
+                      >
+                        복사
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
