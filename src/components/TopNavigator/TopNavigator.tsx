@@ -1,6 +1,12 @@
 "use client";
 
-import { CUSTOMER_SERVICE_PAGE, HOME_PAGE, LICENSE_PAGE, MY_PAGE } from "@/constants/pageName";
+import {
+  CART_PAGE,
+  CUSTOMER_SERVICE_PAGE,
+  HOME_PAGE,
+  LICENSE_PAGE,
+  MY_PAGE,
+} from "@/constants/pageName";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import HeadphonesIcon from "public/icons/Headphones";
@@ -23,7 +29,7 @@ const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, cartItemCount 
     >
       {page === HOME_PAGE ? (
         <h3 className="text-xl font-700">바로가구</h3>
-      ) : page === MY_PAGE ? (
+      ) : page === MY_PAGE || page === CART_PAGE ? (
         <button onClick={() => router.replace("/")} className="flex items-center justify-center">
           <img src={"/icons/close.svg"} alt="엑스 아이콘" />
         </button>
