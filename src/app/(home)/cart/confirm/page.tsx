@@ -55,7 +55,7 @@ export default function OrderConfirmPage() {
   }, []);
 
   const handleCopyAccount = () => {
-    navigator.clipboard.writeText("IBK 기업은행 1234-5678-1234");
+    navigator.clipboard.writeText("IBK기업은행 52307836904011");
     alert("계좌번호가 복사되었습니다!");
   };
 
@@ -103,8 +103,8 @@ export default function OrderConfirmPage() {
     return <p className="p-5">주문 정보가 없습니다.</p>;
   }
 
-  console.log("🛒 cartItems 상태:", cartItems);
-  console.log("🔥 recentOrder 상태:", recentOrder);
+  // console.log("🛒 cartItems 상태:", cartItems);
+  // console.log("🔥 recentOrder 상태:", recentOrder);
   const { order_type, recipient_phone, order_price, order_options } = recentOrder;
 
   return (
@@ -158,7 +158,7 @@ export default function OrderConfirmPage() {
                     />
 
                     <div className="flex flex-col items-start">
-                      <span className="text-[17px] font-500 text-gray-600">12345678911111</span>
+                      <span className="text-[17px] font-500 text-gray-600">52307836904011</span>
                       <span className="text-sm font-500">IBK기업은행</span>
                     </div>
                     <button

@@ -75,7 +75,6 @@ export default function CartClient() {
         }
         const data = await getCartItems(userId);
         console.log("🍎 아이템 data확인:", data);
-        console.log("🍎 price는?", data.items);
         const convertedItems: AnyCartItem[] = [];
         const itemOptionsMap: Record<number, any> = {};
         data.items.forEach((item: any) => {
