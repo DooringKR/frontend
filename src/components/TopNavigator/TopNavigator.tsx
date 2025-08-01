@@ -66,21 +66,17 @@ const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, cartItemCount 
       {page === HOME_PAGE ? (
         <div className="flex">
           <div className="rounded-2xl p-3 transition hover:bg-gray-100">
-            <Link href={"/cart"} className="relative cursor-pointer">
-              <img src={"/icons/shopping-cart.svg"} alt="장바구니 아이콘"></img>
-              {/* {isCartEmpty ? (
-              ""
-            ) : (
-              <span className="absolute -right-2 -top-2 h-[18px] w-[18px] rounded-full bg-red-500 text-center text-[13px] font-500 text-white">
-                1
-              </span>
-            )} */}
+            <div className="relative">
+              <Link href={"/cart"} className="cursor-pointer">
+                <img src={"/icons/shopping-cart.svg"} alt="장바구니 아이콘" />
+              </Link>
+
               {cartItemCount > 0 && (
                 <span className="absolute -right-2 -top-2 h-[18px] w-[18px] rounded-full bg-red-500 text-center text-[13px] font-500 text-white">
                   {cartItemCount}
                 </span>
               )}
-            </Link>
+            </div>
           </div>
           <div className="rounded-2xl p-3 transition hover:bg-gray-100">
             <Link href="/mypage" className="cursor-pointer">
