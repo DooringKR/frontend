@@ -147,6 +147,7 @@ export default function Page() {
   let addressIndicatorProps: AddressIndicatorProps;
   if (isCheckingDelivery) {
     addressIndicatorProps = {
+      address: fullAddress,
       deliverySchedule: "",
       timeLimit: "배송 정보 계산 중...",
     };
