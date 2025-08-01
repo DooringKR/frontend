@@ -63,6 +63,11 @@ interface SingleCartState {
   cart: SingleCart;
   setCart: (cart: SingleCart) => void;
   reset: () => void;
+  // 옵션 수정용
+  isEditing: boolean;
+  editingCartItemId: number | null;
+  setEditing: (editing: boolean) => void;
+  setEditingCartItemId: (id: number | null) => void;
 }
 
 export const useSingleCartStore = create<SingleCartState>()(
@@ -70,7 +75,17 @@ export const useSingleCartStore = create<SingleCartState>()(
     set => ({
       cart: {} as SingleCart,
       setCart: (cart: SingleCart) => set({ cart }),
-      reset: () => set({ cart: {} as SingleCart }),
+      reset: () =>
+        set({
+          cart: {} as SingleCart,
+          isEditing: false,
+          editingCartItemId: null,
+        }),
+      // 옵션 수정용
+      isEditing: false,
+      editingCartItemId: null,
+      setEditing: editing => set({ isEditing: editing }),
+      setEditingCartItemId: id => set({ editingCartItemId: id }),
     }),
     {
       name: "single-cart-storage", // localStorage key

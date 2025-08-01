@@ -1,6 +1,6 @@
 "use client";
 
-import { deleteCartItem, getCartItems, updateCartItem } from "@/api/cartApi";
+import { deleteCartItem, getCartItemById, getCartItems, updateCartItem } from "@/api/cartApi";
 import {
   ACCESSORY_CATEGORY_LIST,
   CABINET_CATEGORY_LIST,
@@ -25,6 +25,7 @@ import PriceSummaryCard from "@/components/PriceCheckCard/PriceSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import useCartStore from "@/store/cartStore";
+import { useSingleCartStore } from "@/store/singleCartStore";
 import useUserStore from "@/store/userStore";
 import { formatBoringDirection } from "@/utils/formatBoring";
 import formatColor from "@/utils/formatColor";
@@ -358,6 +359,112 @@ export default function CartClient() {
     }, 0);
   };
 
+  const handleOptionClick = async (item: AnyCartItem) => {
+    const cartItemId = item.cartItemId;
+    console.log("🪪 cart_item_id 확인:", cartItemId);
+
+    if (!cartItemId) {
+      console.error("❌ cartItemId 없음");
+      return;
+    }
+    try {
+      const response = await getCartItemById(cartItemId);
+      const options = response.item_options;
+      const productType = response.product_type;
+
+      // 옵션 수정 모드 설정
+      const store = useSingleCartStore.getState();
+      store.setEditing(true);
+      store.setEditingCartItemId(cartItemId);
+
+      switch (productType) {
+        case "DOOR":
+          useSingleCartStore.getState().setCart({
+            type: "door",
+            category:
+              options.door_type === "STANDARD"
+                ? "normal"
+                : options.door_type === "FLAP"
+                  ? "flap"
+                  : "drawer",
+            color: options.door_color,
+            width: options.door_width,
+            height: options.door_height,
+            boringNum: options.hinge_count ?? 2,
+            boringDirection: options.hinge_direction ?? "left",
+            boringSize: [
+              options.first_hinge_size ?? null,
+              options.second_hinge_size ?? null,
+              options.third_hinge_size ?? null,
+              options.fourth_hinge_size ?? null,
+            ].filter(v => v !== undefined),
+            request: options.door_request ?? "",
+          });
+          router.push("/order/door");
+          break;
+
+        case "CABINET":
+          useSingleCartStore.getState().setCart({
+            type: "cabinet",
+            category: options.cabinet_type,
+            color: options.cabinet_color,
+            width: options.cabinet_width,
+            height: options.cabinet_height,
+            depth: options.cabinet_depth,
+            bodyMaterial: options.body_type ?? options.body_type_direct_input,
+            handleType: options.handle_type,
+            finishType: options.finish_type,
+            showBar: options.add_show_bar,
+            drawerType: options.drawer_type,
+            railType: options.rail_type,
+            riceRail: options.add_rice_cooker_rail,
+            lowerDrawer: options.add_bottom_drawer,
+            request: options.cabinet_request,
+          });
+          router.push("/order/cabinet");
+          break;
+
+        case "FINISH":
+          useSingleCartStore.getState().setCart({
+            type: "finish",
+            color: options.finish_color,
+            depth: options.finish_depth,
+            height: options.finish_height,
+            depthIncrease: options.depth_increase,
+            heightIncrease: options.height_increase,
+            request: options.finish_request,
+          });
+          router.push("/order/finish");
+          break;
+
+        case "HARDWARE":
+          useSingleCartStore.getState().setCart({
+            type: "hardware",
+            category: options.hardware_type,
+            hardware_madeby: options.hardware_madeby,
+            hardware_size: options.hardware_size,
+            request: options.hardware_request,
+          });
+          router.push("/order/hardware");
+          break;
+
+        case "ACCESSORY":
+          useSingleCartStore.getState().setCart({
+            type: "accessory",
+            category: options.accessory_type,
+            accessory_madeby: options.accessory_madeby,
+            accessory_model: options.accessory_model,
+            request: options.accessory_request,
+          });
+          router.push("/order/accessory");
+          break;
+      }
+    } catch (err) {
+      console.error("옵션 불러오기 실패:", err);
+      alert("옵션 정보를 불러오지 못했습니다.");
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <TopNavigator title="장바구니" page={CART_PAGE} />
@@ -397,6 +504,7 @@ export default function CartClient() {
                     trashable={true}
                     onIncrease={() => handleCountChange(category, i, doorItem.count + 1)}
                     onDecrease={() => handleCountChange(category, i, doorItem.count - 1)}
+                    onOptionClick={() => handleOptionClick(item)}
                   />
                 );
               }

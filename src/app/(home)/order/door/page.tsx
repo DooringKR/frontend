@@ -11,12 +11,13 @@ import BoxedSelect from "@/components/Select/BoxedSelect";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { DoorCart, useSingleCartStore } from "@/store/singleCartStore";
+// Hooks
+import useUserStore from "@/store/userStore";
 
 import DrawerDoorForm from "./_components/DrawerDoorForm";
 import FlapDoorForm from "./_components/FlapDoorForm";
 // Components
 import NormalDoorForm from "./_components/NormalDoorForm";
-// Hooks
 import { useDoorValidation } from "./hooks/useDoorValidation";
 
 function DoorPageContent() {
@@ -40,7 +41,10 @@ function DoorPageContent() {
 
   const category = useSingleCartStore(state => (state.cart as DoorCart).category);
   const color = useSingleCartStore(state => (state.cart as DoorCart).color);
-
+  // 추가ㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏ
+  const { isEditing, editingCartItemId, setEditing, setEditingCartItemId } = useSingleCartStore();
+  const userId = useUserStore(state => state.id); // 로그인 유저 아이디
+  // 추가 ㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏㅏ
   const doorCategory = DOOR_CATEGORY_LIST.find(item => item.slug === category);
 
   // 유효성 검사 훅 사용
@@ -203,7 +207,7 @@ function DoorPageContent() {
           options={[]}
           value={color ?? ""}
           onClick={() => router.back()}
-          onChange={() => { }}
+          onChange={() => {}}
           truncate={true}
         />
         {renderFormByCategory()}

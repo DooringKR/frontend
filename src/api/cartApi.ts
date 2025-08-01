@@ -82,3 +82,18 @@ export const updateCartItem = async (cartItemId: number, itemOptions: any, itemC
     throw err;
   }
 };
+
+export const getCartItemById = async (cartItemId: number) => {
+  const res = await fetch(`/api/cart_item/${cartItemId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("장바구니 아이템 조회 실패");
+  }
+
+  return await res.json();
+};

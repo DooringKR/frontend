@@ -120,3 +120,54 @@ export async function PUT(
     );
   }
 }
+
+// ✅ 장바구니 아이템 조회 요청
+async function getCartItemFromBackend(cartItemId: number) {
+  console.log("📦 백엔드에서 장바구니 아이템 조회:", cartItemId);
+
+  const response = await fetch(`https://dooring-backend.onrender.com/cart_item/${cartItemId}`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error("해당 장바구니 아이템이 존재하지 않습니다.");
+    }
+    throw new Error("장바구니 아이템 조회 실패");
+  }
+
+  const data = await response.json();
+  console.log("✅ 장바구니 아이템 조회 성공:", data);
+  return data;
+}
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ cart_item_id: string }> },
+) {
+  console.log("🚀 /api/cart_item/[cart_item_id] GET 요청 시작");
+
+  try {
+    const resolvedParams = await params;
+    const cartItemId = parseInt(resolvedParams.cart_item_id);
+    if (isNaN(cartItemId)) {
+      return NextResponse.json({ error: "유효하지 않은 cart_item_id입니다." }, { status: 400 });
+    }
+
+    const item = await getCartItemFromBackend(cartItemId);
+    return NextResponse.json(item);
+  } catch (error) {
+    console.error("💥 장바구니 아이템 조회 중 에러:", error);
+
+    if (error instanceof Error && error.message.includes("존재하지 않습니다")) {
+      return NextResponse.json({ error: error.message }, { status: 404 });
+    }
+
+    return NextResponse.json(
+      { error: "장바구니 아이템 조회 중 오류가 발생했습니다." },
+      { status: 500 },
+    );
+  }
+}
