@@ -26,9 +26,10 @@ export default function FloatingButton() {
 
   return (
     <div
-      className="fixed bottom-8 right-8 z-50 flex cursor-pointer items-center gap-2 rounded-[12px] bg-white px-4 py-[10px]"
+      className="fixed bottom-10 z-50 flex cursor-pointer items-center gap-2 rounded-[12px] bg-white px-4 py-[10px]"
       style={{
         boxShadow: "0 0 20px 0 rgba(3, 7, 18, 0.10)",
+        right: "calc(50% - 230px - 245px)", // 메인화면 오른쪽 바깥에서 40px 떨어진 위치
       }}
       onClick={() => {
         router.push("/customer-service");
