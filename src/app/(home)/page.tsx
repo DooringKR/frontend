@@ -67,7 +67,8 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    setCartItemCount(cartItems.length);
+    const totalCount = cartItems.reduce((acc, item) => acc + (item.item_count ?? 1), 0);
+    setCartItemCount(totalCount);
   }, [cartItems]);
 
   // const formatOrderDeadline = (remainingMinutes: number): string => {
