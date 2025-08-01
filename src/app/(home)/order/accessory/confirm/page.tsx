@@ -27,7 +27,7 @@ function ConfirmPageContent() {
   const [quantity, setQuantity] = useState(1);
 
   return (
-    <div>
+    <div className="flex flex-col">
       <TopNavigator />
       <Header
         size="Large"
@@ -57,7 +57,7 @@ function ConfirmPageContent() {
       <BottomButton
         type={"1button"}
         button1Text={"장바구니 담기"}
-        className="fixed bottom-0 w-full max-w-[500px] bg-white px-5 pb-5"
+        className="fixed bottom-0 w-full max-w-[500px]"
         onButton1Click={async () => {
           try {
             const result = await addCartItem({

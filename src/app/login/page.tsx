@@ -228,7 +228,7 @@ function PhoneLoginPage() {
               type="1button"
               button1Text="다음"
               onButton1Click={() => setShowDuplicateBottomSheet(true)}
-              className="bg-white"
+              className="w-full max-w-[500px]"
             />
           </div>
         </div>
@@ -245,7 +245,7 @@ function PhoneLoginPage() {
                 type="1button"
                 button1Text="확인"
                 onButton1Click={() => setShowSignupAgreementBottomSheet(true)}
-                className="bg-white"
+                className="w-full max-w-[500px]"
               />
             </div>
           </div>

@@ -203,7 +203,7 @@ function DoorPageContent() {
           options={[]}
           value={color ?? ""}
           onClick={() => router.back()}
-          onChange={() => { }}
+          onChange={() => {}}
           truncate={true}
         />
         {renderFormByCategory()}
@@ -218,7 +218,7 @@ function DoorPageContent() {
       <BottomButton
         type={"1button"}
         button1Text={"다음"}
-        className="fixed bottom-0 w-full max-w-[500px] px-5 pb-5"
+        className="fixed bottom-0 w-full max-w-[500px]"
         button1Disabled={isFormValid()}
         onButton1Click={() => {
           useSingleCartStore.setState({

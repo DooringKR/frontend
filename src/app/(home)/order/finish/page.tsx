@@ -66,7 +66,7 @@ function FinishPageContent() {
   }, [heightIncrease]);
 
   return (
-    <div>
+    <div className="flex flex-col">
       <TopNavigator />
       <Header size="Large" title={`마감재 정보를 입력해주세요`} />
       <div className="h-5"></div>
@@ -96,25 +96,26 @@ function FinishPageContent() {
           value={request}
           onChange={e => setRequest(e.target.value)}
         />
-        <BottomButton
-          type={"1button"}
-          button1Text={"다음"}
-          className="w-full max-w-[500px] bg-white pb-5"
-          button1Disabled={isFormValid()}
-          onButton1Click={() => {
-            setCart({
-              type: "finish",
-              color: color,
-              depth: depth ? Number(depth) : null,
-              height: height ? Number(height) : null,
-              depthIncrease: depthIncrease ? Number(depthIncrease) : null,
-              heightIncrease: heightIncrease ? Number(heightIncrease) : null,
-              request: request,
-            });
-            router.push(`/order/finish/confirm`);
-          }}
-        />
       </div>
+      <div className="h-[100px]" />
+      <BottomButton
+        type={"1button"}
+        button1Text={"다음"}
+        className="fixed bottom-0 w-full max-w-[500px]"
+        button1Disabled={isFormValid()}
+        onButton1Click={() => {
+          setCart({
+            type: "finish",
+            color: color,
+            depth: depth ? Number(depth) : null,
+            height: height ? Number(height) : null,
+            depthIncrease: depthIncrease ? Number(depthIncrease) : null,
+            heightIncrease: heightIncrease ? Number(heightIncrease) : null,
+            request: request,
+          });
+          router.push(`/order/finish/confirm`);
+        }}
+      />
     </div>
   );
 }

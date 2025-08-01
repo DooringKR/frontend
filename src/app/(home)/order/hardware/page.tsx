@@ -66,7 +66,7 @@ function HardwarePageContent() {
       <BottomButton
         type={"1button"}
         button1Text={"다음"}
-        className="fixed bottom-0 w-full max-w-[500px] bg-white px-5 pb-5"
+        className="fixed bottom-0 w-full max-w-[500px]"
         button1Disabled={hardware_madeby === "" || hardware_size === ""}
         onButton1Click={() => {
           setCart({

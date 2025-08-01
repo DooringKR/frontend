@@ -281,37 +281,41 @@ function CabinetPageContent() {
         value={railType}
         onChange={setRailType}
       />
-      {!isBottomSheetOpen && (
-        <BottomButton
-          type={"1button"}
-          button1Text={"다음"}
-          className="w-full max-w-[500px] bg-white px-5 pb-5"
-          button1Disabled={button1Disabled}
-          onButton1Click={() => {
-            useSingleCartStore.setState(state => ({
-              cart: {
-                ...state.cart,
-                type: "cabinet",
-                category,
-                color,
-                width: DoorWidth,
-                height: DoorHeight,
-                depth: DoorDepth,
-                bodyMaterial,
-                request,
-                handleType,
-                finishType,
-                showBar,
-                drawerType,
-                railType,
-                riceRail,
-                lowerDrawer,
-              },
-            }));
-            router.push(`/order/cabinet/confirm`);
-          }}
-        />
-      )}
+      <div className="h-[100px]" />
+      {!isBottomSheetOpen &&
+        !isShowBarSheetOpen &&
+        !isDrawerTypeSheetOpen &&
+        !isRailTypeSheetOpen && (
+          <BottomButton
+            type={"1button"}
+            button1Text={"다음"}
+            className="fixed bottom-0 w-full max-w-[500px]"
+            button1Disabled={button1Disabled}
+            onButton1Click={() => {
+              useSingleCartStore.setState(state => ({
+                cart: {
+                  ...state.cart,
+                  type: "cabinet",
+                  category,
+                  color,
+                  width: DoorWidth,
+                  height: DoorHeight,
+                  depth: DoorDepth,
+                  bodyMaterial,
+                  request,
+                  handleType,
+                  finishType,
+                  showBar,
+                  drawerType,
+                  railType,
+                  riceRail,
+                  lowerDrawer,
+                },
+              }));
+              router.push(`/order/cabinet/confirm`);
+            }}
+          />
+        )}
     </div>
   );
 }
@@ -371,18 +375,20 @@ function BodyMaterialManualInputSheet({
               </div>
             )}
           </div>
-          <BottomButton
-            type={"1button"}
-            button1Text={"다음"}
-            className="px-5 pb-5"
-            button1Disabled={!value}
-            onButton1Click={() => {
+        </div>
+      }
+      onClose={onClose}
+      buttonArea={
+        <div className="p-5">
+          <Button
+            type="Brand"
+            text="다음"
+            onClick={() => {
               onClose();
             }}
           />
         </div>
       }
-      onClose={onClose}
     />
   );
 }
@@ -446,15 +452,15 @@ function ShowBarInputSheet({
                 </div>
               )}
             </div>
-            <BottomButton
-              type={"1button"}
-              button1Text={"다음"}
-              className="px-5 pb-5"
-              button1Disabled={!value}
-              onButton1Click={() => {
-                onClose();
-              }}
-            />
+            <div className="py-5">
+              <Button
+                type="Brand"
+                text="다음"
+                onClick={() => {
+                  onClose();
+                }}
+              />
+            </div>
           </div>
         </div>
       }
@@ -551,15 +557,15 @@ function DrawerTypeInputSheet({
               onChange={e => onChange(e.target.value)}
             />
           )}
-          <BottomButton
-            type={"1button"}
-            button1Text={"다음"}
-            className="pb-5"
-            button1Disabled={!value}
-            onButton1Click={() => {
-              onClose();
-            }}
-          />
+          <div className="py-5">
+            <Button
+              type="Brand"
+              text="다음"
+              onClick={() => {
+                onClose();
+              }}
+            />
+          </div>
         </div>
       }
       onClose={onClose}
@@ -624,15 +630,15 @@ function RailTypeInputSheet({
               </div>
             )}
           </div>
-          <BottomButton
-            type={"1button"}
-            button1Text={"다음"}
-            className="px-5 pb-5"
-            button1Disabled={!value}
-            onButton1Click={() => {
-              onClose();
-            }}
-          />
+          <div className="py-5">
+            <Button
+              type="Brand"
+              text="다음"
+              onClick={() => {
+                onClose();
+              }}
+            />
+          </div>
         </div>
       }
       onClose={onClose}

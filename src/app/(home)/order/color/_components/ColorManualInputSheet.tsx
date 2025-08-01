@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
+import Button from "@/components/Button/Button";
 import BoxedInput from "@/components/Input/BoxedInput";
 
 import { useSingleCartStore } from "@/store/singleCartStore";
@@ -51,12 +52,11 @@ const ColorManualInputSheet: React.FC<ColorManualInputSheetProps> = ({
         value={value}
         onChange={e => onChange(e.target.value)}
       />
-      <div>
-        <BottomButton
-          type={"1button"}
-          button1Text={"다음"}
-          className="pb-5"
-          onButton1Click={() => {
+      <div className="py-5">
+        <Button
+          type="Brand"
+          text="다음"
+          onClick={() => {
             onNext();
           }}
         />

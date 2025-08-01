@@ -41,7 +41,7 @@ function ConfirmPageContent() {
   );
 
   return (
-    <div>
+    <div className="flex flex-col">
       <TopNavigator />
       <Header size="Large" title={`마감재 주문 개수를 선택해주세요`} />
       <div className="flex flex-col gap-[20px] px-5 pb-[100px] pt-5">
@@ -76,7 +76,7 @@ function ConfirmPageContent() {
       <BottomButton
         type={"1button"}
         button1Text={"장바구니 담기"}
-        className="fixed bottom-0 w-full max-w-[500px] bg-white px-5 pb-5"
+        className="fixed bottom-0 w-full max-w-[500px]"
         onButton1Click={async () => {
           try {
             const result = await addCartItem({

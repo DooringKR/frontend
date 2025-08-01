@@ -35,7 +35,7 @@ function AccessoryPageContent() {
   const headerTitle = currentCategory?.header || category;
 
   return (
-    <div>
+    <div className="flex flex-col">
       <TopNavigator />
       <Header size="Large" title={`${headerTitle} 종류를 선택해주세요`} />
       <div className="h-5"></div>
@@ -68,7 +68,7 @@ function AccessoryPageContent() {
       <BottomButton
         type={"1button"}
         button1Text={"다음"}
-        className="fixed bottom-0 w-full max-w-[500px] bg-white px-5 pb-5"
+        className="fixed bottom-0 w-full max-w-[500px]"
         button1Disabled={accessory_madeby === "" || accessory_model === ""}
         onButton1Click={() => {
           setCart({
