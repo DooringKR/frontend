@@ -55,7 +55,7 @@ export default function OrderConfirmPage() {
   }, []);
 
   const handleCopyAccount = () => {
-    navigator.clipboard.writeText("IBK 기업은행 1234-5678-1234");
+    navigator.clipboard.writeText("IBK기업은행 52307836904011");
     alert("계좌번호가 복사되었습니다!");
   };
 
@@ -103,10 +103,9 @@ export default function OrderConfirmPage() {
     return <p className="p-5">주문 정보가 없습니다.</p>;
   }
 
-  console.log("🛒 cartItems 상태:", cartItems);
-  console.log("🔥 recentOrder 상태:", recentOrder);
+  // console.log("🛒 cartItems 상태:", cartItems);
+  // console.log("🔥 recentOrder 상태:", recentOrder);
   const { order_type, recipient_phone, order_price, order_options } = recentOrder;
-  const deliveryTypeFromServer = recentOrder.order_options?.delivery?.delivery_type?.toLowerCase();
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -151,7 +150,7 @@ export default function OrderConfirmPage() {
                       {order_price.toLocaleString()}원
                     </span>
                   </div>
-                  <div className="flex justify-between gap-3">
+                  <div className="flex items-center justify-between">
                     <img
                       src={"/icons/bank.svg"}
                       alt="IBK기업은행 로고"
@@ -159,15 +158,17 @@ export default function OrderConfirmPage() {
                     />
 
                     <div className="flex flex-col items-start">
-                      <span className="text-[17px] font-500 text-gray-600">12345678911111</span>
+                      <span className="text-[17px] font-500 text-gray-600">52307836904011</span>
                       <span className="text-sm font-500">IBK기업은행</span>
                     </div>
-                    <button
-                      className="rounded-lg bg-brand-50 px-[10px] py-2 text-[15px] font-500 text-brand-500"
-                      onClick={handleCopyAccount}
-                    >
-                      복사
-                    </button>
+                    <div>
+                      <button
+                        className="cursor-pointer rounded-lg bg-brand-50 px-[10px] py-[5px] text-[15px] font-500 text-brand-500"
+                        onClick={handleCopyAccount}
+                      >
+                        복사
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -316,7 +317,8 @@ export default function OrderConfirmPage() {
                           size={accessoryItem.size}
                           quantity={accessoryItem.count}
                           request={accessoryItem.accessoryRequest ?? undefined}
-                          price={item.price}
+                          // price={item.price}
+                          price={"별도 견적"}
                         />
                       );
                     }
@@ -336,7 +338,8 @@ export default function OrderConfirmPage() {
                           size={hardwareItem.size ? `${hardwareItem.size}mm` : ""}
                           request={hardwareItem.hardwareRequest ?? ""}
                           quantity={hardwareItem.count}
-                          price={item.price}
+                          // price={item.price}
+                          price={"별도 견적"}
                         />
                       );
                     }

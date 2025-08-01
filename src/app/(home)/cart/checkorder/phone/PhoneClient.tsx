@@ -49,26 +49,27 @@ export default function PhoneClientPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <TopNavigator title="휴대폰 번호" />
-      <div className="flex flex-grow flex-col px-5 py-6">
-        <div className="flex-grow">
-          <h1 className="pb-5 pt-5 text-[23px] font-700 text-gray-900">받는 분 휴대폰 번호</h1>
-          <Input
-            label=""
-            type="tel"
-            name="수령자 전화번호"
-            value={tempPhoneNumber}
-            onChange={handleInputChange}
-            placeholder="010-1234-5678"
-            className="w-full px-4 py-3 text-base"
-          />
-          {errorMessage && <p className="mt-2 text-sm text-red-500">{errorMessage}</p>}
-        </div>
+      <div className="flex-1 overflow-y-auto px-5 pb-32 pt-6">
+        <h1 className="pb-5 pt-5 text-[23px] font-700 text-gray-900">받는 분 휴대폰 번호</h1>
+        <Input
+          label=""
+          type="tel"
+          name="수령자 전화번호"
+          value={tempPhoneNumber}
+          onChange={handleInputChange}
+          placeholder="010-1234-5678"
+          className="w-full px-4 py-3 text-base"
+        />
+
+        {errorMessage && <p className="mt-2 text-sm text-red-500">{errorMessage}</p>}
+      </div>
+      <div className="fixed bottom-0 w-full max-w-[500px] bg-white px-5 py-4">
         <Button
           type="button"
           selected={!errorMessage}
           onClick={handleSave}
           disabled={!!errorMessage}
-          className="mt-4"
+          className="w-full"
         >
           {tempPhoneNumber === recipientPhoneNumber ? "확인" : "저장하기"}
         </Button>

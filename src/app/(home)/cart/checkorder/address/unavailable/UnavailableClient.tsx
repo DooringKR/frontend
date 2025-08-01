@@ -7,7 +7,6 @@ import WrenchIcon from "public/icons/wrench";
 import { useEffect, useState } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
-import Button from "@/components/Button/Button";
 import CurrentTime from "@/components/DeliveryTimeCheck/CurrentTime";
 import GrayVerticalLine from "@/components/GrayVerticalLine/GrayVerticalLine";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
@@ -20,15 +19,9 @@ import UnavailableDeliveryFooter from "../_components/UnavailableDeliveryFooter"
 function UnavailableClientPage() {
   const router = useRouter();
   const { address } = useOrderStore();
-  const [isClicked, setIsClicked] = useState(false);
   const [arrivalTimeFormatted, setArrivalTimeFormatted] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [remainingMinutes, setRemainingMinutes] = useState<number | null>(null);
-
-  const handleEstimatedTimeClick = () => {
-    console.log("클릭");
-    setIsClicked(prev => !prev);
-  };
 
   // 최초 1회: remainingMinutes 받아오기
   useEffect(() => {

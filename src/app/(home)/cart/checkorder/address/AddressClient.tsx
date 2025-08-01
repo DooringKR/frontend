@@ -126,10 +126,10 @@ export default function AddressClientPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <TopNavigator />
-      <div className="flex flex-grow flex-col px-5 py-6">
+      <div className="flex flex-1 flex-col overflow-y-auto px-5 py-6 pb-40">
         <h1 className="mb-5 text-[23px] font-700">배송주소</h1>
 
-        <div className="flex flex-grow flex-col gap-[10px]">
+        <div className="flex flex-col gap-[10px]">
           <label className="text-sm font-400 text-gray-600">주소</label>
           <DaumPostcodePopup address1={address1} onComplete={handleComplete} />
 
@@ -167,7 +167,8 @@ export default function AddressClientPage() {
             />
           )}
         </div>
-
+      </div>
+      <div className="fixed bottom-0 w-full max-w-[500px] bg-white px-5 py-4">
         <Button
           type="button"
           disabled={isButtonDisabled || isCheckingDelivery}
@@ -185,7 +186,7 @@ export default function AddressClientPage() {
             handleSave(); // 나머지는 저장하기 동작
           }}
           selected={!isButtonDisabled}
-          className="mt-6 w-full"
+          className="w-full"
         >
           {isCheckingDelivery ? "확인 중..." : buttonText}
         </Button>

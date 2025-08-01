@@ -64,7 +64,7 @@ export default function DeliveryRequestClientPage() {
     <div className="flex h-screen flex-col bg-white pb-5">
       <TopNavigator />
 
-      <div className="flex flex-grow flex-col">
+      <div className="flex-1 overflow-y-auto bg-white px-5 pb-36">
         <h1 className="mx-5 mt-5 text-[23px] font-700">배송 시 요청사항</h1>
 
         <div className="mt-5 flex flex-col gap-3">
@@ -125,7 +125,8 @@ export default function DeliveryRequestClientPage() {
           </div>
         </div>
       </div>
-      <div className="px-5">
+
+      <div className="fixed bottom-0 w-full max-w-[500px] bg-white px-5 pb-5">
         <Button
           selected={true}
           onClick={handleSave}

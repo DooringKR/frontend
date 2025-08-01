@@ -193,7 +193,7 @@ function CheckOrderClientPage() {
       console.log("오더아이디", orderId);
 
       // 장바구니 항목을 기반으로 order_item 생성
-      const createdItems = await Promise.all(
+      const createdOrderItems = await Promise.all(
         cartItems.map(item => {
           console.log("🧾 category 확인:", item.category);
           console.log("내부에서 오더아이디", orderId);

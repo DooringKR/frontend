@@ -7,6 +7,7 @@ import {
   DOOR_CATEGORY_LIST,
   HARDWARE_CATEGORY_LIST,
 } from "@/constants/category";
+import { CART_PAGE } from "@/constants/pageName";
 import {
   AccessoryItem,
   CabinetItem,
@@ -75,7 +76,6 @@ export default function CartClient() {
         }
         const data = await getCartItems(userId);
         console.log("🍎 아이템 data확인:", data);
-        console.log("🍎 price는?", data.items);
         const convertedItems: AnyCartItem[] = [];
         const itemOptionsMap: Record<number, any> = {};
         data.items.forEach((item: any) => {
@@ -329,7 +329,7 @@ export default function CartClient() {
   if (isLoading) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center text-gray-500">
-        <TopNavigator title="장바구니" />
+        <TopNavigator title="장바구니" page={CART_PAGE} />
         <div className="flex flex-1 flex-col items-center justify-center px-5">
           <p className="text-[17px] font-500">장바구니 불러오는 중...</p>
         </div>
@@ -341,7 +341,7 @@ export default function CartClient() {
   if (cartItems.length === 0) {
     return (
       <div className="flex min-h-screen flex-col">
-        <TopNavigator title="장바구니" />
+        <TopNavigator title="장바구니" page={CART_PAGE} />
         <div className="flex flex-1 flex-col items-center justify-center px-5">
           <img src="/icons/paper.svg" alt="빈 용지 아이콘" className="mb-3" />
           <p className="mb-5 text-center text-[17px] font-500 text-gray-500">장바구니가 비었어요</p>
@@ -360,7 +360,7 @@ export default function CartClient() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <TopNavigator title="장바구니" />
+      <TopNavigator title="장바구니" page={CART_PAGE} />
       <div className="flex-1 overflow-y-auto pb-[150px]">
         <div className="p-5">
           <div className="pb-3 text-xl font-600">상품 {getTotalItemCount()}개</div>

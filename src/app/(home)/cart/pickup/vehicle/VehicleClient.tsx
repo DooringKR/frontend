@@ -37,13 +37,13 @@ export default function VehicleClientPage() {
   };
 
   return (
-    <div className="flex h-screen flex-col bg-white pb-5">
+    <div className="flex min-h-screen flex-col bg-white pb-5">
       <TopNavigator />
 
-      <div className="flex flex-grow flex-col">
+      <div className="flex-1 flex-col overflow-y-auto">
         <h1 className="mx-5 mt-5 text-[23px] font-700">픽업차량 종류</h1>
 
-        <div className="mt-5 flex flex-col gap-3">
+        <div className="mx-1 mt-5 flex flex-col gap-3">
           <SelectToggleButton
             label="트럭"
             onClick={() => handleSelect("트럭")}
@@ -80,7 +80,7 @@ export default function VehicleClientPage() {
         </div>
       </div>
 
-      <div className="px-5">
+      <div className="fixed bottom-0 w-full max-w-[500px] bg-white px-5 py-4">
         <Button
           selected={true}
           onClick={handleSave}

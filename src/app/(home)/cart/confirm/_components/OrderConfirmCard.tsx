@@ -29,7 +29,7 @@ interface OrderConfirmCardProps {
   manufacturer?: string;
   modelName?: string;
   size?: string;
-  price: number;
+  price: number | string;
 }
 
 const OrderConfirmCard: React.FC<OrderConfirmCardProps> = ({
@@ -101,7 +101,9 @@ const OrderConfirmCard: React.FC<OrderConfirmCardProps> = ({
         {request && <p>요청사항: {request}</p>}
 
         <p className="mt-1 text-[15px] font-500 text-gray-800">
-          {Number((price ?? 0) * (quantity ?? 1)).toLocaleString()}원 ∙ {quantity}개
+          {typeof price === "number"
+            ? `${(price * (quantity ?? 1)).toLocaleString()}원 ∙ ${quantity}개`
+            : `${price} ∙ ${quantity}개`}
         </p>
       </div>
 
