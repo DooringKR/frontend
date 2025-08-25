@@ -5,6 +5,7 @@ import { MY_PAGE } from "@/constants/pageName";
 import { useRouter } from "next/navigation";
 import HeadphonesIcon from "public/icons/Headphones";
 
+import BottomNavigation from "@/components/BottomNavigation/BottomNavigation";
 import Button from "@/components/Button/Button";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
@@ -70,7 +71,7 @@ function MyPageClient() {
         </div>
       </div>
 
-      <div className="flex gap-5 px-5">
+      <div className="mb-[80px] flex gap-5 px-5">
         <Button
           className="w-[80px]"
           text="로그아웃"
@@ -91,6 +92,7 @@ function MyPageClient() {
           }}
         />
       </div>
+      <BottomNavigation />
     </div>
   );
 }

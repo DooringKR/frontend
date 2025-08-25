@@ -116,7 +116,7 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
           position: "relative",
           borderRadius: "8px",
           border: "2px solid #E5E7EB",
-          overflow: "hidden",
+          overflow: "visible",
         }}
       >
         {/* 문짝 배경 이미지 또는 색상 */}
@@ -192,11 +192,19 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
                       boringDirection === "left"
                         ? `${centerX + 12}px` // 좌경: 보어링 오른쪽에 화살표
                         : `${centerX - 12}px`, // 우경: 보어링 왼쪽에 화살표
-                    top: "10px", // 문짝 최상단에서 시작
+                    top:
+                      index === boringNum - 1 || (boringNum === 4 && index === 2)
+                        ? `${y}px`
+                        : "10px", // 맨 아래 보링과 4개일 때 3번째는 해당 위치에서 시작, 나머지는 최상단에서 시작
                     width: "2px",
-                    height: `${y - 10}px`, // 최상단부터 보어링 위치까지의 높이
+                    height:
+                      index === boringNum - 1 || (boringNum === 4 && index === 2)
+                        ? `${doorHeight - y - 10}px`
+                        : `${y - 10}px`, // 맨 아래 보링과 4개일 때 3번째는 아래쪽으로, 나머지는 위쪽으로
                     background:
-                      "linear-gradient(to bottom, rgba(239, 68, 68, 0.6), rgba(239, 68, 68, 0.6))",
+                      index === boringNum - 1 || (boringNum === 4 && index === 2)
+                        ? "linear-gradient(to top, rgba(239, 68, 68, 0.6), rgba(239, 68, 68, 0.6))"
+                        : "linear-gradient(to bottom, rgba(239, 68, 68, 0.6), rgba(239, 68, 68, 0.6))",
                     zIndex: 5,
                   }}
                 >
@@ -204,13 +212,73 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
                   <div
                     style={{
                       position: "absolute",
-                      bottom: "-6px",
+                      bottom:
+                        index === boringNum - 1 || (boringNum === 4 && index === 2)
+                          ? "auto"
+                          : "-6px",
+                      top:
+                        index === boringNum - 1 || (boringNum === 4 && index === 2)
+                          ? "-6px"
+                          : "auto",
                       left: "-3px",
                       width: "0",
                       height: "0",
-                      borderTop: "6px solid rgba(239, 68, 68, 0.6)",
+                      borderTop:
+                        index === boringNum - 1 || (boringNum === 4 && index === 2)
+                          ? "none"
+                          : "6px solid rgba(239, 68, 68, 0.6)",
+                      borderBottom:
+                        index === boringNum - 1 || (boringNum === 4 && index === 2)
+                          ? "6px solid rgba(239, 68, 68, 0.6)"
+                          : "none",
                       borderLeft: "4px solid transparent",
                       borderRight: "4px solid transparent",
+                    }}
+                  />
+                </div>
+              )}
+
+              {/* 툴팁 */}
+              {isFocused && (
+                <div
+                  style={{
+                    position: "absolute",
+                    left:
+                      boringDirection === "left"
+                        ? `${centerX + 30}px` // 좌경: 화살표 오른쪽에 툴팁
+                        : `${centerX - 150}px`, // 우경: 화살표 왼쪽에 툴팁 (더 왼쪽으로)
+                    top: `${y - 15}px`,
+                    backgroundColor: "rgba(0, 0, 0, 0.8)",
+                    color: "white",
+                    padding: "8px 12px",
+                    borderRadius: "6px",
+                    fontSize: "12px",
+                    whiteSpace: "pre-line",
+                    width: "120px",
+                    textAlign: "center",
+                    zIndex: 10,
+                    pointerEvents: "none",
+                  }}
+                >
+                  {index === boringNum - 1 || (boringNum === 4 && index === 2)
+                    ? "아래를 기준으로\n작성해주세요!"
+                    : "위를 기준으로\n작성해주세요!"}
+                  {/* 툴팁 화살표 */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "50%",
+                      left: boringDirection === "left" ? "-4px" : "auto",
+                      right: boringDirection === "left" ? "auto" : "-4px",
+                      transform: "translateY(-50%)",
+                      width: "0",
+                      height: "0",
+                      borderTop: "4px solid transparent",
+                      borderBottom: "4px solid transparent",
+                      borderLeft:
+                        boringDirection === "left" ? "none" : "4px solid rgba(0, 0, 0, 0.8)",
+                      borderRight:
+                        boringDirection === "left" ? "4px solid rgba(0, 0, 0, 0.8)" : "none",
                     }}
                   />
                 </div>

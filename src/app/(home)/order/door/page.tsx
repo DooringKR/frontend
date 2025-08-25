@@ -152,6 +152,7 @@ function DoorPageContent() {
             widthError={widthError}
             heightError={heightError}
             boringError={boringError}
+            doorColor={color ?? ""}
           />
         );
       case "drawer":

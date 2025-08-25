@@ -10,6 +10,7 @@ import AddressIndicator, {
   AddressIndicatorProps,
 } from "@/components/AddressIndicator/AddressIndicator";
 import Banner from "@/components/Banner/Banner";
+import BottomNavigation from "@/components/BottomNavigation/BottomNavigation";
 import HomeProductContainer from "@/components/HomeProductContaines/HomeProductContainer";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
@@ -206,6 +207,7 @@ export default function Page() {
       </main>
 
       <Footer />
+      <BottomNavigation />
     </div>
   );
 }

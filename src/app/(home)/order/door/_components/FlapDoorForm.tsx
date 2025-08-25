@@ -18,6 +18,7 @@ interface FlapDoorFormProps {
   widthError: string;
   heightError: string;
   boringError: string;
+  doorColor: string;
 }
 
 export default function FlapDoorForm({
@@ -32,6 +33,7 @@ export default function FlapDoorForm({
   widthError,
   heightError,
   boringError,
+  doorColor,
 }: FlapDoorFormProps) {
   return (
     <>
@@ -87,6 +89,7 @@ export default function FlapDoorForm({
           boringNum={boringNum}
           boringSize={boringSize}
           onChangeBoringSize={setBoringSize}
+          doorColor={doorColor}
         />
       </div>
     </>
