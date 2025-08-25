@@ -85,3 +85,49 @@ export async function createOrder(req: Request, res: Response) {
     return res.status(500).json({ message: "서버 내부 오류로 주문을 처리할 수 없습니다." });
   }
 }
+
+export async function getOrdersByUser(req: Request, res: Response) {
+  const user_id = Number(req.query.user_id);
+  if (isNaN(user_id)) {
+    return res.status(400).json({ message: "유효한 user_id를 쿼리스트링으로 입력하세요." });
+  }
+  try {
+    // order.user_id 기준 조회
+    const orders = await prisma.order.findMany({
+      where: { user_id },
+      orderBy: { created_at: "desc" },
+      include: {
+        cart: {
+          select: {
+            id: true,
+            cart_items: {
+              select: {
+                id: true,
+                product_type: true,
+                unit_price: true,
+                item_count: true,
+                item_options: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return res.status(200).json({
+      orders: orders.map(order => ({
+        order_id: order.order_id,
+        cart_id: order.cart_id,
+        order_type: order.order_type,
+        recipient_phone: order.recipient_phone,
+        order_price: order.order_price,
+        order_options: order.order_options,
+        created_at: order.created_at,
+        cart_items: order.cart?.cart_items ?? [],
+      })),
+    });
+  } catch (err: any) {
+    console.error("[GET /orders?user_id=X] error:", err.message);
+    return res.status(500).json({ message: "서버 내부 오류" });
+  }
+}
