@@ -1,7 +1,7 @@
 import React from "react";
 
 import Button from "@/components/Button/Button";
-import DoorPreview from "@/components/DoorPreview/DoorPreview";
+import NormalDoorPreview from "@/components/DoorPreview/NormalDoorPreview";
 import BoxedInput from "@/components/Input/BoxedInput";
 import SegmentedControl from "@/components/SegmentedControl/SegmentedControl";
 
@@ -21,6 +21,7 @@ interface NormalDoorFormProps {
   widthError: string;
   heightError: string;
   boringError: string;
+  doorColor: string;
 }
 
 export default function NormalDoorForm({
@@ -37,6 +38,7 @@ export default function NormalDoorForm({
   widthError,
   heightError,
   boringError,
+  doorColor,
 }: NormalDoorFormProps) {
   return (
     <>
@@ -91,13 +93,14 @@ export default function NormalDoorForm({
         onChange={index => setBoringDirection(index === 0 ? "left" : "right")}
       />
       <div className="flex items-center justify-center pt-5">
-        <DoorPreview
+        <NormalDoorPreview
           DoorWidth={DoorWidth}
           DoorHeight={DoorHeight}
           boringDirection={boringDirection}
           boringNum={boringNum}
           boringSize={boringSize}
           onChangeBoringSize={setBoringSize}
+          doorColor={doorColor}
         />
       </div>
     </>
