@@ -78,4 +78,15 @@ function ConfirmPage() {
   );
 }
 
+import html2canvas from "html2canvas";
+import { useRef } from "react";
+
+const ref = useRef<HTMLDivElement>(null);
+const captureImage = async () => {
+  if (!ref.current) return;
+  const canvas = await html2canvas(ref.current);
+  const dataUrl = canvas.toDataURL("image/png");
+  // dataUrl: "data:image/png;base64,..."  
+};
+
 export default ConfirmPage;
