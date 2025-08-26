@@ -51,7 +51,8 @@ function ShoppingCartPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <TopNavigator title="장바구니" />
+      <div>잘못된 접근입니다.</div>
+      {/* <TopNavigator title="장바구니" />
       <div className="flex-1 overflow-y-auto pb-[100px]">
         <ProductInfo products={products} onQuantityChange={handleQuantityChange} />
       </div>
@@ -63,7 +64,7 @@ function ShoppingCartPage() {
           button1Type="Brand"
           onButton1Click={handleNextButtonClick}
         />
-      </div>
+      </div> */}
     </div>
   );
 }
