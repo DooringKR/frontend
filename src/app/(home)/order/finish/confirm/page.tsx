@@ -1,80 +1,113 @@
 "use client";
 
+import { addCartItem } from "@/api/cartItemApi";
+import { calculateUnitFinishPrice } from "@/services/pricing/finishPricing";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
-import Button from "@/components/BeforeEditByKi/Button/Button";
+import BottomButton from "@/components/BottomButton/BottomButton";
+import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
+import Header from "@/components/Header/Header";
+import OrderSummaryCard from "@/components/OrderSummaryCard";
+import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
-import useFinishStore from "@/store/Items/finishStore";
+import { FinishCart } from "@/store/singleCartStore";
+import { useSingleCartStore } from "@/store/singleCartStore";
+import formatColor from "@/utils/formatColor";
 
-function ConfirmPage() {
+function ConfirmPageContent() {
   const router = useRouter();
-  const { finishItem, updatePriceAndCount } = useFinishStore();
-  const [count, setCount] = useState(1);
 
-  if (!finishItem.depth.baseDepth || !finishItem.height.baseHeight || finishItem.price === null) {
-    return <p className="p-5">잘못된 접근입니다.</p>;
+  const cart = useSingleCartStore(state => state.cart);
+  const color = (cart as FinishCart)?.color;
+  const depth = (cart as FinishCart)?.depth;
+  const height = (cart as FinishCart)?.height;
+  const depthIncrease = (cart as FinishCart)?.depthIncrease;
+  const heightIncrease = (cart as FinishCart)?.heightIncrease;
+  const request = (cart as FinishCart)?.request;
+  const [quantity, setQuantity] = useState(1);
+
+  // 빌드 시점에 cart가 비어있을 수 있으므로 안전한 처리
+  if (!cart || Object.keys(cart).length === 0) {
+    return <div>로딩 중...</div>;
   }
 
-  const total = finishItem.price * count;
-
-  const handleAddToCart = () => {
-    const existing = JSON.parse(localStorage.getItem("cartItems") || "[]");
-    const newItem = {
-      ...finishItem,
-      count,
-      price: total,
-    };
-    localStorage.setItem("cartItems", JSON.stringify([...existing, newItem]));
-    alert("장바구니에 담았습니다.");
-    router.push("/cart");
-  };
-
-  const handlePurchase = () => {
-    updatePriceAndCount(total, count);
-    router.push("/cart/now?category=finish");
-  };
+  const unitPrice = calculateUnitFinishPrice(
+    color!,
+    depth!,
+    depthIncrease ?? 0,
+    height!,
+    heightIncrease ?? 0,
+  );
 
   return (
-    <div className="flex flex-col gap-6 p-5 pb-20">
-      <h1 className="text-xl font-bold">마감재 주문 개수를 선택해주세요</h1>
-      <div className="flex items-center justify-between">
-        <span className="text-base font-medium">주문 개수</span>
-        <div className="flex items-center border">
-          <button onClick={() => setCount(c => Math.max(1, c - 1))}>－</button>
-          <span className="px-4">{count}</span>
-          <button onClick={() => setCount(c => c + 1)}>＋</button>
-        </div>
+    <div className="flex flex-col">
+      <TopNavigator />
+      <Header size="Large" title={`마감재 주문 개수를 선택해주세요`} />
+      <div className="flex flex-col gap-[20px] px-5 pb-[100px] pt-5">
+        <ShoppingCartCard
+          type="finish"
+          title={"마감재"}
+          color={formatColor(color ?? "")}
+          depth={depth ? Number(depth) : undefined}
+          height={height ? Number(height) : undefined}
+          depthIncrease={depthIncrease ? Number(depthIncrease) : undefined}
+          heightIncrease={heightIncrease ? Number(heightIncrease) : undefined}
+          // 아래의 OrderSummaryCard 컴포넌트로 전달함. 여기선 0으로 전달
+          quantity={0}
+          trashable={false}
+          showQuantitySelector={false}
+          request={request ?? undefined}
+          onOptionClick={() => {
+            router.push(`/order/finish`);
+          }}
+        />
+        <OrderSummaryCard
+          quantity={quantity}
+          unitPrice={unitPrice}
+          onIncrease={() => {
+            setQuantity(q => q + 1);
+          }}
+          onDecrease={() => {
+            setQuantity(q => Math.max(1, q - 1));
+          }}
+        />
       </div>
-
-      <div className="flex items-center justify-between">
-        <span className="text-base font-medium">가격</span>
-        <span className="text-lg font-bold">{total.toLocaleString()}원</span>
-      </div>
-
-      <hr />
-
-      <div className="text-sm leading-relaxed">
-        <p>색상 : {finishItem.color}</p>
-        <p>깊이 : {finishItem.depth.baseDepth?.toLocaleString()}mm</p>
-        {finishItem.depth.additionalDepth && (
-          <p>⤷ 깊이 키움 : {finishItem.depth.additionalDepth?.toLocaleString()}mm</p>
-        )}
-        <p>높이 : {finishItem.height.baseHeight?.toLocaleString()}mm</p>
-        {finishItem.height.additionalHeight && (
-          <p>⤷ 높이 키움 : {finishItem.height.additionalHeight?.toLocaleString()}mm</p>
-        )}
-        {finishItem.finishRequest && <p>요청 사항 : {finishItem.finishRequest}</p>}
-      </div>
-      <div className="fixed bottom-[68px] left-0 right-0 z-10 flex gap-2 bg-white p-5">
-        <Button className="flex-1" onClick={handleAddToCart}>
-          장바구니 담기
-        </Button>
-        <Button selected={true} className="flex-1" onClick={handlePurchase}>
-          바로 구매
-        </Button>
-      </div>
+      <BottomButton
+        type={"1button"}
+        button1Text={"장바구니 담기"}
+        className="fixed bottom-0 w-full max-w-[460px]"
+        onButton1Click={async () => {
+          try {
+            const result = await addCartItem({
+              product_type: "FINISH",
+              unit_price: unitPrice,
+              item_count: quantity,
+              item_options: {
+                finish_color: color,
+                finish_base_depth: depth,
+                finish_additional_depth: depthIncrease,
+                finish_base_height: height,
+                finish_additional_height: heightIncrease,
+                finish_request: request,
+              },
+            });
+            console.log(result);
+            router.replace("/cart");
+          } catch (error) {
+            console.error("장바구니 담기 실패:", error);
+          }
+        }}
+      />
     </div>
+  );
+}
+
+function ConfirmPage() {
+  return (
+    <Suspense fallback={<div>로딩 중...</div>}>
+      <ConfirmPageContent />
+    </Suspense>
   );
 }
 

@@ -1,51 +1,72 @@
 import { NextResponse } from 'next/server';
 
 interface SignupRequestBody {
-  userType: 'company' | 'factory';
   phoneNumber: string;
+  userType: "INTERIOR" | "FACTORY";
 }
 
 interface SignupResponse {
-  accessToken: string;
+  user_id: number;
+  message: string;
 }
 
 async function requestSignup(signupData: SignupRequestBody) {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/signup`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(signupData),
-    credentials: 'include',
-  });
+  console.log("🔐 백엔드 회원가입 요청 시작:", signupData);
 
-  if (!response.ok) {
-    throw new Error('회원가입 요청 실패');
+  try {
+    // 전화번호에서 하이픈 제거하여 11자리 숫자만 추출
+    const cleanPhoneNumber = signupData.phoneNumber.replace(/-/g, "");
+
+    // 백엔드 필드명으로 변경
+    const backendData = {
+      user_type: signupData.userType,
+      user_phone: cleanPhoneNumber,
+    };
+
+    console.log("📱 정리된 전화번호:", cleanPhoneNumber);
+    console.log("🏢 사용자 타입:", signupData.userType);
+
+    const response = await fetch(`https://dooring-backend.onrender.com/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(backendData),
+      credentials: 'include',
+    });
+
+    console.log("📡 백엔드 응답 상태:", response.status, response.statusText);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("❌ 백엔드 회원가입 실패:", response.status, response.statusText, errorText);
+      throw new Error(`회원가입 요청 실패: ${response.status} ${response.statusText}`);
+    }
+
+    const data: SignupResponse = await response.json();
+    console.log("✅ 백엔드 회원가입 성공:", data);
+
+    return data;
+  } catch (error) {
+    console.error("🔍 백엔드 요청 중 네트워크 에러:", error);
+    throw error;
   }
-
-  const data: SignupResponse = await response.json();
-  const setCookieHeader = response.headers.get('set-cookie');
-
-  return { data, setCookieHeader };
 }
 
 export async function POST(request: Request) {
-  const body = await request.json();
-  const { data, setCookieHeader } = await requestSignup(body);
+  console.log("🚀 /api/auth/signup POST 요청 시작");
 
-  const nextResponse = NextResponse.json({ success: true });
+  try {
+    const body = await request.json();
+    console.log("📝 요청 바디:", body);
 
-  if (setCookieHeader) {
-    nextResponse.headers.set('set-cookie', setCookieHeader);
+    const signupData = await requestSignup(body);
+    console.log("🎉 회원가입 처리 완료:", signupData);
+
+    return NextResponse.json(signupData);
+  } catch (error) {
+    console.error("💥 회원가입 처리 중 에러:", error);
+    return NextResponse.json(
+      { error: `회원가입 처리 중 오류가 발생했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}` },
+      { status: 500 }
+    );
   }
-
-  if (data.accessToken) {
-    nextResponse.cookies.set('access-token', data.accessToken, {
-      secure: true,
-      httpOnly: true,
-      path: '/',
-      sameSite: 'strict',
-      maxAge: 60 * 30,
-    });
-  }
-
-  return nextResponse;
 }

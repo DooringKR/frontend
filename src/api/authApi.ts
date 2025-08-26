@@ -1,9 +1,49 @@
-import useUserStore from "@/store/userStore";
 import { SigninUser, SignupUser, User } from "@/types/apiType";
 
+import useAddressStore from "@/store/addressStore";
+import useCartStore from "@/store/cartStore";
+import { useOrderStore } from "@/store/orderStore";
+import useUserStore from "@/store/userStore";
 
-// 로그인 & 기존 유저 체크
-export async function signin(body: SigninUser): Promise<{ isRegistered: boolean }> {
+// 전화번호 중복 확인 (GET 방식)
+export async function checkPhoneDuplicate(phoneNumber: string): Promise<boolean> {
+  // 하이픈 제거하여 11자리 숫자만 추출
+  const cleanPhoneNumber = phoneNumber.replace(/-/g, "");
+
+  try {
+    const response = await fetch(`/api/auth/check-phone?user_phone=${cleanPhoneNumber}`, {
+      method: "GET",
+    });
+
+    console.log("전화번호 중복 확인 응답:", response.status);
+
+    if (response.ok) {
+      const data = await response.json();
+      return data.isDuplicate; // 중복 여부 반환
+    } else if (response.status === 409) {
+      return true; // 중복됨
+    } else if (response.status === 400) {
+      throw new Error("전화번호 형식이 올바르지 않습니다.");
+    } else {
+      console.error("예상치 못한 응답 상태:", response.status);
+      throw new Error("전화번호 확인 중 오류가 발생했습니다.");
+    }
+  } catch (error) {
+    console.error("전화번호 중복 확인 중 에러:", error);
+
+    // 네트워크 에러나 기타 에러의 경우
+    if (error instanceof Error) {
+      throw error;
+    } else {
+      throw new Error("전화번호 확인 중 오류가 발생했습니다.");
+    }
+  }
+}
+
+// 로그인
+export async function signin(body: SigninUser): Promise<number> {
+  console.log("로그인 API 호출 시작");
+
   const response = await fetch("/api/auth/signin", {
     method: "POST",
     headers: {
@@ -18,23 +58,18 @@ export async function signin(body: SigninUser): Promise<{ isRegistered: boolean 
   }
 
   const data = await response.json();
+  console.log("로그인 응답:", data);
 
-  if (!data.isRegistered) {
-    return { isRegistered: false };
-  }
-  const { id, userType, phoneNumber } = await getUserProfile();
+  // getUserProfile에서 localStorage 저장까지 처리
+  const userInfo = await getUserProfile(data.user_id);
 
-  const userStore = useUserStore.getState();
-  userStore.setUserId(id);
-  userStore.setUserType(userType);
-  userStore.setUserPhoneNumber(phoneNumber);
-
-  return { isRegistered: true };
+  return data.user_id;
 }
 
-
 // 회원가입
-export async function signup(body: SignupUser): Promise<void>{
+export async function signup(body: SignupUser): Promise<{ user_id: number }> {
+  console.log("회원가입 API 호출 시작");
+
   const response = await fetch("/api/auth/signup", {
     method: "POST",
     headers: {
@@ -44,29 +79,145 @@ export async function signup(body: SignupUser): Promise<void>{
     body: JSON.stringify(body),
   });
 
+  console.log("회원가입 응답:", response);
+
   if (!response.ok) {
     throw new Error("회원가입 요청 실패");
   }
 
-  const data = await response.json();
+  const data: { user_id: number } = await response.json();
 
-  const { id, userType, phoneNumber } = await getUserProfile();
-
-  const userStore = useUserStore.getState();
-  userStore.setUserId(id);
-  userStore.setUserType(userType);
-  userStore.setUserPhoneNumber(phoneNumber);
+  // getUserProfile에서 localStorage 저장까지 처리
+  await getUserProfile(data.user_id);
 
   return data;
 }
 
+// 유저 정보 조회 + localStorage 저장 통합 관리
+export async function getUserProfile(userId: number): Promise<User> {
+  console.log("유저 정보 조회 API 호출 시작");
 
-// 유저 정보 조회
-export async function getUserProfile(): Promise<User> {
-  const response = await fetch("/api/user", {
+  const response = await fetch(`/api/app_user/${userId}`, {
     method: "GET",
     credentials: "include",
   });
-  const data: User = await response.json();
-  return data;
+
+  if (!response.ok) {
+    throw new Error("유저 정보 조회 실패");
+  }
+
+  const resData = await response.json();
+  console.log("유저 정보 응답:", resData);
+
+  const userInfo: User = {
+    user_id: userId,
+    user_type: resData.user_type,
+    user_phone: resData.user_phone,
+    user_road_address: resData.user_road_address,
+    user_detail_address: resData.user_detail_address,
+  };
+
+  // 장바구니 정보 조회 (프록시 API 사용)
+  try {
+    const cartResponse = await fetch(`/api/cart/${userId}`, {
+      method: "GET",
+      credentials: "include",
+    });
+
+    if (cartResponse.ok) {
+      const cartData = await cartResponse.json();
+      console.log("장바구니 정보 응답:", cartData);
+
+      // cart_id가 있으면 설정
+      if (cartData.cart_id) {
+        const userStore = useUserStore.getState();
+        userStore.setCartId(cartData.cart_id);
+        console.log("장바구니 ID 설정:", cartData.cart_id);
+      }
+    } else {
+      console.log("장바구니 정보 조회 실패:", cartResponse.status);
+    }
+  } catch (error) {
+    console.error("장바구니 정보 조회 중 에러:", error);
+    // 장바구니 조회 실패해도 유저 정보는 정상 처리
+  }
+
+  // localStorage 저장 통합 관리
+  const userStore = useUserStore.getState();
+  userStore.setUserId(userInfo.user_id);
+  userStore.setUserType(userInfo.user_type);
+  userStore.setUserPhoneNumber(userInfo.user_phone);
+  if (userInfo.user_road_address && userInfo.user_detail_address) {
+    userStore.setUserAddress(userInfo.user_road_address, userInfo.user_detail_address);
+  }
+
+  return userInfo;
+}
+
+// 앱 시작시 자동 로그인 체크
+export async function checkAutoLogin(): Promise<User | null> {
+  const userStore = useUserStore.getState();
+  const userId = userStore.id;
+
+  if (userId) {
+    try {
+      return await getUserProfile(userId);
+    } catch (error) {
+      console.error("자동 로그인 실패:", error);
+      userStore.resetUser();
+      return null;
+    }
+  }
+
+  return null;
+}
+
+// 로그아웃 - localStorage 초기화
+export function logout(): void {
+  const userStore = useUserStore.getState();
+  userStore.resetUser();
+  useAddressStore.getState().clearAddress();
+  useAddressStore.persist.clearStorage();
+  console.log("로그아웃 완료 - localStorage 초기화");
+  // 주문 관련 상태 초기화
+  useOrderStore.getState().clearOrder();
+  useOrderStore.persist?.clearStorage?.();
+
+  // 장바구니 초기화
+  useCartStore.getState().clearCartItems();
+  useCartStore.persist?.clearStorage?.();
+
+  localStorage.removeItem("recentOrder");
+}
+
+// 유저 주소 수정 API 호출
+export async function updateUserAddress(
+  userId: number,
+  userRoadAddress: string,
+  userDetailAddress: string,
+): Promise<void> {
+  try {
+    const res = await fetch(`/api/app_user/${userId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_road_address: userRoadAddress,
+        user_detail_address: userDetailAddress,
+      }),
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error("주소 수정 실패 응답:", errorText);
+      throw new Error("주소 수정 요청 실패");
+    }
+
+    const data = await res.json();
+    console.log("✅ 주소 수정 완료:", data);
+  } catch (error) {
+    console.error("주소 수정 API 에러:", error);
+    throw error;
+  }
 }

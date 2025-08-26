@@ -1,24 +1,32 @@
 "use client";
 
+import { signin } from "@/api/authApi";
 import { useRouter } from "next/navigation";
 import Factory from "public/icons/factory";
 import KakaoIcon from "public/icons/kakao";
 import PaintBruchVertical from "public/icons/paintbrush_vertical";
 import React, { useState } from "react";
 
+import AddressIndicator from "@/components/AddressIndicator/AddressIndicator";
+import Banner from "@/components/Banner/Banner";
 import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import Button from "@/components/Button/Button";
 import CompanyTypeButton from "@/components/Button/CompanyTypeButton";
 import SelectToggleButton from "@/components/Button/SelectToggleButton";
 import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
-import DoorPreview from "@/components/DoorPreview/DoorPreview";
+import DoorPreview from "@/components/DoorPreview/NormalDoorPreview";
+import GradientText from "@/components/GradientEffectText/GradientEffectText";
+import GradientEffectText from "@/components/GradientEffectText/GradientEffectText";
 import Header from "@/components/Header/Header";
+import HomeNavigator from "@/components/HomeNavigator/HomeNavigator";
+import HomeProductContainer from "@/components/HomeProductContaines/HomeProductContainer";
 import BoxedInput from "@/components/Input/BoxedInput";
 import UnderlinedInput from "@/components/Input/UnderlinedInput";
 import SegmentedControl from "@/components/SegmentedControl/SegmentedControl";
 import BoxedSelect from "@/components/Select/BoxedSelect";
 import UnderlinedSelect from "@/components/Select/UnderlinedSelect";
+import SwitchDemo from "@/components/Switches/Switches";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 // SectionWrapper 컴포넌트 추가
@@ -57,6 +65,23 @@ const Page = () => {
   return (
     <div className="flex flex-col gap-10 p-5">
       <h1 className="mb-4 text-2xl font-bold">컴포넌트 쇼케이스</h1>
+
+      <Button
+        type="Brand"
+        text="로그인"
+        onClick={async () => {
+          try {
+            const userId = await signin({
+              phoneNumber: "01091731643",
+            });
+            console.log("로그인 성공:", userId);
+            router.replace("/");
+          } catch (error) {
+            console.error("로그인 실패:", error);
+            alert("로그인 중 오류가 발생했습니다.");
+          }
+        }}
+      />
       <SectionWrapper title="Underlined Inputs">
         <UnderlinedInput
           label={"예시레이블"}
@@ -139,7 +164,7 @@ const Page = () => {
         <BoxedInput
           label={"예시레이블"}
           value={value}
-          onChange={handleChange}
+          onChange={e => setValue(e.target.value)}
           error={!!error}
           helperText={error}
           placeholder="placeholder 텍스트"
@@ -147,15 +172,16 @@ const Page = () => {
       </SectionWrapper>
       <SectionWrapper title="Shopping Cart Cards(Steppers, Door Preview Icons 포함)">
         <ShoppingCartCard
-          title={""}
-          color={""}
-          width={""}
-          height={""}
+          title={"문짝"}
+          color={"한솔크림화이트"}
+          width={0}
+          height={0}
           hingeCount={0}
-          hingeDirection={""}
-          boring={""}
+          hingeDirection={"우경"}
+          boring={"상 40 하 100"}
           quantity={0}
           trashable={false}
+          type="door"
         />
         <Button
           type={"Brand"}
@@ -179,7 +205,7 @@ const Page = () => {
           }}
         />
         <SelectToggleButton
-          imageSrc="https://via.placeholder.com/150"
+          imageSrc="/img/color-list/hansol-cream-white.png"
           label={"레이블"}
           checked={true}
           description="설명 텍스트"
@@ -188,7 +214,7 @@ const Page = () => {
           }}
         />
         <SelectToggleButton
-          imageSrc="https://via.placeholder.com/150"
+          imageSrc="/img/color-list/hansol-cream-white.png"
           label={"레이블"}
           checked={false}
           description="설명 텍스트"
@@ -232,6 +258,45 @@ const Page = () => {
           }}
           label="박스형 셀렉트(오류 발생 시)"
         />
+      </SectionWrapper>
+      <SectionWrapper title="Switches">
+        <SwitchDemo />
+      </SectionWrapper>
+      <SectionWrapper title="Home Product Containes">
+        <HomeProductContainer />
+      </SectionWrapper>
+      <SectionWrapper title="Home Navigator">
+        <HomeNavigator />
+      </SectionWrapper>
+      <SectionWrapper title="Banner">
+        PC에서 매끄럽게 슬라이드 되지 않는 문제가 있습니다. 원인을 찾아보고 수정해야 합니다.
+        <Banner />
+      </SectionWrapper>
+      <SectionWrapper title="Gradient Effect Text">
+        <GradientEffectText text="주소를 입력해주세요." />
+      </SectionWrapper>
+      <SectionWrapper title="Address Indicator">
+        주소 입력 & 오늘 배송
+        <AddressIndicator
+          deliverySchedule="today"
+          address="서울시 강남구 역삼동 123-45"
+          timeLimit="1시간 10분 내 주문시"
+        />
+        주소 입력 & 내일 배송
+        <AddressIndicator
+          deliverySchedule="tomorrow"
+          address="서울시 강남구 역삼동 123-45"
+          timeLimit="밤 12시 전 주문시"
+        />
+        주소 입력 & 내일 영업일 X
+        <AddressIndicator
+          deliverySchedule="other"
+          address="서울시 강남구 역삼동 123-45"
+          timeLimit="12/24(일) 밤 12시 전 주문시"
+          arrivalDate="12/25(월)"
+        />
+        주소 미입력
+        <AddressIndicator address="" deliverySchedule="" timeLimit="" arrivalDate="" />
       </SectionWrapper>
     </div>
   );

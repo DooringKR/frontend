@@ -25,7 +25,7 @@ function Accessory() {
         <div>
           <p>제조사 : {accessoryItem.madeBy}</p>
           <p>모델명 : {accessoryItem.model}</p>
-          {accessoryItem.accessoryRequests && <p>요청 사항 : {accessoryItem.accessoryRequests}</p>}
+          {accessoryItem.accessoryRequest && <p>요청 사항 : {accessoryItem.accessoryRequest}</p>}
         </div>
         <div className="flex justify-between">
           <div className="mt-4 text-lg font-bold">{total.toLocaleString()}원</div>

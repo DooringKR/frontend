@@ -1,14 +1,5 @@
+import { HardwareItem } from "@/types/itemTypes";
 import { create } from "zustand";
-
-export type HardwareItem = {
-  category: "hardware";
-  slug: "hinge" | "rail" | "bolt" | null;
-  madeBy: string;
-  model: string;
-  hardwareRequests: string | null;
-  count: number | null;
-  price: number | null;
-};
 
 interface HardwareStore {
   hardwareItem: HardwareItem;
@@ -22,16 +13,18 @@ const initialState: HardwareItem = {
   slug: null,
   madeBy: "",
   model: "",
-  hardwareRequests: null,
+  hardwareRequest: null,
   count: null,
   price: null,
+  cartItemId: undefined,
 };
 
 const useHardwareStore = create<HardwareStore>(set => ({
   hardwareItem: initialState,
-  updateItem: payload => set(state => ({
-    hardwareItem: { ...state.hardwareItem, ...payload },
-  })),
+  updateItem: payload =>
+    set(state => ({
+      hardwareItem: { ...state.hardwareItem, ...payload },
+    })),
   updatePriceAndCount: (price, count) =>
     set(state => ({ hardwareItem: { ...state.hardwareItem, price, count } })),
   resetHardwareItem: () => set({ hardwareItem: initialState }),

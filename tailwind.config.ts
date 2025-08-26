@@ -10,18 +10,33 @@ const config: Config = {
     screens: {},
     extend: {
       fontFamily: {
-        sans: ['Pretendard', 'sans-serif'], // Pretendard를 기본 sans-serif로 설정
+        sans: [
+          "Pretendard",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "system-ui",
+          "Roboto",
+          "Helvetica Neue",
+          "Segoe UI",
+          "Apple SD Gothic Neo",
+          "Noto Sans KR",
+          "Malgun Gothic",
+          "Apple Color Emoji",
+          "Segoe UI Emoji",
+          "Segoe UI Symbol",
+          "sans-serif",
+        ],
       },
       fontWeight: {
-        100: '100',
-        200: '200',
-        300: '300',
-        400: '400',
-        500: '500',
-        600: '600',
-        700: '700',
-        800: '800',
-        900: '900',
+        100: "100",
+        200: "200",
+        300: "300",
+        400: "400",
+        500: "500",
+        600: "600",
+        700: "700",
+        800: "800",
+        900: "900",
       },
       colors: {
         brand: {
@@ -35,7 +50,7 @@ const config: Config = {
         red: {
           300: "#FCA5A5",
           500: "#EF4444",
-        }
+        },
       },
     },
   },

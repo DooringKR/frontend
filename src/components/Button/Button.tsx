@@ -9,9 +9,10 @@ interface ButtonProps extends IconProps {
   text: string;
   onClick?: () => void;
   disabled?: boolean;
+  className?: string;
 }
 
-const Button: React.FC<ButtonProps> = ({ type, text, onClick, disabled, icon }) => {
+const Button: React.FC<ButtonProps> = ({ type, text, onClick, disabled, icon, className }) => {
   const getClassName = () => {
     switch (type) {
       case "Brand":
@@ -37,9 +38,9 @@ const Button: React.FC<ButtonProps> = ({ type, text, onClick, disabled, icon }) 
         ].join(" ");
       case "BrandInverse":
         return [
-          "bg-brand-50 px-4 py-3 rounded-[12px]",
+          "bg-brand-100 px-4 py-3 rounded-[12px]",
           "text-brand-600 text-[17px] font-500",
-          "hover:bg-brand-100 focus:ring-4 focus:ring-brand-200",
+          "hover:bg-brand-200 focus:ring-4 focus:ring-brand-200",
           "disabled:bg-brand-50 disabled:text-brand-200 disabled:cursor-not-allowed",
         ].join(" ");
       case "GrayMedium":
@@ -63,7 +64,7 @@ const Button: React.FC<ButtonProps> = ({ type, text, onClick, disabled, icon }) 
 
   return (
     <button
-      className={`button w-full ${getClassName()} flex items-center justify-between`}
+      className={`button ${getClassName()} flex items-center justify-center ${className || "w-full"}`}
       onClick={onClick}
       disabled={disabled}
     >

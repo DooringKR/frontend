@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 
 interface BoringInputFieldProps {
-  value: number;
-  onChange: (value: number) => void;
+  value: number | null;
+  onChange: (value: number | null) => void;
   placeholder?: string;
   error?: string;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 const BoringInputField: React.FC<BoringInputFieldProps> = ({
@@ -12,6 +14,8 @@ const BoringInputField: React.FC<BoringInputFieldProps> = ({
   onChange,
   placeholder,
   error,
+  onFocus,
+  onBlur,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
 
@@ -26,19 +30,38 @@ const BoringInputField: React.FC<BoringInputFieldProps> = ({
   }
 
   return (
-    <input
-      type="number"
-      className={`w-full rounded-[10px] px-1 py-[7px] outline-none ${
-        error
-          ? "border-[2px] border-red-300"
-          : "border-[1px] border-gray-200 hover:border-[2px] hover:border-brand-100 focus:border-[2px] focus:border-brand-300"
-      } text-center placeholder-gray-300`}
-      value={value}
-      onChange={e => onChange(Number(e.target.value))}
-      placeholder={placeholder}
-      onFocus={() => setIsFocused(true)}
-      onBlur={() => setIsFocused(false)}
-    />
+    <div className="relative flex w-full items-center">
+      <input
+        type="number"
+        inputMode="numeric"
+        className={`w-full rounded-[10px] px-1 py-[7px] text-[16px]/[22px] outline-none hover:py-[6px] focus:py-[6px] ${
+          error
+            ? "border-[2px] border-red-300"
+            : "border-[1px] border-gray-200 hover:border-[2px] hover:border-brand-100 focus:border-[2px] focus:border-brand-300"
+        } text-center placeholder-gray-300`}
+        value={value === null ? "" : value}
+        onChange={e => {
+          const val = e.target.value.replace(/[^0-9]/g, "");
+          if (val === "") {
+            onChange(null);
+          } else {
+            onChange(Number(val));
+          }
+        }}
+        placeholder={placeholder}
+        onFocus={() => {
+          setIsFocused(true);
+          onFocus?.();
+        }}
+        onBlur={() => {
+          setIsFocused(false);
+          onBlur?.();
+        }}
+      />
+      {value && (
+        <span className="ml-1 select-none text-[16px]/[22px] font-400 text-gray-700">mm</span>
+      )}
+    </div>
   );
 };
 

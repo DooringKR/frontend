@@ -1,7 +1,6 @@
 "use client";
 
 import { CATEGORY_LIST } from "@/constants/category";
-import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
@@ -27,6 +26,7 @@ export default function AddressModal({ onClose, onAddressSelect }: AddressModalP
   const [address2, setAddress2] = useState<string>("");
   const [deliveryMessage, setDeliveryMessage] = useState<string | null>(null);
   const [deliveryMessageColor, setDeliveryMessageColor] = useState<string>("text-[#14ae5c]");
+  const [isDeliveryPossible, setIsDeliveryPossible] = useState(false);
 
   const handleComplete = async (address: string) => {
     setAddress1(address);
@@ -50,38 +50,43 @@ export default function AddressModal({ onClose, onAddressSelect }: AddressModalP
     onClose();
   };
 
+  const isAddressEntered = address1.trim() !== "" && address2.trim() !== "";
+
   return (
     <div className="fixed inset-0 z-30 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="relative h-full w-full max-w-lg bg-white p-6">
+      <div className="relative flex h-full w-full max-w-lg flex-col bg-white p-6">
         <button type="button" onClick={onClose} className="absolute right-5 top-5 text-gray-500">
           ✕
         </button>
 
-        <h1 className="mb-4 text-2xl font-semibold">
-          <span className="font-bold">자재</span>를 배송받을 주소를 <br />
-          입력해주세요.
-        </h1>
+        <div className="flex-grow">
+          <h1 className="mb-5 text-[23px] font-700">
+            {/* <span className="font-bold">자재</span>를 배송받을 주소를 <br />
+          입력해주세요. */}
+            <span>배송주소</span>
+          </h1>
 
-        <div className="mb-4 flex flex-col gap-[10px]">
-          <label>주소</label>
-          <DaumPostcodePopup address1={address1} onComplete={handleComplete} />
+          <div className="flex flex-col gap-[10px]">
+            <label className="text-sm font-400 text-gray-600">주소</label>
+            <DaumPostcodePopup address1={address1} onComplete={handleComplete} />
 
-          {deliveryMessage && (
-            <p
-              className={`mt-[-10px] h-[49px] w-full rounded-[10px] bg-[#f4f4f4] px-4 pt-[18px] text-base ${deliveryMessageColor}`}
-            >
-              {deliveryMessage}
-            </p>
-          )}
+            {deliveryMessage && (
+              <p
+                className={`mt-[-10px] h-[49px] w-full rounded-[10px] bg-[#f4f4f4] px-4 pt-[18px] text-base ${deliveryMessageColor}`}
+              >
+                {deliveryMessage}
+              </p>
+            )}
 
-          <Input
-            name="상세주소"
-            type="text"
-            value={address2}
-            onChange={e => setAddress2(e.target.value)}
-            placeholder="상세주소 (예: 101동 501호 / 단독주택)"
-            className="h-[50px] w-full px-4 text-base"
-          />
+            <Input
+              name="상세주소"
+              type="text"
+              value={address2}
+              onChange={e => setAddress2(e.target.value)}
+              placeholder="상세주소 (예: 101동 501호 / 단독주택)"
+              className="h-[50px] w-full px-4 py-3 text-base"
+            />
+          </div>
         </div>
 
         <Button
@@ -91,7 +96,7 @@ export default function AddressModal({ onClose, onAddressSelect }: AddressModalP
           selected={!isButtonDisabled}
           className="w-full"
         >
-          다음
+          저장하기
         </Button>
       </div>
     </div>

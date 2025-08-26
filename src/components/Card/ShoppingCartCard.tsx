@@ -1,125 +1,180 @@
-import MinusIcon from "public/icons/minus";
-import PlusIcon from "public/icons/plus";
-import TrashCan from "public/icons/trash_can";
 import React from "react";
 
-import Button2 from "../Button/Button";
+import formatBoring from "@/utils/formatBoring";
+import formatSize from "@/utils/formatSize";
+
+import Button from "../Button/Button";
 import DoorPreviewIcon from "../DoorPreviewIcon/DoorPreviewIcon";
+import QuantitySelector from "../QuantitySelector/QuantitySelector";
 
 interface ShoppingCartCardProps {
+  type: "door" | "cabinet" | "finish" | "accessory" | "hardware";
   title: string;
-  color: string;
-  width: string;
-  height: string;
-  hingeCount: number;
-  hingeDirection: string;
-  boring: string;
+  totalPrice?: number;
+  color?: string;
+  width?: number;
+  height?: number;
+  depth?: number;
+  hingeCount?: number;
+  hingeDirection?: string;
+  boring?: string | (number | null)[];
+  boringCategory?: string;
   quantity: number;
   trashable: boolean;
+  showQuantitySelector?: boolean;
+  request?: string;
   onOptionClick?: () => void;
   onDecrease?: () => void;
   onIncrease?: () => void;
+  bodyMaterial?: string;
+  handleType?: string;
+  finishType?: string;
+  showBar?: string;
+  drawerType?: string;
+  railType?: string;
+  riceRail?: string;
+  lowerDrawer?: string;
+  depthIncrease?: number;
+  heightIncrease?: number;
+  manufacturer?: string;
+  modelName?: string;
+  size?: string;
 }
 
 const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
+  type,
   title,
+  totalPrice,
   color,
   width,
   height,
+  depth,
   hingeCount,
   hingeDirection,
   boring,
+  boringCategory,
   quantity,
   trashable,
+  showQuantitySelector,
+  request,
   onOptionClick,
   onDecrease,
   onIncrease,
+  bodyMaterial,
+  handleType,
+  finishType,
+  showBar,
+  drawerType,
+  railType,
+  riceRail,
+  lowerDrawer,
+  depthIncrease,
+  heightIncrease,
+  manufacturer,
+  modelName,
+  size,
 }) => {
   return (
-    <div className="flex w-full flex-col gap-[20px] rounded-[16px] border-[1px] border-gray-200 bg-white p-[20px]">
+    <div className="flex w-full flex-col gap-3 rounded-[16px] border-[1px] border-gray-200 bg-white p-[20px]">
       {/* 상품 정보 */}
       <div className="flex justify-between gap-[20px]">
         <div className="flex flex-col gap-2">
-          <div className="text-[17px} font-600 text-gray-800">{title}</div>
+          <div className="text-[17px] font-600 text-gray-800">{title}</div>
           <div className="flex flex-col text-[15px] font-400 text-gray-500">
-            <div>색상 : {color}</div>
-            <div>가로 길이 : {width}</div>
-            <div>세로 길이 : {height}</div>
-            <div>경첩 개수 : {hingeCount}개</div>
-            <div>경첩 방향 : {hingeDirection}</div>
-            <div>보링 치수 : {boring}</div>
+            {color && <div>색상 : {color}</div>}
+            {bodyMaterial && <div>몸통 소재 및 두께 : {bodyMaterial}</div>}
+            {width && (
+              <div>
+                {type === "cabinet"
+                  ? `너비 : ${formatSize(width.toString())}`
+                  : `가로 길이 : ${formatSize(width.toString())}`}
+              </div>
+            )}
+            {height && (
+              <div>
+                {type === "cabinet" || type === "finish"
+                  ? `높이 : ${formatSize(height.toString())}`
+                  : `세로 길이 : ${formatSize(height.toString())}`}
+              </div>
+            )}
+            {heightIncrease && <div>⤷ 높이 키우기 : {formatSize(heightIncrease.toString())}</div>}
+            {heightIncrease && (
+              <div>
+                ⤷ 합산 높이 : {formatSize((Number(height) + Number(heightIncrease)).toString())}
+              </div>
+            )}
+            {depth && <div>깊이 : {formatSize(depth.toString())}</div>}
+            {depthIncrease && <div>⤷ 깊이 키우기 : {formatSize(depthIncrease.toString())}</div>}
+            {depthIncrease && (
+              <div>
+                ⤷ 합산 깊이 : {formatSize((Number(depth) + Number(depthIncrease)).toString())}
+              </div>
+            )}
+            {hingeCount && <div>경첩 개수 : {hingeCount}개</div>}
+            {hingeDirection && <div>경첩 방향 : {hingeDirection}</div>}
+            {boring && (
+              <div>
+                보링 치수 : {Array.isArray(boring) ? formatBoring(boring, boringCategory) : boring}
+              </div>
+            )}
+            {showBar && <div>쇼바 종류 : {showBar}</div>}
+            {handleType && <div>손잡이 종류 : {handleType}</div>}
+            {drawerType && <div>서랍 종류 : {drawerType}</div>}
+            {railType && <div>레일 종류 : {railType}</div>}
+            {riceRail && <div>밥솥 레일 추가 여부 : {riceRail}</div>}
+            {lowerDrawer && <div>하부 서랍장 추가 여부 : {lowerDrawer}</div>}
+            {finishType && <div>마감 방식 : {finishType}</div>}
+            {manufacturer && <div>제조사 : {manufacturer}</div>}
+            {modelName && <div>모델명 : {modelName}</div>}
+            {size && <div>사이즈 : {size}</div>}
+            {request && <div>제작 시 요청 사항 : {request}</div>}
           </div>
         </div>
-        <DoorPreviewIcon
-          DoorType={"플랩문"}
-          FatOrTall={"Tall"}
-          BoringDirection={hingeDirection === "우경" ? "right" : "left"}
-          BoringNum={([2, 3, 4].includes(hingeCount) ? hingeCount : 2) as 2 | 3 | 4}
-        />
+        {type === "door" && (title === "플랩문" || title === "일반문") && hingeCount && (
+          <DoorPreviewIcon
+            DoorType={title === "플랩문" ? "플랩문" : "일반문"}
+            FatOrTall={
+              width && height
+                ? Number(width) > Number(height)
+                  ? "Fat"
+                  : Number(width) < Number(height)
+                    ? "Tall"
+                    : "Same"
+                : "Tall"
+            }
+            BoringDirection={
+              hingeDirection === "우경"
+                ? "right"
+                : hingeDirection === "좌경"
+                  ? "left"
+                  : title === "플랩문"
+                    ? "left"
+                    : null
+            }
+            BoringNum={([2, 3, 4].includes(hingeCount) ? hingeCount : 2) as 2 | 3 | 4}
+          />
+        )}
       </div>
+      {/* 총 금액 */}
+      {totalPrice && (
+        <div className="flex items-end justify-end text-[20px]/[28px] font-600 text-gray-900">
+          {totalPrice}원
+        </div>
+      )}
       {/* button section */}
       <div className="ml-auto flex w-fit items-center gap-3">
-        <Button2 type={"OutlinedMedium"} text={"옵션 변경"} />
-        <QuantitySelector
-          quantity={quantity}
-          onDecrease={onDecrease}
-          onIncrease={onIncrease}
-          trashable={trashable}
-        />
+        <Button type={"OutlinedMedium"} text={"옵션 변경"} onClick={onOptionClick} />
+        {showQuantitySelector !== false && (
+          <QuantitySelector
+            quantity={quantity}
+            onDecrease={onDecrease}
+            onIncrease={onIncrease}
+            trashable={trashable}
+          />
+        )}
       </div>
     </div>
   );
-  function QuantitySelector({
-    trashable,
-    quantity,
-    onDecrease,
-    onIncrease,
-  }: {
-    trashable: boolean;
-    quantity: number;
-    onDecrease?: () => void;
-    onIncrease?: () => void;
-  }) {
-    return (
-      <div className="flex items-center">
-        <button
-          className="h-[40px] rounded-l-[10px] border-b border-l border-t px-2"
-          style={{
-            transition: "background 0.2s",
-          }}
-          onMouseEnter={e =>
-            (e.currentTarget.style.background = "linear-gradient(90deg, #F3F4F6 0%, #FFF 100%)")
-          }
-          onMouseLeave={e => (e.currentTarget.style.background = "")}
-          onClick={onDecrease}
-          aria-label="수량 감소"
-        >
-          {trashable && quantity === 1 ? (
-            <TrashCan disabled={false} />
-          ) : (
-            <MinusIcon disabled={quantity <= 0} />
-          )}
-        </button>
-        <div className="flex h-[40px] w-[32px] items-center justify-center border-b border-t text-center text-[16px] font-500 text-gray-700">
-          {quantity}
-        </div>
-        <button
-          className="h-[40px] rounded-r-[10px] border-b border-r border-t px-2"
-          style={{
-            transition: "background 0.2s",
-          }}
-          onMouseEnter={e =>
-            (e.currentTarget.style.background = "linear-gradient(270deg, #F3F4F6 0%, #FFF 100%)")
-          }
-          onMouseLeave={e => (e.currentTarget.style.background = "")}
-          onClick={onIncrease}
-          aria-label="수량 증가"
-        >
-          <PlusIcon disabled={false} />
-        </button>
-      </div>
-    );
-  }
 };
 
 export default ShoppingCartCard;

@@ -14,13 +14,18 @@ function CategorySection() {
   const { cartItems } = useCartStore();
 
   const handleCategoryClick = (slug: string) => {
-    const addressStorage = localStorage.getItem("address-storage");
-
-    if (!addressStorage) {
-      router.push(`/address-check?category=${slug}`);
+    if (slug === "finish") {
+      router.push(`/order/color?type=finish`);
     } else {
-      router.push(`/order/${slug}`);
+      router.push(`/order?type=${slug}`);
     }
+    // const addressStorage = localStorage.getItem("address-storage");
+
+    // if (!addressStorage) {
+    //   router.push(`/address-check?category=${slug}`);
+    // } else {
+    //   router.push(`/order?category=${slug}`);
+    // }
   };
 
   return (

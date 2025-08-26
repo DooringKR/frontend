@@ -1,25 +1,5 @@
+import { CabinetItem } from "@/types/itemTypes";
 import { create } from "zustand";
-
-export type CabinetItem = {
-  category: "cabinet";
-  slug: "lower" | "upper" | "open" | "flap" | null;
-  color: string;
-  handleType: "channel" | "outer" | "pull-down" | null;
-  compartmentCount: number | null;
-  flapStayType: string | null;
-  material: string;
-  thickness: string;
-  width: number | null;
-  height: number | null;
-  depth: number | null;
-  option: string[];
-  finishType: "makura" | "urahome" | null;
-  drawerType: string | null;
-  railType: string | null;
-  cabinetRequests: string | null;
-  count: number | null;
-  price: number | null;
-};
 
 interface CabinetStore {
   cabinetItem: CabinetItem;
@@ -32,21 +12,34 @@ const initialState: CabinetItem = {
   category: "cabinet",
   slug: null,
   color: "",
+  width: null,
+  height: null,
+  depth: null,
+  cabinetRequests: null,
   handleType: null,
+
+  finishType: null,
+  bodyType: null,
+  bodyTypeDirectInput: null,
+
+  absorberType: null,
+  absorberTypeDirectInput: null,
+
+  drawerType: null,
+  railType: null,
+
+  addRiceCookerRail: null,
+  addBottomDrawer: null,
+
+  count: null,
+  price: null,
+  cartItemId: undefined,
+
   compartmentCount: null,
   flapStayType: null,
   material: "",
   thickness: "",
-  width: null,
-  height: null,
-  depth: null,
   option: [],
-  finishType: null,
-  drawerType: null,
-  railType: null,
-  cabinetRequests: null,
-  count: null,
-  price: null,
 };
 
 const useCabinetStore = create<CabinetStore>(set => ({
