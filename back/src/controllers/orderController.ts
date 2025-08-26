@@ -126,3 +126,46 @@ export async function getOrdersByUser(req: Request, res: Response) {
     return res.status(500).json({ message: "서버 내부 오류" });
   }
 }
+
+export async function getOrderById(req: Request, res: Response) {
+  const { order_id } = req.params;
+
+  if (!order_id) {
+    return res.status(400).json({ message: "order_id가 필요합니다." });
+  }
+
+  try {
+    const order = await prisma.order.findUnique({
+      where: { order_id },
+      include: {
+        order_items: {
+          select: {
+            order_item_id: true,
+            product_type: true,
+            unit_price: true,
+            item_count: true,
+            item_options: true,
+          }
+        }
+      }
+    });
+
+    if (!order) {
+      return res.status(404).json({ message: "해당 주문을 찾을 수 없습니다." });
+    }
+
+    return res.status(200).json({
+      order_id: order.order_id,
+      cart_id: order.cart_id,
+      order_type: order.order_type,
+      recipient_phone: order.recipient_phone,
+      order_price: order.order_price,
+      order_options: order.order_options,
+      created_at: order.created_at,
+      order_items: order.order_items ?? [],
+    });
+  } catch (error) {
+    console.error("getOrderById error:", error);
+    return res.status(500).json({ message: "서버 내부 오류" });
+  }
+}
