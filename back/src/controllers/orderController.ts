@@ -97,20 +97,15 @@ export async function getOrdersByUser(req: Request, res: Response) {
       where: { user_id },
       orderBy: { created_at: "desc" },
       include: {
-        cart: {
+        order_items: {
           select: {
-            id: true,
-            cart_items: {
-              select: {
-                id: true,
-                product_type: true,
-                unit_price: true,
-                item_count: true,
-                item_options: true,
-              },
-            },
-          },
-        },
+            order_item_id: true,
+            product_type: true,
+            unit_price: true,
+            item_count: true,
+            item_options:true
+          }
+        }
       },
     });
 
@@ -123,7 +118,7 @@ export async function getOrdersByUser(req: Request, res: Response) {
         order_price: order.order_price,
         order_options: order.order_options,
         created_at: order.created_at,
-        cart_items: order.cart?.cart_items ?? [],
+        order_items: order?.order_items ?? [],
       })),
     });
   } catch (err: any) {
