@@ -34,9 +34,9 @@ export const OrderCard = ({ order }: OrderCardProps) => {
             <div>
                 {/* 총 금액 */}
                 <div className="flex justify-between items-center">
-                    {order.cart_items.length > 1 && (
+                    {/* {order.cart_items.length > 1 && (
                         <Chip text={`외 ${order.cart_items.length - 1}개`} color='gray' />
-                    )}
+                    )} */}
                     <div className="text-[20px]/[28px] font-600 text-blue-500">{formatPrice(order.order_price)}원</div>
                 </div>
             </div>

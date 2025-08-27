@@ -1,22 +1,24 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 
 interface HomeProductButtonProps {
   label: string;
   icon: React.ReactNode;
+  image: string;
   onClick?: () => void;
 }
 
-const HomeProductButton: React.FC<HomeProductButtonProps> = ({ label, icon, onClick }) => {
+const HomeProductButton: React.FC<HomeProductButtonProps> = ({ label, icon, image, onClick }) => {
   return (
     <button
       type="button"
-      className={`flex min-h-0 min-w-0 flex-1 flex-col items-center justify-center gap-2`}
+      className={`flex min-h-0 min-w-0 flex-1 flex-col items-center justify-center gap-2 w-full h-full`}
       onClick={onClick}
     >
-      <div className="w-full">{icon}</div>
-      <span className="text-center text-[17px] font-500 text-gray-500">{label}</span>
+      <Image src={image} alt={label} width={100} height={100} className="w-full h-full object-cover" />
+      <span className="text-center text-[17px]/[24px] font-500 text-gray-500 w-full">{label}</span>
     </button>
   );
 };

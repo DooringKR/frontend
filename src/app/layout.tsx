@@ -54,7 +54,7 @@ function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-gray-100">
-        <div className="mx-auto min-h-screen max-w-[460px] bg-white">{children}</div>
+        <div className="mx-auto min-h-screen max-w-[460px] bg-white shadow-[0_0_20px_0_rgba(3,7,18,0.10)]">{children}</div>
         {/* 우측 하단 고정 버튼 */}
         <FloatingButton />
       </body>

@@ -38,7 +38,7 @@ function DoorCategoryPage() {
     <div className="flex flex-col">
       <TopNavigator />
       <Header size="Large" title={`${header} 종류를 선택해주세요`} />
-      <div className="grid w-full grid-cols-3 gap-x-3 gap-y-[40px] px-5 pb-5 pt-10">
+      <div className="grid w-full grid-cols-2 gap-x-3 gap-y-[40px] px-5 pb-5 pt-10">
         {categories.map((category, idx) => (
           <div
             key={category.slug}
@@ -65,9 +65,10 @@ function DoorCategoryPage() {
                   objectFit: "contain",
                   verticalAlign: category.slug === "drawer" ? "top" : "middle",
                 }}
+                className="w-full h-full object-cover"
               />
             </div>
-            <div className="text-center text-[16px]/[22px] font-400 text-gray-600">
+            <div className="text-center text-[17px]/[24px] font-500 text-gray-500">
               {category.name}
             </div>
           </div>

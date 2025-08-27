@@ -26,6 +26,7 @@ const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, cartItemCount 
       className={`flex h-[60px] w-full flex-shrink-0 items-center justify-between gap-[12px] ${page === HOME_PAGE ? "pl-5 pr-2" : "px-5"
         }`}
     >
+      {/* 좌측 버튼 */}
       {page === HOME_PAGE ? (
         <h3 className="text-xl font-700">바로가구</h3>
       ) : page === MY_PAGE || page === CART_PAGE ? (
@@ -64,6 +65,7 @@ const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, cartItemCount 
 
       {page === HOME_PAGE ? (
         <div className="flex">
+          {/* 장바구니 아이콘 */}
           <div className="rounded-2xl p-3 transition hover:bg-gray-100">
             <div className="relative">
               <Link href={"/cart"} className="cursor-pointer">
@@ -77,11 +79,12 @@ const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, cartItemCount 
               )}
             </div>
           </div>
-          <div className="rounded-2xl p-3 transition hover:bg-gray-100">
+          {/* 마이페이지 아이콘 */}
+          {/* <div className="rounded-2xl p-3 transition hover:bg-gray-100">
             <Link href="/mypage" className="cursor-pointer">
               <img src={"/icons/user-round.svg"} alt="유저 아이콘"></img>
             </Link>
-          </div>
+          </div> */}
         </div>
       ) : (
         ""
