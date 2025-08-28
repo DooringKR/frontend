@@ -97,18 +97,27 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
                   : `세로 길이 : ${formatSize(height.toString())}`}
               </div>
             )}
-            {heightIncrease && <div>⤷ 높이 키우기 : {formatSize(heightIncrease.toString())}</div>}
-            {heightIncrease && (
-              <div>
-                ⤷ 합산 높이 : {formatSize((Number(height) + Number(heightIncrease)).toString())}
-              </div>
+            {heightIncrease !== undefined && heightIncrease !== null && heightIncrease > 0 && (
+              <>
+                <div>⤷ 높이 키우기 : {formatSize(heightIncrease.toString())}</div>
+                {height && (
+                  <div>
+                    ⤷ 합산 높이 : {formatSize((Number(height) + Number(heightIncrease)).toString())}
+                  </div>
+                )}
+              </>
             )}
+
             {depth && <div>깊이 : {formatSize(depth.toString())}</div>}
-            {depthIncrease && <div>⤷ 깊이 키우기 : {formatSize(depthIncrease.toString())}</div>}
-            {depthIncrease && (
-              <div>
-                ⤷ 합산 깊이 : {formatSize((Number(depth) + Number(depthIncrease)).toString())}
-              </div>
+            {depthIncrease !== undefined && depthIncrease !== null && depthIncrease > 0 && (
+              <>
+                <div>⤷ 깊이 키우기 : {formatSize(depthIncrease.toString())}</div>
+                {depth && (
+                  <div>
+                    ⤷ 합산 깊이 : {formatSize((Number(depth) + Number(depthIncrease)).toString())}
+                  </div>
+                )}
+              </>
             )}
             {hingeCount && <div>경첩 개수 : {hingeCount}개</div>}
             {hingeDirection && <div>경첩 방향 : {hingeDirection}</div>}

@@ -31,9 +31,9 @@ import formatColor from "@/utils/formatColor";
 import { getCategoryLabel } from "@/utils/getCategoryLabel";
 
 const DOOR_TYPE_SLUG_MAP: Record<string, string> = {
-  standard: "normal",
-  flap: "flap",
-  drawer: "drawer",
+  standard: "STANDARD",
+  flap: "FLAP",
+  drawer: "DRAWER",
 };
 
 const CATEGORY_MAP: Record<string, string> = {
@@ -89,37 +89,19 @@ export default function CartClient() {
           if (category === "door") {
             const hingeCount = Number(item.item_options.hinge_count ?? 0);
 
-            // hinge_count에 따라 boring 배열 동적 생성
-            const boringArray = [];
-            for (let i = 0; i < hingeCount; i++) {
-              switch (i) {
-                case 0:
-                  boringArray.push(item.item_options.first_hinge_size ?? null);
-                  break;
-                case 1:
-                  boringArray.push(item.item_options.second_hinge_size ?? null);
-                  break;
-                case 2:
-                  boringArray.push(item.item_options.third_hinge_size ?? null);
-                  break;
-                case 3:
-                  boringArray.push(item.item_options.fourth_hinge_size ?? null);
-                  break;
-                default:
-                  boringArray.push(null);
-              }
-            }
-
             const convertedItem: DoorItem = {
               category: "door",
-              doorType: slug,
-              color: item.item_options.door_color ?? "",
-              width: String(item.item_options.door_width ?? ""),
-              height: String(item.item_options.door_height ?? ""),
-              hingeCount,
-              hingeDirection: item.item_options.hinge_direction ?? "",
-              boring: boringArray,
-              boringCategory: item.item_options.door_type?.toLowerCase(),
+              door_type: slug,
+              door_color: item.item_options.door_color ?? "",
+              door_width: Number(item.item_options.door_width ?? 0),
+              door_height: Number(item.item_options.door_height ?? 0),
+              hinge_count: hingeCount,
+              hinge_direction: item.item_options.hinge_direction ?? "",
+              first_hinge: item.item_options.first_hinge_size ?? null,
+              second_hinge: item.item_options.second_hinge_size ?? null,
+              third_hinge: item.item_options.third_hinge_size ?? null,
+              fourth_hinge: item.item_options.fourth_hinge_size ?? null,
+              door_location: item.item_options.door_location ?? null,
               count: item.item_count ?? 1,
               price: item.unit_price ?? 10000,
               cartItemId: item.cart_item_id,
@@ -132,12 +114,13 @@ export default function CartClient() {
 
             const convertedItem: FinishItem = {
               category: "finish",
-              color: itemOptions.finish_color ?? "",
-              baseDepth: Number(itemOptions.finish_base_depth ?? 0),
-              additionalDepth: Number(itemOptions.finish_additional_depth ?? 0),
-              baseHeight: Number(itemOptions.finish_base_height ?? 0),
-              additionalHeight: Number(itemOptions.finish_additional_height ?? 0),
-              finishRequest: itemOptions.finish_request ?? "",
+              finish_color: itemOptions.finish_color ?? "",
+              finish_base_depth: Number(itemOptions.finish_base_depth ?? 0),
+              finish_additional_depth: Number(itemOptions.finish_additional_depth ?? 0),
+              finish_base_height: Number(itemOptions.finish_base_height ?? 0),
+              finish_additional_height: Number(itemOptions.finish_additional_height ?? 0),
+              finish_request: itemOptions.finish_request ?? "",
+              finish_location: itemOptions.finish_location ?? null,
               count: item.item_count ?? 1,
               price: item.unit_price ?? 10000,
               cartItemId: item.cart_item_id,
@@ -148,18 +131,23 @@ export default function CartClient() {
           if (category === "cabinet") {
             const convertedItem: CabinetItem = {
               category,
-              cabinetType: item.item_options.cabinet_type ?? "",
-              color: item.item_options.cabinet_color ?? "",
-              width: String(item.item_options.cabinet_width ?? ""),
-              height: String(item.item_options.cabinet_height ?? ""),
-              depth: String(item.item_options.cabinet_depth ?? ""),
-              bodyMaterial: item.item_options.body_type ?? "",
-              handleType: item.item_options.handle_type ?? "",
-              finishType: item.item_options.finish_type ?? "",
-              showBar: item.item_options.absorber_type ?? "",
-              drawerType: item.item_options.drawer_type ?? "",
-              railType: item.item_options.rail_type ?? "",
-              request: item.item_options.cabinet_request ?? "",
+              cabinet_type: item.item_options.cabinet_type ?? "",
+              cabinet_color: item.item_options.cabinet_color ?? "",
+              cabinet_width: Number(item.item_options.cabinet_width ?? 0),
+              cabinet_height: Number(item.item_options.cabinet_height ?? 0),
+              cabinet_depth: Number(item.item_options.cabinet_depth ?? 0),
+              cabinet_location: item.item_options.cabinet_location ?? null,
+              cabinet_request: item.item_options.cabinet_request ?? null,
+              handle_type: item.item_options.handle_type ?? "",
+              finish_type: item.item_options.finish_type ?? "",
+              body_type: item.item_options.body_type ?? "",
+              body_type_direct_input: item.item_options.body_type_direct_input ?? null,
+              absorber_type: item.item_options.absorber_type ?? null,
+              absorber_type_direct_input: item.item_options.absorber_type_direct_input ?? null,
+              drawer_type: item.item_options.drawer_type ?? null,
+              rail_type: item.item_options.rail_type ?? null,
+              add_rice_cooker_rail: item.item_options.add_rice_cooker_rail ?? null,
+              add_bottom_drawer: item.item_options.add_bottom_drawer ?? null,
               count: item.item_count ?? 1,
               price: item.unit_price ?? 10000,
               cartItemId: item.cart_item_id,
@@ -170,11 +158,10 @@ export default function CartClient() {
           if (category === "hardware") {
             const convertedItem: HardwareItem = {
               category,
-              hardwareType: item.item_options.hardware_type ?? "",
-              madeBy: item.item_options.hardware_madeby ?? "",
-              model: item.item_options.hardware_model ?? "",
-              size: item.item_options.hardware_size ?? "",
-              hardwareRequest: item.item_options.hardware_request ?? null,
+              hardware_type: item.item_options.hardware_type ?? "",
+              hardware_madeby: item.item_options.hardware_madeby ?? "",
+              hardware_size: item.item_options.hardware_size ? `${item.item_options.hardware_size}mm` : "",
+              hardware_request: item.item_options.hardware_request ?? null,
               count: item.item_count ?? 1,
               price: item.unit_price ?? 10000,
               cartItemId: item.cart_item_id,
@@ -185,14 +172,13 @@ export default function CartClient() {
           if (category === "accessory") {
             const convertedItem: AccessoryItem = {
               category,
-              accessoryType: item.item_options.accessory_type ?? "",
-              manufacturer: item.item_options.accessory_madeby ?? "",
-              modelName: item.item_options.accessory_model ?? "",
-              size: item.item_options.accessory_size ?? "",
+              accessory_type: item.item_options.accessory_type ?? "",
+              accessory_madeby: item.item_options.accessory_madeby ?? "",
+              accessory_model: item.item_options.accessory_model ?? "",
+              accessory_request: item.item_options.accessory_request ?? null,
               count: item.item_count ?? 1,
               price: item.unit_price ?? 10000,
               cartItemId: item.cart_item_id,
-              accessoryRequest: item.item_options.accessory_request ?? null,
             };
             convertedItems.push(convertedItem);
           }
@@ -381,19 +367,40 @@ export default function CartClient() {
               if (category === "door") {
                 const doorItem = item as DoorItem;
 
+                // hinge_count에 따라 boring 배열 동적 생성
+                const boringArray = [];
+                for (let i = 0; i < doorItem.hinge_count; i++) {
+                  switch (i) {
+                    case 0:
+                      boringArray.push(doorItem.first_hinge ?? null);
+                      break;
+                    case 1:
+                      boringArray.push(doorItem.second_hinge ?? null);
+                      break;
+                    case 2:
+                      boringArray.push(doorItem.third_hinge ?? null);
+                      break;
+                    case 3:
+                      boringArray.push(doorItem.fourth_hinge ?? null);
+                      break;
+                    default:
+                      boringArray.push(null);
+                  }
+                }
+
                 return (
                   <ShoppingCartCard
                     key={key}
                     type="door"
                     totalPrice={doorItem.price * doorItem.count} // 총 금액
-                    title={getCategoryLabel(doorItem.doorType, DOOR_CATEGORY_LIST, "문짝")}
-                    color={formatColor(doorItem.color)}
-                    width={Number(doorItem.width)}
-                    height={Number(doorItem.height)}
-                    hingeCount={doorItem.hingeCount > 0 ? doorItem.hingeCount : undefined}
-                    hingeDirection={formatBoringDirection(doorItem.hingeDirection)}
-                    boring={doorItem.boring}
-                    boringCategory={doorItem.boringCategory}
+                    title={getCategoryLabel(doorItem.door_type, DOOR_CATEGORY_LIST, "문짝")}
+                    color={formatColor(doorItem.door_color)}
+                    width={Number(doorItem.door_width)}
+                    height={Number(doorItem.door_height)}
+                    hingeCount={doorItem.hinge_count > 0 ? doorItem.hinge_count : undefined}
+                    hingeDirection={formatBoringDirection(doorItem.hinge_direction)}
+                    boring={boringArray}
+                    // boringCategory={doorItem.boringCategory}
                     quantity={doorItem.count}
                     trashable={true}
                     onIncrease={() => handleCountChange(category, i, doorItem.count + 1)}
@@ -411,12 +418,12 @@ export default function CartClient() {
                     type="finish"
                     totalPrice={finishItem.price * finishItem.count} // 총 금액
                     title="마감재"
-                    color={formatColor(finishItem.color)}
-                    depth={finishItem.baseDepth}
-                    depthIncrease={finishItem.additionalDepth}
-                    height={finishItem.baseHeight}
-                    heightIncrease={finishItem.additionalHeight}
-                    request={finishItem.finishRequest}
+                    color={formatColor(finishItem.finish_color)}
+                    depth={finishItem.finish_base_depth}
+                    depthIncrease={finishItem.finish_additional_depth ?? undefined}
+                    height={finishItem.finish_base_height}
+                    heightIncrease={finishItem.finish_additional_height ?? undefined}
+                    request={finishItem.finish_request ?? undefined}
                     quantity={finishItem.count}
                     showQuantitySelector={true}
                     {...commonProps}
@@ -433,21 +440,21 @@ export default function CartClient() {
                     type="cabinet"
                     totalPrice={cabinetItem.price * cabinetItem.count} // 총 금액
                     title={getCategoryLabel(
-                      cabinetItem.cabinetType,
+                      cabinetItem.cabinet_type,
                       CABINET_CATEGORY_LIST,
                       "부분장",
                     )}
-                    color={formatColor(cabinetItem.color ?? "")}
-                    width={Number(cabinetItem.width ?? 0)}
-                    height={Number(cabinetItem.height ?? 0)}
-                    depth={Number(cabinetItem.depth ?? 0)}
-                    bodyMaterial={cabinetItem.bodyMaterial ?? ""}
-                    handleType={cabinetItem.handleType ?? ""}
-                    finishType={cabinetItem.finishType ?? ""}
-                    showBar={cabinetItem.showBar ?? ""}
-                    drawerType={cabinetItem.drawerType ?? ""}
-                    railType={cabinetItem.railType ?? ""}
-                    request={cabinetItem.request ?? ""}
+                    color={formatColor(cabinetItem.cabinet_color ?? "")}
+                    width={Number(cabinetItem.cabinet_width ?? 0)}
+                    height={Number(cabinetItem.cabinet_height ?? 0)}
+                    depth={Number(cabinetItem.cabinet_depth ?? 0)}
+                    bodyMaterial={cabinetItem.body_type ?? ""}
+                    handleType={cabinetItem.handle_type ?? ""}
+                    finishType={cabinetItem.finish_type ?? ""}
+                    showBar={cabinetItem.absorber_type ?? ""}
+                    drawerType={cabinetItem.drawer_type ?? ""}
+                    railType={cabinetItem.rail_type ?? ""}
+                    request={cabinetItem.cabinet_request ?? ""}
                     quantity={cabinetItem.count ?? 0}
                     showQuantitySelector={true}
                     {...commonProps}
@@ -463,15 +470,14 @@ export default function CartClient() {
                     key={key}
                     type="accessory"
                     title={getCategoryLabel(
-                      accessoryItem.accessoryType,
+                      accessoryItem.accessory_type,
                       ACCESSORY_CATEGORY_LIST,
                       "부속",
                     )}
-                    manufacturer={accessoryItem.manufacturer}
-                    modelName={accessoryItem.modelName}
-                    size={accessoryItem.size}
+                    manufacturer={accessoryItem.accessory_madeby}
+                    modelName={accessoryItem.accessory_model}
                     quantity={accessoryItem.count}
-                    request={accessoryItem.accessoryRequest ?? undefined}
+                    request={accessoryItem.accessory_request ?? undefined}
                     showQuantitySelector={true}
                     {...commonProps}
                   />
@@ -485,13 +491,13 @@ export default function CartClient() {
                     key={key}
                     type="hardware"
                     title={getCategoryLabel(
-                      hardwareItem.hardwareType,
+                      hardwareItem.hardware_type,
                       HARDWARE_CATEGORY_LIST,
                       "하드웨어",
                     )}
-                    manufacturer={hardwareItem.madeBy}
-                    size={hardwareItem.size ? `${hardwareItem.size}mm` : ""}
-                    request={hardwareItem.hardwareRequest ?? ""}
+                    manufacturer={hardwareItem.hardware_madeby}
+                    size={hardwareItem.hardware_size ? `${hardwareItem.hardware_size}mm` : ""}
+                    request={hardwareItem.hardware_request ?? ""}
                     quantity={hardwareItem.count}
                     showQuantitySelector={true}
                     {...commonProps}

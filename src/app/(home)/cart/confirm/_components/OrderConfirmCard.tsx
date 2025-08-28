@@ -77,13 +77,17 @@ const OrderConfirmCard: React.FC<OrderConfirmCardProps> = ({
               : `세로 길이: ${formatSize(height.toString())}`}
           </p>
         )}
-        {depth && <p>깊이: {formatSize(depth.toString())}</p>}
-        {heightIncrease && <p>⤷ 높이 키우기: {formatSize(heightIncrease.toString())}</p>}
-        {height && heightIncrease && (
+        {heightIncrease !== undefined && heightIncrease !== null && heightIncrease > 0 && (
+          <p>⤷ 높이 키우기: {formatSize(heightIncrease.toString())}</p>
+        )}
+        {height && heightIncrease !== undefined && heightIncrease !== null && heightIncrease > 0 && (
           <p>⤷ 합산 높이: {formatSize((height + heightIncrease).toString())}</p>
         )}
-        {depthIncrease && <p>⤷ 깊이 키우기: {formatSize(depthIncrease.toString())}</p>}
-        {depth && depthIncrease && (
+        {depth && <p>깊이: {formatSize(depth.toString())}</p>}
+        {depthIncrease !== undefined && depthIncrease !== null && depthIncrease > 0 && (
+          <p>⤷ 깊이 키우기: {formatSize(depthIncrease.toString())}</p>
+        )}
+        {depth && depthIncrease !== undefined && depthIncrease !== null && depthIncrease > 0 && (
           <p>⤷ 합산 깊이: {formatSize((depth + depthIncrease).toString())}</p>
         )}
         {hingeCount && <p>경첩 개수: {hingeCount}개</p>}
