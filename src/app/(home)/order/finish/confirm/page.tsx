@@ -25,6 +25,7 @@ function ConfirmPageContent() {
   const depthIncrease = (cart as FinishCart)?.depthIncrease;
   const heightIncrease = (cart as FinishCart)?.heightIncrease;
   const request = (cart as FinishCart)?.request;
+  const finish_location = (cart as FinishCart)?.finish_location;
   const [quantity, setQuantity] = useState(1);
 
   // 빌드 시점에 cart가 비어있을 수 있으므로 안전한 처리
@@ -54,6 +55,7 @@ function ConfirmPageContent() {
           depthIncrease={depthIncrease ? Number(depthIncrease) : undefined}
           heightIncrease={heightIncrease ? Number(heightIncrease) : undefined}
           // 아래의 OrderSummaryCard 컴포넌트로 전달함. 여기선 0으로 전달
+          location={finish_location ?? undefined}
           quantity={0}
           trashable={false}
           showQuantitySelector={false}
@@ -90,6 +92,7 @@ function ConfirmPageContent() {
                 finish_base_height: height,
                 finish_additional_height: heightIncrease,
                 finish_request: request,
+                finish_location: finish_location,
               },
             });
             console.log(result);

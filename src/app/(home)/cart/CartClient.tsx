@@ -400,6 +400,7 @@ export default function CartClient() {
                     hingeCount={doorItem.hinge_count > 0 ? doorItem.hinge_count : undefined}
                     hingeDirection={formatBoringDirection(doorItem.hinge_direction)}
                     boring={boringArray}
+                    location={doorItem.door_location ?? ""}
                     // boringCategory={doorItem.boringCategory}
                     quantity={doorItem.count}
                     trashable={true}
@@ -424,6 +425,7 @@ export default function CartClient() {
                     height={finishItem.finish_base_height}
                     heightIncrease={finishItem.finish_additional_height ?? undefined}
                     request={finishItem.finish_request ?? undefined}
+                    location={finishItem.finish_location ?? ""}
                     quantity={finishItem.count}
                     showQuantitySelector={true}
                     {...commonProps}
@@ -455,6 +457,7 @@ export default function CartClient() {
                     drawerType={cabinetItem.drawer_type ?? ""}
                     railType={cabinetItem.rail_type ?? ""}
                     request={cabinetItem.cabinet_request ?? ""}
+                    location={cabinetItem.cabinet_location ?? ""}
                     quantity={cabinetItem.count ?? 0}
                     showQuantitySelector={true}
                     {...commonProps}

@@ -5,10 +5,15 @@ import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
+import BottomSheet from "@/components/BottomSheet/BottomSheet";
+import Button from "@/components/Button/Button";
 import Header from "@/components/Header/Header";
 import BoxedInput from "@/components/Input/BoxedInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";
+import SelectToggleButton from "@/components/Button/SelectToggleButton";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+
+import formatLocation from "@/utils/formatLocation";
 
 import { DoorCart, useSingleCartStore } from "@/store/singleCartStore";
 
@@ -37,6 +42,8 @@ function DoorPageContent() {
   const [boringSize, setBoringSize] = useState<(number | null)[]>(currentCart?.boringSize ?? []);
 
   const [request, setRequest] = useState(currentCart?.request ?? "");
+  const [door_location, setDoorLocation] = useState(currentCart?.door_location ?? "");
+  const [isDoorLocationSheetOpen, setIsDoorLocationSheetOpen] = useState(false);
 
   const category = useSingleCartStore(state => (state.cart as DoorCart).category);
   const color = useSingleCartStore(state => (state.cart as DoorCart).color);
@@ -206,10 +213,24 @@ function DoorPageContent() {
           options={[]}
           value={color ?? ""}
           onClick={() => router.back()}
-          onChange={() => {}}
+          onChange={() => { }}
           truncate={true}
         />
         {renderFormByCategory()}
+
+        <BoxedSelect
+          label="용도 ∙ 장소"
+          options={[]}
+          value={door_location ? formatLocation(door_location) : ""}
+          onClick={() => setIsDoorLocationSheetOpen(true)}
+          onChange={() => { }}
+        />
+        <DoorLocationSheet
+          isOpen={isDoorLocationSheetOpen}
+          onClose={() => setIsDoorLocationSheetOpen(false)}
+          value={door_location}
+          onChange={setDoorLocation}
+        />
         <BoxedInput
           label="제작 시 요청사항"
           placeholder="제작 시 요청사항을 입력해주세요"
@@ -218,7 +239,7 @@ function DoorPageContent() {
         />
       </div>
       <div className="h-[100px]"></div>
-      <BottomButton
+      {!isDoorLocationSheetOpen && <BottomButton
         type={"1button"}
         button1Text={"다음"}
         className="fixed bottom-0 w-full max-w-[460px]"
@@ -232,11 +253,13 @@ function DoorPageContent() {
               boringDirection: category === "normal" ? boringDirection : null,
               boringSize: category === "normal" || category === "flap" ? boringSize : undefined,
               request,
+              door_location,
             },
           });
           router.push("/order/door/confirm");
         }}
       />
+      }
     </div>
   );
 }
@@ -246,6 +269,61 @@ function DoorPage() {
     <Suspense fallback={<div>로딩 중...</div>}>
       <DoorPageContent />
     </Suspense>
+  );
+}
+
+
+
+// 용도 및 장소 선택 시트 컴포넌트
+function DoorLocationSheet({
+  isOpen,
+  onClose,
+  value,
+  onChange,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const options = [
+    { value: "KITCHEN", label: "주방" },
+    { value: "SHOES", label: "신발장" },
+    { value: "BUILT_IN", label: "붙박이장" },
+    { value: "BALCONY", label: "발코니 창고문" },
+    { value: "ETC", label: "기타 수납장" },
+  ];
+
+  return (
+    <BottomSheet
+      isOpen={isOpen}
+      title="용도 및 장소를 선택해주세요"
+      contentPadding="px-1"
+      children={
+        <div>
+          <div>
+            {options.map(option => (
+              <SelectToggleButton
+                key={option.value}
+                label={option.label}
+                checked={value === option.value}
+                onClick={() => onChange(option.value)}
+              />
+            ))}
+            <div className="p-5">
+              <Button
+                type="Brand"
+                text="다음"
+                onClick={() => {
+                  onClose();
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      }
+      onClose={onClose}
+    />
   );
 }
 

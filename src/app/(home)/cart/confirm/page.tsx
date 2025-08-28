@@ -29,6 +29,7 @@ import { getCategoryLabel } from "@/utils/getCategoryLabel";
 
 import PickUpAddressCard from "../pickup/_components/PickUpAddressCard";
 import OrderConfirmCard from "./_components/OrderConfirmCard";
+import formatLocation from "@/utils/formatLocation";
 
 export default function OrderConfirmPage() {
   const router = useRouter();
@@ -265,6 +266,7 @@ export default function OrderConfirmPage() {
                           hingeCount={doorItem.hinge_count > 0 ? doorItem.hinge_count : undefined}
                           hingeDirection={formatBoringDirection(doorItem.hinge_direction)}
                           boring={boringArray}
+                          location={doorItem.door_location ?? ""}
                           quantity={doorItem.count}
                           price={item.price}
                         />
@@ -285,6 +287,7 @@ export default function OrderConfirmPage() {
                           height={finishItem.finish_base_height ?? undefined}
                           heightIncrease={finishItem.finish_additional_height ?? undefined}
                           request={finishItem.finish_request ?? undefined}
+                          location={finishItem.finish_location ?? ""}
                           quantity={finishItem.count ?? 0}
                           price={item.price}
                         />
@@ -314,6 +317,7 @@ export default function OrderConfirmPage() {
                           drawerType={cabinetItem.drawer_type ?? ""}
                           railType={cabinetItem.rail_type ?? ""}
                           request={cabinetItem.cabinet_request ?? ""}
+                          location={cabinetItem.cabinet_location ?? ""}
                           quantity={cabinetItem.count ?? 0}
                           price={item.price}
                         />

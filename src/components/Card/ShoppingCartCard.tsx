@@ -1,6 +1,7 @@
 import React from "react";
 
 import formatBoring from "@/utils/formatBoring";
+import formatLocation from "@/utils/formatLocation";
 import formatSize from "@/utils/formatSize";
 
 import Button from "../Button/Button";
@@ -23,6 +24,7 @@ interface ShoppingCartCardProps {
   trashable: boolean;
   showQuantitySelector?: boolean;
   request?: string;
+  location?: string;
   onOptionClick?: () => void;
   onDecrease?: () => void;
   onIncrease?: () => void;
@@ -57,6 +59,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   trashable,
   showQuantitySelector,
   request,
+  location,
   onOptionClick,
   onDecrease,
   onIncrease,
@@ -137,6 +140,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
             {modelName && <div>모델명 : {modelName}</div>}
             {size && <div>사이즈 : {size}</div>}
             {request && <div>제작 시 요청 사항 : {request}</div>}
+            {location && <div>용도 ∙ 장소 : {formatLocation(location)}</div>}
           </div>
         </div>
         {type === "door" && (title === "플랩문" || title === "일반문") && hingeCount && (

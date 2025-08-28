@@ -30,6 +30,10 @@ interface OrderDetail {
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import PickUpIcon from "public/icons/pick-up";
 import MapIcon from "public/icons/map";
+import formatLocation from "@/utils/formatLocation";
+import { CABINET_CATEGORY_LIST, DOOR_CATEGORY_LIST } from "@/constants/category";
+import { getCategoryLabel } from "@/utils/getCategoryLabel";
+import { CABINET_ABSORBER_TYPE_NAME, CABINET_BODY_TYPE_NAME, CABINET_FINISH_TYPE_NAME, CABINET_HANDLE_TYPE_NAME, CABINET_ITEMS_NAME } from "@/constants/modelList";
 
 export default function OrderDetailPage() {
     const params = useParams();
@@ -135,12 +139,14 @@ export default function OrderDetailPage() {
                                     case "door":
                                         return (
                                             <>
+                                                <p className="text-[15px]/[22px] font-400 text-gray-600">종류 : {getCategoryLabel(itemOptions.door_type.toLowerCase(), DOOR_CATEGORY_LIST, "일반문") || "-"}</p>
                                                 <p className="text-[15px]/[22px] font-400 text-gray-600">색상 : {itemOptions.door_color || "-"}</p>
                                                 <p className="text-[15px]/[22px] font-400 text-gray-600">가로 길이 : {itemOptions.door_width ? itemOptions.door_width.toLocaleString() : "-"}mm</p>
                                                 <p className="text-[15px]/[22px] font-400 text-gray-600">세로 길이 : {itemOptions.door_height ? itemOptions.door_height.toLocaleString() : "-"}mm</p>
                                                 <p className="text-[15px]/[22px] font-400 text-gray-600">경첩 개수 : {itemOptions.hinge_count || "-"}</p>
                                                 <p className="text-[15px]/[22px] font-400 text-gray-600">경첩 방향 : {itemOptions.hinge_direction === "left" ? "좌경" : "우경"}</p>
                                                 {itemOptions.door_request && <p className="text-[15px]/[22px] font-400 text-gray-600">추가 요청: {itemOptions.door_request}</p>}
+                                                {itemOptions.door_location && <p className="text-[15px]/[22px] font-400 text-gray-600">용도 ∙ 장소: {formatLocation(itemOptions.door_location)}</p>}
                                             </>
                                         );
 
@@ -155,6 +161,7 @@ export default function OrderDetailPage() {
                                                 {itemOptions.finish_additional_height !== undefined && itemOptions.finish_additional_height !== null && itemOptions.finish_additional_height > 0 && <p className="text-[15px]/[22px] font-400 text-gray-600">⤷ 높이 키움 : {itemOptions.finish_additional_height.toLocaleString()}mm</p>}
                                                 {itemOptions.finish_additional_height !== undefined && itemOptions.finish_additional_height !== null && itemOptions.finish_additional_height > 0 && <p className="text-[15px]/[22px] font-400 text-gray-600">⤷ 합산 높이 : {(itemOptions.finish_base_height + itemOptions.finish_additional_height).toLocaleString()}mm</p>}
                                                 {itemOptions.finish_request && <p className="text-[15px]/[22px] font-400 text-gray-600">요청 사항 : {itemOptions.finish_request}</p>}
+                                                {itemOptions.finish_location && <p className="text-[15px]/[22px] font-400 text-gray-600">용도 ∙ 장소: {formatLocation(itemOptions.finish_location)}</p>}
                                             </>
                                         );
 
@@ -171,17 +178,18 @@ export default function OrderDetailPage() {
                                     case "cabinet":
                                         return (
                                             <>
-                                                {itemOptions.handle_type && <p className="text-[15px]/[22px] font-400 text-gray-600">손잡이 종류: {itemOptions.handle_type}</p>}
-                                                {/* {itemOptions.compartmentCount !== 0 && <p className="text-[15px]/[22px] font-400 text-gray-600">구성 칸 수: {itemOptions.compartmentCount}</p>} */}
-                                                {/* {itemOptions.flapStayType && <p className="text-[15px]/[22px] font-400 text-gray-600">쇼바 종류: {itemOptions.flapStayType}</p>} */}
+                                                <p className="text-[15px]/[22px] font-400 text-gray-600">종류 : {getCategoryLabel(itemOptions.cabinet_type, CABINET_CATEGORY_LIST, "부분장") || "-"}</p>
+                                                {itemOptions.handle_type && <p className="text-[15px]/[22px] font-400 text-gray-600">손잡이 종류: {CABINET_HANDLE_TYPE_NAME[itemOptions.handle_type as keyof typeof CABINET_HANDLE_TYPE_NAME] || "-"}</p>}
                                                 <p className="text-[15px]/[22px] font-400 text-gray-600">색상: {itemOptions.cabinet_color || "-"}</p>
-                                                {/* <p className="text-[15px]/[22px] font-400 text-gray-600">두께: {itemOptions.thickness || "-"}</p> */}
                                                 <p className="text-[15px]/[22px] font-400 text-gray-600">너비: {itemOptions.cabinet_width ? itemOptions.cabinet_width.toLocaleString() : "-"}mm</p>
                                                 <p className="text-[15px]/[22px] font-400 text-gray-600">깊이: {itemOptions.cabinet_depth ? itemOptions.cabinet_depth.toLocaleString() : "-"}mm</p>
                                                 <p className="text-[15px]/[22px] font-400 text-gray-600">높이: {itemOptions.cabinet_height ? itemOptions.cabinet_height.toLocaleString() : "-"}mm</p>
-                                                <p className="text-[15px]/[22px] font-400 text-gray-600">마감 방식: {itemOptions.finish_type ? itemOptions.finish_type : "선택 안됨"}</p>
+                                                <p className="text-[15px]/[22px] font-400 text-gray-600">소재: {itemOptions.body_type ? CABINET_BODY_TYPE_NAME[itemOptions.body_type as keyof typeof CABINET_BODY_TYPE_NAME] : "기타"}</p>
+                                                <p className="text-[15px]/[22px] font-400 text-gray-600">마감 방식: {itemOptions.finish_type ? CABINET_FINISH_TYPE_NAME[itemOptions.finish_type as keyof typeof CABINET_FINISH_TYPE_NAME] : "기타"}</p>
+                                                <p className="text-[15px]/[22px] font-400 text-gray-600">소재: {itemOptions.absorber_type ? CABINET_ABSORBER_TYPE_NAME[itemOptions.absorber_type as keyof typeof CABINET_ABSORBER_TYPE_NAME] : "기타"}</p>
                                                 {itemOptions.drawer_type && <p className="text-[15px]/[22px] font-400 text-gray-600">서랍 종류: {itemOptions.drawer_type || "-"}</p>}
                                                 {itemOptions.rail_type && <p className="text-[15px]/[22px] font-400 text-gray-600">레일 종류: {itemOptions.rail_type || "-"}</p>}
+                                                {itemOptions.cabinet_location && <p className="text-[15px]/[22px] font-400 text-gray-600">용도 ∙ 장소: {formatLocation(itemOptions.cabinet_location)}</p>}
                                                 {itemOptions.cabinet_request && <p className="text-[15px]/[22px] font-400 text-gray-600">기타 요청 사항: {itemOptions.cabinet_request}</p>}
                                             </>
                                         );

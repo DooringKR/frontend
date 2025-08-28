@@ -4,10 +4,15 @@ import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
+import BottomSheet from "@/components/BottomSheet/BottomSheet";
+import Button from "@/components/Button/Button";
 import Header from "@/components/Header/Header";
 import BoxedInput from "@/components/Input/BoxedInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";
+import SelectToggleButton from "@/components/Button/SelectToggleButton";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+
+import formatLocation from "@/utils/formatLocation";
 
 import { FinishCart, useSingleCartStore } from "@/store/singleCartStore";
 
@@ -35,8 +40,12 @@ function FinishPageContent() {
   const [heightIncrease, setHeightIncrease] = useState<string | null>(
     useSingleCartStore(state => (state.cart as FinishCart).heightIncrease?.toString() ?? null),
   );
+  const [finish_location, setFinishLocation] = useState(
+    useSingleCartStore(state => (state.cart as FinishCart).finish_location ?? ""),
+  );
   const [isDepthIncrease, setIsDepthIncrease] = useState(false);
   const [isHeightIncrease, setIsHeightIncrease] = useState(false);
+  const [isFinishLocationSheetOpen, setIsFinishLocationSheetOpen] = useState(false);
 
   // 유효성 검사 훅 사용
   const { depthError, heightError, isFormValid } = useFinishValidation({
@@ -50,18 +59,18 @@ function FinishPageContent() {
   useEffect(() => {
     setIsDepthIncrease(
       depthIncrease !== null &&
-        depthIncrease !== undefined &&
-        depthIncrease !== "" &&
-        Number(depthIncrease) !== 0,
+      depthIncrease !== undefined &&
+      depthIncrease !== "" &&
+      Number(depthIncrease) !== 0,
     );
   }, [depthIncrease]);
 
   useEffect(() => {
     setIsHeightIncrease(
       heightIncrease !== null &&
-        heightIncrease !== undefined &&
-        heightIncrease !== "" &&
-        Number(heightIncrease) !== 0,
+      heightIncrease !== undefined &&
+      heightIncrease !== "" &&
+      Number(heightIncrease) !== 0,
     );
   }, [heightIncrease]);
 
@@ -90,6 +99,19 @@ function FinishPageContent() {
           setHeightIncrease={e => setHeightIncrease(e?.toString() ?? null)}
           heightError={heightError}
         />
+        <BoxedSelect
+          label="용도 ∙ 장소"
+          options={[]}
+          value={finish_location ? formatLocation(finish_location) : ""}
+          onClick={() => setIsFinishLocationSheetOpen(true)}
+          onChange={() => { }}
+        />
+        <FinishLocationSheet
+          isOpen={isFinishLocationSheetOpen}
+          onClose={() => setIsFinishLocationSheetOpen(false)}
+          value={finish_location}
+          onChange={setFinishLocation}
+        />
         <BoxedInput
           label="제작 시 요청사항"
           placeholder="제작 시 요청사항을 입력해주세요"
@@ -98,24 +120,27 @@ function FinishPageContent() {
         />
       </div>
       <div className="h-[100px]" />
-      <BottomButton
-        type={"1button"}
-        button1Text={"다음"}
-        className="fixed bottom-0 w-full max-w-[460px]"
-        button1Disabled={isFormValid()}
-        onButton1Click={() => {
-          setCart({
-            type: "finish",
-            color: color,
-            depth: depth ? Number(depth) : null,
-            height: height ? Number(height) : null,
-            depthIncrease: depthIncrease ? Number(depthIncrease) : null,
-            heightIncrease: heightIncrease ? Number(heightIncrease) : null,
-            request: request,
-          });
-          router.push(`/order/finish/confirm`);
-        }}
-      />
+      {!isFinishLocationSheetOpen && (
+        <BottomButton
+          type={"1button"}
+          button1Text={"다음"}
+          className="fixed bottom-0 w-full max-w-[460px]"
+          button1Disabled={isFormValid()}
+          onButton1Click={() => {
+            setCart({
+              type: "finish",
+              color: color,
+              depth: depth ? Number(depth) : null,
+              height: height ? Number(height) : null,
+              depthIncrease: depthIncrease ? Number(depthIncrease) : null,
+              heightIncrease: heightIncrease ? Number(heightIncrease) : null,
+              request: request,
+              finish_location: finish_location,
+            });
+            router.push(`/order/finish/confirm`);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -125,6 +150,59 @@ function FinishPage() {
     <Suspense fallback={<div>로딩 중...</div>}>
       <FinishPageContent />
     </Suspense>
+  );
+}
+
+// 용도 및 장소 선택 시트 컴포넌트
+function FinishLocationSheet({
+  isOpen,
+  onClose,
+  value,
+  onChange,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const options = [
+    { value: "KITCHEN", label: "주방" },
+    { value: "SHOES", label: "신발장" },
+    { value: "BUILT_IN", label: "붙박이장" },
+    { value: "BALCONY", label: "발코니 창고문" },
+    { value: "ETC", label: "기타 수납장" },
+  ];
+
+  return (
+    <BottomSheet
+      isOpen={isOpen}
+      title="용도 및 장소를 선택해주세요"
+      contentPadding="px-1"
+      children={
+        <div>
+          <div>
+            {options.map(option => (
+              <SelectToggleButton
+                key={option.value}
+                label={option.label}
+                checked={value === option.value}
+                onClick={() => onChange(option.value)}
+              />
+            ))}
+            <div className="p-5">
+              <Button
+                type="Brand"
+                text="다음"
+                onClick={() => {
+                  onClose();
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      }
+      onClose={onClose}
+    />
   );
 }
 

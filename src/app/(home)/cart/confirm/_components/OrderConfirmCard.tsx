@@ -4,6 +4,7 @@ import DoorPreviewIcon from "@/components/DoorPreviewIcon/DoorPreviewIcon";
 
 import formatBoring from "@/utils/formatBoring";
 import formatSize from "@/utils/formatSize";
+import formatLocation from "@/utils/formatLocation";
 
 interface OrderConfirmCardProps {
   type: "door" | "cabinet" | "finish" | "accessory" | "hardware";
@@ -18,6 +19,7 @@ interface OrderConfirmCardProps {
   boringCategory?: string;
   quantity: number;
   request?: string;
+  location?: string;
   bodyMaterial?: string;
   handleType?: string;
   finishType?: string;
@@ -45,6 +47,7 @@ const OrderConfirmCard: React.FC<OrderConfirmCardProps> = ({
   boringCategory,
   quantity,
   request,
+  location,
   bodyMaterial,
   handleType,
   finishType,
@@ -103,7 +106,7 @@ const OrderConfirmCard: React.FC<OrderConfirmCardProps> = ({
         {modelName && <p>모델명: {modelName}</p>}
         {size && <p>사이즈: {size}</p>}
         {request && <p>요청사항: {request}</p>}
-
+        {location && <p>용도 ∙ 장소: {formatLocation(location)}</p>}
         <p className="mt-1 text-[15px] font-500 text-gray-800">
           {typeof price === "number"
             ? `${(price * (quantity ?? 1)).toLocaleString()}원 ∙ ${quantity}개`
