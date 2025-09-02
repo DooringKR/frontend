@@ -13,6 +13,7 @@ interface OrderConfirmCardProps {
   width?: number;
   height?: number;
   depth?: number;
+  edgeCount?: number;
   hingeCount?: number;
   hingeDirection?: string;
   boring?: (number | null)[];
@@ -41,6 +42,7 @@ const OrderConfirmCard: React.FC<OrderConfirmCardProps> = ({
   width,
   height,
   depth,
+  edgeCount,
   hingeCount,
   hingeDirection,
   boring,
@@ -93,6 +95,7 @@ const OrderConfirmCard: React.FC<OrderConfirmCardProps> = ({
         {depth && depthIncrease !== undefined && depthIncrease !== null && depthIncrease > 0 && (
           <p>⤷ 합산 깊이: {formatSize((depth + depthIncrease).toString())}</p>
         )}
+        {edgeCount && <p>엣지 면 수: {edgeCount}면</p>}
         {hingeCount && <p>경첩 개수: {hingeCount}개</p>}
         {hingeDirection && <p>경첩 방향: {hingeDirection}</p>}
         {boring && <p>보링 치수: {formatBoring(boring, boringCategory)}</p>}

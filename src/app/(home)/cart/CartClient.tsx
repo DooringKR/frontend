@@ -5,6 +5,7 @@ import {
   ACCESSORY_CATEGORY_LIST,
   CABINET_CATEGORY_LIST,
   DOOR_CATEGORY_LIST,
+  FINISH_CATEGORY_LIST,
   HARDWARE_CATEGORY_LIST,
 } from "@/constants/category";
 import { CART_PAGE } from "@/constants/pageName";
@@ -114,7 +115,9 @@ export default function CartClient() {
 
             const convertedItem: FinishItem = {
               category: "finish",
+              finish_category: itemOptions.finish_category ?? "",
               finish_color: itemOptions.finish_color ?? "",
+              finish_edge_count: Number(itemOptions.finish_edge_count ?? 0),
               finish_base_depth: Number(itemOptions.finish_base_depth ?? 0),
               finish_additional_depth: Number(itemOptions.finish_additional_depth ?? 0),
               finish_base_height: Number(itemOptions.finish_base_height ?? 0),
@@ -418,8 +421,9 @@ export default function CartClient() {
                     key={key}
                     type="finish"
                     totalPrice={finishItem.price * finishItem.count} // 총 금액
-                    title="마감재"
+                    title={FINISH_CATEGORY_LIST.find(item => item.slug === finishItem.finish_category.toLowerCase())?.header ?? ""}
                     color={formatColor(finishItem.finish_color)}
+                    edgeCount={finishItem.finish_edge_count ?? undefined}
                     depth={finishItem.finish_base_depth}
                     depthIncrease={finishItem.finish_additional_depth ?? undefined}
                     height={finishItem.finish_base_height}

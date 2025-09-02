@@ -5,6 +5,7 @@ interface UseFinishValidationProps {
   height: number | null;
   depthIncrease: number | null;
   heightIncrease: number | null;
+  edgeCount: number | null;
 }
 
 export function useFinishValidation({
@@ -12,9 +13,11 @@ export function useFinishValidation({
   height,
   depthIncrease,
   heightIncrease,
+  edgeCount,
 }: UseFinishValidationProps) {
   const [depthError, setDepthError] = useState<string>("");
   const [heightError, setHeightError] = useState<string>("");
+  const [edgeCountError, setEdgeCountError] = useState<string>("");
 
   // 깊이 유효성 검사 (finish_base_depth + finish_additional_depth)
   useEffect(() => {
@@ -56,14 +59,24 @@ export function useFinishValidation({
     }
   }, [height, heightIncrease, depth, depthIncrease]);
 
+  // 엣지 면 수 유효성 검사
+  useEffect(() => {
+    if (edgeCount === null) {
+      setEdgeCountError("엣지 면 수를 선택해주세요.");
+    } else {
+      setEdgeCountError("");
+    }
+  }, [edgeCount]);
+
   // 폼 유효성 검사
   const isFormValid = () => {
-    return depth === null || height === null || !!depthError || !!heightError;
+    return depth === null || height === null || edgeCount === null || !!depthError || !!heightError;
   };
 
   return {
     depthError,
     heightError,
+    edgeCountError,
     isFormValid,
   };
 }

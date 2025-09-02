@@ -6,6 +6,7 @@ import {
   CATEGORY_LIST,
   DOOR_CATEGORY_LIST,
   HARDWARE_CATEGORY_LIST,
+  FINISH_CATEGORY_LIST,
 } from "@/constants/category";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -28,6 +29,7 @@ function DoorCategoryPage() {
   const categoryLists = {
     door: DOOR_CATEGORY_LIST,
     accessory: ACCESSORY_CATEGORY_LIST,
+    finish: FINISH_CATEGORY_LIST,
     hardware: HARDWARE_CATEGORY_LIST,
     cabinet: CABINET_CATEGORY_LIST,
   };

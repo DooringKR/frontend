@@ -47,7 +47,8 @@ const HomeProductContainer: React.FC = () => {
         type: "finish",
       };
       setCart(initialFinishCart);
-      router.push(`/order/color?type=${slug}`);
+      router.push(`/order`);
+      // router.push(`/order/color?type=${slug}`);
     } else if (slug === "hardware") {
       const initialHardwareCart: HardwareCart = {
         type: "hardware",

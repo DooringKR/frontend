@@ -39,3 +39,9 @@ export const CABINET_CATEGORY_LIST: Category[] = [
   { name: "서랍장", image: "/img/cabinet-category/Drawers.png", slug: "drawer", header: "서랍장" },
   { name: "오픈장", image: "/img/cabinet-category/Open.png", slug: "open", header: "오픈장" },
 ]
+
+export const FINISH_CATEGORY_LIST: Category[] = [
+  { name: "EP 마감", image: "/img/finish-category/EP.png", slug: "ep", header: "EP 마감" },
+  { name: "몰딩", image: "/img/finish-category/Molding.png", slug: "molding", header: "몰딩" },
+  { name: "걸레받이", image: "/img/finish-category/Galle.png", slug: "galle", header: "걸레받이" },
+]

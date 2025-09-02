@@ -60,7 +60,9 @@ export type CabinetItem = {
 
 export type FinishItem = {
   category: "finish";
+  finish_category: string;
   finish_color: string;
+  finish_edge_count: number | null;
   finish_base_depth: number;
   finish_additional_depth: number | null;
   finish_base_height: number;

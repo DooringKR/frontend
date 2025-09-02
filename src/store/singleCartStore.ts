@@ -51,6 +51,8 @@ export type AccessoryCart = {
 
 export type FinishCart = {
   type: "finish";
+  category?: string | null;
+  edge_count?: number | null;
   color?: string | null;
   depth?: number | null;
   height?: number | null;

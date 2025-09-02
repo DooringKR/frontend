@@ -14,12 +14,15 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import { FinishCart } from "@/store/singleCartStore";
 import { useSingleCartStore } from "@/store/singleCartStore";
 import formatColor from "@/utils/formatColor";
+import { FINISH_CATEGORY_LIST } from "@/constants/category";
 
 function ConfirmPageContent() {
   const router = useRouter();
 
   const cart = useSingleCartStore(state => state.cart);
   const color = (cart as FinishCart)?.color;
+  const category = (cart as FinishCart)?.category;
+  const edgeCount = (cart as FinishCart)?.edge_count;
   const depth = (cart as FinishCart)?.depth;
   const height = (cart as FinishCart)?.height;
   const depthIncrease = (cart as FinishCart)?.depthIncrease;
@@ -48,8 +51,9 @@ function ConfirmPageContent() {
       <div className="flex flex-col gap-[20px] px-5 pb-[100px] pt-5">
         <ShoppingCartCard
           type="finish"
-          title={"마감재"}
+          title={FINISH_CATEGORY_LIST.find(item => item.slug === category)?.header ?? ""}
           color={formatColor(color ?? "")}
+          edgeCount={edgeCount ? Number(edgeCount) : undefined}
           depth={depth ? Number(depth) : undefined}
           height={height ? Number(height) : undefined}
           depthIncrease={depthIncrease ? Number(depthIncrease) : undefined}
@@ -87,6 +91,8 @@ function ConfirmPageContent() {
               item_count: quantity,
               item_options: {
                 finish_color: color,
+                finish_category: category?.toUpperCase(),
+                finish_edge_count: edgeCount,
                 finish_base_depth: depth,
                 finish_additional_depth: depthIncrease,
                 finish_base_height: height,

@@ -5,6 +5,7 @@ import {
   ACCESSORY_CATEGORY_LIST,
   CABINET_CATEGORY_LIST,
   DOOR_CATEGORY_LIST,
+  FINISH_CATEGORY_LIST,
   HARDWARE_CATEGORY_LIST,
 } from "@/constants/category";
 import {
@@ -280,8 +281,9 @@ export default function OrderConfirmPage() {
                         <OrderConfirmCard
                           key={key}
                           type="finish"
-                          title="마감재"
+                          title={FINISH_CATEGORY_LIST.find(item => item.slug === finishItem.finish_category.toLowerCase())?.header ?? ""}
                           color={formatColor(finishItem.finish_color)}
+                          edgeCount={finishItem.finish_edge_count ?? undefined}
                           depth={finishItem.finish_base_depth ?? undefined}
                           depthIncrease={finishItem.finish_additional_depth ?? undefined}
                           height={finishItem.finish_base_height ?? undefined}

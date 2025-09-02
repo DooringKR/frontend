@@ -16,6 +16,7 @@ interface ShoppingCartCardProps {
   width?: number;
   height?: number;
   depth?: number;
+  edgeCount?: number;
   hingeCount?: number;
   hingeDirection?: string;
   boring?: string | (number | null)[];
@@ -51,6 +52,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   width,
   height,
   depth,
+  edgeCount,
   hingeCount,
   hingeDirection,
   boring,
@@ -122,6 +124,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
                 )}
               </>
             )}
+            {edgeCount && <div>엣지 면 수 : {edgeCount}면</div>}
             {hingeCount && <div>경첩 개수 : {hingeCount}개</div>}
             {hingeDirection && <div>경첩 방향 : {hingeDirection}</div>}
             {boring && (

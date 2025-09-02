@@ -31,7 +31,7 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import PickUpIcon from "public/icons/pick-up";
 import MapIcon from "public/icons/map";
 import formatLocation from "@/utils/formatLocation";
-import { CABINET_CATEGORY_LIST, DOOR_CATEGORY_LIST } from "@/constants/category";
+import { CABINET_CATEGORY_LIST, DOOR_CATEGORY_LIST, FINISH_CATEGORY_LIST } from "@/constants/category";
 import { getCategoryLabel } from "@/utils/getCategoryLabel";
 import { CABINET_ABSORBER_TYPE_NAME, CABINET_BODY_TYPE_NAME, CABINET_FINISH_TYPE_NAME, CABINET_HANDLE_TYPE_NAME, CABINET_ITEMS_NAME } from "@/constants/modelList";
 
@@ -154,6 +154,7 @@ export default function OrderDetailPage() {
                                         return (
                                             <>
                                                 <p className="text-[15px]/[22px] font-400 text-gray-600">색상 : {itemOptions.finish_color || "-"}</p>
+                                                <p className="text-[15px]/[22px] font-400 text-gray-600">엣지 면 수 : {itemOptions.finish_edge_count || "-"}</p>
                                                 <p className="text-[15px]/[22px] font-400 text-gray-600">깊이 : {itemOptions.finish_base_depth ? itemOptions.finish_base_depth.toLocaleString() : "-"}mm</p>
                                                 {itemOptions.finish_additional_depth !== undefined && itemOptions.finish_additional_depth !== null && itemOptions.finish_additional_depth > 0 && <p className="text-[15px]/[22px] font-400 text-gray-600">⤷ 깊이 키움 : {itemOptions.finish_additional_depth.toLocaleString()}mm</p>}
                                                 {itemOptions.finish_additional_depth !== undefined && itemOptions.finish_additional_depth !== null && itemOptions.finish_additional_depth > 0 && <p className="text-[15px]/[22px] font-400 text-gray-600">⤷ 합산 깊이 : {(itemOptions.finish_base_depth + itemOptions.finish_additional_depth).toLocaleString()}mm</p>}
@@ -217,7 +218,7 @@ export default function OrderDetailPage() {
                                         <div className="flex-1">
                                             <div className="text-[17px]/[24px] font-600 text-gray-900 mb-1">
                                                 {item.product_type.toLowerCase() === "door" ? "문짝" :
-                                                    item.product_type.toLowerCase() === "finish" ? "마감재" :
+                                                    item.product_type.toLowerCase() === "finish" ? `${FINISH_CATEGORY_LIST.find(item => item.slug === itemOptions.finish_category.toLowerCase())?.header ?? ""} (마감재)` :
                                                         item.product_type.toLowerCase() === "cabinet" ? "부분장" :
                                                             item.product_type.toLowerCase() === "accessory" ? "부속" :
                                                                 item.product_type.toLowerCase() === "hardware" ? "하드웨어" :
