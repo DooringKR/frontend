@@ -3,12 +3,12 @@
 import { Request, Response } from "express";
 import prisma from "../prismaClient";
 import { createNotionOrderPage } from "../services/notionService";
-import { ProductType } from '@prisma/client'
+// ProductType enum 직접 명시 또는 문자열 비교
 
 const VALID_SHIPPING_METHODS = ["직접 픽업하러 갈게요", "현장으로 배송해주세요"]; 
 const VALID_MATERIAL_TYPES = ["문짝", "마감재", "부분장", "하드웨어", "부속", "기타(고객센터 직접 문의)"];
 
-const NOTION_MATERIAL_TYPE_MAP: Record<ProductType, string> = {
+const NOTION_MATERIAL_TYPE_MAP: Record<string, string> = {
   DOOR: "문짝",
   FINISH: "마감재",
   CABINET: "부분장",
@@ -61,8 +61,8 @@ export async function createOrder(req: Request, res: Response) {
       orderType: order.order_type,
       orderPrice: order.order_price,
       orderOptions: order.order_options,
-      orderItems: cartItems.map(item => ({
-        product_type: item.product_type as ProductType,
+  orderItems: cartItems.map((item: any) => ({
+  product_type: item.product_type,
         item_count: item.item_count,
         unit_price: item.unit_price ?? 0,
         item_options: item.item_options,
@@ -110,7 +110,7 @@ export async function getOrdersByUser(req: Request, res: Response) {
     });
 
     return res.status(200).json({
-      orders: orders.map(order => ({
+  orders: orders.map((order: any) => ({
         order_id: order.order_id,
         cart_id: order.cart_id,
         order_type: order.order_type,

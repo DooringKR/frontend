@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "windows"]
 }
 
 datasource db {
@@ -81,6 +82,7 @@ model OrderItem {
   unit_price      Int
   item_count      Int
   item_options    Json
+  image_url       String?    @db.VarChar(512) // 주문 아이템별 이미지 URL
   created_at      DateTime   @default(now())
   last_updated_at DateTime   @updatedAt
   order           Order      @relation(fields: [order_id], references: [order_id])

@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.signup = signup;
 exports.checkDuplicate = checkDuplicate;
+exports.login = login;
 const prismaClient_1 = __importDefault(require("../prismaClient"));
 // 회원가입
 async function signup(req, res) {
@@ -44,7 +45,7 @@ async function signup(req, res) {
         });
         return res
             .status(201)
-            .json({ message: "가입이 성공했습니다" });
+            .json({ user_id: newUser.id });
     }
     catch (e) {
         console.error("signup error:", e);
@@ -65,4 +66,30 @@ async function checkDuplicate(req, res) {
         where: { user_phone: phone },
     });
     return exists ? res.status(409).end() : res.status(200).end();
+}
+async function login(req, res) {
+    const { user_phone } = req.body;
+    // 1) 필드 검증
+    if (typeof user_phone !== "string" ||
+        !/^[0-9]{11}$/.test(user_phone)) {
+        return res
+            .status(400)
+            .json({ message: "user_phone은 11자리 숫자여야 합니다." });
+    }
+    // 2) DB 조회
+    const user = await prismaClient_1.default.user.findUnique({
+        where: { user_phone },
+    });
+    if (!user) {
+        return res
+            .status(404)
+            .json({ message: "등록된 회원이 아닙니다." });
+    }
+    // 3) 성공 응답 (user_id 포함)
+    return res
+        .status(200)
+        .json({
+        user_id: user.id,
+        message: "로그인 성공",
+    });
 }

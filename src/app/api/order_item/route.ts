@@ -21,7 +21,7 @@ interface CreateOrderItemResponse {
 async function createOrderItemInBackend(
   itemPayload: CreateOrderItemPayload,
 ): Promise<CreateOrderItemResponse> {
-  console.log("📦 백엔드에 order_item 생성 요청:", itemPayload);
+  console.log("📦 백엔드에 order_item 생성 요청:", itemPayload); // [DEBUG 복원]
 
   const response = await fetch("https://dooring-backend.onrender.com/order_item", {
     method: "POST",
@@ -31,29 +31,29 @@ async function createOrderItemInBackend(
     body: JSON.stringify(itemPayload),
   });
 
-  console.log("📡 백엔드 응답 상태:", response.status, response.statusText);
+  console.log("📡 백엔드 응답 상태:", response.status, response.statusText); // [DEBUG 복원]
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error("❌ order_item 생성 실패:", errorText);
+  console.error("❌ order_item 생성 실패:", errorText); // [DEBUG 복원]
     throw new Error("order_item 생성 실패");
   }
 
   const data = await response.json();
-  console.log("✅ 백엔드 order_item 생성 성공:", data);
+  console.log("✅ 백엔드 order_item 생성 성공:", data); // [DEBUG 복원]
   return data;
 }
 
 // ✅ Next.js API route handler
 export async function POST(request: NextRequest) {
-  console.log("🚀 /api/order_item POST 요청 시작");
+  console.log("🚀 /api/order_item POST 요청 시작"); // [DEBUG 복원]
 
   try {
     const body = await request.json();
-    console.log("📝 요청 바디:", body);
+  console.log("📝 요청 바디:", body); // [DEBUG 복원]
 
     const createdItem = await createOrderItemInBackend(body);
-    console.log("🎉 order_item 생성 완료:", createdItem);
+  console.log("🎉 order_item 생성 완료:", createdItem); // [DEBUG 복원]
 
     return NextResponse.json(createdItem);
   } catch (error) {
