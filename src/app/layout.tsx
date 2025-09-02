@@ -60,16 +60,16 @@ function RootLayout({
         <meta name="description" content="가구 문짝 ∙ 가구 마감재 ∙ 부분장 ∙ 가구 부속 ∙ 가구 하드웨어 | 모바일로 쉽고 편리하게 주문하고, 정확한 맞춤 가구를 오늘배송 받으세요." />
 
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://metatags.io/" />
+        <meta property="og:url" content="https://baro.dooring.kr/" />
         <meta property="og:title" content="바로가구: 현장에서 필요한 가구, 오늘배송" />
         <meta property="og:description" content="가구 문짝 ∙ 가구 마감재 ∙ 부분장 ∙ 가구 부속 ∙ 가구 하드웨어 | 모바일로 쉽고 편리하게 주문하고, 정확한 맞춤 가구를 오늘배송 받으세요." />
-        <meta property="og:image" content="https://metatags.io/images/meta-tags.png" />
+        <meta property="og:image" content="/img/metatag.png" />
 
         <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" content="https://metatags.io/" />
+        <meta property="twitter:url" content="https://baro.dooring.kr/" />
         <meta property="twitter:title" content="바로가구: 현장에서 필요한 가구, 오늘배송" />
         <meta property="twitter:description" content="가구 문짝 ∙ 가구 마감재 ∙ 부분장 ∙ 가구 부속 ∙ 가구 하드웨어 | 모바일로 쉽고 편리하게 주문하고, 정확한 맞춤 가구를 오늘배송 받으세요." />
-        <meta property="twitter:image" content="https://metatags.io/images/meta-tags.png" />
+        <meta property="twitter:image" content="/img/metatag.png" />
 
 
         {/* Pretendard 폰트 preload */}
