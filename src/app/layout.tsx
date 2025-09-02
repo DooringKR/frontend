@@ -42,6 +42,10 @@ function RootLayout({
         <meta property="og:locale" content="ko_KR" />
         <meta property="og:locale:alternate" content="en_US" />
 
+        {/* 카카오톡 최적화 태그 */}
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:secure_url" content="https://ltndnqysxsyldvkrbpfq.supabase.co/storage/v1/object/public/meta-tag/metatag.png" />
+
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content="https://baro.dooring.kr/" />
         <meta property="twitter:title" content="바로가구: 현장에서 필요한 가구, 오늘배송" />
