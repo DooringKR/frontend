@@ -37,6 +37,7 @@ function DoorConfirmPageContent() {
   const height = (cart as DoorCart)?.height;
   const boringDirection = (cart as DoorCart)?.boringDirection;
   const boringSize = (cart as DoorCart)?.boringSize;
+  const door_location = (cart as DoorCart)?.door_location;
   const request = (cart as DoorCart)?.request;
   const [quantity, setQuantity] = useState(1);
 
@@ -69,6 +70,7 @@ function DoorConfirmPageContent() {
           trashable={false}
           showQuantitySelector={false}
           request={request ?? undefined}
+          location={door_location ?? undefined}
           onOptionClick={() => {
             router.push(`/order/door`);
           }}
@@ -98,22 +100,23 @@ function DoorConfirmPageContent() {
                 door_height: height,
                 ...(category === "normal" || category === "flap"
                   ? {
-                      hinge_count: boringSize!.length,
-                      hinge_direction: boringDirection,
-                      ...(boringSize!.length >= 1 && {
-                        first_hinge_size: boringSize![0] ?? undefined,
-                      }),
-                      ...(boringSize!.length >= 2 && {
-                        second_hinge_size: boringSize![1] ?? undefined,
-                      }),
-                      ...(boringSize!.length >= 3 && {
-                        third_hinge_size: boringSize![2] ?? undefined,
-                      }),
-                      ...(boringSize!.length >= 4 && {
-                        fourth_hinge_size: boringSize![3] ?? undefined,
-                      }),
-                    }
+                    hinge_count: boringSize!.length,
+                    hinge_direction: boringDirection,
+                    ...(boringSize!.length >= 1 && {
+                      first_hinge_size: boringSize![0] ?? undefined,
+                    }),
+                    ...(boringSize!.length >= 2 && {
+                      second_hinge_size: boringSize![1] ?? undefined,
+                    }),
+                    ...(boringSize!.length >= 3 && {
+                      third_hinge_size: boringSize![2] ?? undefined,
+                    }),
+                    ...(boringSize!.length >= 4 && {
+                      fourth_hinge_size: boringSize![3] ?? undefined,
+                    }),
+                  }
                   : {}),
+                door_location: door_location,
                 door_request: request,
               },
             });

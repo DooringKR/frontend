@@ -36,12 +36,12 @@ function ColorListPageContent() {
   const router = useRouter();
   // const searchParams = useSearchParams();
   const type = useSingleCartStore(state => state.cart.type);
-  const category = useSingleCartStore(state => (state.cart as CabinetCart | DoorCart).category);
+  const category = useSingleCartStore(state => (state.cart as CabinetCart | DoorCart | FinishCart).category);
   const setCartColor = useSingleCartStore(state => state.setCart);
 
   const [searchKeyword, setSearchKeyword] = useState("");
   const initialColor = useSingleCartStore(
-    state => (state.cart as FinishCart | CabinetCart | DoorCart).color ?? null,
+    state => (state.cart as CabinetCart | DoorCart | FinishCart).color ?? null,
   );
   const [selectedColor, setSelectedColor] = useState<string | null>(initialColor);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);

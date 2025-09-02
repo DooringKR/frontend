@@ -4,6 +4,7 @@ import DoorPreviewIcon from "@/components/DoorPreviewIcon/DoorPreviewIcon";
 
 import formatBoring from "@/utils/formatBoring";
 import formatSize from "@/utils/formatSize";
+import formatLocation from "@/utils/formatLocation";
 
 interface OrderConfirmCardProps {
   type: "door" | "cabinet" | "finish" | "accessory" | "hardware";
@@ -12,12 +13,14 @@ interface OrderConfirmCardProps {
   width?: number;
   height?: number;
   depth?: number;
+  edgeCount?: number;
   hingeCount?: number;
   hingeDirection?: string;
   boring?: (number | null)[];
   boringCategory?: string;
   quantity: number;
   request?: string;
+  location?: string;
   bodyMaterial?: string;
   handleType?: string;
   finishType?: string;
@@ -39,12 +42,14 @@ const OrderConfirmCard: React.FC<OrderConfirmCardProps> = ({
   width,
   height,
   depth,
+  edgeCount,
   hingeCount,
   hingeDirection,
   boring,
   boringCategory,
   quantity,
   request,
+  location,
   bodyMaterial,
   handleType,
   finishType,
@@ -77,15 +82,20 @@ const OrderConfirmCard: React.FC<OrderConfirmCardProps> = ({
               : `세로 길이: ${formatSize(height.toString())}`}
           </p>
         )}
-        {depth && <p>깊이: {formatSize(depth.toString())}</p>}
-        {heightIncrease && <p>⤷ 높이 키우기: {formatSize(heightIncrease.toString())}</p>}
-        {height && heightIncrease && (
+        {heightIncrease !== undefined && heightIncrease !== null && heightIncrease > 0 && (
+          <p>⤷ 높이 키우기: {formatSize(heightIncrease.toString())}</p>
+        )}
+        {height && heightIncrease !== undefined && heightIncrease !== null && heightIncrease > 0 && (
           <p>⤷ 합산 높이: {formatSize((height + heightIncrease).toString())}</p>
         )}
-        {depthIncrease && <p>⤷ 깊이 키우기: {formatSize(depthIncrease.toString())}</p>}
-        {depth && depthIncrease && (
+        {depth && <p>깊이: {formatSize(depth.toString())}</p>}
+        {depthIncrease !== undefined && depthIncrease !== null && depthIncrease > 0 && (
+          <p>⤷ 깊이 키우기: {formatSize(depthIncrease.toString())}</p>
+        )}
+        {depth && depthIncrease !== undefined && depthIncrease !== null && depthIncrease > 0 && (
           <p>⤷ 합산 깊이: {formatSize((depth + depthIncrease).toString())}</p>
         )}
+        {edgeCount && <p>엣지 면 수: {edgeCount}면</p>}
         {hingeCount && <p>경첩 개수: {hingeCount}개</p>}
         {hingeDirection && <p>경첩 방향: {hingeDirection}</p>}
         {boring && <p>보링 치수: {formatBoring(boring, boringCategory)}</p>}
@@ -99,7 +109,7 @@ const OrderConfirmCard: React.FC<OrderConfirmCardProps> = ({
         {modelName && <p>모델명: {modelName}</p>}
         {size && <p>사이즈: {size}</p>}
         {request && <p>요청사항: {request}</p>}
-
+        {location && <p>용도 ∙ 장소: {formatLocation(location)}</p>}
         <p className="mt-1 text-[15px] font-500 text-gray-800">
           {typeof price === "number"
             ? `${(price * (quantity ?? 1)).toLocaleString()}원 ∙ ${quantity}개`

@@ -23,7 +23,7 @@ function Cabinet() {
     <>
       <div className="mb-4 border border-black bg-gray-200 p-4">
         <h2 className="mb-2 font-bold">{header}</h2>
-        {cabinetItem.handleType && <p>손잡이 종류: {CABINET_ITEMS_NAME[cabinetItem.handleType]}</p>}
+        {cabinetItem.handleType && <p>손잡이 종류: {CABINET_ITEMS_NAME[cabinetItem.handleType.toLowerCase() as keyof typeof CABINET_ITEMS_NAME] || "내리기"}</p>}
         {cabinetItem.compartmentCount !== 0 && <p>구성 칸 수: {cabinetItem.compartmentCount}</p>}
         {cabinetItem.flapStayType && <p>쇼바 종류: {cabinetItem.flapStayType}</p>}
         <p>색상: {cabinetItem.color}</p>

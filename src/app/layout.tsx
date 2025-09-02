@@ -5,11 +5,11 @@ import FloatingButton from "@/components/FloatingButton";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Dooring",
-  description: "어디서든 가볍게 인테리어 자재를 주문해보세요",
+  title: "바로가구",
+  description: "가구 문짝 ∙ 가구 마감재 ∙ 부분장 ∙ 가구 부속 ∙ 가구 하드웨어 | 모바일로 쉽고 편리하게 주문하고, 정확한 맞춤 가구를 오늘배송 받으세요.",
   icons: {
-    icon: "/favicon.ico",
-    apple: "/icons/icon-192x192.png",
+    icon: "/favicon.svg",
+    apple: "/img/logo-192x192.png",
   },
   manifest: "/manifest.json",
 };
@@ -26,6 +26,33 @@ function RootLayout({
   return (
     <html lang="ko">
       <head>
+        <title>바로가구: 현장에서 필요한 가구, 오늘배송</title>
+        <meta name="title" content="바로가구: 현장에서 필요한 가구, 오늘배송" />
+        <meta name="description" content="가구 문짝 ∙ 가구 마감재 ∙ 부분장 ∙ 가구 부속 ∙ 가구 하드웨어 | 모바일로 쉽고 편리하게 주문하고, 정확한 맞춤 가구를 오늘배송 받으세요." />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://baro.dooring.kr/" />
+        <meta property="og:title" content="바로가구: 현장에서 필요한 가구, 오늘배송" />
+        <meta property="og:description" content="가구 문짝 ∙ 가구 마감재 ∙ 부분장 ∙ 가구 부속 ∙ 가구 하드웨어 | 모바일로 쉽고 편리하게 주문하고, 정확한 맞춤 가구를 오늘배송 받으세요." />
+        <meta property="og:image" content="https://ltndnqysxsyldvkrbpfq.supabase.co/storage/v1/object/public/meta-tag/metatag.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="바로가구 - 현장에서 필요한 가구, 오늘배송" />
+        <meta property="og:site_name" content="바로가구" />
+        <meta property="og:locale" content="ko_KR" />
+        <meta property="og:locale:alternate" content="en_US" />
+
+        {/* 카카오톡 최적화 태그 */}
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:secure_url" content="https://ltndnqysxsyldvkrbpfq.supabase.co/storage/v1/object/public/meta-tag/metatag.png" />
+
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://baro.dooring.kr/" />
+        <meta property="twitter:title" content="바로가구: 현장에서 필요한 가구, 오늘배송" />
+        <meta property="twitter:description" content="가구 문짝 ∙ 가구 마감재 ∙ 부분장 ∙ 가구 부속 ∙ 가구 하드웨어 | 모바일로 쉽고 편리하게 주문하고, 정확한 맞춤 가구를 오늘배송 받으세요." />
+        <meta property="twitter:image" content="https://ltndnqysxsyldvkrbpfq.supabase.co/storage/v1/object/public/meta-tag/metatag.png" />
+
+
         {/* Pretendard 폰트 preload */}
         <link
           rel="preload"
@@ -54,7 +81,7 @@ function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-gray-100">
-        <div className="mx-auto min-h-screen max-w-[460px] bg-white">{children}</div>
+        <div className="mx-auto min-h-screen max-w-[460px] bg-white shadow-[0_0_20px_0_rgba(3,7,18,0.10)]">{children}</div>
         {/* 우측 하단 고정 버튼 */}
         <FloatingButton />
       </body>

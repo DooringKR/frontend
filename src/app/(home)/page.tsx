@@ -170,6 +170,7 @@ export default function Page() {
       address: fullAddress,
       deliverySchedule: "",
       timeLimit: "배송 정보 계산 중...",
+      isLoading: true,
     };
   } else if (!address1) {
     addressIndicatorProps = {

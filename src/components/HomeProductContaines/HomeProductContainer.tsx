@@ -21,12 +21,12 @@ import HardWareIcon from "./Icons/HardWare";
 import SectionHeadIcon from "./Icons/SectionHead";
 
 const productList = [
-  { label: "문짝", icon: <DoorIcon />, slug: "door" },
-  { label: "마감재", icon: <FinishingMaterialsIcon />, slug: "finish" },
-  { label: "부분장", icon: <SectionHeadIcon />, slug: "cabinet" },
-  { label: "부속", icon: <AttachedIcon />, slug: "accessory" },
-  { label: "하드웨어", icon: <HardWareIcon />, slug: "hardware" },
-  { label: "직접 주문", icon: <CustomOrderIcon />, slug: "custom" },
+  { label: "가구 문짝", icon: <DoorIcon />, slug: "door", image: "/img/type/door.png" },
+  { label: "가구 마감재", icon: <FinishingMaterialsIcon />, slug: "finish", image: "/img/type/finish.png" },
+  { label: "부분장", icon: <SectionHeadIcon />, slug: "cabinet", image: "/img/type/cabinet.png" },
+  { label: "가구 부속", icon: <AttachedIcon />, slug: "accessory", image: "/img/type/accessory.png" },
+  { label: "가구 하드웨어", icon: <HardWareIcon />, slug: "hardware", image: "/img/type/hardware.png" },
+  { label: "직접 주문", icon: <CustomOrderIcon />, slug: "custom", image: "/img/type/custom.png" },
 ];
 
 const HomeProductContainer: React.FC = () => {
@@ -47,7 +47,8 @@ const HomeProductContainer: React.FC = () => {
         type: "finish",
       };
       setCart(initialFinishCart);
-      router.push(`/order/color?type=${slug}`);
+      router.push(`/order`);
+      // router.push(`/order/color?type=${slug}`);
     } else if (slug === "hardware") {
       const initialHardwareCart: HardwareCart = {
         type: "hardware",
@@ -77,12 +78,13 @@ const HomeProductContainer: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center gap-6 px-5">
-      <div className="grid grid-cols-3 items-stretch justify-items-stretch gap-5">
+      <div className="grid grid-cols-2 items-stretch justify-items-stretch gap-5 w-full h-full">
         {productList.map((item, idx) => (
           <HomeProductButton
             key={item.label}
             label={item.label}
             icon={item.icon}
+            image={item.image}
             onClick={() => handleCategoryClick(item.slug)}
           />
         ))}
