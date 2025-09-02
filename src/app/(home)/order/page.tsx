@@ -67,7 +67,7 @@ function DoorCategoryPage() {
                   objectFit: "contain",
                   verticalAlign: category.slug === "drawer" ? "top" : "middle",
                 }}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover rounded-[28px] border-[2px] border-[rgba(3,7,18,0.05)]"
               />
             </div>
             <div className="text-center text-[17px]/[24px] font-500 text-gray-500">
