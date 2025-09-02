@@ -55,30 +55,22 @@ function RootLayout({
   return (
     <html lang="ko">
       <head>
-        {/* Primary Meta Tags */}
+        <title>바로가구: 현장에서 필요한 가구, 오늘배송</title>
         <meta name="title" content="바로가구: 현장에서 필요한 가구, 오늘배송" />
         <meta name="description" content="가구 문짝 ∙ 가구 마감재 ∙ 부분장 ∙ 가구 부속 ∙ 가구 하드웨어 | 모바일로 쉽고 편리하게 주문하고, 정확한 맞춤 가구를 오늘배송 받으세요." />
-        <meta name="keywords" content="가구, 문짝, 마감재, 부분장, 부속, 하드웨어, 오늘배송, 맞춤가구" />
-        <meta name="author" content="바로가구" />
-        <meta name="robots" content="index, follow" />
 
-        {/* Open Graph / Facebook */}
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://barogagu.com" />
+        <meta property="og:url" content="https://metatags.io/" />
         <meta property="og:title" content="바로가구: 현장에서 필요한 가구, 오늘배송" />
         <meta property="og:description" content="가구 문짝 ∙ 가구 마감재 ∙ 부분장 ∙ 가구 부속 ∙ 가구 하드웨어 | 모바일로 쉽고 편리하게 주문하고, 정확한 맞춤 가구를 오늘배송 받으세요." />
-        <meta property="og:image" content="https://barogagu.com/img/logo-512x512.png" />
-        <meta property="og:site_name" content="바로가구" />
-        <meta property="og:locale" content="ko_KR" />
+        <meta property="og:image" content="https://metatags.io/images/meta-tags.png" />
 
-        {/* X (Twitter) */}
         <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:url" content="https://barogagu.com" />
+        <meta property="twitter:url" content="https://metatags.io/" />
         <meta property="twitter:title" content="바로가구: 현장에서 필요한 가구, 오늘배송" />
         <meta property="twitter:description" content="가구 문짝 ∙ 가구 마감재 ∙ 부분장 ∙ 가구 부속 ∙ 가구 하드웨어 | 모바일로 쉽고 편리하게 주문하고, 정확한 맞춤 가구를 오늘배송 받으세요." />
-        <meta property="twitter:image" content="https://barogagu.com/img/logo-512x512.png" />
-        <meta property="twitter:creator" content="@barogagu" />
-        <meta property="twitter:site" content="@barogagu" />
+        <meta property="twitter:image" content="https://metatags.io/images/meta-tags.png" />
+
 
         {/* Pretendard 폰트 preload */}
         <link
