@@ -7,35 +7,6 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "바로가구",
   description: "가구 문짝 ∙ 가구 마감재 ∙ 부분장 ∙ 가구 부속 ∙ 가구 하드웨어 | 모바일로 쉽고 편리하게 주문하고, 정확한 맞춤 가구를 오늘배송 받으세요.",
-  keywords: "가구, 문짝, 마감재, 부분장, 부속, 하드웨어, 오늘배송, 맞춤가구",
-  authors: [{ name: "바로가구" }],
-  creator: "바로가구",
-  publisher: "바로가구",
-  robots: "index, follow",
-  openGraph: {
-    type: "website",
-    title: "바로가구: 현장에서 필요한 가구, 오늘배송",
-    description: "가구 문짝 ∙ 가구 마감재 ∙ 부분장 ∙ 가구 부속 ∙ 가구 하드웨어 | 모바일로 쉽고 편리하게 주문하고, 정확한 맞춤 가구를 오늘배송 받으세요.",
-    url: "https://barogagu.com",
-    siteName: "바로가구",
-    images: [
-      {
-        url: "/img/logo-512x512.png",
-        width: 512,
-        height: 512,
-        alt: "바로가구 로고",
-      },
-    ],
-    locale: "ko_KR",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "바로가구: 현장에서 필요한 가구, 오늘배송",
-    description: "가구 문짝 ∙ 가구 마감재 ∙ 부분장 ∙ 가구 부속 ∙ 가구 하드웨어 | 모바일로 쉽고 편리하게 주문하고, 정확한 맞춤 가구를 오늘배송 받으세요.",
-    images: ["https://ltndnqysxsyldvkrbpfq.supabase.co/storage/v1/object/public/meta-tag/metatag.png"],
-    creator: "@barogagu",
-    site: "@barogagu",
-  },
   icons: {
     icon: "/favicon.svg",
     apple: "/img/logo-192x192.png",
@@ -64,6 +35,12 @@ function RootLayout({
         <meta property="og:title" content="바로가구: 현장에서 필요한 가구, 오늘배송" />
         <meta property="og:description" content="가구 문짝 ∙ 가구 마감재 ∙ 부분장 ∙ 가구 부속 ∙ 가구 하드웨어 | 모바일로 쉽고 편리하게 주문하고, 정확한 맞춤 가구를 오늘배송 받으세요." />
         <meta property="og:image" content="https://ltndnqysxsyldvkrbpfq.supabase.co/storage/v1/object/public/meta-tag/metatag.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="바로가구 - 현장에서 필요한 가구, 오늘배송" />
+        <meta property="og:site_name" content="바로가구" />
+        <meta property="og:locale" content="ko_KR" />
+        <meta property="og:locale:alternate" content="en_US" />
 
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content="https://baro.dooring.kr/" />
