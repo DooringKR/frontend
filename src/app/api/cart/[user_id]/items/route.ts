@@ -29,7 +29,7 @@ async function getCartItemsFromBackend(userId: number) {
     }
 
     const data = await response.json();
-    console.log("✅ 백엔드 장바구니 아이템 조회 성공:", data);
+    // console.log("✅ 백엔드 장바구니 아이템 조회 성공:", data); // [DEBUG 주석처리]
     return data;
 }
 
@@ -37,12 +37,12 @@ export async function GET(
     request: Request,
     { params }: { params: Promise<{ user_id: string }> }
 ) {
-    console.log("🚀 /api/cart/[user_id]/items GET 요청 시작");
+    // console.log("🚀 /api/cart/[user_id]/items GET 요청 시작"); // [DEBUG 주석처리]
 
     try {
         const resolvedParams = await params;
         const userId = parseInt(resolvedParams.user_id);
-        console.log("📝 요청된 user_id:", userId);
+    // console.log("📝 요청된 user_id:", userId); // [DEBUG 주석처리]
 
         if (isNaN(userId)) {
             return NextResponse.json(
@@ -52,7 +52,7 @@ export async function GET(
         }
 
         const cartItems = await getCartItemsFromBackend(userId);
-        console.log("🎉 장바구니 아이템 조회 완료:", cartItems);
+    // console.log("🎉 장바구니 아이템 조회 완료:", cartItems); // [DEBUG 주석처리]
 
         return NextResponse.json(cartItems);
     } catch (error) {

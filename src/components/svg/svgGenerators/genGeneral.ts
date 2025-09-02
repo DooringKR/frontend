@@ -77,16 +77,18 @@ export function genGeneralDoorSvg(
   }
 
 
-  GENERAL_DOOR_BORINGS[subtype].forEach(({ cx, cy, r }) => {
-    const circle = document.createElementNS(SVG_NS, "circle");
-    circle.setAttribute("cx", cx.toString());
-    circle.setAttribute("cy", cy.toString());
-    circle.setAttribute("r", r.toString());
-    circle.setAttribute("fill", "white");
-    circle.setAttribute("stroke", "black");
-    circle.setAttribute("stroke-width", "6");
-    svg.appendChild(circle);
-  });
+  if (GENERAL_DOOR_BORINGS[subtype]) {
+    GENERAL_DOOR_BORINGS[subtype].forEach(({ cx, cy, r }) => {
+      const circle = document.createElementNS(SVG_NS, "circle");
+      circle.setAttribute("cx", cx.toString());
+      circle.setAttribute("cy", cy.toString());
+      circle.setAttribute("r", r.toString());
+      circle.setAttribute("fill", "white");
+      circle.setAttribute("stroke", "black");
+      circle.setAttribute("stroke-width", "6");
+      svg.appendChild(circle);
+    });
+  }
 
   insertDimensionTexts(svg, subtype, size, boringValues);
 

@@ -39,7 +39,7 @@ export interface CreateOrderResponse {
 }
 
 export async function createOrder(payload: CreateOrderPayload): Promise<CreateOrderResponse> {
-  console.log("주문 생성 API 호출:", payload);
+  console.log("주문 생성 API 호출:", payload); // [DEBUG 복원]
 
   const res = await fetch(`/api/order`, {
     method: "POST",
@@ -64,7 +64,7 @@ export const createOrderItem = async (itemPayload: {
   item_count: number;
   item_options: any;
 }) => {
-  console.log("📦 order_item 요청 보냄:", itemPayload);
+  console.log("📦 order_item 요청 보냄:", itemPayload); // [DEBUG 복원]
 
   const res = await fetch(`/api/order_item`, {
     method: "POST",
@@ -73,12 +73,11 @@ export const createOrderItem = async (itemPayload: {
   });
 
   if (!res.ok) {
-    console.error("❌ order_item 생성 실패:", await res.text());
+  console.error("❌ order_item 생성 실패:", await res.text()); // [DEBUG 복원]
     throw new Error("order_item 생성 실패");
   }
 
   const data = await res.json();
-  console.log("✅ order_item 생성 성공:", data);
-
+  console.log("✅ order_item 생성 성공:", data); // [DEBUG 복원]
   return data;
 };
