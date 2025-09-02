@@ -6,10 +6,10 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Dooring",
-  description: "어디서든 가볍게 인테리어 자재를 주문해보세요",
+  description: "어디서든 가볍게 인테리어 자재를 주문해주세요",
   icons: {
-    icon: "/favicon.ico",
-    apple: "/icons/icon-192x192.png",
+    icon: "/favicon.svg",
+    apple: "/img/logo-192x192.png",
   },
   manifest: "/manifest.json",
 };
