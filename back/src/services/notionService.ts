@@ -376,7 +376,7 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
         phone_number: payload.recipientPhone
       },
       "주문일시": {
-        date: { start: payload.orderedAt.toISOString() } 
+        date: { start: payload.orderedAt.toISOString() }
       }
     },
     children: [
