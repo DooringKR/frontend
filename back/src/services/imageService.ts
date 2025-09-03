@@ -2,14 +2,14 @@
 // 독립적인 이미지 생성 및 S3 업로드 서비스 (orderItem 생성 시 사용)
 import sharp from 'sharp';
 import fs from 'fs';
-import path from 'path';
 import { mapItemOptionsToSvgParams } from './svgParamMapper';
 // SVG 생성기 import (필요에 따라 추가)
-const { genCabinetSvg } = require('../../../src/components/svg/svgGenerators/genCabinet');
-const { genGeneralDoorSvg } = require('../../../src/components/svg/svgGenerators/genGeneral');
-const { genFlapSvg } = require('../../../src/components/svg/svgGenerators/genFlap');
-const { genMaedaDoorSvg } = require('../../../src/components/svg/svgGenerators/genMaeda');
-const { genFinishSvg } = require('../../../src/components/svg/svgGenerators/genFinish');
+const path = require('path');
+const genCabinetSvg = require(path.join(__dirname, '../../../src/components/svg/svgGenerators/genCabinet'));
+const genGeneralDoorSvg = require(path.join(__dirname, '../../../src/components/svg/svgGenerators/genGeneral'));
+const genFlapSvg = require(path.join(__dirname, '../../../src/components/svg/svgGenerators/genFlap'));
+const genMaedaDoorSvg = require(path.join(__dirname, '../../../src/components/svg/svgGenerators/genMaeda'));
+const genFinishSvg = require(path.join(__dirname, '../../../src/components/svg/svgGenerators/genFinish'));
 
 function getSvgForOrderItem(item: any): string {
   const { product_type, item_options } = item;
