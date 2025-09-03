@@ -4,7 +4,8 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "ts-node-dev src/index.ts",
-    "build": "tsc",
+    "build": "tsc && npm run copy-svg-generators",
+    "copy-svg-generators": "cp -r ../src/components/svg/svgGenerators ./src/components/svg/svgGenerators",
     "start": "node dist/index.js"
   },
   "dependencies": {
