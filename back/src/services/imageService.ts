@@ -69,11 +69,12 @@ export async function generateAndUploadOrderItemImage(item: any): Promise<string
     const svgString = getSvgForOrderItem(item);
     if (!svgString) return null;
     const pngBuffer = await sharp(Buffer.from(svgString)).png().toBuffer();
-    // order_id, order_item_id가 모두 있을 때만 규칙 적용
-    // order_id, order_item_id가 없을 경우에도 항상 orderitem_{item_index}.png로 생성 (item_index 필요)
+    // DB의 order_item_id가 있으면 반드시 그 값을 파일명에 반영
     let filename;
     if (item.order_id && item.order_item_id) {
       filename = `${item.order_id}_${item.order_item_id}.png`;
+    } else if (item.order_item_id) {
+      filename = `orderitem_${item.order_item_id}.png`;
     } else if (typeof item.item_index !== 'undefined') {
       filename = `orderitem_${item.item_index}.png`;
     } else {
