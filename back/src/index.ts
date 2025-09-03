@@ -7,6 +7,7 @@ import cartRouter from './routes/cart'
 import cartItemRouter from './routes/cart_item'
 import orderItemRouter from './routes/order_item'
 import dotenv from "dotenv"
+import path from 'path';
 
 dotenv.config();
 const app = express();
@@ -22,7 +23,7 @@ app.use(cors({
 
 app.use(express.json());
 
-app.use('/images', express.static(__dirname + '/../public/images'));
+app.use('/images', express.static(path.join(__dirname, '../public/images')));
 app.use('/auth', authRouter);
 app.use('/order', orderRouter);
 app.use('/app_user', appUserRouter);

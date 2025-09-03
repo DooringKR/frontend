@@ -193,12 +193,13 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
   const fs = require('fs');
   const path = require('path');
   async function saveImageLocally(buffer: Buffer, filename: string): Promise<string> {
-    const imagesDir = path.join(__dirname, '../../../public/images');
-    if (!fs.existsSync(imagesDir)) fs.mkdirSync(imagesDir, { recursive: true });
-    const filePath = path.join(imagesDir, filename);
-    await fs.promises.writeFile(filePath, buffer);
-    // Express static middleware serves /images/* from public/images
-    return `/images/${filename}`;
+  // 이미지 저장 경로를 백엔드의 public/images 폴더로 지정
+  const imagesDir = path.join(__dirname, '../public/images');
+  if (!fs.existsSync(imagesDir)) fs.mkdirSync(imagesDir, { recursive: true });
+  const filePath = path.join(imagesDir, filename);
+  await fs.promises.writeFile(filePath, buffer);
+  // Express static middleware serves /images/* from public/images
+  return `/images/${filename}`;
   }
   // SVG 생성 함수 import (Node.js 호환 버전 필요)
   const { genCabinetSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genCabinet'));
@@ -315,6 +316,7 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
     // If running locally, you must expose the server to the internet (e.g., via ngrok) and use the public URL
     // For now, prepend your public server URL (e.g., http://localhost:3001 or your ngrok URL)
   // Render 등 배포 환경에서는 PUBLIC_BASE_URL을 환경변수로 지정하거나, 실제 퍼블릭 URL을 하드코딩
+  // 환경변수 PUBLIC_BASE_URL을 활용해 퍼블릭 이미지 URL 생성
   const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || 'https://your-app.onrender.com';
   const notionImageUrl = imageUrl.startsWith('http') ? imageUrl : `${PUBLIC_BASE_URL}${imageUrl}`;
     return {
