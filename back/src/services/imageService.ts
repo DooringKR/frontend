@@ -1,3 +1,13 @@
+// SVG 내 이미지 href를 서버 로컬 경로로 치환하는 함수
+function svgUrlToLocal(svgString: string): string {
+  // 실제 서버의 public/img 경로로 치환
+  const localBase = path.join(__dirname, '../../public/img/color-png(new)');
+  // 정규식으로 href 경로를 로컬 경로로 변환
+  return svgString.replace(
+    /href="\/img\/color-png\(new\)\/([^"]+\.png)"/g,
+    (match, file) => `href="${localBase}/${file}"`
+  );
+}
 // src/services/imageService.ts
 // 독립적인 이미지 생성 및 S3 업로드 서비스 (orderItem 생성 시 사용)
 import sharp from 'sharp';
@@ -82,7 +92,9 @@ export async function generateAndUploadOrderItemImage(item: any): Promise<string
   try {
     const svgString = getSvgForOrderItem(item);
     if (!svgString) return null;
-    const pngBuffer = await sharp(Buffer.from(svgString)).png().toBuffer();
+    // sharp 변환용으로 href를 서버 로컬 경로로 치환
+    const svgStringForSharp = svgUrlToLocal(svgString);
+    const pngBuffer = await sharp(Buffer.from(svgStringForSharp)).png().toBuffer();
     // image_url이 명확히 전달되면 해당 경로로 저장
     if (item.image_url) {
       // /images/xxx.png 형태에서 파일명만 추출
