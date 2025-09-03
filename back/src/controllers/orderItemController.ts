@@ -76,7 +76,7 @@ export async function addOrderItem(req: Request, res: Response) {
     unit_price:    newItem.unit_price,
     item_count:    newItem.item_count,
     item_options:  newItem.item_options,
-    image_url:     (newItem as any).image_url,
+    image_url:     newItem.image_url,
   });
 }
 
