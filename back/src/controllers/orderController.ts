@@ -66,6 +66,7 @@ export async function createOrder(req: Request, res: Response) {
         item_count: item.item_count,
         unit_price: item.unit_price ?? 0,
         item_options: item.item_options,
+        image_url: item.image_url,
       })),
     }).catch(err => console.error("[Notion Sync Error]", err));
 
