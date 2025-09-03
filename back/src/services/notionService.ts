@@ -303,7 +303,10 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
     return null;
   }
   // 3. 이미지 저장 및 URL 확보
-  const filename = `orderitem_${Date.now()}_${i}.png`;
+  // 파일명을 {orderid}_{orderitemid}.png 형식으로 저장
+  const filename = (item.order_id && item.order_item_id)
+    ? `${item.order_id}_${item.order_item_id}.png`
+    : `orderitem_${Date.now()}_${i}.png`;
   let imageUrl = null;
   try {
     imageUrl = await saveImageLocally(pngBuffer, filename);
