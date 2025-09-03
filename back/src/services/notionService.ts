@@ -317,7 +317,7 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
     // For now, prepend your public server URL (e.g., http://localhost:3001 or your ngrok URL)
   // Render 등 배포 환경에서는 PUBLIC_BASE_URL을 환경변수로 지정하거나, 실제 퍼블릭 URL을 하드코딩
   // 환경변수 PUBLIC_BASE_URL을 활용해 퍼블릭 이미지 URL 생성
-  const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || 'https://your-app.onrender.com';
+  const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || 'https://dooring-backend.onrender.com';
   const notionImageUrl = imageUrl.startsWith('http') ? imageUrl : `${PUBLIC_BASE_URL}${imageUrl}`;
     return {
       object: "block",
