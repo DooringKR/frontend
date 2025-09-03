@@ -92,9 +92,8 @@ export async function generateAndUploadOrderItemImage(item: any): Promise<string
   try {
     const svgString = getSvgForOrderItem(item);
     if (!svgString) return null;
-    // sharp 변환용으로 href를 서버 로컬 경로로 치환
-    const svgStringForSharp = svgUrlToLocal(svgString);
-    const pngBuffer = await sharp(Buffer.from(svgStringForSharp)).png().toBuffer();
+    // sharp가 SVG 내 href를 그대로 처리하도록 경로 치환 없이 변환
+    const pngBuffer = await sharp(Buffer.from(svgString)).png().toBuffer();
     // image_url이 명확히 전달되면 해당 경로로 저장
     if (item.image_url) {
       // /images/xxx.png 형태에서 파일명만 추출
