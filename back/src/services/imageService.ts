@@ -69,7 +69,14 @@ export async function generateAndUploadOrderItemImage(item: any): Promise<string
     const svgString = getSvgForOrderItem(item);
     if (!svgString) return null;
     const pngBuffer = await sharp(Buffer.from(svgString)).png().toBuffer();
-    // DB의 order_item_id가 있으면 반드시 그 값을 파일명에 반영
+    // image_url이 명확히 전달되면 해당 경로로 저장
+    if (item.image_url) {
+      // /images/xxx.png 형태에서 파일명만 추출
+      const filename = item.image_url.replace(/^\/images\//, "");
+      await saveImageLocally(pngBuffer, filename);
+      return item.image_url;
+    }
+    // image_url이 없으면 기존대로 파일명 생성
     let filename;
     if (item.order_id && item.order_item_id) {
       filename = `${item.order_id}_${item.order_item_id}.png`;
