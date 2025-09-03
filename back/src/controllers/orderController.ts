@@ -52,7 +52,35 @@ export async function createOrder(req: Request, res: Response) {
       where: { cart_id },
     });
 
-    // 4. notionService 호출
+    // 4. cartItems 기반으로 order_item 생성 및 image_url 저장
+    for (const cartItem of cartItems) {
+      // 이미지 생성 및 업로드
+      const image_url = await require('../services/imageService').generateAndUploadOrderItemImage(cartItem);
+        await prisma.orderItem.create({
+          data: {
+            order_id: order.order_id,
+            product_type: cartItem.product_type,
+            unit_price: cartItem.unit_price ?? 0,
+            item_count: cartItem.item_count,
+            item_options: cartItem.item_options ?? {},
+            image_url,
+          }
+        });
+    }
+
+    // 5. order_item에서 image_url 포함하여 조회
+    const orderItems = await prisma.orderItem.findMany({
+      where: { order_id: order.order_id },
+      select: {
+        product_type: true,
+        item_count: true,
+        unit_price: true,
+        item_options: true,
+        image_url: true,
+      }
+    });
+
+    // 6. notionService 호출
     await createNotionOrderPage({
       orderedAt: order.created_at,
       userRoadAddress: user?.user_road_address || "",
@@ -61,13 +89,7 @@ export async function createOrder(req: Request, res: Response) {
       orderType: order.order_type,
       orderPrice: order.order_price,
       orderOptions: order.order_options,
-      orderItems: cartItems.map((item: any) => ({
-        product_type: item.product_type,
-        item_count: item.item_count,
-        unit_price: item.unit_price ?? 0,
-        item_options: item.item_options,
-        image_url: item.image_url,
-      })),
+      orderItems: orderItems,
     }).catch(err => console.error("[Notion Sync Error]", err));
 
     // 5. 응답
