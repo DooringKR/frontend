@@ -29,7 +29,6 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
           height: Number(item_options.door_height)
         };
   const color = {
-    doorFill: `/img/color-png(new)/${colorName}.png`,
     doorFillImageUrl: `/img/color-png(new)/${colorName}.png`
   };
         const validSubtypes = [
@@ -56,7 +55,6 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
           height: Number(item_options.door_height)
         };
   const color = {
-    doorFill: `/img/color-png(new)/${colorName}.png`,
     doorFillImageUrl: `/img/color-png(new)/${colorName}.png`
   };
         result = {
