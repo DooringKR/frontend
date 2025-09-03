@@ -53,21 +53,21 @@ export async function createOrder(req: Request, res: Response) {
     });
 
     // 4. notionService 호출
-  // await createNotionOrderPage({
-  //   orderedAt: order.created_at,
-  //   userRoadAddress: user?.user_road_address || "",
-  //   userPhone: user?.user_phone || "",
-  //   recipientPhone: order.recipient_phone,
-  //   orderType: order.order_type,
-  //   orderPrice: order.order_price,
-  //   orderOptions: order.order_options,
-  //   orderItems: cartItems.map((item: any) => ({
-  //     product_type: item.product_type,
-  //     item_count: item.item_count,
-  //     unit_price: item.unit_price ?? 0,
-  //     item_options: item.item_options,
-  //   })),
-  // }).catch(err => console.error("[Notion Sync Error]", err));
+    await createNotionOrderPage({
+      orderedAt: order.created_at,
+      userRoadAddress: user?.user_road_address || "",
+      userPhone: user?.user_phone || "",
+      recipientPhone: order.recipient_phone,
+      orderType: order.order_type,
+      orderPrice: order.order_price,
+      orderOptions: order.order_options,
+      orderItems: cartItems.map((item: any) => ({
+        product_type: item.product_type,
+        item_count: item.item_count,
+        unit_price: item.unit_price ?? 0,
+        item_options: item.item_options,
+      })),
+    }).catch(err => console.error("[Notion Sync Error]", err));
 
     // 5. 응답
     return res.status(201).json({
