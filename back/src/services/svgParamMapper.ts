@@ -27,7 +27,10 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
           width: Number(item_options.door_width),
           height: Number(item_options.door_height)
         };
-  const color = { doorFill: `/img/color-png(new)/${colorName}.png` };
+  const color = {
+    doorFill: `/img/color-png(new)/${colorName}.png`,
+    doorFillImageUrl: `/img/color-png(new)/${colorName}.png`
+  };
         const validSubtypes = [
           '좌경_2보링','좌경_3보링','좌경_4보링','우경_2보링','우경_3보링','우경_4보링'
         ];
@@ -50,7 +53,10 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
           width: Number(item_options.door_width),
           height: Number(item_options.door_height)
         };
-  const color = { doorFill: `/img/color-png(new)/${colorName}.png` };
+  const color = {
+    doorFill: `/img/color-png(new)/${colorName}.png`,
+    doorFillImageUrl: `/img/color-png(new)/${colorName}.png`
+  };
         return {
           size,
           color
