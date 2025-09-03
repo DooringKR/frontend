@@ -27,7 +27,7 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
           width: Number(item_options.door_width),
           height: Number(item_options.door_height)
         };
-        const color = { doorFill: `/img/color-png(new)/${colorName}.png` };
+  const color = { doorFill: `../../public/img/color-png(new)/${colorName}.png` };
         const validSubtypes = [
           '좌경_2보링','좌경_3보링','좌경_4보링','우경_2보링','우경_3보링','우경_4보링'
         ];
@@ -50,7 +50,7 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
           width: Number(item_options.door_width),
           height: Number(item_options.door_height)
         };
-        const color = { doorFill: `/img/color-png(new)/${colorName}.png` };
+  const color = { doorFill: `../../public/img/color-png(new)/${colorName}.png` };
         return {
           size,
           color
@@ -65,15 +65,15 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
       let cabinetColor = '';
       if (typeof item_options.body_type === 'string') {
         if (item_options.body_type.startsWith('PATAGONIA')) {
-          bodyColor = '/img/color-png(new)/한솔 파타고니아 크림.png';
+          bodyColor = '../../public/img/color-png(new)/한솔 파타고니아 크림.png';
         } else if (item_options.body_type.startsWith('HERRINGBONE')) {
-          bodyColor = '/img/color-png(new)/헤링본.png';
+          bodyColor = '../../public/img/color-png(new)/헤링본.png';
         }
       }
       if (typeof item_options.cabinet_color === 'string') {
         const colorParts = item_options.cabinet_color.split(',').map((s: string) => s.trim());
         if (colorParts.length >= 4) {
-          cabinetColor = `/img/color-png(new)/${colorParts[1]} ${colorParts[3]}.png`;
+          cabinetColor = `../../public/img/color-png(new)/${colorParts[1]} ${colorParts[3]}.png`;
         }
       }
 
@@ -131,7 +131,7 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
       return {
         width: Number(item_options.finish_base_depth),
         height: Number(item_options.finish_base_height),
-        colorOrImage: { fallbackColor: `/img/color-png(new)/${colorName}.png` }
+        colorOrImage: { fallbackColor: `../../public/img/color-png(new)/${colorName}.png` }
       };
     default:
       return item_options;
