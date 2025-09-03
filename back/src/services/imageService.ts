@@ -69,7 +69,13 @@ export async function generateAndUploadOrderItemImage(item: any): Promise<string
     const svgString = getSvgForOrderItem(item);
     if (!svgString) return null;
     const pngBuffer = await sharp(Buffer.from(svgString)).png().toBuffer();
-    const filename = `orderitem_${Date.now()}_${Math.floor(Math.random()*10000)}.png`;
+    // order_id, order_item_id가 모두 있을 때만 규칙 적용
+    let filename;
+    if (item.order_id && item.order_item_id) {
+      filename = `${item.order_id}_${item.order_item_id}.png`;
+    } else {
+      filename = `orderitem_${Date.now()}_${Math.floor(Math.random()*10000)}.png`;
+    }
     const imageUrl = await saveImageLocally(pngBuffer, filename);
     return imageUrl;
   } catch (e) {
