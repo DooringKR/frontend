@@ -28,6 +28,7 @@ export async function getOrderItem(req: Request, res: Response) {
     unit_price:    item.unit_price,
     item_count:    item.item_count,
     item_options:  item.item_options,
+    image_url:     item.image_url,
   });
 }
 
