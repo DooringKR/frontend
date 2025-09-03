@@ -295,12 +295,11 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
   if (!svgString) {
     return null;
   }
-  // 2. SVG → PNG 변환 (sharp, 옵션 최소화)
+  // 2. SVG → PNG 변환 (sharp)
   let pngBuffer;
   try {
     pngBuffer = await sharp(Buffer.from(svgString)).png().toBuffer();
   } catch (e) {
-    console.error('SVG to PNG 변환 에러:', e);
     return null;
   }
   // 3. 이미지 저장 및 URL 확보
