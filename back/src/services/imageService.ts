@@ -10,6 +10,7 @@ const { genGeneralDoorSvg } = require(path.join(__dirname, '../components/svg/sv
 const { genFlapSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genFlap'));
 const { genMaedaDoorSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genMaeda'));
 const { genFinishSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genFinish'));
+const { genDrawerSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genDrawer'));
 
 function getSvgForOrderItem(item: any): string {
   const { product_type, item_options } = item;
@@ -23,26 +24,39 @@ function getSvgForOrderItem(item: any): string {
   const params = mapItemOptionsToSvgParams(product_type, item_options);
   let svg;
   if (product_type === "DOOR") {
-    svg = genGeneralDoorSvg(
-      params.subtype,
-      params.size,
-      params.color,
-      params.boringValues
-    );
+    const doorType = item_options?.door_type;
+    if (doorType === "STANDARD") {
+      svg = genGeneralDoorSvg(
+        params.subtype,
+        params.size,
+        params.color,
+        params.boringValues
+      );
+    } else if (doorType === "FLAP") {
+      svg = genFlapSvg(
+        params.subtype,
+        params.size,
+        params.color,
+        params.boringValues
+      );
+    } else if (doorType === "DRAWER") {
+      if (typeof genDrawerSvg === "function") {
+        svg = genDrawerSvg(
+          params.size,
+          params.color
+        );
+      } else {
+        // Drawer SVG generator가 없으면 General로 fallback
+        svg = genGeneralDoorSvg(
+          params.subtype ?? "좌경_2보링",
+          params.size,
+          params.color,
+          []
+        );
+      }
+    }
   } else if (product_type === "CABINET") {
     svg = genCabinetSvg(params);
-  } else if (product_type === "FLAP_DOOR") {
-    svg = genFlapSvg(
-      params.subtype,
-      params.size,
-      params.color,
-      params.boringValues
-    );
-  } else if (product_type === "MAEDA") {
-    svg = genMaedaDoorSvg(
-      params.size,
-      params.color
-    );
   } else if (product_type === "FINISH") {
     svg = genFinishSvg(
       params.width,
