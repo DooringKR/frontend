@@ -314,8 +314,9 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
     // Notion API requires publicly accessible absolute URLs for images
     // If running locally, you must expose the server to the internet (e.g., via ngrok) and use the public URL
     // For now, prepend your public server URL (e.g., http://localhost:3001 or your ngrok URL)
-    const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || 'http://localhost:3001';
-    const notionImageUrl = imageUrl.startsWith('http') ? imageUrl : `${PUBLIC_BASE_URL}${imageUrl}`;
+  // Render 등 배포 환경에서는 PUBLIC_BASE_URL을 환경변수로 지정하거나, 실제 퍼블릭 URL을 하드코딩
+  const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || 'https://your-app.onrender.com';
+  const notionImageUrl = imageUrl.startsWith('http') ? imageUrl : `${PUBLIC_BASE_URL}${imageUrl}`;
     return {
       object: "block",
       type: "callout",
