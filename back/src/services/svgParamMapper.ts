@@ -1,5 +1,6 @@
 // 각 product_type별 item_options를 SVG 생성 함수 파라미터로 변환
 export function mapItemOptionsToSvgParams(product_type: string, item_options: any) {
+  let result;
   switch (product_type) {
     case 'DOOR': {
       // 일반문(STANDARD), 플랩문(FLAP), 서랍문(DRAWER) 모두 처리
@@ -35,12 +36,13 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
           '좌경_2보링','좌경_3보링','좌경_4보링','우경_2보링','우경_3보링','우경_4보링'
         ];
         const safeSubtype = validSubtypes.includes(subtype) ? subtype : '좌경_2보링';
-        return {
+        result = {
           subtype: safeSubtype,
           size,
           color,
           boringValues
         };
+        break;
       } else if (item_options.door_type === 'DRAWER') {
         let colorName = '';
         if (typeof item_options.door_color === 'string') {
@@ -57,13 +59,15 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
     doorFill: `/img/color-png(new)/${colorName}.png`,
     doorFillImageUrl: `/img/color-png(new)/${colorName}.png`
   };
-        return {
+        result = {
           size,
           color
         };
+        break;
       }
       // 기타 DOOR 타입은 기존 로직 유지
-      return item_options;
+  result = item_options;
+  break;
     }
     case 'CABINET': {
       // Extract bodyColor and cabinetColor
@@ -85,7 +89,7 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
 
       // Flap cabinet
       if (item_options.cabinet_type === 'flap') {
-        return {
+        result = {
           type: 'flapCabinet',
           body: bodyColor,
           cabinetColor,
@@ -97,10 +101,8 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
           height: Number(item_options.cabinet_height),
           depth: Number(item_options.cabinet_depth)
         };
-      }
-      // Drawer cabinet
-      if (item_options.cabinet_type === 'drawer') {
-        return {
+      } else if (item_options.cabinet_type === 'drawer') {
+        result = {
           type: 'drawer',
           body: bodyColor,
           cabinetColor,
@@ -112,18 +114,20 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
           height: Number(item_options.cabinet_height),
           depth: Number(item_options.cabinet_depth)
         };
+      } else {
+        // Open/Upper/Lower cabinet (no flap/drawer fields)
+        result = {
+          type: item_options.cabinet_type?.toLowerCase(),
+          body: bodyColor,
+          cabinetColor,
+          top: bodyColor,
+          right: bodyColor,
+          width: Number(item_options.cabinet_width),
+          height: Number(item_options.cabinet_height),
+          depth: Number(item_options.cabinet_depth)
+        };
       }
-      // Open/Upper/Lower cabinet (no flap/drawer fields)
-      return {
-        type: item_options.cabinet_type?.toLowerCase(),
-        body: bodyColor,
-        cabinetColor,
-        top: bodyColor,
-        right: bodyColor,
-        width: Number(item_options.cabinet_width),
-        height: Number(item_options.cabinet_height),
-        depth: Number(item_options.cabinet_depth)
-      };
+      break;
     }
     case 'FINISH':
       // 색상 추출: finish_color에서 두번째와 네번째 값
@@ -134,12 +138,16 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
           colorName = `${colorParts[1]} ${colorParts[3]}`;
         }
       }
-      return {
+      result = {
         width: Number(item_options.finish_base_depth),
         height: Number(item_options.finish_base_height),
         colorOrImage: { fallbackColor: `/img/color-png(new)/${colorName}.png` }
       };
+      break;
     default:
-      return item_options;
+      result = item_options;
+      break;
   }
+  console.log('[svgParamMapper] 반환값:', JSON.stringify(result, null, 2));
+  return result;
 }
