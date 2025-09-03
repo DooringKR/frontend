@@ -271,7 +271,6 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
   }
 
   async function makeFurnitureBlock(item: any, i: number): Promise<any> {
-  // ...existing code...
     const optionStr =
       item.item_options && Object.keys(item.item_options).length > 0
         ? Object.entries(item.item_options)
@@ -290,43 +289,12 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
 총 금액: ${total?.toLocaleString() ?? "-"}원
 `;
 
-  // 1. 주문 정보 → SVG 파라미터 변환 및 SVG 생성
-  const svgString = getSvgForOrderItem(item);
-  if (!svgString) {
+  // DB에서 전달된 image_url을 그대로 사용
+  const imageUrl = item.image_url;
+  if (!imageUrl) {
+    // image_url이 없으면 블록 생성하지 않음
     return null;
   }
-  // 2. SVG → PNG 변환 (sharp)
-  let pngBuffer;
-  try {
-    pngBuffer = await sharp(Buffer.from(svgString)).png().toBuffer();
-  } catch (e) {
-    return null;
-  }
-  // 3. 이미지 저장 및 URL 확보
-    // 파일명을 {order_id}_{order_item_id}.png 형식으로 저장 (imageService와 동일하게 통일)
-    // imageService와 동일하게, order_id/order_item_id가 없으면 orderitem_{i}.png로 생성
-    let filename;
-    if (item.order_id && item.order_item_id) {
-      filename = `${item.order_id}_${item.order_item_id}.png`;
-    } else {
-      filename = `orderitem_${i}.png`;
-      item.item_index = i; // imageService에 index 전달
-    }
-    try {
-      await saveImageLocally(pngBuffer, filename);
-    } catch (e) {
-      return null;
-    }
-
-    // 노션에 전달할 이미지 URL은 저장한 파일명 그대로 사용
-    const imageUrl = `/images/${filename}`;
-
-    // 5. 콜아웃 블록 + image children
-    // Notion API requires publicly accessible absolute URLs for images
-    // If running locally, you must expose the server to the internet (e.g., via ngrok) and use the public URL
-    // For now, prepend your public server URL (e.g., http://localhost:3001 or your ngrok URL)
-  // Render 등 배포 환경에서는 PUBLIC_BASE_URL을 환경변수로 지정하거나, 실제 퍼블릭 URL을 하드코딩
-  // 환경변수 PUBLIC_BASE_URL을 활용해 퍼블릭 이미지 URL 생성
   const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || 'https://dooring-backend.onrender.com';
   const notionImageUrl = imageUrl.startsWith('http') ? imageUrl : `${PUBLIC_BASE_URL}${imageUrl}`;
     return {
