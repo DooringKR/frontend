@@ -303,17 +303,19 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
     return null;
   }
   // 3. 이미지 저장 및 URL 확보
-  // 파일명을 {orderid}_{orderitemid}.png 형식으로 저장
-  const filename = (item.order_id && item.order_item_id)
-    ? `${item.order_id}_${item.order_item_id}.png`
-    : `orderitem_${Date.now()}_${i}.png`;
-  let imageUrl = null;
-  try {
-    imageUrl = await saveImageLocally(pngBuffer, filename);
-  } catch (e) {
-    return null;
-  }
+    // 파일명을 {orderid}_{orderitemid}.png 형식으로 저장
+    const filename = (item.order_id && item.order_item_id)
+      ? `${item.order_id}_${item.order_item_id}.png`
+      : `orderitem_${Date.now()}_${i}.png`;
+    try {
+      await saveImageLocally(pngBuffer, filename);
+    } catch (e) {
+      return null;
+    }
 
+    // 노션에 전달할 이미지 URL은 저장한 파일명 그대로 사용
+    const imageUrl = `/images/${filename}`;
+    
     // 5. 콜아웃 블록 + image children
     // Notion API requires publicly accessible absolute URLs for images
     // If running locally, you must expose the server to the internet (e.g., via ngrok) and use the public URL
