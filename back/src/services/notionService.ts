@@ -100,6 +100,8 @@ const VALID_GAGU_TYPES = Object.values(PRODUCT_TYPE_LABEL); // = ["문짝", "마
 const VALID_SHIPPING_METHODS = ["직접 픽업하러 갈게요", "현장으로 배송해주세요"];
 
 export async function createNotionOrderPage(payload: NotionOrderPayload) {
+  // orderItems 배열 데이터 구조 점검용 로그
+  console.log('[NotionSync][DEBUG] orderItems:', JSON.stringify(payload.orderItems, null, 2));
   // ...existing code...
   // 1. 제목: user_road_address 두 어절만 파싱
   const title =
