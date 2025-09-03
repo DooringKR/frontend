@@ -171,11 +171,11 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
         return `/images/${filename}`;
     }
     // SVG 생성 함수 import (Node.js 호환 버전 필요)
-    const { genCabinetSvg } = require('../../../src/components/svg/svgGenerators/genCabinet');
-    const { genGeneralDoorSvg } = require('../../../src/components/svg/svgGenerators/genGeneral');
-    const { genFlapSvg } = require('../../../src/components/svg/svgGenerators/genFlap');
-    const { genMaedaDoorSvg } = require('../../../src/components/svg/svgGenerators/genMaeda');
-    const { genFinishSvg } = require('../../../src/components/svg/svgGenerators/genFinish');
+    const genCabinetSvg = require(path.join(__dirname, '../components/svg/svgGenerators/genCabinet'));
+    const genGeneralDoorSvg = require(path.join(__dirname, '../components/svg/svgGenerators/genGeneral'));
+    const genFlapSvg = require(path.join(__dirname, '../components/svg/svgGenerators/genFlap'));
+    const genMaedaDoorSvg = require(path.join(__dirname, '../components/svg/svgGenerators/genMaeda'));
+    const genFinishSvg = require(path.join(__dirname, '../components/svg/svgGenerators/genFinish'));
     // SVG 파라미터 매핑 함수 import
     const { mapItemOptionsToSvgParams } = require('./svgParamMapper');
     function getSvgForOrderItem(item) {

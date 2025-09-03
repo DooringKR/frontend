@@ -8,14 +8,14 @@ exports.generateAndUploadOrderItemImage = generateAndUploadOrderItemImage;
 // 독립적인 이미지 생성 및 S3 업로드 서비스 (orderItem 생성 시 사용)
 const sharp_1 = __importDefault(require("sharp"));
 const fs_1 = __importDefault(require("fs"));
-const path_1 = __importDefault(require("path"));
 const svgParamMapper_1 = require("./svgParamMapper");
 // SVG 생성기 import (필요에 따라 추가)
-const { genCabinetSvg } = require('../../../src/components/svg/svgGenerators/genCabinet');
-const { genGeneralDoorSvg } = require('../../../src/components/svg/svgGenerators/genGeneral');
-const { genFlapSvg } = require('../../../src/components/svg/svgGenerators/genFlap');
-const { genMaedaDoorSvg } = require('../../../src/components/svg/svgGenerators/genMaeda');
-const { genFinishSvg } = require('../../../src/components/svg/svgGenerators/genFinish');
+const path = require('path');
+const genCabinetSvg = require(path.join(__dirname, '../components/svg/svgGenerators/genCabinet'));
+const genGeneralDoorSvg = require(path.join(__dirname, '../components/svg/svgGenerators/genGeneral'));
+const genFlapSvg = require(path.join(__dirname, '../components/svg/svgGenerators/genFlap'));
+const genMaedaDoorSvg = require(path.join(__dirname, '../components/svg/svgGenerators/genMaeda'));
+const genFinishSvg = require(path.join(__dirname, '../components/svg/svgGenerators/genFinish'));
 function getSvgForOrderItem(item) {
     const { product_type, item_options } = item;
     // Node.js 환경에서 DOM 보장 (jsdom)
@@ -47,10 +47,10 @@ function getSvgForOrderItem(item) {
     return svg.outerHTML;
 }
 async function saveImageLocally(buffer, filename) {
-    const imagesDir = path_1.default.join(__dirname, '../../public/images');
+    const imagesDir = path.join(__dirname, '../../public/images');
     if (!fs_1.default.existsSync(imagesDir))
         fs_1.default.mkdirSync(imagesDir, { recursive: true });
-    const filePath = path_1.default.join(imagesDir, filename);
+    const filePath = path.join(imagesDir, filename);
     await fs_1.default.promises.writeFile(filePath, buffer);
     // 반환 URL: /images/filename
     return `/images/${filename}`;
