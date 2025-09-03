@@ -31,7 +31,6 @@ app.use('/cart', cartRouter);
 app.use('/cart_item', cartItemRouter);
 app.use('/order_item', orderItemRouter);
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.use('/images', cors(), express.static(path.join(__dirname, '../public/images')));
+console.log(`Server running on port ${PORT}`);
 console.log('▶ process.env.PORT =', process.env.PORT);
