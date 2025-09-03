@@ -106,18 +106,6 @@ export function genFlapSvg(
         "stroke-width": "8",
       })
     );
-  } else {
-    svg.appendChild(
-      makeRect({
-        x: FLAP_DOOR_RECT.x.toString(),
-        y: FLAP_DOOR_RECT.y.toString(),
-        width: FLAP_DOOR_RECT.width.toString(),
-        height: FLAP_DOOR_RECT.height.toString(),
-        fill: color.doorFill || "#ccc",
-        stroke: "black",
-        "stroke-width": "8",
-      })
-    );
   }
 
   const flapBorings = FLAP_DOOR_BORINGS[subtype];
