@@ -39,20 +39,22 @@ function insertFlapDimensionTexts(
   svg.appendChild(horizontalText);
 
   const borings = FLAP_DOOR_BORINGS[subtype];
-  borings.forEach(({ cy }, i) => {
-    const boringText = document.createElementNS(SVG_NS, "text");
-    boringText.setAttribute("x", dimPos.boringTextPos[i].x.toString());
-    boringText.setAttribute("y", dimPos.boringTextPos[i].y.toString());
-    boringText.setAttribute("fill", "black");
-    boringText.style.fontSize = `${FONT_SIZE}px`;
-    boringText.style.dominantBaseline = "middle";
-    boringText.style.textAnchor = dimPos.boringTextPos[i].anchor;
-    boringText.textContent =
-      boringValues && boringValues[i] !== undefined && boringValues[i] !== null
-        ? boringValues[i].toString()
-        : cy.toString();
-    svg.appendChild(boringText);
-  });
+  if (Array.isArray(borings)) {
+    borings.forEach(({ cy }, i) => {
+      const boringText = document.createElementNS(SVG_NS, "text");
+      boringText.setAttribute("x", dimPos.boringTextPos[i].x.toString());
+      boringText.setAttribute("y", dimPos.boringTextPos[i].y.toString());
+      boringText.setAttribute("fill", "black");
+      boringText.style.fontSize = `${FONT_SIZE}px`;
+      boringText.style.dominantBaseline = "middle";
+      boringText.style.textAnchor = dimPos.boringTextPos[i].anchor;
+      boringText.textContent =
+        boringValues && boringValues[i] !== undefined && boringValues[i] !== null
+          ? boringValues[i].toString()
+          : cy.toString();
+      svg.appendChild(boringText);
+    });
+  }
 }
 
 export function genFlapSvg(
@@ -118,16 +120,19 @@ export function genFlapSvg(
     );
   }
 
-  FLAP_DOOR_BORINGS[subtype].forEach(({ cx, cy, r }) => {
-    const c = document.createElementNS(SVG_NS, "circle");
-    c.setAttribute("cx", cx.toString());
-    c.setAttribute("cy", cy.toString());
-    c.setAttribute("r", r.toString());
-    c.setAttribute("fill", "white");
-    c.setAttribute("stroke", "black");
-    c.setAttribute("stroke-width", "6");
-    svg.appendChild(c);
-  });
+  const flapBorings = FLAP_DOOR_BORINGS[subtype];
+  if (Array.isArray(flapBorings)) {
+    flapBorings.forEach(({ cx, cy, r }) => {
+      const c = document.createElementNS(SVG_NS, "circle");
+      c.setAttribute("cx", cx.toString());
+      c.setAttribute("cy", cy.toString());
+      c.setAttribute("r", r.toString());
+      c.setAttribute("fill", "white");
+      c.setAttribute("stroke", "black");
+      c.setAttribute("stroke-width", "6");
+      svg.appendChild(c);
+    });
+  }
 
   insertFlapDimensionTexts(svg, subtype, size, boringValues);
 

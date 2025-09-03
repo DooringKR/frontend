@@ -9,7 +9,7 @@ const { genCabinetSvg } = require(path.join(__dirname, '../components/svg/svgGen
 const { genGeneralDoorSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genGeneral'));
 const { genFlapSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genFlap'));
 const { genMaedaDoorSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genMaeda'));
-const { genFinishSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genFinish'));
+const { genFinishDoorSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genFinish'));
 const { genDrawerSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genDrawer'));
 
 function getSvgForOrderItem(item: any): string {
@@ -58,7 +58,7 @@ function getSvgForOrderItem(item: any): string {
   } else if (product_type === "CABINET") {
     svg = genCabinetSvg(params);
   } else if (product_type === "FINISH") {
-    svg = genFinishSvg(
+  svg = genFinishDoorSvg(
       params.width,
       params.height,
       params.colorOrImage

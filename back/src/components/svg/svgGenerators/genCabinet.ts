@@ -15,7 +15,7 @@ export function genCabinetSvg(colorProps: ColorProps = {}) {
     const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
     ["flapRight", "flapLeft", "top"].forEach((key) => {
       const value = colorProps[key];
-      if (value && value.endsWith('.png')) {
+      if (typeof value === 'string' && value.endsWith('.png')) {
         const patternId = `pattern_${key}`;
         const pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
         pattern.setAttribute("id", patternId);
@@ -39,11 +39,11 @@ export function genCabinetSvg(colorProps: ColorProps = {}) {
     FLAP_CABINET_PARTS.forEach((part, idx) => {
       const path = makePath({ ...part });
       // 플랩 도어/윗면 PNG fill 적용
-      if (idx === 3 && colorProps.flapRight && colorProps.flapRight.endsWith('.png')) {
+      if (idx === 3 && typeof colorProps.flapRight === 'string' && colorProps.flapRight.endsWith('.png')) {
         path.setAttribute('fill', `url(#pattern_flapRight)`);
-      } else if (idx === 4 && colorProps.flapLeft && colorProps.flapLeft.endsWith('.png')) {
+      } else if (idx === 4 && typeof colorProps.flapLeft === 'string' && colorProps.flapLeft.endsWith('.png')) {
         path.setAttribute('fill', `url(#pattern_flapLeft)`);
-      } else if (idx === 5 && colorProps.top && colorProps.top.endsWith('.png')) {
+      } else if (idx === 5 && typeof colorProps.top === 'string' && colorProps.top.endsWith('.png')) {
         path.setAttribute('fill', `url(#pattern_top)`);
       } else if (part.fill) {
         path.setAttribute('fill', part.fill);
@@ -65,7 +65,7 @@ export function genCabinetSvg(colorProps: ColorProps = {}) {
   // 1. 패턴 <defs> 생성 (colorProps의 값이 PNG 파일명일 때 pattern 추가)
   const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
   Object.entries(colorProps).forEach(([key, value]) => {
-    if (!value.endsWith('.png')) return;
+    if (typeof value !== 'string' || !value.endsWith('.png')) return;
     const patternId = `pattern_${key}`;
     const pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
     pattern.setAttribute("id", patternId);
@@ -93,7 +93,7 @@ export function genCabinetSvg(colorProps: ColorProps = {}) {
   // top, right는 항상 bodyColor를 사용
   ['right', 'top'].forEach(key => {
     let fillValue = bodyColor;
-    if (fillValue.endsWith('.png')) {
+    if (typeof fillValue === 'string' && fillValue.endsWith('.png')) {
       const patternId = 'pattern_body';
       fillValue = `url(#${patternId})`;
       // 패턴이 없으면 추가
@@ -128,7 +128,7 @@ export function genCabinetSvg(colorProps: ColorProps = {}) {
   ["leftDoor", "rightDoor"].forEach(doorKey => {
     if (colorProps[doorKey]) {
       let fillValue = colorProps[doorKey];
-      if (fillValue.endsWith('.png')) {
+      if (typeof fillValue === 'string' && fillValue.endsWith('.png')) {
         fillValue = `url(#pattern_${doorKey})`;
       }
       svg.appendChild(makePath({
@@ -160,17 +160,17 @@ export function genCabinetSvg(colorProps: ColorProps = {}) {
     // 2. 서랍 도어(왼쪽으로 40px 이동)
     const drawerFill = colorProps.drawerFill || '#eee';
     if (colorProps.drawerType === 'drawer3_221') {
-  // 겉2속1: 제일 위 서랍문(겉)이 가장 마지막(맨 위)에 그려져 겉이 바깥에 보임
-  // (서랍문 파트만 추출)
-  const drawerParts = parts.filter((part) => part.fill === '');
-  // 순서: [2, 1, 0] (아래, 중간, 위) → 겉(위)이 가장 위에 보이고, 속(중간)이 그 아래, 맨 아래가 가장 안쪽에 보임
-  const order = [2, 1, 0];
+      // 겉2속1: 제일 위 서랍문(겉)이 가장 마지막(맨 위)에 그려져 겉이 바깥에 보임
+      // (서랍문 파트만 추출)
+      const drawerParts = parts.filter((part) => part.fill === '');
+      // 순서: [2, 1, 0] (아래, 중간, 위) → 겉(위)이 가장 위에 보이고, 속(중간)이 그 아래, 맨 아래가 가장 안쪽에 보임
+      const order = [2, 1, 0];
       order.forEach((idx) => {
         const part = drawerParts[idx];
         if (!part) return;
         const movedD = part.d.replace(/(\d+)(\s|,)/g, (m, num, sep) => `${parseInt(num, 10) - moveX}${sep}`);
         let fillValue = drawerFill;
-        if (drawerFill.endsWith && drawerFill.endsWith('.png')) {
+        if (typeof drawerFill === 'string' && drawerFill.endsWith('.png')) {
           fillValue = `url(#pattern_drawerFill)`;
         }
         svg.appendChild(makePath({
@@ -185,7 +185,7 @@ export function genCabinetSvg(colorProps: ColorProps = {}) {
         if (part.fill === '') {
           const movedD = part.d.replace(/(\d+)(\s|,)/g, (m, num, sep) => `${parseInt(num, 10) - moveX}${sep}`);
           let fillValue = drawerFill;
-          if (drawerFill.endsWith && drawerFill.endsWith('.png')) {
+          if (typeof drawerFill === 'string' && drawerFill.endsWith('.png')) {
             fillValue = `url(#pattern_drawerFill)`;
           }
           svg.appendChild(makePath({
