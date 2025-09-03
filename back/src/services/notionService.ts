@@ -291,11 +291,19 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
 
   // DB에서 전달된 image_url을 그대로 사용
   const imageUrl = item.image_url;
-  if (!imageUrl) {
-    // image_url이 없으면 블록 생성하지 않음
-    return null;
-  }
   const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || 'https://dooring-backend.onrender.com';
+  if (!imageUrl) {
+    // image_url이 없으면 안내 메시지 블록 생성
+    return {
+      object: "block",
+      type: "paragraph",
+      paragraph: {
+        rich_text: [
+          { type: "text", text: { content: "이미지 없음" } }
+        ]
+      }
+    };
+  }
   const notionImageUrl = imageUrl.startsWith('http') ? imageUrl : `${PUBLIC_BASE_URL}${imageUrl}`;
     return {
       object: "block",
