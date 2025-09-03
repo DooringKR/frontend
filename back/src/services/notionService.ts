@@ -303,10 +303,13 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
     return null;
   }
   // 3. 이미지 저장 및 URL 확보
-    // 파일명을 {orderid}_{orderitemid}.png 형식으로 저장
-    const filename = (item.order_id && item.order_item_id)
-      ? `${item.order_id}_${item.order_item_id}.png`
-      : `orderitem_${Date.now()}_${i}.png`;
+    // 파일명을 {order_id}_{order_item_id}.png 형식으로 저장 (imageService와 동일하게 통일)
+    let filename;
+    if (item.order_id && item.order_item_id) {
+      filename = `${item.order_id}_${item.order_item_id}.png`;
+    } else {
+      filename = `orderitem_${Date.now()}_${i}.png`;
+    }
     try {
       await saveImageLocally(pngBuffer, filename);
     } catch (e) {
