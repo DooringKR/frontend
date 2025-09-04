@@ -71,6 +71,7 @@ export function genFlapSvg(
 
   svg.appendChild(makeRect({ width: "1200", height: "1200", fill: "white" }));
 
+
   if (color.doorFillImageUrl) {
     const defs = document.createElementNS(SVG_NS, "defs");
     const pattern = document.createElementNS(SVG_NS, "pattern");
@@ -102,6 +103,18 @@ export function genFlapSvg(
         width: FLAP_DOOR_RECT.width.toString(),
         height: FLAP_DOOR_RECT.height.toString(),
         fill: `url(#${patternId})`,
+        stroke: "black",
+        "stroke-width": "8",
+      })
+    );
+  } else {
+    svg.appendChild(
+      makeRect({
+        x: FLAP_DOOR_RECT.x.toString(),
+        y: FLAP_DOOR_RECT.y.toString(),
+        width: FLAP_DOOR_RECT.width.toString(),
+        height: FLAP_DOOR_RECT.height.toString(),
+        fill: color.doorFill || "#ccc",
         stroke: "black",
         "stroke-width": "8",
       })

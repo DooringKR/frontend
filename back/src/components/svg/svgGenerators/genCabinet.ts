@@ -3,6 +3,7 @@ import { makePath } from "../svgCore/svgUtils";
 import { ColorProps } from "../svgCore/svgTypes";
 
 export function genCabinetSvg(colorProps: ColorProps = {}) {
+
   // 플랩장 3D 타입 지원: colorProps.type === 'flapCabinet'이면 FLAP_CABINET_PARTS 사용
   if (colorProps.type === 'flapCabinet') {
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -89,7 +90,6 @@ export function genCabinetSvg(colorProps: ColorProps = {}) {
 
   // 3. 우측면, 윗면 등 파라미터화
   // hansol-dove-white.png 패턴이 필요하면 <defs>에 추가
-  let doveWhitePatternAdded = false;
   // top, right는 항상 bodyColor를 사용
   ['right', 'top'].forEach(key => {
     let fillValue = bodyColor;
@@ -138,15 +138,9 @@ export function genCabinetSvg(colorProps: ColorProps = {}) {
     }
   });
 
-// ...existing code...
-
-// 5. 서랍장 파트 (drawerType: drawer2, drawer3_112, drawer3_221)
-// colorProps.drawerType: 'drawer2' | 'drawer3_112' | 'drawer3_221'
-// colorProps.drawerFill: string (png or color)
+  // 5. 서랍장 파트 (drawerType: drawer2, drawer3_112, drawer3_221)
   if (colorProps.drawerType && DRAWER_CABINET_PARTS[colorProps.drawerType]) {
-    // 기존 레일 path 사용
     const parts = DRAWER_CABINET_PARTS[colorProps.drawerType];
-    // 1. 레일(회색, 왼쪽으로 40px 이동)
     const moveX = 40;
     parts.forEach((part) => {
       if (part.fill === '#D1D5DC') {
@@ -157,13 +151,9 @@ export function genCabinetSvg(colorProps: ColorProps = {}) {
         }));
       }
     });
-    // 2. 서랍 도어(왼쪽으로 40px 이동)
     const drawerFill = colorProps.drawerFill || '#eee';
     if (colorProps.drawerType === 'drawer3_221') {
-      // 겉2속1: 제일 위 서랍문(겉)이 가장 마지막(맨 위)에 그려져 겉이 바깥에 보임
-      // (서랍문 파트만 추출)
       const drawerParts = parts.filter((part) => part.fill === '');
-      // 순서: [2, 1, 0] (아래, 중간, 위) → 겉(위)이 가장 위에 보이고, 속(중간)이 그 아래, 맨 아래가 가장 안쪽에 보임
       const order = [2, 1, 0];
       order.forEach((idx) => {
         const part = drawerParts[idx];
@@ -180,7 +170,6 @@ export function genCabinetSvg(colorProps: ColorProps = {}) {
         }));
       });
     } else {
-      // 나머지 서랍장은 기존 순서대로
       parts.forEach((part) => {
         if (part.fill === '') {
           const movedD = part.d.replace(/(\d+)(\s|,)/g, (m, num, sep) => `${parseInt(num, 10) - moveX}${sep}`);
@@ -196,8 +185,6 @@ export function genCabinetSvg(colorProps: ColorProps = {}) {
         }
       });
     }
-    // 3. 오른쪽 면(맨 위에 덮어 그림)
-    // CABINET_SHAPES_DATA에서 key가 'right'인 path만 추출
     const rightPart = CABINET_SHAPES_DATA.find((p) => p.key === 'right');
     if (rightPart) {
       svg.appendChild(makePath({
@@ -206,6 +193,5 @@ export function genCabinetSvg(colorProps: ColorProps = {}) {
       }));
     }
   }
-// ...existing code...
   return svg;
 }

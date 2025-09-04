@@ -41,7 +41,7 @@ function getSvgForOrderItem(item: any): string {
       );
     } else if (doorType === "DRAWER") {
       if (typeof genDrawerSvg === "function") {
-        svg = genDrawerSvg(
+        svg = genMaedaDoorSvg(
           params.size,
           params.color
         );

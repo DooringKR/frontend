@@ -52,6 +52,7 @@ export function genGeneralDoorSvg(
     defs.appendChild(pattern);
     svg.appendChild(defs);
 
+
     const doorRect = makeRect({
       x: DOOR_RECT.x.toString(),
       y: DOOR_RECT.y.toString(),
@@ -76,7 +77,6 @@ export function genGeneralDoorSvg(
     svg.appendChild(doorRect);
   }
 
-
   if (GENERAL_DOOR_BORINGS[subtype]) {
     GENERAL_DOOR_BORINGS[subtype].forEach(({ cx, cy, r }) => {
       const circle = document.createElementNS(SVG_NS, "circle");
@@ -90,50 +90,40 @@ export function genGeneralDoorSvg(
     });
   }
 
-  insertDimensionTexts(svg, subtype, size, boringValues);
+  // 치수/보링 텍스트 추가
+  const dimPos = DOOR_DIMENSION_POSITIONS[subtype];
+  if (dimPos) {
+    const verticalText = document.createElementNS(SVG_NS, "text");
+    verticalText.setAttribute("x", dimPos.verticalPos.x.toString());
+    verticalText.setAttribute("y", dimPos.verticalPos.y.toString());
+    verticalText.setAttribute("fill", "black");
+    verticalText.style.fontSize = `${FONT_SIZE}px`;
+    verticalText.style.dominantBaseline = "middle";
+    verticalText.style.textAnchor = dimPos.verticalPos.anchor;
+    verticalText.textContent = size.height.toString();
+    svg.appendChild(verticalText);
+
+    const horizontalText = document.createElementNS(SVG_NS, "text");
+    horizontalText.setAttribute("x", dimPos.horizontalPos.x.toString());
+    horizontalText.setAttribute("y", dimPos.horizontalPos.y.toString());
+    horizontalText.setAttribute("fill", "black");
+    horizontalText.style.fontSize = `${FONT_SIZE}px`;
+    horizontalText.style.textAnchor = dimPos.horizontalPos.anchor;
+    horizontalText.textContent = size.width.toString();
+    svg.appendChild(horizontalText);
+
+    GENERAL_DOOR_BORINGS[subtype].forEach(({ cy }, i) => {
+      const boringText = document.createElementNS(SVG_NS, "text");
+      boringText.setAttribute("x", dimPos.boringTextPos[i].x.toString());
+      boringText.setAttribute("y", dimPos.boringTextPos[i].y.toString());
+      boringText.setAttribute("fill", "black");
+      boringText.style.fontSize = `${FONT_SIZE}px`;
+      boringText.style.dominantBaseline = "middle";
+      boringText.style.textAnchor = dimPos.boringTextPos[i].anchor;
+      boringText.textContent = boringValues && boringValues[i] !== undefined ? boringValues[i].toString() : cy.toString();
+      svg.appendChild(boringText);
+    });
+  }
 
   return svg;
-}
-
-
-
-function insertDimensionTexts(
-  svg: SVGSVGElement,
-  subtype: GeneralDoorSubtype,
-  size: Size,
-  boringValues?: number[]
-) {
-  const dimPos = DOOR_DIMENSION_POSITIONS[subtype];
-  if (!dimPos) return;
-
-  const verticalText = document.createElementNS(SVG_NS, "text");
-  verticalText.setAttribute("x", dimPos.verticalPos.x.toString());
-  verticalText.setAttribute("y", dimPos.verticalPos.y.toString());
-  verticalText.setAttribute("fill", "black");
-  verticalText.style.fontSize = `${FONT_SIZE}px`;
-  verticalText.style.dominantBaseline = "middle";
-  verticalText.style.textAnchor = dimPos.verticalPos.anchor;
-  verticalText.textContent = size.height.toString();
-  svg.appendChild(verticalText);
-
-  const horizontalText = document.createElementNS(SVG_NS, "text");
-  horizontalText.setAttribute("x", dimPos.horizontalPos.x.toString());
-  horizontalText.setAttribute("y", dimPos.horizontalPos.y.toString());
-  horizontalText.setAttribute("fill", "black");
-  horizontalText.style.fontSize = `${FONT_SIZE}px`;
-  horizontalText.style.textAnchor = dimPos.horizontalPos.anchor;
-  horizontalText.textContent = size.width.toString();
-  svg.appendChild(horizontalText);
-
-  GENERAL_DOOR_BORINGS[subtype].forEach(({ cy }, i) => {
-    const boringText = document.createElementNS(SVG_NS, "text");
-    boringText.setAttribute("x", dimPos.boringTextPos[i].x.toString());
-    boringText.setAttribute("y", dimPos.boringTextPos[i].y.toString());
-    boringText.setAttribute("fill", "black");
-    boringText.style.fontSize = `${FONT_SIZE}px`;
-    boringText.style.dominantBaseline = "middle";
-    boringText.style.textAnchor = dimPos.boringTextPos[i].anchor;
-    boringText.textContent = boringValues && boringValues[i] !== undefined ? boringValues[i].toString() : cy.toString();
-    svg.appendChild(boringText);
-  });
 }
