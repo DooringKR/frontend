@@ -10,7 +10,7 @@ exports.updateOrderItem = updateOrderItem;
 exports.deleteOrderItem = deleteOrderItem;
 const prismaClient_1 = __importDefault(require("../prismaClient"));
 // ProductType enum 직접 명시
-const imageService_1 = require("../services/imageService");
+// import { generateAndUploadOrderItemImage } from '../services/imageService';
 const VALID_PRODUCT_TYPES = ["DOOR", "FINISH", "CABINET", "HARDWARE", "ACCESSORY"];
 // GET /order_item/:order_item_id — 특정 주문 아이템 조회
 async function getOrderItem(req, res) {
@@ -46,14 +46,13 @@ async function addOrderItem(req, res) {
         return res.status(400).json({ message: '잘못된 요청입니다' });
     }
     // 이미지 생성 및 업로드
-    let image_url = null;
+    /*let image_url: string | null = null;
     try {
-        image_url = await (0, imageService_1.generateAndUploadOrderItemImage)({ product_type, item_options });
-        console.log('[OrderItem][TRACE] 이미지 생성/업로드 결과', { image_url });
-    }
-    catch (e) {
-        console.warn('[OrderItem][WARN] 이미지 생성/업로드 실패', e);
-    }
+      image_url = await generateAndUploadOrderItemImage({ product_type, item_options });
+      console.log('[OrderItem][TRACE] 이미지 생성/업로드 결과', { image_url });
+    } catch (e) {
+      console.warn('[OrderItem][WARN] 이미지 생성/업로드 실패', e);
+    } */
     const newItem = await prismaClient_1.default.orderItem.create({
         data: {
             order_id,
@@ -61,7 +60,7 @@ async function addOrderItem(req, res) {
             unit_price,
             item_count,
             item_options,
-            image_url: image_url ?? undefined,
+            image_url: undefined,
         },
     });
     // 노션 동기화: 해당 주문의 전체 order_items와 order/user 정보로 createNotionOrderPage 호출
