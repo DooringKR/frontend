@@ -5,11 +5,13 @@ import fs from 'fs';
 import path from 'path';
 import { mapItemOptionsToSvgParams } from './svgParamMapper';
 // SVG 생성기 import (필요에 따라 추가)
+
 const { genCabinetSvg } = require('../../../src/components/svg/svgGenerators/genCabinet');
 const { genGeneralDoorSvg } = require('../../../src/components/svg/svgGenerators/genGeneral');
 const { genFlapSvg } = require('../../../src/components/svg/svgGenerators/genFlap');
 const { genMaedaDoorSvg } = require('../../../src/components/svg/svgGenerators/genMaeda');
 const { genFinishSvg } = require('../../../src/components/svg/svgGenerators/genFinish');
+
 
 function getSvgForOrderItem(item: any): string {
   const { product_type, item_options } = item;
