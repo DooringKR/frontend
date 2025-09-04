@@ -55,6 +55,7 @@ export function genCabinetSvg(colorProps: ColorProps = {}) {
     });
     return svg;
   }
+
   // 바디 색상: body 키로 받거나, 없으면 hansol-dove-white.png
   const bodyColor = colorProps.body || 'hansol-dove-white.png';
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -84,6 +85,22 @@ export function genCabinetSvg(colorProps: ColorProps = {}) {
     defs.appendChild(pattern);
   });
   if (defs.childNodes.length > 0) svg.appendChild(defs);
+
+  // 치수 텍스트 추가 (width, height, depth)
+  // 위치는 상부장.svg 참고, 값은 colorProps.width/height/depth에서 가져옴
+  const { width, height, depth } = colorProps;
+  if (width) {
+    // 상부장 기준: width 텍스트 (상단 중앙)
+    svg.appendChild(require('../svgCore/svgUtils').makeText({ x: 600, y: 80, text: width.toString(), fontSize: 50, anchor: 'middle', fill: '#333' }));
+  }
+  if (height) {
+    // height 텍스트 (우측 중앙)
+    svg.appendChild(require('../svgCore/svgUtils').makeText({ x: 1120, y: 600, text: height.toString(), fontSize: 50, anchor: 'end', fill: '#333' }));
+  }
+  if (depth) {
+    // depth 텍스트 (좌측 하단)
+    svg.appendChild(require('../svgCore/svgUtils').makeText({ x: 80, y: 1120, text: depth.toString(), fontSize: 50, anchor: 'start', fill: '#333' }));
+  }
 
   // 2. 공통
   CABINET_BASE_PARTS.forEach(part => svg.appendChild(makePath(part)));

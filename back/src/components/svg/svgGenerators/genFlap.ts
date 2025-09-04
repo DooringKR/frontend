@@ -19,40 +19,39 @@ function insertFlapDimensionTexts(
   const dimPos = FLAP_DOOR_DIMENSION_POSITIONS[subtype];
   if (!dimPos) return;
 
-  const verticalText = document.createElementNS(SVG_NS, "text");
-  verticalText.setAttribute("x", dimPos.verticalPos.x.toString());
-  verticalText.setAttribute("y", dimPos.verticalPos.y.toString());
-  verticalText.setAttribute("fill", "black");
-  verticalText.style.fontSize = `${FONT_SIZE}px`;
-  verticalText.style.dominantBaseline = "middle";
-  verticalText.style.textAnchor = dimPos.verticalPos.anchor;
-  verticalText.textContent = size.height?.toString() || "";
-  svg.appendChild(verticalText);
+  // 치수 텍스트
+  svg.appendChild(require('../svgCore/svgUtils').makeText({
+    x: dimPos.verticalPos.x,
+    y: dimPos.verticalPos.y,
+    text: size.height?.toString() || "",
+    fontSize: FONT_SIZE,
+    anchor: dimPos.verticalPos.anchor,
+    fill: "black"
+  }));
+  svg.appendChild(require('../svgCore/svgUtils').makeText({
+    x: dimPos.horizontalPos.x,
+    y: dimPos.horizontalPos.y,
+    text: size.width?.toString() || "",
+    fontSize: FONT_SIZE,
+    anchor: dimPos.horizontalPos.anchor,
+    fill: "black"
+  }));
 
-  const horizontalText = document.createElementNS(SVG_NS, "text");
-  horizontalText.setAttribute("x", dimPos.horizontalPos.x.toString());
-  horizontalText.setAttribute("y", dimPos.horizontalPos.y.toString());
-  horizontalText.setAttribute("fill", "black");
-  horizontalText.style.fontSize = `${FONT_SIZE}px`;
-  horizontalText.style.textAnchor = dimPos.horizontalPos.anchor;
-  horizontalText.textContent = size.width?.toString() || "";
-  svg.appendChild(horizontalText);
-
+  // 보링 텍스트
   const borings = FLAP_DOOR_BORINGS[subtype];
   if (Array.isArray(borings)) {
     borings.forEach(({ cy }, i) => {
-      const boringText = document.createElementNS(SVG_NS, "text");
-      boringText.setAttribute("x", dimPos.boringTextPos[i].x.toString());
-      boringText.setAttribute("y", dimPos.boringTextPos[i].y.toString());
-      boringText.setAttribute("fill", "black");
-      boringText.style.fontSize = `${FONT_SIZE}px`;
-      boringText.style.dominantBaseline = "middle";
-      boringText.style.textAnchor = dimPos.boringTextPos[i].anchor;
-      boringText.textContent =
-        boringValues && boringValues[i] !== undefined && boringValues[i] !== null
-          ? boringValues[i].toString()
-          : cy.toString();
-      svg.appendChild(boringText);
+      svg.appendChild(require('../svgCore/svgUtils').makeText({
+        x: dimPos.boringTextPos[i].x,
+        y: dimPos.boringTextPos[i].y,
+        text:
+          boringValues && boringValues[i] !== undefined && boringValues[i] !== null
+            ? boringValues[i].toString()
+            : cy.toString(),
+        fontSize: FONT_SIZE,
+        anchor: dimPos.boringTextPos[i].anchor,
+        fill: "black"
+      }));
     });
   }
 }
@@ -121,6 +120,7 @@ export function genFlapSvg(
     );
   }
 
+  // 보링 위치 및 원 그리기
   const flapBorings = FLAP_DOOR_BORINGS[subtype];
   if (Array.isArray(flapBorings)) {
     flapBorings.forEach(({ cx, cy, r }) => {
