@@ -306,8 +306,9 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
       }
     };
   }
+  // image_url이 /images/로 시작하면 PUBLIC_BASE_URL을 붙여서 절대경로로 변환
   const notionImageUrl = imageUrl.startsWith('http') ? imageUrl : `${PUBLIC_BASE_URL}${imageUrl}`;
-    return {
+  return {
       object: "block",
       type: "callout",
       callout: {
