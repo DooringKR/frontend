@@ -10,6 +10,7 @@ type DrawerCabinetFormProps = {
   DoorWidth: number | null;
   DoorHeight: number | null;
   DoorDepth: number | null;
+  handleType: string;
   request: string;
   drawerType: string;
   railType: string;
@@ -17,6 +18,7 @@ type DrawerCabinetFormProps = {
   setDoorWidth: (value: number | null) => void;
   setDoorHeight: (value: number | null) => void;
   setDoorDepth: (value: number | null) => void;
+  setHandleType: (value: string) => void;
   setRequest: (value: string) => void;
   setBodyMaterial: (value: string) => void;
   setIsBottomSheetOpen: (value: boolean) => void;
@@ -41,12 +43,14 @@ const DrawerCabinetForm: React.FC<DrawerCabinetFormProps> = props => {
     DoorHeight,
     DoorDepth,
     request,
+    handleType,
     drawerType,
     railType,
     finishType,
     setDoorWidth,
     setDoorHeight,
     setDoorDepth,
+    setHandleType,
     setRequest,
     setBodyMaterial,
     setIsBottomSheetOpen,
@@ -70,14 +74,14 @@ const DrawerCabinetForm: React.FC<DrawerCabinetFormProps> = props => {
         options={[]}
         value={color}
         onClick={() => router.back()}
-        onChange={() => {}}
+        onChange={() => { }}
       />
       <BoxedSelect
         label="몸통 소재 및 두께"
         options={[]}
         value={bodyMaterial}
         onClick={() => setIsBottomSheetOpen(true)}
-        onChange={() => {}}
+        onChange={() => { }}
       />
       <BoxedInput
         type="number"
@@ -120,14 +124,42 @@ const DrawerCabinetForm: React.FC<DrawerCabinetFormProps> = props => {
         options={[]}
         value={drawerType}
         onClick={() => setIsDrawerTypeSheetOpen(true)}
-        onChange={() => {}}
+        onChange={() => { }}
       />
+      <div className="flex flex-col gap-2">
+        <div className="text-[14px]/[20px] font-400 text-gray-600">손잡이 종류</div>
+        <div className="flex w-full gap-2">
+          <Button
+            type={handleType === "찬넬" ? "BrandInverse" : "GrayLarge"}
+            text={"찬넬"}
+            onClick={() => setHandleType("찬넬")}
+          />
+          <Button
+            type={handleType === "내리기" ? "BrandInverse" : "GrayLarge"}
+            text={"내리기"}
+            onClick={() => setHandleType("내리기")}
+          />
+
+        </div>
+        <div className="flex w-full gap-2">
+          <Button
+            type={handleType === "겉손잡이" ? "BrandInverse" : "GrayLarge"}
+            text={"겉손잡이"}
+            onClick={() => setHandleType("겉손잡이")}
+          />
+          <Button
+            type={handleType === "푸쉬" ? "BrandInverse" : "GrayLarge"}
+            text={"푸쉬"}
+            onClick={() => setHandleType("푸쉬")}
+          />
+        </div>
+      </div>
       <BoxedSelect
         label="레일 종류"
         options={[]}
         value={railType}
         onClick={() => setIsRailTypeSheetOpen(true)}
-        onChange={() => {}}
+        onChange={() => { }}
       />
       {/* DrawerTypeInputSheet, RailTypeInputSheet는 page.tsx에서 렌더링 */}
       <div className="flex flex-col gap-2">

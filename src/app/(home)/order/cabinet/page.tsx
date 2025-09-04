@@ -84,6 +84,8 @@ type DrawerCabinetFormProps = CabinetFormProps & {
   drawerType: string;
   railType: string;
   finishType: string;
+  handleType: string;
+  setHandleType: (value: string) => void;
   setDrawerType: (value: string) => void;
   setRailType: (value: string) => void;
   setFinishType: (value: string) => void;
@@ -214,9 +216,11 @@ function CabinetPageContent() {
     drawerType,
     railType,
     finishType,
+    handleType,
     setDrawerType,
     setRailType,
     setFinishType,
+    setHandleType,
     isDrawerTypeSheetOpen,
     setIsDrawerTypeSheetOpen,
     isRailTypeSheetOpen,
@@ -240,7 +244,7 @@ function CabinetPageContent() {
       button1Disabled || bodyMaterial === "" || !handleType || !finishType || !showBar;
   } else if (category === "drawer") {
     button1Disabled =
-      button1Disabled || bodyMaterial === "" || !drawerType || !railType || !finishType;
+      button1Disabled || bodyMaterial === "" || !drawerType || !railType || !finishType || !handleType;
   } else if (category === "open") {
     button1Disabled =
       button1Disabled || bodyMaterial === "" || !riceRail || !lowerDrawer || !finishType;

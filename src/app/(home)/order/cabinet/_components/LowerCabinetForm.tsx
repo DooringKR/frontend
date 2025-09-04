@@ -58,14 +58,14 @@ const LowerCabinetForm: React.FC<LowerCabinetFormProps> = props => {
         options={[]}
         value={color}
         onClick={() => router.back()}
-        onChange={() => {}}
+        onChange={() => { }}
       />
       <BoxedSelect
         label="몸통 소재 및 두께"
         options={[]}
         value={bodyMaterial}
         onClick={() => setIsBottomSheetOpen(true)}
-        onChange={() => {}}
+        onChange={() => { }}
       />
       <BoxedInput
         type="number"
@@ -115,6 +115,11 @@ const LowerCabinetForm: React.FC<LowerCabinetFormProps> = props => {
             type={handleType === "겉손잡이" ? "BrandInverse" : "GrayLarge"}
             text={"겉손잡이"}
             onClick={() => setHandleType("겉손잡이")}
+          />
+          <Button
+            type={handleType === "푸쉬" ? "BrandInverse" : "GrayLarge"}
+            text={"푸쉬"}
+            onClick={() => setHandleType("푸쉬")}
           />
         </div>
       </div>
