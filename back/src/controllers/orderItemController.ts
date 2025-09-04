@@ -3,7 +3,7 @@
 import { Request, Response } from 'express';
 import prisma from '../prismaClient';
 // ProductType enum 직접 명시
-import { generateAndUploadOrderItemImage } from '../services/imageService';
+// import { generateAndUploadOrderItemImage } from '../services/imageService';
 
 const VALID_PRODUCT_TYPES = ["DOOR", "FINISH", "CABINET", "HARDWARE", "ACCESSORY"];
 
@@ -48,13 +48,13 @@ export async function addOrderItem(req: Request, res: Response) {
 
 
   // 이미지 생성 및 업로드
-  let image_url: string | null = null;
+  /*let image_url: string | null = null;
   try {
     image_url = await generateAndUploadOrderItemImage({ product_type, item_options });
     console.log('[OrderItem][TRACE] 이미지 생성/업로드 결과', { image_url });
   } catch (e) {
     console.warn('[OrderItem][WARN] 이미지 생성/업로드 실패', e);
-  }
+  } */
 
   const newItem = await prisma.orderItem.create({
     data: {
@@ -63,7 +63,7 @@ export async function addOrderItem(req: Request, res: Response) {
       unit_price,
       item_count,
       item_options,
-      image_url: image_url ?? undefined,
+      image_url: undefined,
     },
   });
 
