@@ -84,6 +84,9 @@ importers:
       '@trivago/prettier-plugin-sort-imports':
         specifier: ^5.2.2
         version: 5.2.2(prettier@3.5.3)
+      '@types/axios':
+        specifier: ^0.14.4
+        version: 0.14.4
       '@types/html2canvas':
         specifier: ^0.5.35
         version: 0.5.35
@@ -1379,6 +1382,10 @@ packages:
 
   '@types/aws-sdk@0.0.42':
     resolution: {integrity: sha512-zIgLukZrf0/s+oAKxLMHgZFDDjDpuJ95hbE9DiNGrmNGNM7odIt99rHLWVwnOYdF0TNjF0reQeL/mcadAIqljg==}
+
+  '@types/axios@0.14.4':
+    resolution: {integrity: sha512-9JgOaunvQdsQ/qW2OPmE5+hCeUB52lQSolecrFrthct55QekhmXEwT203s20RL+UHtCQc15y3VXpby9E7Kkh/g==}
+    deprecated: This is a stub types definition. axios provides its own type definitions, so you do not need this installed.
 
   '@types/eslint-scope@3.7.7':
     resolution: {integrity: sha512-MzMFlSLBqNF2gcHWO0G1vP/YQyfvrxZ0bF+u7mzUdZ1/xK4A4sru+nraZz5i3iEIk1l1uyicaDVTB4QbbEkAYg==}
@@ -5658,6 +5665,12 @@ snapshots:
   '@types/aws-sdk@0.0.42':
     dependencies:
       '@types/node': 20.17.30
+
+  '@types/axios@0.14.4':
+    dependencies:
+      axios: 1.11.0
+    transitivePeerDependencies:
+      - debug
 
   '@types/eslint-scope@3.7.7':
     dependencies:
