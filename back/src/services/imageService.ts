@@ -84,15 +84,34 @@ export async function generateAndUploadOrderItemImage(item: any): Promise<string
     if (!svgString) return null;
     // sharp가 SVG 내 href를 그대로 처리하도록 경로 치환 없이 변환
     const pngBuffer = await sharp(Buffer.from(svgString)).png().toBuffer();
-    // image_url이 명확히 전달되면 해당 경로로 저장
+
+    // SVG 파일도 저장
+    let svgFilename;
     if (item.image_url) {
-      // /images/xxx.png 형태에서 파일명만 추출
-      const filename = item.image_url.replace(/^\/images\//, "");
+      svgFilename = item.image_url.replace(/\.png$/, '.svg').replace(/^\/images\//, "");
+    } else if (item.order_id && item.order_item_id) {
+      svgFilename = `${item.order_id}_${item.order_item_id}.svg`;
+    } else if (item.order_item_id) {
+      svgFilename = `orderitem_${item.order_item_id}.svg`;
+    } else if (typeof item.item_index !== 'undefined') {
+      svgFilename = `item_${item.item_index}.svg`;
+    } else {
+      svgFilename = `item_${Date.now()}.svg`;
+    }
+    const imagesDir = path.join(__dirname, '../../public/images');
+    if (!fs.existsSync(imagesDir)) fs.mkdirSync(imagesDir, { recursive: true });
+    const svgFilePath = path.join(imagesDir, svgFilename);
+    await fs.promises.writeFile(svgFilePath, svgString);
+    console.log(`[SVG 저장] ${svgFilePath}`);
+
+    // PNG 저장
+    let filename;
+    if (item.image_url) {
+      filename = item.image_url.replace(/^\/images\//, "");
       await saveImageLocally(pngBuffer, filename);
+      console.log(`[PNG 저장] ${path.join(imagesDir, filename)}`);
       return item.image_url;
     }
-    // image_url이 없으면 기존대로 파일명 생성
-    let filename;
     if (item.order_id && item.order_item_id) {
       filename = `${item.order_id}_${item.order_item_id}.png`;
     } else if (item.order_item_id) {
