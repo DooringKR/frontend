@@ -1,3 +1,4 @@
+/*
 // src/services/imageService.ts
 // 독립적인 이미지 생성 및 S3 업로드 서비스 (orderItem 생성 시 사용)
 import sharp from 'sharp';
@@ -79,3 +80,4 @@ export async function generateAndUploadOrderItemImage(item: any): Promise<string
     return null;
   }
 }
+*/
