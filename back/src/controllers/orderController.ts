@@ -5,6 +5,8 @@ import prisma from "../prismaClient";
 import { createNotionOrderPage } from "../services/notionService";
 // ProductType enum 직접 명시 또는 문자열 비교
 
+import axios from 'axios';
+
 const VALID_SHIPPING_METHODS = ["직접 픽업하러 갈게요", "현장으로 배송해주세요"]; 
 const VALID_MATERIAL_TYPES = ["문짝", "마감재", "부분장", "하드웨어", "부속", "기타(고객센터 직접 문의)"];
 
@@ -52,6 +54,22 @@ export async function createOrder(req: Request, res: Response) {
       where: { cart_id },
     });
 
+    // 주문 생성 후 order_items 정보와 delivery_type을 포함하여 Apps Script로 전달
+    const order_items = cartItems.map((item: any) => ({
+      product_type: item.product_type,
+      item_count: item.item_count,
+      unit_price: item.unit_price ?? 0,
+      item_options: item.item_options,
+    }));
+    const delivery_type = order.order_type; // order_type이 곧 delivery_type이라면
+    await sendOrderToAppsScript({
+      created_at: order.created_at,
+      delivery_type,
+      recipient_phone: String(order.recipient_phone),
+      order_options: order.order_options,
+      order_items,
+    }).catch(err => console.error("[Apps Script Sync Error]", err));
+
     // 4. notionService 호출
     await createNotionOrderPage({
       orderedAt: order.created_at,
@@ -61,8 +79,8 @@ export async function createOrder(req: Request, res: Response) {
       orderType: order.order_type,
       orderPrice: order.order_price,
       orderOptions: order.order_options,
-  orderItems: cartItems.map((item: any) => ({
-  product_type: item.product_type,
+      orderItems: cartItems.map((item: any) => ({
+      product_type: item.product_type,
         item_count: item.item_count,
         unit_price: item.unit_price ?? 0,
         item_options: item.item_options,
@@ -84,6 +102,20 @@ export async function createOrder(req: Request, res: Response) {
     console.error("Order creation error:", err.message);
     return res.status(500).json({ message: "서버 내부 오류로 주문을 처리할 수 없습니다." });
   }
+}
+
+interface AppsScriptOrderPayload {
+  created_at: Date | string;
+  delivery_type: string;
+  recipient_phone: string;
+  order_options: any;
+  order_items: any[];
+}
+
+async function sendOrderToAppsScript(order: AppsScriptOrderPayload) {
+  const url = 'https://script.google.com/macros/s/AKfycbyb4NLOk4S3q489UFBJChccQfK28H3eSm4RRxwACaUZNFAB97ll3ECMmaNw67hXUCbqFA/exec';
+  // order 객체는 이미 필요한 필드만 포함됨
+  await axios.post(url, order);
 }
 
 export async function getOrdersByUser(req: Request, res: Response) {
