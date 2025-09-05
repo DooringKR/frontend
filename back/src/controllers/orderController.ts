@@ -46,11 +46,14 @@ export async function createOrder(req: Request, res: Response) {
     // 2. user 조회
     const user = await prisma.user.findUnique({ where: { id: user_id } });
     if (!user) return res.status(404).json({ message: '해당 user_id가 존재하지 않습니다.' });
-
+    
+    /*
     // 3. cartItems 조회 (cart_id 기반)
     const cartItems = await prisma.cartItem.findMany({
       where: { cart_id },
     });
+    */
+   
     // 4. order_items 생성까지 대기 (프론트엔드에서 생성됨)
     // order_items가 생성될 때까지 대기하는 로직
     let orderItems: {
@@ -61,7 +64,7 @@ export async function createOrder(req: Request, res: Response) {
       image_url: string | null;
     }[] = [];
     let attempts = 0;
-    const maxAttempts = 30; // 최대 30번 시도 (30초)
+    const maxAttempts = 60; // 최대 30번 시도 (30초)
     const waitTime = 1000; // 1초마다 체크
 
     while (attempts < maxAttempts) {
