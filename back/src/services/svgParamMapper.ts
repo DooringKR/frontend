@@ -12,11 +12,16 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
             colorName = `${colorParts[1]} ${colorParts[3]}`;
           }
         }
-        let hingeDir = '좌경';
-        if (item_options.hinge_direction === '우경' || item_options.hinge_direction === 'right') hingeDir = '우경';
-        if (item_options.hinge_direction === '좌경' || item_options.hinge_direction === 'left') hingeDir = '좌경';
         const boringCount = Number(item_options.hinge_count) || 2;
-        const subtype = `${hingeDir}_${boringCount}보링`;
+        // 플랩문은 hinge_direction 무시, boringCount만 반영
+        const subtype = item_options.door_type === 'FLAP'
+          ? `${boringCount}보링`
+          : (() => {
+              let hingeDir = '좌경';
+              if (item_options.hinge_direction === '우경' || item_options.hinge_direction === 'right') hingeDir = '우경';
+              if (item_options.hinge_direction === '좌경' || item_options.hinge_direction === 'left') hingeDir = '좌경';
+              return `${hingeDir}_${boringCount}보링`;
+            })();
         const hingeSizes = [
           item_options.first_hinge,
           item_options.second_hinge,
@@ -31,10 +36,11 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
         const color = {
           doorFillImageUrl: `/img/color-png(new)/${colorName}.png`
         };
-        const validSubtypes = [
-          '좌경_2보링','좌경_3보링','좌경_4보링','우경_2보링','우경_3보링','우경_4보링'
-        ];
-        const safeSubtype = validSubtypes.includes(subtype) ? subtype : '좌경_2보링';
+        // 플랩문 validSubtypes: '2보링','3보링','4보링', 일반문 validSubtypes: ...
+        const validSubtypes = item_options.door_type === 'FLAP'
+          ? ['2보링','3보링','4보링']
+          : ['좌경_2보링','좌경_3보링','좌경_4보링','우경_2보링','우경_3보링','우경_4보링'];
+        const safeSubtype = validSubtypes.includes(subtype) ? subtype : (item_options.door_type === 'FLAP' ? '2보링' : '좌경_2보링');
         result = {
           subtype: safeSubtype,
           size,
