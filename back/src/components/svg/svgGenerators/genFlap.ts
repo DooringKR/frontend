@@ -107,13 +107,14 @@ export function genFlapSvg(
       })
     );
   } else {
+    // 색상 정보가 없으면 흰색으로 채움
     svg.appendChild(
       makeRect({
         x: FLAP_DOOR_RECT.x.toString(),
         y: FLAP_DOOR_RECT.y.toString(),
         width: FLAP_DOOR_RECT.width.toString(),
         height: FLAP_DOOR_RECT.height.toString(),
-        fill: color.doorFill || "#ccc",
+        fill: "white",
         stroke: "black",
         "stroke-width": "8",
       })
@@ -133,8 +134,12 @@ export function genFlapSvg(
       c.setAttribute("stroke-width", "6");
       svg.appendChild(c);
     });
+  } else {
+    // flapBorings가 없으면 아무것도 그리지 않음
+    console.warn("[genFlapSvg] flapBorings가 없음", subtype);
   }
 
+  // 치수 텍스트와 보링 텍스트 추가
   insertFlapDimensionTexts(svg, subtype, size, boringValues);
 
   return svg;
