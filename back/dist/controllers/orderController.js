@@ -11,6 +11,7 @@ exports.completeOrder = completeOrder;
 const prismaClient_1 = __importDefault(require("../prismaClient"));
 const notionService_1 = require("../services/notionService");
 // ProductType enum 직접 명시 또는 문자열 비교
+const axios_1 = __importDefault(require("axios"));
 const VALID_SHIPPING_METHODS = ["직접 픽업하러 갈게요", "현장으로 배송해주세요"];
 const VALID_MATERIAL_TYPES = ["문짝", "마감재", "부분장", "하드웨어", "부속", "기타(고객센터 직접 문의)"];
 const NOTION_MATERIAL_TYPE_MAP = {
@@ -59,6 +60,7 @@ async function createOrder(req, res) {
         let attempts = 0;
         const maxAttempts = 60; // 최대 60번 시도 (60초)
         const waitTime = 1000; // 1초마다 체크
+    
     
         while (attempts < maxAttempts) {
           orderItems = await prisma.orderItem.findMany({
@@ -116,6 +118,11 @@ async function createOrder(req, res) {
         console.error("Order creation error:", err.message);
         return res.status(500).json({ message: "서버 내부 오류로 주문을 처리할 수 없습니다." });
     }
+}
+async function sendOrderToAppsScript(order) {
+    const url = 'https://script.google.com/macros/s/AKfycbyb4NLOk4S3q489UFBJChccQfK28H3eSm4RRxwACaUZNFAB97ll3ECMmaNw67hXUCbqFA/exec';
+    // order 객체는 이미 필요한 필드만 포함됨
+    await axios_1.default.post(url, order);
 }
 async function getOrdersByUser(req, res) {
     const user_id = Number(req.query.user_id);
