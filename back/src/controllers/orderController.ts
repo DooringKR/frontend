@@ -51,9 +51,50 @@ export async function createOrder(req: Request, res: Response) {
     const cartItems = await prisma.cartItem.findMany({
       where: { cart_id },
     });
+    // 4. order_items 생성까지 대기 (프론트엔드에서 생성됨)
+    // order_items가 생성될 때까지 대기하는 로직
+    let orderItems: {
+      product_type: string;
+      item_count: number;
+      unit_price: number;
+      item_options: any;
+      image_url: string | null;
+    }[] = [];
+    let attempts = 0;
+    const maxAttempts = 30; // 최대 30번 시도 (30초)
+    const waitTime = 1000; // 1초마다 체크
+
+    while (attempts < maxAttempts) {
+      orderItems = await prisma.orderItem.findMany({
+        where: { order_id: order.order_id },
+        select: {
+          product_type: true,
+          item_count: true,
+          unit_price: true,
+          item_options: true,
+          image_url: true,
+        }
+      });
+
+      // order_items가 생성되었으면 루프 종료
+      if (orderItems.length > 0) {
+        console.log(`[OrderController] order_items 생성 완료: ${orderItems.length}개`);
+        break;
+      }
+
+      // 아직 생성되지 않았으면 잠시 대기
+      console.log(`[OrderController] order_items 대기 중... (${attempts + 1}/${maxAttempts})`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      attempts++;
+    }
+
+    // order_items가 생성되지 않았으면 경고 로그
+    if (orderItems.length === 0) {
+      console.warn(`[OrderController] order_items 생성 대기 시간 초과 (${maxAttempts}초)`);
+    }
 
     // 5. order_item에서 image_url 포함하여 조회
-    const orderItems = await prisma.orderItem.findMany({
+    /* const orderItems = await prisma.orderItem.findMany({
       where: { order_id: order.order_id },
       select: {
         product_type: true,
@@ -62,7 +103,7 @@ export async function createOrder(req: Request, res: Response) {
         item_options: true,
         image_url: true,
       }
-    });
+    }); */
 
     // 6. notionService 호출
     await createNotionOrderPage({
