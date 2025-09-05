@@ -92,7 +92,7 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
       }
 
       // Flap cabinet
-      if (item_options.cabinet_type === 'flap') {
+      if (item_options.cabinet_type === 'FLAP') {
         result = {
           type: 'flapCabinet',
           body: bodyColor,
@@ -105,7 +105,7 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
           height: Number(item_options.cabinet_height),
           depth: Number(item_options.cabinet_depth)
         };
-      } else if (item_options.cabinet_type === 'drawer') {
+      } else if (item_options.cabinet_type === 'DRAWER') {
         result = {
           type: 'drawer',
           body: bodyColor,
