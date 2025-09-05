@@ -18,19 +18,19 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
         const boringCount = Number(item_options.hinge_count) || 2;
         const subtype = `${hingeDir}_${boringCount}보링`;
         const hingeSizes = [
-          item_options.first_hinge_size,
-          item_options.second_hinge_size,
-          item_options.third_hinge_size,
-          item_options.fourth_hinge_size
+          item_options.first_hinge,
+          item_options.second_hinge,
+          item_options.third_hinge,
+          item_options.fourth_hinge
         ];
         const boringValues = hingeSizes.slice(0, boringCount).filter(v => v !== undefined && v !== null).map(Number);
         const size = {
           width: Number(item_options.door_width),
           height: Number(item_options.door_height)
         };
-  const color = {
-    doorFillImageUrl: `/img/color-png(new)/${colorName}.png`
-  };
+        const color = {
+          doorFillImageUrl: `/img/color-png(new)/${colorName}.png`
+        };
         const validSubtypes = [
           '좌경_2보링','좌경_3보링','좌경_4보링','우경_2보링','우경_3보링','우경_4보링'
         ];
@@ -54,9 +54,9 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
           width: Number(item_options.door_width),
           height: Number(item_options.door_height)
         };
-  const color = {
-    doorFillImageUrl: `/img/color-png(new)/${colorName}.png`
-  };
+        const color = {
+          doorFillImageUrl: `/img/color-png(new)/${colorName}.png`
+        };
         result = {
           size,
           color
