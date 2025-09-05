@@ -104,7 +104,24 @@ export function genCabinetSvg(colorProps: ColorProps = {}) {
       bg.setAttribute("height", "1200");
       bg.setAttribute("fill", "white");
       svg.appendChild(bg);
-      // ...상부장 path 추가 필요시 여기에...
+      // 상부장 path 예시 (오픈장과 동일하게 추가, 필요시 수정)
+      const paths = [
+        { d: "M860 336L464 240V720L860 816V336Z", fill: "#D1D5DC", stroke: "black", strokeWidth: "4", strokeLinejoin: "round" },
+        { d: "M464 720L260 864L656 960L860 816L464 720Z", fill: "#F3F4F6", stroke: "black", strokeWidth: "4", strokeLinejoin: "round" },
+        { d: "M464 240V720L260 864V384L464 240Z", fill: "#E5E7EB", stroke: "black", strokeWidth: "4", strokeLinejoin: "round" },
+        { d: "M656 480L860 336V816L656 960V480Z", fill: "#F3F4F6", stroke: "black", strokeWidth: "4", strokeLinejoin: "round" },
+        { d: "M464 240L260 384L656 480L860 336L464 240Z", fill: "#F3F4F6", stroke: "black", strokeWidth: "4", strokeLinejoin: "round" },
+      ];
+      paths.forEach((props) => {
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", props.d);
+        if (props.fill) path.setAttribute("fill", props.fill);
+        if (props.stroke) path.setAttribute("stroke", props.stroke);
+        if (props.strokeWidth) path.setAttribute("stroke-width", props.strokeWidth);
+        if (props.strokeLinejoin) path.setAttribute("stroke-linejoin", props.strokeLinejoin);
+        svg.appendChild(path);
+      });
+      // paths 추가 후 텍스트 추가
       addDimensionText(svg, colorProps.height, 877, 542, 'H');
       addDimensionText(svg, colorProps.width, 657, 206, 'W');
       addDimensionText(svg, colorProps.depth, 190, 254, 'D');
@@ -123,7 +140,24 @@ export function genCabinetSvg(colorProps: ColorProps = {}) {
       bg.setAttribute("height", "1200");
       bg.setAttribute("fill", "white");
       svg.appendChild(bg);
-      // ...하부장 path 추가 필요시 여기에...
+      // 하부장 path 예시 (오픈장과 동일하게 추가, 필요시 수정)
+      const paths = [
+        { d: "M860 336L464 240V720L860 816V336Z", fill: "#D1D5DC", stroke: "black", strokeWidth: "4", strokeLinejoin: "round" },
+        { d: "M464 720L260 864L656 960L860 816L464 720Z", fill: "#F3F4F6", stroke: "black", strokeWidth: "4", strokeLinejoin: "round" },
+        { d: "M464 240V720L260 864V384L464 240Z", fill: "#E5E7EB", stroke: "black", strokeWidth: "4", strokeLinejoin: "round" },
+        { d: "M656 480L860 336V816L656 960V480Z", fill: "#F3F4F6", stroke: "black", strokeWidth: "4", strokeLinejoin: "round" },
+        { d: "M464 240L260 384L656 480L860 336L464 240Z", fill: "#F3F4F6", stroke: "black", strokeWidth: "4", strokeLinejoin: "round" },
+      ];
+      paths.forEach((props) => {
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", props.d);
+        if (props.fill) path.setAttribute("fill", props.fill);
+        if (props.stroke) path.setAttribute("stroke", props.stroke);
+        if (props.strokeWidth) path.setAttribute("stroke-width", props.strokeWidth);
+        if (props.strokeLinejoin) path.setAttribute("stroke-linejoin", props.strokeLinejoin);
+        svg.appendChild(path);
+      });
+      // paths 추가 후 텍스트 추가
       addDimensionText(svg, colorProps.height, 877, 542, 'H');
       addDimensionText(svg, colorProps.width, 657, 206, 'W');
       addDimensionText(svg, colorProps.depth, 190, 254, 'D');
@@ -132,6 +166,7 @@ export function genCabinetSvg(colorProps: ColorProps = {}) {
     
     // 2단 서랍장 타입 지원: colorProps.type === 'drawerCabinet2'이면 지정된 SVG 구조 생성
     if (colorProps.type === 'drawerCabinet2') {
+
       const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
       svg.setAttribute("width", "1200");
       svg.setAttribute("height", "1200");
@@ -169,11 +204,16 @@ export function genCabinetSvg(colorProps: ColorProps = {}) {
         if (props.strokeLinejoin) path.setAttribute("stroke-linejoin", props.strokeLinejoin);
         svg.appendChild(path);
       });
+        // paths 추가 후 텍스트 추가
+      addDimensionText(svg, colorProps.height, 877, 542, 'H');
+      addDimensionText(svg, colorProps.width, 657, 206, 'W');
+      addDimensionText(svg, colorProps.depth, 190, 254, 'D');
       return svg;
     }
 
     // 3단 서랍장 1:1:2 타입 지원: colorProps.type === 'drawerCabinet3_112'이면 지정된 SVG 구조 생성
     if (colorProps.type === 'drawerCabinet3_112') {
+
       const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
       svg.setAttribute("width", "1200");
       svg.setAttribute("height", "1200");
@@ -211,11 +251,16 @@ export function genCabinetSvg(colorProps: ColorProps = {}) {
         if (props.strokeLinejoin) path.setAttribute("stroke-linejoin", props.strokeLinejoin);
         svg.appendChild(path);
       });
+      // paths 추가 후 텍스트 추가
+      addDimensionText(svg, colorProps.height, 877, 542, 'H');
+      addDimensionText(svg, colorProps.width, 657, 206, 'W');
+      addDimensionText(svg, colorProps.depth, 190, 254, 'D');
       return svg;
     }
 
       // 3단 서랍장 겉2:속1 타입 지원: colorProps.type === 'drawerCabinet3_211'이면 지정된 SVG 구조 생성
       if (colorProps.type === 'drawerCabinet3_211') {
+
         const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         svg.setAttribute("width", "1200");
         svg.setAttribute("height", "1200");
@@ -255,6 +300,10 @@ export function genCabinetSvg(colorProps: ColorProps = {}) {
           if (props.strokeLinejoin) path.setAttribute("stroke-linejoin", props.strokeLinejoin);
           svg.appendChild(path);
         });
+          // paths 추가 후 텍스트 추가
+        addDimensionText(svg, colorProps.height, 877, 542, 'H');
+        addDimensionText(svg, colorProps.width, 657, 206, 'W');
+        addDimensionText(svg, colorProps.depth, 190, 254, 'D');
         return svg;
       }
 
