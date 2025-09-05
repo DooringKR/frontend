@@ -100,6 +100,8 @@ const VALID_GAGU_TYPES = Object.values(PRODUCT_TYPE_LABEL); // = ["문짝", "마
 const VALID_SHIPPING_METHODS = ["직접 픽업하러 갈게요", "현장으로 배송해주세요"];
 
 export async function createNotionOrderPage(payload: NotionOrderPayload) {
+  // orderItems 배열 데이터 구조 점검용 로그
+  console.log('[NotionSync][DEBUG] orderItems:', JSON.stringify(payload.orderItems, null, 2));
   // ...existing code...
   // 1. 제목: user_road_address 두 어절만 파싱
   const title =
@@ -193,19 +195,20 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
   const fs = require('fs');
   const path = require('path');
   async function saveImageLocally(buffer: Buffer, filename: string): Promise<string> {
-    const imagesDir = path.join(__dirname, '../../../public/images');
-    if (!fs.existsSync(imagesDir)) fs.mkdirSync(imagesDir, { recursive: true });
-    const filePath = path.join(imagesDir, filename);
-    await fs.promises.writeFile(filePath, buffer);
-    // Express static middleware serves /images/* from public/images
-    return `/images/${filename}`;
+  // 이미지 저장 경로를 백엔드의 public/images 폴더로 지정
+  const imagesDir = path.join(__dirname, '../public/images');
+  if (!fs.existsSync(imagesDir)) fs.mkdirSync(imagesDir, { recursive: true });
+  const filePath = path.join(imagesDir, filename);
+  await fs.promises.writeFile(filePath, buffer);
+  // Express static middleware serves /images/* from public/images
+  return `/images/${filename}`;
   }
   // SVG 생성 함수 import (Node.js 호환 버전 필요)
-  const { genCabinetSvg } = require('../../../src/components/svg/svgGenerators/genCabinet');
-  const { genGeneralDoorSvg } = require('../../../src/components/svg/svgGenerators/genGeneral');
-  const { genFlapSvg } = require('../../../src/components/svg/svgGenerators/genFlap');
-  const { genMaedaDoorSvg } = require('../../../src/components/svg/svgGenerators/genMaeda');
-  const { genFinishSvg } = require('../../../src/components/svg/svgGenerators/genFinish');
+  const { genCabinetSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genCabinet'));
+  const { genGeneralDoorSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genGeneral'));
+  const { genFlapSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genFlap'));
+  const { genMaedaDoorSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genMaeda'));
+  const { genFinishSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genFinish'));
 
   // SVG 파라미터 매핑 함수 import
   const { mapItemOptionsToSvgParams } = require('./svgParamMapper');
@@ -270,7 +273,6 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
   }
 
   async function makeFurnitureBlock(item: any, i: number): Promise<any> {
-  // ...existing code...
     const optionStr =
       item.item_options && Object.keys(item.item_options).length > 0
         ? Object.entries(item.item_options)
@@ -289,34 +291,24 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
 총 금액: ${total?.toLocaleString() ?? "-"}원
 `;
 
-  // 1. 주문 정보 → SVG 파라미터 변환 및 SVG 생성
-  const svgString = getSvgForOrderItem(item);
-  if (!svgString) {
-    return null;
-  }
-  // 2. SVG → PNG 변환 (sharp)
-  let pngBuffer;
-  try {
-    pngBuffer = await sharp(Buffer.from(svgString)).png().toBuffer();
-  } catch (e) {
-    return null;
-  }
-  // 3. 이미지 저장 및 URL 확보
-  const filename = `orderitem_${Date.now()}_${i}.png`;
-  let imageUrl = null;
-  try {
-    imageUrl = await saveImageLocally(pngBuffer, filename);
-  } catch (e) {
-    return null;
-  }
-
-    // 5. 콜아웃 블록 + image children
-    // Notion API requires publicly accessible absolute URLs for images
-    // If running locally, you must expose the server to the internet (e.g., via ngrok) and use the public URL
-    // For now, prepend your public server URL (e.g., http://localhost:3001 or your ngrok URL)
-    const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || 'http://localhost:3001';
-    const notionImageUrl = imageUrl.startsWith('http') ? imageUrl : `${PUBLIC_BASE_URL}${imageUrl}`;
+  // DB에서 전달된 image_url을 그대로 사용
+  const imageUrl = item.image_url;
+  const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || 'https://dooring-backend.onrender.com';
+  if (!imageUrl) {
+    // image_url이 없으면 안내 메시지 블록 생성
     return {
+      object: "block",
+      type: "paragraph",
+      paragraph: {
+        rich_text: [
+          { type: "text", text: { content: "이미지 없음" } }
+        ]
+      }
+    };
+  }
+  // image_url이 /images/로 시작하면 PUBLIC_BASE_URL을 붙여서 절대경로로 변환
+  const notionImageUrl = imageUrl.startsWith('http') ? imageUrl : `${PUBLIC_BASE_URL}${imageUrl}`;
+  return {
       object: "block",
       type: "callout",
       callout: {
@@ -363,7 +355,7 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
         phone_number: payload.recipientPhone
       },
       "주문일시": {
-        date: { start: payload.orderedAt.toISOString() } 
+        date: { start: payload.orderedAt.toISOString() }
       }
     },
     children: [

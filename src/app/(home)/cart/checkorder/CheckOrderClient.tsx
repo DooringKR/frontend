@@ -1,6 +1,6 @@
 "use client";
 
-import { createOrder, createOrderItem } from "@/api/orderApi";
+import { createOrder, createOrderItem, completeOrder } from "@/api/orderApi";
 import { CHECK_ORDER_PAGE } from "@/constants/pageName";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -209,6 +209,8 @@ function CheckOrderClientPage() {
           return createOrderItem(itemPayload);
         }),
       );
+
+      await completeOrder(orderId);
 
       console.log("🚚 order_item 요청 payload:", payload);
       localStorage.setItem("recentOrder", JSON.stringify(order));

@@ -81,3 +81,13 @@ export const createOrderItem = async (itemPayload: {
   console.log("✅ order_item 생성 성공:", data); // [DEBUG 복원]
   return data;
 };
+
+export async function completeOrder(orderId: string) {
+  const res = await fetch(`/api/order/${orderId}/complete`, {
+    method: "POST",
+  });
+  if (!res.ok) {
+    throw new Error(`노션 동기화 실패: ${res.status} ${await res.text()}`);
+  }
+  return res.json();
+}
