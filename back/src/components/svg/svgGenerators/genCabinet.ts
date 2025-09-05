@@ -20,19 +20,22 @@ export function genCabinetSvg(colorProps: ColorProps = {}) {
       bg.setAttribute("fill", "white");
       svg.appendChild(bg);
 
-      // 각 도어 파트
-      const rects = [
-        { width: 146, height: 68, x: 877, y: 542 },
-        { width: 146, height: 68, x: 657, y: 206 },
-        { width: 146, height: 68, x: 190, y: 254 },
+      // 오픈장 path들 (샘플 SVG와 동일하게)
+      const paths = [
+        { d: "M860 336L464 240V720L860 816V336Z", fill: "#D1D5DC", stroke: "black", strokeWidth: "4", strokeLinejoin: "round" },
+        { d: "M464 720L260 864L656 960L860 816L464 720Z", fill: "#F3F4F6", stroke: "black", strokeWidth: "4", strokeLinejoin: "round" },
+        { d: "M464 240V720L260 864V384L464 240Z", fill: "#E5E7EB", stroke: "black", strokeWidth: "4", strokeLinejoin: "round" },
+        { d: "M656 480L860 336V816L656 960V480Z", fill: "url(#pattern0_6_50)", stroke: "black", strokeWidth: "4", strokeLinejoin: "round" },
+        { d: "M464 240L260 384L656 480L860 336L464 240Z", fill: "url(#pattern1_6_50)", stroke: "black", strokeWidth: "4", strokeLinejoin: "round" },
       ];
-      rects.forEach(({ width, height, x, y }) => {
-        const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-        rect.setAttribute("width", String(width));
-        rect.setAttribute("height", String(height));
-        rect.setAttribute("transform", `translate(${x} ${y})`);
-        rect.setAttribute("fill", "white");
-        svg.appendChild(rect);
+      paths.forEach((props) => {
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", props.d);
+        if (props.fill) path.setAttribute("fill", props.fill);
+        if (props.stroke) path.setAttribute("stroke", props.stroke);
+        if (props.strokeWidth) path.setAttribute("stroke-width", props.strokeWidth);
+        if (props.strokeLinejoin) path.setAttribute("stroke-linejoin", props.strokeLinejoin);
+        svg.appendChild(path);
       });
       return svg;
     }
