@@ -1,3 +1,4 @@
+/*
 // src/services/imageService.ts
 // 독립적인 이미지 생성 및 S3 업로드 서비스 (orderItem 생성 시 사용)
 import sharp from 'sharp';
@@ -11,6 +12,8 @@ const { genFlapSvg } = require(path.join(__dirname, '../components/svg/svgGenera
 const { genMaedaDoorSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genMaeda'));
 const { genFinishDoorSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genFinish'));
 const { genDrawerSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genDrawer'));
+
+
 
 function getSvgForOrderItem(item: any): string {
   const { product_type, item_options } = item;
@@ -128,3 +131,4 @@ export async function generateAndUploadOrderItemImage(item: any): Promise<string
     return null;
   }
 }
+*/

@@ -119,14 +119,16 @@ function CabinetConfirmPageContent() {
                   bodyMaterial !== "파타고니아 크림 LPM 18T"
                   ? { body_type_direct_input: bodyMaterial }
                   : {}),
-                ...(category === "upper" || category === "lower" || category === "flap"
+                ...(category === "upper" || category === "lower" || category === "flap" || category === "drawer"
                   ? {
                     handle_type:
                       handleType === "찬넬"
                         ? "CHANNEL"
                         : handleType === "겉손잡이"
                           ? "OUTER"
-                          : "PULL_DOWN",
+                          : handleType === "내리기"
+                            ? "PULL_DOWN"
+                            : "PUSH",
                   }
                   : {}),
                 finish_type: finishType === "막우라" ? "MAK_URA" : "URAHOME",

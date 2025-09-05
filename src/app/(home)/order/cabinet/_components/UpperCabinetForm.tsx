@@ -58,14 +58,14 @@ const UpperCabinetForm: React.FC<UpperCabinetFormProps> = props => {
         options={[]}
         value={color}
         onClick={() => router.back()}
-        onChange={() => {}}
+        onChange={() => { }}
       />
       <BoxedSelect
         label="몸통 소재 및 두께"
         options={[]}
         value={bodyMaterial}
         onClick={() => setIsBottomSheetOpen(true)}
-        onChange={() => {}}
+        onChange={() => { }}
       />
       <BoxedInput
         type="number"
@@ -115,6 +115,11 @@ const UpperCabinetForm: React.FC<UpperCabinetFormProps> = props => {
             type={handleType === "내리기" ? "BrandInverse" : "GrayLarge"}
             text={"내리기"}
             onClick={() => setHandleType("내리기")}
+          />
+          <Button
+            type={handleType === "푸쉬" ? "BrandInverse" : "GrayLarge"}
+            text={"푸쉬"}
+            onClick={() => setHandleType("푸쉬")}
           />
         </div>
       </div>
