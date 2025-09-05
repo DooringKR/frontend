@@ -110,7 +110,7 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
         let drawerType = item_options.drawer_type;
         // 예시: 2단 서랍장 → drawerCabinet2, 3단 1:1:2 → drawerCabinet3_112, 3단 겉2:속1 → drawerCabinet3_211
         if (drawerType === '2단 서랍') drawerType = 'drawerCabinet2';
-        else if (drawerType === '3단 서랍 (1 : 1 : 2') drawerType = 'drawerCabinet3_112';
+        else if (drawerType === '3단 서랍 (1 : 1 : 2)') drawerType = 'drawerCabinet3_112';
         else if (drawerType === '3단 서랍 (겉2 ∙ 속1)') drawerType = 'drawerCabinet3_211';
         result = {
           type: drawerType,

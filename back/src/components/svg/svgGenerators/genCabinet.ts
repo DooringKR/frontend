@@ -3,6 +3,54 @@ import { makePath } from "../svgCore/svgUtils";
 import { ColorProps } from "../svgCore/svgTypes";
 
 export function genCabinetSvg(colorProps: ColorProps = {}) {
+  // 플랩장 타입 지원: colorProps.type === 'flapCabinet'이면 FLAP_CABINET_PARTS 사용
+  if (colorProps.type === 'flapCabinet') {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("width", "1200");
+    svg.setAttribute("height", "1200");
+    svg.setAttribute("viewBox", "0 0 1200 1200");
+    svg.setAttribute("fill", "none");
+    const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    bg.setAttribute("width", "1200");
+    bg.setAttribute("height", "1200");
+    bg.setAttribute("fill", "white");
+    svg.appendChild(bg);
+    // FLAP_CABINET_PARTS를 이용해 path 추가
+    if (Array.isArray(FLAP_CABINET_PARTS)) {
+      FLAP_CABINET_PARTS.forEach((props) => {
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", props.d);
+        if (props.fill) path.setAttribute("fill", props.fill);
+        if (props.stroke) path.setAttribute("stroke", props.stroke);
+        if (props.strokeWidth) path.setAttribute("stroke-width", props.strokeWidth);
+        if (props.strokeLinejoin) path.setAttribute("stroke-linejoin", props.strokeLinejoin);
+        svg.appendChild(path);
+      });
+    }
+    // 치수 텍스트 추가 (height, width, depth)
+    addDimensionText(svg, colorProps.height, 877, 542, 'H');
+    addDimensionText(svg, colorProps.width, 657, 206, 'W');
+    addDimensionText(svg, colorProps.depth, 190, 254, 'D');
+    return svg;
+  }
+  // 치수 텍스트 추가 함수 (공통)
+  function addDimensionText(
+    svg: SVGSVGElement,
+    value: number | string | undefined,
+    x: number,
+    y: number,
+    label: string
+  ): void {
+    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    text.setAttribute("x", String(x + 73)); // rect 중앙
+    text.setAttribute("y", String(y + 34));
+    text.setAttribute("text-anchor", "middle");
+    text.setAttribute("dominant-baseline", "middle");
+    text.setAttribute("font-size", "40");
+    text.setAttribute("fill", "#222");
+    text.textContent = value ? `${label}: ${value}` : label;
+    svg.appendChild(text);
+  }
 
   // 플랩장 3D 타입 지원: colorProps.type === 'flapCabinet'이면 FLAP_CABINET_PARTS 사용
     // 오픈장 타입 지원: colorProps.type === 'openCabinet'이면 지정된 SVG 구조 생성
@@ -25,8 +73,8 @@ export function genCabinetSvg(colorProps: ColorProps = {}) {
         { d: "M860 336L464 240V720L860 816V336Z", fill: "#D1D5DC", stroke: "black", strokeWidth: "4", strokeLinejoin: "round" },
         { d: "M464 720L260 864L656 960L860 816L464 720Z", fill: "#F3F4F6", stroke: "black", strokeWidth: "4", strokeLinejoin: "round" },
         { d: "M464 240V720L260 864V384L464 240Z", fill: "#E5E7EB", stroke: "black", strokeWidth: "4", strokeLinejoin: "round" },
-        { d: "M656 480L860 336V816L656 960V480Z", fill: "url(#pattern0_6_50)", stroke: "black", strokeWidth: "4", strokeLinejoin: "round" },
-        { d: "M464 240L260 384L656 480L860 336L464 240Z", fill: "url(#pattern1_6_50)", stroke: "black", strokeWidth: "4", strokeLinejoin: "round" },
+        { d: "M656 480L860 336V816L656 960V480Z", fill: "#F3F4F6", stroke: "black", strokeWidth: "4", strokeLinejoin: "round" },
+        { d: "M464 240L260 384L656 480L860 336L464 240Z", fill: "#F3F4F6", stroke: "black", strokeWidth: "4", strokeLinejoin: "round" },
       ];
       paths.forEach((props) => {
         const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -37,6 +85,48 @@ export function genCabinetSvg(colorProps: ColorProps = {}) {
         if (props.strokeLinejoin) path.setAttribute("stroke-linejoin", props.strokeLinejoin);
         svg.appendChild(path);
       });
+      // 치수 텍스트 추가 (height, width, depth)
+      addDimensionText(svg, colorProps.height, 877, 542, 'H');
+      addDimensionText(svg, colorProps.width, 657, 206, 'W');
+      addDimensionText(svg, colorProps.depth, 190, 254, 'D');
+      return svg;
+    }
+
+    // 상부장
+    if (colorProps.type === 'upperCabinet') {
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("width", "1200");
+      svg.setAttribute("height", "1200");
+      svg.setAttribute("viewBox", "0 0 1200 1200");
+      svg.setAttribute("fill", "none");
+      const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      bg.setAttribute("width", "1200");
+      bg.setAttribute("height", "1200");
+      bg.setAttribute("fill", "white");
+      svg.appendChild(bg);
+      // ...상부장 path 추가 필요시 여기에...
+      addDimensionText(svg, colorProps.height, 877, 542, 'H');
+      addDimensionText(svg, colorProps.width, 657, 206, 'W');
+      addDimensionText(svg, colorProps.depth, 190, 254, 'D');
+      return svg;
+    }
+
+    // 하부장
+    if (colorProps.type === 'lowerCabinet') {
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("width", "1200");
+      svg.setAttribute("height", "1200");
+      svg.setAttribute("viewBox", "0 0 1200 1200");
+      svg.setAttribute("fill", "none");
+      const bg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      bg.setAttribute("width", "1200");
+      bg.setAttribute("height", "1200");
+      bg.setAttribute("fill", "white");
+      svg.appendChild(bg);
+      // ...하부장 path 추가 필요시 여기에...
+      addDimensionText(svg, colorProps.height, 877, 542, 'H');
+      addDimensionText(svg, colorProps.width, 657, 206, 'W');
+      addDimensionText(svg, colorProps.depth, 190, 254, 'D');
       return svg;
     }
     
