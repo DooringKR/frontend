@@ -15,7 +15,7 @@ function genCabinetSvg(colorProps = {}) {
         const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
         ["flapRight", "flapLeft", "top"].forEach((key) => {
             const value = colorProps[key];
-            if (value && value.endsWith('.png')) {
+            if (typeof value === 'string' && value.endsWith('.png')) {
                 const patternId = `pattern_${key}`;
                 const pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
                 pattern.setAttribute("id", patternId);
@@ -39,13 +39,13 @@ function genCabinetSvg(colorProps = {}) {
         cabinetData_1.FLAP_CABINET_PARTS.forEach((part, idx) => {
             const path = (0, svgUtils_1.makePath)({ ...part });
             // 플랩 도어/윗면 PNG fill 적용
-            if (idx === 3 && colorProps.flapRight && colorProps.flapRight.endsWith('.png')) {
+            if (idx === 3 && typeof colorProps.flapRight === 'string' && colorProps.flapRight.endsWith('.png')) {
                 path.setAttribute('fill', `url(#pattern_flapRight)`);
             }
-            else if (idx === 4 && colorProps.flapLeft && colorProps.flapLeft.endsWith('.png')) {
+            else if (idx === 4 && typeof colorProps.flapLeft === 'string' && colorProps.flapLeft.endsWith('.png')) {
                 path.setAttribute('fill', `url(#pattern_flapLeft)`);
             }
-            else if (idx === 5 && colorProps.top && colorProps.top.endsWith('.png')) {
+            else if (idx === 5 && typeof colorProps.top === 'string' && colorProps.top.endsWith('.png')) {
                 path.setAttribute('fill', `url(#pattern_top)`);
             }
             else if (part.fill) {
@@ -68,7 +68,7 @@ function genCabinetSvg(colorProps = {}) {
     // 1. 패턴 <defs> 생성 (colorProps의 값이 PNG 파일명일 때 pattern 추가)
     const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
     Object.entries(colorProps).forEach(([key, value]) => {
-        if (!value.endsWith('.png'))
+        if (typeof value !== 'string' || !value.endsWith('.png'))
             return;
         const patternId = `pattern_${key}`;
         const pattern = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
@@ -88,15 +88,29 @@ function genCabinetSvg(colorProps = {}) {
     });
     if (defs.childNodes.length > 0)
         svg.appendChild(defs);
+    // 치수 텍스트 추가 (width, height, depth)
+    // 위치는 상부장.svg 참고, 값은 colorProps.width/height/depth에서 가져옴
+    const { width, height, depth } = colorProps;
+    if (width) {
+        // 상부장 기준: width 텍스트 (상단 중앙)
+        svg.appendChild(require('../svgCore/svgUtils').makeText({ x: 600, y: 80, text: width.toString(), fontSize: 50, anchor: 'middle', fill: '#333' }));
+    }
+    if (height) {
+        // height 텍스트 (우측 중앙)
+        svg.appendChild(require('../svgCore/svgUtils').makeText({ x: 1120, y: 600, text: height.toString(), fontSize: 50, anchor: 'end', fill: '#333' }));
+    }
+    if (depth) {
+        // depth 텍스트 (좌측 하단)
+        svg.appendChild(require('../svgCore/svgUtils').makeText({ x: 80, y: 1120, text: depth.toString(), fontSize: 50, anchor: 'start', fill: '#333' }));
+    }
     // 2. 공통
     cabinetData_1.CABINET_BASE_PARTS.forEach(part => svg.appendChild((0, svgUtils_1.makePath)(part)));
     // 3. 우측면, 윗면 등 파라미터화
     // hansol-dove-white.png 패턴이 필요하면 <defs>에 추가
-    let doveWhitePatternAdded = false;
     // top, right는 항상 bodyColor를 사용
     ['right', 'top'].forEach(key => {
         let fillValue = bodyColor;
-        if (fillValue.endsWith('.png')) {
+        if (typeof fillValue === 'string' && fillValue.endsWith('.png')) {
             const patternId = 'pattern_body';
             fillValue = `url(#${patternId})`;
             // 패턴이 없으면 추가
@@ -131,7 +145,7 @@ function genCabinetSvg(colorProps = {}) {
     ["leftDoor", "rightDoor"].forEach(doorKey => {
         if (colorProps[doorKey]) {
             let fillValue = colorProps[doorKey];
-            if (fillValue.endsWith('.png')) {
+            if (typeof fillValue === 'string' && fillValue.endsWith('.png')) {
                 fillValue = `url(#pattern_${doorKey})`;
             }
             svg.appendChild((0, svgUtils_1.makePath)({
@@ -140,14 +154,9 @@ function genCabinetSvg(colorProps = {}) {
             }));
         }
     });
-    // ...existing code...
     // 5. 서랍장 파트 (drawerType: drawer2, drawer3_112, drawer3_221)
-    // colorProps.drawerType: 'drawer2' | 'drawer3_112' | 'drawer3_221'
-    // colorProps.drawerFill: string (png or color)
     if (colorProps.drawerType && cabinetData_1.DRAWER_CABINET_PARTS[colorProps.drawerType]) {
-        // 기존 레일 path 사용
         const parts = cabinetData_1.DRAWER_CABINET_PARTS[colorProps.drawerType];
-        // 1. 레일(회색, 왼쪽으로 40px 이동)
         const moveX = 40;
         parts.forEach((part) => {
             if (part.fill === '#D1D5DC') {
@@ -158,13 +167,9 @@ function genCabinetSvg(colorProps = {}) {
                 }));
             }
         });
-        // 2. 서랍 도어(왼쪽으로 40px 이동)
         const drawerFill = colorProps.drawerFill || '#eee';
         if (colorProps.drawerType === 'drawer3_221') {
-            // 겉2속1: 제일 위 서랍문(겉)이 가장 마지막(맨 위)에 그려져 겉이 바깥에 보임
-            // (서랍문 파트만 추출)
             const drawerParts = parts.filter((part) => part.fill === '');
-            // 순서: [2, 1, 0] (아래, 중간, 위) → 겉(위)이 가장 위에 보이고, 속(중간)이 그 아래, 맨 아래가 가장 안쪽에 보임
             const order = [2, 1, 0];
             order.forEach((idx) => {
                 const part = drawerParts[idx];
@@ -172,7 +177,7 @@ function genCabinetSvg(colorProps = {}) {
                     return;
                 const movedD = part.d.replace(/(\d+)(\s|,)/g, (m, num, sep) => `${parseInt(num, 10) - moveX}${sep}`);
                 let fillValue = drawerFill;
-                if (drawerFill.endsWith && drawerFill.endsWith('.png')) {
+                if (typeof drawerFill === 'string' && drawerFill.endsWith('.png')) {
                     fillValue = `url(#pattern_drawerFill)`;
                 }
                 svg.appendChild((0, svgUtils_1.makePath)({
@@ -183,12 +188,11 @@ function genCabinetSvg(colorProps = {}) {
             });
         }
         else {
-            // 나머지 서랍장은 기존 순서대로
             parts.forEach((part) => {
                 if (part.fill === '') {
                     const movedD = part.d.replace(/(\d+)(\s|,)/g, (m, num, sep) => `${parseInt(num, 10) - moveX}${sep}`);
                     let fillValue = drawerFill;
-                    if (drawerFill.endsWith && drawerFill.endsWith('.png')) {
+                    if (typeof drawerFill === 'string' && drawerFill.endsWith('.png')) {
                         fillValue = `url(#pattern_drawerFill)`;
                     }
                     svg.appendChild((0, svgUtils_1.makePath)({
@@ -199,8 +203,6 @@ function genCabinetSvg(colorProps = {}) {
                 }
             });
         }
-        // 3. 오른쪽 면(맨 위에 덮어 그림)
-        // CABINET_SHAPES_DATA에서 key가 'right'인 path만 추출
         const rightPart = cabinetData_1.CABINET_SHAPES_DATA.find((p) => p.key === 'right');
         if (rightPart) {
             svg.appendChild((0, svgUtils_1.makePath)({
@@ -209,6 +211,5 @@ function genCabinetSvg(colorProps = {}) {
             }));
         }
     }
-    // ...existing code...
     return svg;
 }

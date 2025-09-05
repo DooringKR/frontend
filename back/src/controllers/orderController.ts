@@ -52,22 +52,6 @@ export async function createOrder(req: Request, res: Response) {
       where: { cart_id },
     });
 
-    // 4. cartItems 기반으로 order_item 생성 및 image_url 저장
-    for (const cartItem of cartItems) {
-      // 이미지 생성 및 업로드
-      const image_url = await require('../services/imageService').generateAndUploadOrderItemImage(cartItem);
-        await prisma.orderItem.create({
-          data: {
-            order_id: order.order_id,
-            product_type: cartItem.product_type,
-            unit_price: cartItem.unit_price ?? 0,
-            item_count: cartItem.item_count,
-            item_options: cartItem.item_options ?? {},
-            image_url,
-          }
-        });
-    }
-
     // 5. order_item에서 image_url 포함하여 조회
     const orderItems = await prisma.orderItem.findMany({
       where: { order_id: order.order_id },

@@ -86,13 +86,16 @@ export async function updateOrderItem(req: Request, res: Response) {
   if (isNaN(id)) {
     return res.status(400).json({ message: 'order_item_id는 정수여야 합니다' });
   }
-  const { item_options, item_count } = req.body;
+  const { item_options, item_count, image_url } = req.body;
   if (typeof item_options !== 'object') {
     return res.status(400).json({ message: 'item_options는 객체여야 합니다' });
   }
   const updateData: any = { item_options };
   if (typeof item_count === 'number' && item_count > 0) {
     updateData.item_count = item_count;
+  }
+  if (typeof image_url === 'string' && image_url.length > 0) {
+    updateData.image_url = image_url;
   }
   try {
     const updated = await prisma.orderItem.update({

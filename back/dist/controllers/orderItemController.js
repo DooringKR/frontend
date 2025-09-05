@@ -31,6 +31,7 @@ async function getOrderItem(req, res) {
         unit_price: item.unit_price,
         item_count: item.item_count,
         item_options: item.item_options,
+        image_url: item.image_url,
     });
 }
 // POST /order_item — 주문에 아이템 추가
@@ -64,66 +65,6 @@ async function addOrderItem(req, res) {
             image_url: image_url ?? undefined,
         },
     });
-    // 노션 동기화: 해당 주문의 전체 order_items와 order/user 정보로 createNotionOrderPage 호출
-    try {
-        const order = await prismaClient_1.default.order.findUnique({ where: { order_id } });
-        const user = order ? await prismaClient_1.default.user.findUnique({ where: { id: order.user_id } }) : null;
-        const orderItems = await prismaClient_1.default.orderItem.findMany({ where: { order_id } });
-        console.log('[NotionSync][TRACE][orderItemController] Notion sync 분기 진입', {
-            order_id,
-            orderFound: !!order,
-            userFound: !!user,
-            orderItemsCount: orderItems.length,
-            orderItemsSample: orderItems.slice(0, 2)
-        });
-        if (order && user) {
-            let notionService;
-            try {
-                notionService = require("../services/notionService");
-                console.log('[NotionSync][TRACE][orderItemController] notionService require 성공', { keys: Object.keys(notionService) });
-            }
-            catch (e) {
-                console.error('[NotionSync][ERROR][orderItemController] require notionService 실패', e);
-                return;
-            }
-            const createNotionOrderPage = notionService.createNotionOrderPage || notionService.default;
-            if (!createNotionOrderPage) {
-                console.error('[NotionSync][ERROR][orderItemController] createNotionOrderPage is undefined');
-            }
-            else {
-                console.log('[NotionSync][TRACE][orderItemController] createNotionOrderPage 호출 직전', {
-                    orderedAt: order.created_at,
-                    userRoadAddress: user.user_road_address,
-                    userPhone: user.user_phone,
-                    recipientPhone: order.recipient_phone,
-                    orderType: order.order_type,
-                    orderPrice: order.order_price,
-                    orderOptions: order.order_options,
-                    orderItemsCount: orderItems.length,
-                    orderItemsSample: orderItems.slice(0, 2)
-                });
-                await createNotionOrderPage({
-                    orderedAt: order.created_at,
-                    userRoadAddress: user.user_road_address || "",
-                    userPhone: user.user_phone || "",
-                    recipientPhone: order.recipient_phone,
-                    orderType: order.order_type,
-                    orderPrice: order.order_price,
-                    orderOptions: order.order_options,
-                    orderItems: orderItems.map((item) => ({
-                        product_type: item.product_type,
-                        item_count: item.item_count,
-                        unit_price: item.unit_price ?? 0,
-                        item_options: item.item_options,
-                    })),
-                });
-                console.log('[NotionSync][TRACE][orderItemController] createNotionOrderPage 호출 완료');
-            }
-        }
-    }
-    catch (err) {
-        console.error('[NotionSync][ERROR][orderItemController] Notion sync 전체 실패', err);
-    }
     return res.status(201).json({
         order_item_id: newItem.order_item_id,
         order_id: newItem.order_id,
@@ -140,13 +81,16 @@ async function updateOrderItem(req, res) {
     if (isNaN(id)) {
         return res.status(400).json({ message: 'order_item_id는 정수여야 합니다' });
     }
-    const { item_options, item_count } = req.body;
+    const { item_options, item_count, image_url } = req.body;
     if (typeof item_options !== 'object') {
         return res.status(400).json({ message: 'item_options는 객체여야 합니다' });
     }
     const updateData = { item_options };
     if (typeof item_count === 'number' && item_count > 0) {
         updateData.item_count = item_count;
+    }
+    if (typeof image_url === 'string' && image_url.length > 0) {
+        updateData.image_url = image_url;
     }
     try {
         const updated = await prismaClient_1.default.orderItem.update({

@@ -44,7 +44,18 @@ async function createOrder(req, res) {
         const cartItems = await prismaClient_1.default.cartItem.findMany({
             where: { cart_id },
         });
-        // 4. notionService 호출
+        // 5. order_item에서 image_url 포함하여 조회
+        const orderItems = await prismaClient_1.default.orderItem.findMany({
+            where: { order_id: order.order_id },
+            select: {
+                product_type: true,
+                item_count: true,
+                unit_price: true,
+                item_options: true,
+                image_url: true,
+            }
+        });
+        // 6. notionService 호출
         await (0, notionService_1.createNotionOrderPage)({
             orderedAt: order.created_at,
             userRoadAddress: user?.user_road_address || "",
@@ -53,12 +64,7 @@ async function createOrder(req, res) {
             orderType: order.order_type,
             orderPrice: order.order_price,
             orderOptions: order.order_options,
-            orderItems: cartItems.map((item) => ({
-                product_type: item.product_type,
-                item_count: item.item_count,
-                unit_price: item.unit_price ?? 0,
-                item_options: item.item_options,
-            })),
+            orderItems: orderItems,
         }).catch(err => console.error("[Notion Sync Error]", err));
         // 5. 응답
         return res.status(201).json({
