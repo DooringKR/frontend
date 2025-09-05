@@ -64,7 +64,7 @@ export async function addOrderItem(req: Request, res: Response) {
       unit_price,
       item_count,
       item_options,
-      image_url: undefined,
+      image_url: image_url ?? undefined,
     },
   });
 
