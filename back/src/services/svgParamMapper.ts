@@ -106,22 +106,32 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
           depth: Number(item_options.cabinet_depth)
         };
       } else if (item_options.cabinet_type === 'DRAWER') {
+        // drawerType 매핑: 2단, 3단 등 구분 필요시 추가
+        let drawerType = item_options.drawer_type;
+        // 예시: 2단 서랍장 → drawerCabinet2, 3단 1:1:2 → drawerCabinet3_112, 3단 겉2:속1 → drawerCabinet3_211
+        if (drawerType === '2단 서랍') drawerType = 'drawerCabinet2';
+        else if (drawerType === '3단 서랍 (1 : 1 : 2') drawerType = 'drawerCabinet3_112';
+        else if (drawerType === '3단 서랍 (겉2 ∙ 속1)') drawerType = 'drawerCabinet3_211';
         result = {
-          type: 'drawer',
+          type: drawerType,
           body: bodyColor,
           cabinetColor,
           top: bodyColor,
           right: bodyColor,
           drawerFill: item_options.drawer_color,
-          drawerType: item_options.drawer_type,
+          drawerType,
           width: Number(item_options.cabinet_width),
           height: Number(item_options.cabinet_height),
           depth: Number(item_options.cabinet_depth)
         };
       } else {
         // Open/Upper/Lower cabinet (no flap/drawer fields)
+        let cabinetType = item_options.cabinet_type?.toLowerCase();
+        if (cabinetType === 'open') cabinetType = 'openCabinet';
+        else if (cabinetType === 'upper') cabinetType = 'upperCabinet';
+        else if (cabinetType === 'lower') cabinetType = 'lowerCabinet';
         result = {
-          type: item_options.cabinet_type?.toLowerCase(),
+          type: cabinetType,
           body: bodyColor,
           cabinetColor,
           top: bodyColor,
