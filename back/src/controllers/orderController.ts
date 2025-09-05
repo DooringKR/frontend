@@ -56,7 +56,8 @@ export async function createOrder(req: Request, res: Response) {
    
     // 4. order_items 생성까지 대기 (프론트엔드에서 생성됨)
     // order_items가 생성될 때까지 대기하는 로직
-    let orderItems: {
+    
+    /* let orderItems: {
       product_type: string;
       item_count: number;
       unit_price: number;
@@ -64,7 +65,7 @@ export async function createOrder(req: Request, res: Response) {
       image_url: string | null;
     }[] = [];
     let attempts = 0;
-    const maxAttempts = 60; // 최대 30번 시도 (30초)
+    const maxAttempts = 60; // 최대 60번 시도 (60초)
     const waitTime = 1000; // 1초마다 체크
 
     while (attempts < maxAttempts) {
@@ -94,7 +95,7 @@ export async function createOrder(req: Request, res: Response) {
     // order_items가 생성되지 않았으면 경고 로그
     if (orderItems.length === 0) {
       console.warn(`[OrderController] order_items 생성 대기 시간 초과 (${maxAttempts}초)`);
-    }
+    } */
 
     // 5. order_item에서 image_url 포함하여 조회
     /* const orderItems = await prisma.orderItem.findMany({
@@ -108,17 +109,7 @@ export async function createOrder(req: Request, res: Response) {
       }
     }); */
 
-    // 6. notionService 호출
-    await createNotionOrderPage({
-      orderedAt: order.created_at,
-      userRoadAddress: user?.user_road_address || "",
-      userPhone: user?.user_phone || "",
-      recipientPhone: order.recipient_phone,
-      orderType: order.order_type,
-      orderPrice: order.order_price,
-      orderOptions: order.order_options,
-      orderItems: orderItems,
-    }).catch(err => console.error("[Notion Sync Error]", err));
+  // 노션 페이지 생성은 별도 API에서 처리
 
     // 5. 응답
     return res.status(201).json({
@@ -218,5 +209,47 @@ export async function getOrderById(req: Request, res: Response) {
   } catch (error) {
     console.error("getOrderById error:", error);
     return res.status(500).json({ message: "서버 내부 오류" });
+  }
+}
+
+export async function completeOrder(req: Request, res: Response) {
+  const { order_id } = req.params;
+  if (!order_id) {
+    return res.status(400).json({ message: "order_id가 필요합니다." });
+  }
+  try {
+    // 주문 정보 조회
+    const order = await prisma.order.findUnique({ where: { order_id } });
+    if (!order) {
+      return res.status(404).json({ message: "해당 주문을 찾을 수 없습니다." });
+    }
+    // 사용자 정보 조회
+    const user = await prisma.user.findUnique({ where: { id: order.user_id } });
+    // order_items 조회
+    const orderItems = await prisma.orderItem.findMany({
+      where: { order_id },
+      select: {
+        product_type: true,
+        item_count: true,
+        unit_price: true,
+        item_options: true,
+        image_url: true,
+      }
+    });
+    // 노션 페이지 생성
+    await createNotionOrderPage({
+      orderedAt: order.created_at,
+      userRoadAddress: user?.user_road_address || "",
+      userPhone: user?.user_phone || "",
+      recipientPhone: order.recipient_phone,
+      orderType: order.order_type,
+      orderPrice: order.order_price,
+      orderOptions: order.order_options,
+      orderItems: orderItems,
+    });
+    return res.status(200).json({ message: "노션 페이지 생성 완료" });
+  } catch (err: any) {
+    console.error("[completeOrder] error:", err.message);
+    return res.status(500).json({ message: "노션 페이지 생성 실패" });
   }
 }

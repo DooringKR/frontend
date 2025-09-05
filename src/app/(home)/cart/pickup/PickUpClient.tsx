@@ -1,6 +1,6 @@
 "use client";
 
-import { createOrder, createOrderItem } from "@/api/orderApi";
+import { createOrder, createOrderItem, completeOrder } from "@/api/orderApi";
 import { CHECK_ORDER_PAGE } from "@/constants/pageName";
 import {
   AccessoryItem,
@@ -136,7 +136,9 @@ export default function PickUpClientPage() {
           return createOrderItem(itemPayload);
         }),
       );
-
+      
+      await completeOrder(orderId);
+      
       localStorage.setItem("recentOrder", JSON.stringify(order));
       router.push("/cart/confirm");
     } catch (error) {
