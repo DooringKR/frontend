@@ -75,7 +75,7 @@ interface AppsScriptOrderPayload {
 }
 
 async function sendOrderToAppsScript(order: AppsScriptOrderPayload) {
-  const url = 'https://script.google.com/macros/s/AKfycbyb4NLOk4S3q489UFBJChccQfK28H3eSm4RRxwACaUZNFAB97ll3ECMmaNw67hXUCbqFA/exec';
+  const url = 'https://script.google.com/macros/s/AKfycbyvcUyurVprdhThlcK2UmaUwzleYcZcU7T9yiecG-NLJ-llWUFmHBk4qW6WAFBPUxpKLg/exec';
   // order 객체는 이미 필요한 필드만 포함됨
   await axios.post(url, order);
 }
@@ -198,6 +198,15 @@ export async function completeOrder(req: Request, res: Response) {
       orderPrice: order.order_price,
       orderOptions: order.order_options,
       orderItems: orderItems,
+    });
+
+    // 주문 견적서 Apps Script로 전송
+    await sendOrderToAppsScript({
+      created_at: order.created_at,
+      delivery_type: order.order_type,
+      recipient_phone: order.recipient_phone,
+      order_options: order.order_options,
+      order_items: orderItems,
     });
     return res.status(200).json({ message: "노션 페이지 생성 완료" });
   } catch (err: any) {
