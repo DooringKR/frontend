@@ -75,7 +75,7 @@ interface AppsScriptOrderPayload {
 }
 
 async function sendOrderToAppsScript(order: AppsScriptOrderPayload) {
-  const url = 'https://script.google.com/macros/s/AKfycbyb4NLOk4S3q489UFBJChccQfK28H3eSm4RRxwACaUZNFAB97ll3ECMmaNw67hXUCbqFA/exec';
+  const url = 'https://script.google.com/macros/s/AKfycbyxziqdcJp83j8YmHPq6uAjtSTXn_yRTSobeAKkaC2VU3sk_82XzlVBH-vlzQod950esw/exec';
   // order 객체는 이미 필요한 필드만 포함됨
   await axios.post(url, order);
 }
