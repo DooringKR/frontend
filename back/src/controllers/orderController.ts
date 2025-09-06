@@ -48,73 +48,8 @@ export async function createOrder(req: Request, res: Response) {
     // 2. user 조회
     const user = await prisma.user.findUnique({ where: { id: user_id } });
     if (!user) return res.status(404).json({ message: '해당 user_id가 존재하지 않습니다.' });
-    
-    /*
-    // 3. cartItems 조회 (cart_id 기반)
-    const cartItems = await prisma.cartItem.findMany({
-      where: { cart_id },
-    });
-    */
-   
-    // 4. order_items 생성까지 대기 (프론트엔드에서 생성됨)
-    // order_items가 생성될 때까지 대기하는 로직
-    
-    /* let orderItems: {
-      product_type: string;
-      item_count: number;
-      unit_price: number;
-      item_options: any;
-      image_url: string | null;
-    }[] = [];
-    let attempts = 0;
-    const maxAttempts = 60; // 최대 60번 시도 (60초)
-    const waitTime = 1000; // 1초마다 체크
 
-
-    while (attempts < maxAttempts) {
-      orderItems = await prisma.orderItem.findMany({
-        where: { order_id: order.order_id },
-        select: {
-          product_type: true,
-          item_count: true,
-          unit_price: true,
-          item_options: true,
-          image_url: true,
-        }
-      });
-
-      // order_items가 생성되었으면 루프 종료
-      if (orderItems.length > 0) {
-        console.log(`[OrderController] order_items 생성 완료: ${orderItems.length}개`);
-        break;
-      }
-
-      // 아직 생성되지 않았으면 잠시 대기
-      console.log(`[OrderController] order_items 대기 중... (${attempts + 1}/${maxAttempts})`);
-      await new Promise(resolve => setTimeout(resolve, waitTime));
-      attempts++;
-    }
-
-    // order_items가 생성되지 않았으면 경고 로그
-    if (orderItems.length === 0) {
-      console.warn(`[OrderController] order_items 생성 대기 시간 초과 (${maxAttempts}초)`);
-    } */
-
-    // 5. order_item에서 image_url 포함하여 조회
-    /* const orderItems = await prisma.orderItem.findMany({
-      where: { order_id: order.order_id },
-      select: {
-        product_type: true,
-        item_count: true,
-        unit_price: true,
-        item_options: true,
-        image_url: true,
-      }
-    }); */
-
-  // 노션 페이지 생성은 별도 API에서 처리
-
-    // 5. 응답
+    // 3. 응답
     return res.status(201).json({
       order_id: order.order_id,
       user_id: order.user_id,

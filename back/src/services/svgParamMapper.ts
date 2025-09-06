@@ -12,29 +12,35 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
             colorName = `${colorParts[1]} ${colorParts[3]}`;
           }
         }
-        let hingeDir = '좌경';
-        if (item_options.hinge_direction === '우경' || item_options.hinge_direction === 'right') hingeDir = '우경';
-        if (item_options.hinge_direction === '좌경' || item_options.hinge_direction === 'left') hingeDir = '좌경';
         const boringCount = Number(item_options.hinge_count) || 2;
-        const subtype = `${hingeDir}_${boringCount}보링`;
+        // 플랩문은 hinge_direction 무시, boringCount만 반영
+        const subtype = item_options.door_type === 'FLAP'
+          ? `${boringCount}보링`
+          : (() => {
+              let hingeDir = '좌경';
+              if (item_options.hinge_direction === '우경' || item_options.hinge_direction === 'right') hingeDir = '우경';
+              if (item_options.hinge_direction === '좌경' || item_options.hinge_direction === 'left') hingeDir = '좌경';
+              return `${hingeDir}_${boringCount}보링`;
+            })();
         const hingeSizes = [
-          item_options.first_hinge_size,
-          item_options.second_hinge_size,
-          item_options.third_hinge_size,
-          item_options.fourth_hinge_size
+          item_options.first_hinge,
+          item_options.second_hinge,
+          item_options.third_hinge,
+          item_options.fourth_hinge
         ];
         const boringValues = hingeSizes.slice(0, boringCount).filter(v => v !== undefined && v !== null).map(Number);
         const size = {
           width: Number(item_options.door_width),
           height: Number(item_options.door_height)
         };
-  const color = {
-    doorFillImageUrl: `/img/color-png(new)/${colorName}.png`
-  };
-        const validSubtypes = [
-          '좌경_2보링','좌경_3보링','좌경_4보링','우경_2보링','우경_3보링','우경_4보링'
-        ];
-        const safeSubtype = validSubtypes.includes(subtype) ? subtype : '좌경_2보링';
+        const color = {
+          doorFillImageUrl: `/img/color-png(new)/${colorName}.png`
+        };
+        // 플랩문 validSubtypes: '2보링','3보링','4보링', 일반문 validSubtypes: ...
+        const validSubtypes = item_options.door_type === 'FLAP'
+          ? ['2보링','3보링','4보링']
+          : ['좌경_2보링','좌경_3보링','좌경_4보링','우경_2보링','우경_3보링','우경_4보링'];
+        const safeSubtype = validSubtypes.includes(subtype) ? subtype : (item_options.door_type === 'FLAP' ? '2보링' : '좌경_2보링');
         result = {
           subtype: safeSubtype,
           size,
@@ -54,9 +60,9 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
           width: Number(item_options.door_width),
           height: Number(item_options.door_height)
         };
-  const color = {
-    doorFillImageUrl: `/img/color-png(new)/${colorName}.png`
-  };
+        const color = {
+          doorFillImageUrl: `/img/color-png(new)/${colorName}.png`
+        };
         result = {
           size,
           color
@@ -86,7 +92,7 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
       }
 
       // Flap cabinet
-      if (item_options.cabinet_type === 'flap') {
+      if (item_options.cabinet_type === 'FLAP') {
         result = {
           type: 'flapCabinet',
           body: bodyColor,
@@ -99,23 +105,33 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
           height: Number(item_options.cabinet_height),
           depth: Number(item_options.cabinet_depth)
         };
-      } else if (item_options.cabinet_type === 'drawer') {
+      } else if (item_options.cabinet_type === 'DRAWER') {
+        // drawerType 매핑: 2단, 3단 등 구분 필요시 추가
+        let drawerType = item_options.drawer_type;
+        // 예시: 2단 서랍장 → drawerCabinet2, 3단 1:1:2 → drawerCabinet3_112, 3단 겉2:속1 → drawerCabinet3_211
+        if (drawerType === '2단 서랍') drawerType = 'drawerCabinet2';
+        else if (drawerType === '3단 서랍 (1 : 1 : 2)') drawerType = 'drawerCabinet3_112';
+        else if (drawerType === '3단 서랍 (겉2 ∙ 속1)') drawerType = 'drawerCabinet3_211';
         result = {
-          type: 'drawer',
+          type: drawerType,
           body: bodyColor,
           cabinetColor,
           top: bodyColor,
           right: bodyColor,
           drawerFill: item_options.drawer_color,
-          drawerType: item_options.drawer_type,
+          drawerType,
           width: Number(item_options.cabinet_width),
           height: Number(item_options.cabinet_height),
           depth: Number(item_options.cabinet_depth)
         };
       } else {
         // Open/Upper/Lower cabinet (no flap/drawer fields)
+        let cabinetType = item_options.cabinet_type?.toLowerCase();
+        if (cabinetType === 'open') cabinetType = 'openCabinet';
+        else if (cabinetType === 'upper') cabinetType = 'upperCabinet';
+        else if (cabinetType === 'lower') cabinetType = 'lowerCabinet';
         result = {
-          type: item_options.cabinet_type?.toLowerCase(),
+          type: cabinetType,
           body: bodyColor,
           cabinetColor,
           top: bodyColor,

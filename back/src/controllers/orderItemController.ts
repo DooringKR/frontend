@@ -3,7 +3,7 @@
 import { Request, Response } from 'express';
 import prisma from '../prismaClient';
 // ProductType enum 직접 명시
-// import { generateAndUploadOrderItemImage } from '../services/imageService';
+import { generateAndUploadOrderItemImage } from '../services/imageService';
 
 const VALID_PRODUCT_TYPES = ["DOOR", "FINISH", "CABINET", "HARDWARE", "ACCESSORY"];
 
@@ -48,15 +48,7 @@ export async function addOrderItem(req: Request, res: Response) {
   }
 
 
-  // 이미지 생성 및 업로드
-  /*let image_url: string | null = null;
-  try {
-    image_url = await generateAndUploadOrderItemImage({ product_type, item_options });
-    console.log('[OrderItem][TRACE] 이미지 생성/업로드 결과', { image_url });
-  } catch (e) {
-    console.warn('[OrderItem][WARN] 이미지 생성/업로드 실패', e);
-  } */
-
+  // 1. orderItem 먼저 생성
   const newItem = await prisma.orderItem.create({
     data: {
       order_id,
@@ -64,19 +56,45 @@ export async function addOrderItem(req: Request, res: Response) {
       unit_price,
       item_count,
       item_options,
-      image_url: undefined,
+      // image_url: null (생성 후 업데이트)
     },
   });
 
+  // 2. 이미지 생성 및 업로드 (order_id, order_item_id 넘김)
+  let image_url: string | null = null;
+  try {
+    image_url = await generateAndUploadOrderItemImage({
+      order_id: newItem.order_id,
+      order_item_id: newItem.order_item_id,
+      product_type,
+      unit_price,
+      item_count,
+      item_options
+    });
+    // 3. image_url 업데이트
+    await prisma.orderItem.update({
+      where: { order_item_id: newItem.order_item_id },
+      data: { image_url }
+    });
+  } catch (e) {
+    console.warn('[OrderItem][WARN] 이미지 생성/업로드 실패', e);
+  }
 
+  // 4. 최종 응답
+  const updatedItem = await prisma.orderItem.findUnique({
+    where: { order_item_id: newItem.order_item_id }
+  });
+  if (!updatedItem) {
+    return res.status(404).json({ message: '생성된 주문 아이템을 찾을 수 없습니다.' });
+  }
   return res.status(201).json({
-    order_item_id: newItem.order_item_id,
-    order_id:      newItem.order_id,
-    product_type:  newItem.product_type,
-    unit_price:    newItem.unit_price,
-    item_count:    newItem.item_count,
-    item_options:  newItem.item_options,
-    image_url:     newItem.image_url,
+    order_item_id: updatedItem.order_item_id,
+    order_id:      updatedItem.order_id,
+    product_type:  updatedItem.product_type,
+    unit_price:    updatedItem.unit_price,
+    item_count:    updatedItem.item_count,
+    item_options:  updatedItem.item_options,
+    image_url:     updatedItem.image_url,
   });
 }
 
