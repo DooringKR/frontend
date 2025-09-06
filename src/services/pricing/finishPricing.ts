@@ -1,7 +1,7 @@
 import { getPricingColorName } from "./colorMapping";
 
 // 마진율 (60%)
-const MARGIN = 0.6;
+const MARGIN = 0;
 
 /**
  * 마감재 단위 가격 계산
@@ -17,9 +17,15 @@ export function calculateUnitFinishPrice(
   const totalDepth = baseDepth + additionalDepth;
   const totalHeight = baseHeight + additionalHeight;
   const split = calculateSplit(totalDepth, totalHeight);
-  const unitPrice = Math.round((originalPrice * MARGIN) / split);
-  console.log(originalPrice, split, unitPrice);
-  return unitPrice;
+
+  // 최종 견적 = (original_price / split ) * { 1 + ( margin + 0.1 ) }
+  const unitPrice = (originalPrice / split) * (1 + (MARGIN + 0.1));
+
+  // 백원 단위에서 올림
+  const finalPrice = Math.ceil(unitPrice / 100) * 100;
+
+  console.log(originalPrice, split, unitPrice, finalPrice);
+  return finalPrice;
 }
 
 /**
@@ -66,20 +72,19 @@ function calculateOriginalPrice(color: string): number {
 
   // 색상별 가격 결정
   if (standardColors.includes(colorName)) {
-    return 70000;
+    return 130000;
   } else if (premiumColors.includes(colorName)) {
-    return 90000;
+    return 170000;
   } else if (herringbone3TColors.includes(colorName)) {
-    return 25000;
-  } else if (herringbone15TColors.includes(colorName)) {
-    return 27000;
-  } else if (herringbone18TColors.includes(colorName)) {
     return 30000;
+  } else if (herringbone15TColors.includes(colorName)) {
+    return 54000;
+  } else if (herringbone18TColors.includes(colorName)) {
+    return 60000;
   } else if (lpmColors.includes(colorName)) {
-    return 45000;
+    return 76000;
   } else {
-    // 직접 입력은 25,000원으로 처리
-    return 25000;
+    return 130000;
   }
 }
 
@@ -87,34 +92,63 @@ function calculateOriginalPrice(color: string): number {
  * 분할값 계산 (문짝과 동일한 로직)
  */
 function calculateSplit(depth: number, height: number): number {
-  // width 범위별 분할값 계산
-  if (depth >= 1 && depth <= 200) {
-    return getSplitByHeight(height, [20, 12, 6]);
-  } else if (depth >= 201 && depth <= 400) {
-    return getSplitByHeight(height, [10, 6, 3]);
-  } else if (depth >= 401 && depth <= 600) {
-    return getSplitByHeight(height, [6, 4, 2]);
-  } else if (depth >= 601 && depth <= 1000) {
-    return getSplitByHeight(height, [3, 2, 1]);
-  } else if (depth >= 1001 && depth <= 1220) {
-    return 1;
-  } else {
-    // 기본값
-    return 1;
+  // depth: 1 - 300
+  if (depth >= 1 && depth <= 300) {
+    if (height >= 1 && height <= 1100) {
+      return 7;
+    } else if (height >= 1101 && height <= 1300) {
+      return 5;
+    } else if (height >= 1301 && height <= 1500) {
+      return 4;
+    } else if (height >= 1501) {
+      return 3;
+    }
   }
-}
+  // depth: 301 - 400
+  else if (depth >= 301 && depth <= 400) {
+    if (height >= 1 && height <= 900) {
+      return 6;
+    } else if (height >= 901 && height <= 1100) {
+      return 5;
+    } else if (height >= 1101 && height <= 1300) {
+      return 4;
+    } else if (height >= 1301) {
+      return 3;
+    }
+  }
+  // depth: 401 - 500
+  else if (depth >= 401 && depth <= 500) {
+    if (height >= 1 && height <= 900) {
+      return 5;
+    } else if (height >= 901 && height <= 1100) {
+      return 4;
+    } else if (height >= 1101 && height <= 1700) {
+      return 3;
+    } else if (height >= 1701) {
+      return 2;
+    }
+  }
+  // depth: 501 - 600
+  else if (depth >= 501 && depth <= 600) {
+    if (height >= 1 && height <= 900) {
+      return 4;
+    } else if (height >= 901 && height <= 1500) {
+      return 3;
+    } else if (height >= 1501) {
+      return 2;
+    }
+  }
+  // depth: 601 - 1220
+  else if (depth >= 601 && depth <= 1220) {
+    if (height >= 1 && height <= 900) {
+      return 2;
+    } else if (height >= 901 && height <= 1500) {
+      return 1.5;
+    } else if (height >= 1501) {
+      return 1;
+    }
+  }
 
-/**
- * 높이에 따른 분할값 반환
- */
-function getSplitByHeight(height: number, splits: [number, number, number]): number {
-  if (height >= 1 && height <= 400) {
-    return splits[0];
-  } else if (height >= 401 && height <= 600) {
-    return splits[1];
-  } else if (height >= 601 && height <= 2440) {
-    return splits[2];
-  } else {
-    return splits[2];
-  }
+  // 기본값
+  return 1;
 }

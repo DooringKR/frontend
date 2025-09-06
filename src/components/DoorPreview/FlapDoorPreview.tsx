@@ -55,14 +55,14 @@ const FlapDoorPreview: React.FC<FlapDoorPreviewProps> = ({
 
   // 실제 문짝 크기 (입력값이 없으면 기본값 사용)
   const actualWidth = DoorWidth || 600;
-  const actualHeight = DoorHeight || 1200;
+  const actualHeight = DoorHeight || 300;
 
   // 비율 계산 (가로/세로)
   const widthRatio = actualWidth / actualHeight;
 
   // 플랩문은 가로가 더 긴 형태이므로 가로를 260으로 고정, 세로는 비율에 따라 조정 (최대 650px)
   const doorWidth = 260;
-  const doorHeight = Math.min(260 / widthRatio, 650);
+  const doorHeight = Math.min(260 / widthRatio, 390);
 
   // 문 사각형
   const DoorImage = (
@@ -142,22 +142,22 @@ const FlapDoorPreview: React.FC<FlapDoorPreviewProps> = ({
                   position: "absolute",
                   left:
                     index === 0 ||
-                    (boringNum === 3 && index === 1) ||
-                    (boringNum === 4 && index === 1)
+                      (boringNum === 3 && index === 1) ||
+                      (boringNum === 4 && index === 1)
                       ? "0px"
                       : `${boringX}px`,
                   top: `${boringY + 12}px`,
                   width:
                     index === 0 ||
-                    (boringNum === 3 && index === 1) ||
-                    (boringNum === 4 && index === 1)
+                      (boringNum === 3 && index === 1) ||
+                      (boringNum === 4 && index === 1)
                       ? `${boringX}px`
                       : `${doorWidth - boringX}px`,
                   height: "2px",
                   background:
                     index === 0 ||
-                    (boringNum === 3 && index === 1) ||
-                    (boringNum === 4 && index === 1)
+                      (boringNum === 3 && index === 1) ||
+                      (boringNum === 4 && index === 1)
                       ? "linear-gradient(to right, rgba(239, 68, 68, 0.6), rgba(239, 68, 68, 0.6))"
                       : "linear-gradient(to left, rgba(239, 68, 68, 0.6), rgba(239, 68, 68, 0.6))",
                   zIndex: 5,
@@ -170,14 +170,14 @@ const FlapDoorPreview: React.FC<FlapDoorPreviewProps> = ({
                     top: "-5px",
                     left:
                       index === 0 ||
-                      (boringNum === 3 && index === 1) ||
-                      (boringNum === 4 && index === 1)
+                        (boringNum === 3 && index === 1) ||
+                        (boringNum === 4 && index === 1)
                         ? "auto"
                         : "-6px",
                     right:
                       index === 0 ||
-                      (boringNum === 3 && index === 1) ||
-                      (boringNum === 4 && index === 1)
+                        (boringNum === 3 && index === 1) ||
+                        (boringNum === 4 && index === 1)
                         ? "-6px"
                         : "auto",
                     width: "0",
@@ -186,14 +186,14 @@ const FlapDoorPreview: React.FC<FlapDoorPreviewProps> = ({
                     borderBottom: "6px solid transparent",
                     borderLeft:
                       index === 0 ||
-                      (boringNum === 3 && index === 1) ||
-                      (boringNum === 4 && index === 1)
+                        (boringNum === 3 && index === 1) ||
+                        (boringNum === 4 && index === 1)
                         ? "6px solid rgba(239, 68, 68, 0.6)"
                         : "none",
                     borderRight:
                       index === 0 ||
-                      (boringNum === 3 && index === 1) ||
-                      (boringNum === 4 && index === 1)
+                        (boringNum === 3 && index === 1) ||
+                        (boringNum === 4 && index === 1)
                         ? "none"
                         : "6px solid rgba(239, 68, 68, 0.6)",
                   }}
@@ -208,14 +208,14 @@ const FlapDoorPreview: React.FC<FlapDoorPreviewProps> = ({
                   position: "absolute",
                   left:
                     index === 0 ||
-                    (boringNum === 3 && index === 1) ||
-                    (boringNum === 4 && index === 1)
+                      (boringNum === 3 && index === 1) ||
+                      (boringNum === 4 && index === 1)
                       ? "10px"
                       : "auto",
                   right:
                     index === 0 ||
-                    (boringNum === 3 && index === 1) ||
-                    (boringNum === 4 && index === 1)
+                      (boringNum === 3 && index === 1) ||
+                      (boringNum === 4 && index === 1)
                       ? "auto"
                       : "10px",
                   top: `${boringY + 25}px`,
@@ -241,14 +241,14 @@ const FlapDoorPreview: React.FC<FlapDoorPreviewProps> = ({
                     top: "-4px",
                     left:
                       index === 0 ||
-                      (boringNum === 3 && index === 1) ||
-                      (boringNum === 4 && index === 1)
+                        (boringNum === 3 && index === 1) ||
+                        (boringNum === 4 && index === 1)
                         ? "20px"
                         : "auto",
                     right:
                       index === 0 ||
-                      (boringNum === 3 && index === 1) ||
-                      (boringNum === 4 && index === 1)
+                        (boringNum === 3 && index === 1) ||
+                        (boringNum === 4 && index === 1)
                         ? "auto"
                         : "20px",
                     width: "0",

@@ -49,45 +49,7 @@ export async function createOrder(req: Request, res: Response) {
     const user = await prisma.user.findUnique({ where: { id: user_id } });
     if (!user) return res.status(404).json({ message: '해당 user_id가 존재하지 않습니다.' });
 
-    // 3. cartItems 조회 (cart_id 기반)
-    const cartItems = await prisma.cartItem.findMany({
-      where: { cart_id },
-    });
-
-    // 주문 생성 후 order_items 정보와 delivery_type을 포함하여 Apps Script로 전달
-    const order_items = cartItems.map((item: any) => ({
-      product_type: item.product_type,
-      item_count: item.item_count,
-      unit_price: item.unit_price ?? 0,
-      item_options: item.item_options,
-    }));
-    const delivery_type = order.order_type; // order_type이 곧 delivery_type이라면
-    await sendOrderToAppsScript({
-      created_at: order.created_at,
-      delivery_type,
-      recipient_phone: String(order.recipient_phone),
-      order_options: order.order_options,
-      order_items,
-    }).catch(err => console.error("[Apps Script Sync Error]", err));
-
-    // 4. notionService 호출
-    await createNotionOrderPage({
-      orderedAt: order.created_at,
-      userRoadAddress: user?.user_road_address || "",
-      userPhone: user?.user_phone || "",
-      recipientPhone: order.recipient_phone,
-      orderType: order.order_type,
-      orderPrice: order.order_price,
-      orderOptions: order.order_options,
-      orderItems: cartItems.map((item: any) => ({
-      product_type: item.product_type,
-        item_count: item.item_count,
-        unit_price: item.unit_price ?? 0,
-        item_options: item.item_options,
-      })),
-    }).catch(err => console.error("[Notion Sync Error]", err));
-
-    // 5. 응답
+    // 3. 응답
     return res.status(201).json({
       order_id: order.order_id,
       user_id: order.user_id,
@@ -199,5 +161,47 @@ export async function getOrderById(req: Request, res: Response) {
   } catch (error) {
     console.error("getOrderById error:", error);
     return res.status(500).json({ message: "서버 내부 오류" });
+  }
+}
+
+export async function completeOrder(req: Request, res: Response) {
+  const { order_id } = req.params;
+  if (!order_id) {
+    return res.status(400).json({ message: "order_id가 필요합니다." });
+  }
+  try {
+    // 주문 정보 조회
+    const order = await prisma.order.findUnique({ where: { order_id } });
+    if (!order) {
+      return res.status(404).json({ message: "해당 주문을 찾을 수 없습니다." });
+    }
+    // 사용자 정보 조회
+    const user = await prisma.user.findUnique({ where: { id: order.user_id } });
+    // order_items 조회
+    const orderItems = await prisma.orderItem.findMany({
+      where: { order_id },
+      select: {
+        product_type: true,
+        item_count: true,
+        unit_price: true,
+        item_options: true,
+        image_url: true,
+      }
+    });
+    // 노션 페이지 생성
+    await createNotionOrderPage({
+      orderedAt: order.created_at,
+      userRoadAddress: user?.user_road_address || "",
+      userPhone: user?.user_phone || "",
+      recipientPhone: order.recipient_phone,
+      orderType: order.order_type,
+      orderPrice: order.order_price,
+      orderOptions: order.order_options,
+      orderItems: orderItems,
+    });
+    return res.status(200).json({ message: "노션 페이지 생성 완료" });
+  } catch (err: any) {
+    console.error("[completeOrder] error:", err.message);
+    return res.status(500).json({ message: "노션 페이지 생성 실패" });
   }
 }

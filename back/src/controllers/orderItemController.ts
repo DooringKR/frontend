@@ -28,6 +28,7 @@ export async function getOrderItem(req: Request, res: Response) {
     unit_price:    item.unit_price,
     item_count:    item.item_count,
     item_options:  item.item_options,
+    image_url:     item.image_url,
   });
 }
 
@@ -47,15 +48,7 @@ export async function addOrderItem(req: Request, res: Response) {
   }
 
 
-  // 이미지 생성 및 업로드
-  let image_url: string | null = null;
-  try {
-    image_url = await generateAndUploadOrderItemImage({ product_type, item_options });
-    console.log('[OrderItem][TRACE] 이미지 생성/업로드 결과', { image_url });
-  } catch (e) {
-    console.warn('[OrderItem][WARN] 이미지 생성/업로드 실패', e);
-  }
-
+  // 1. orderItem 먼저 생성
   const newItem = await prisma.orderItem.create({
     data: {
       order_id,
@@ -63,76 +56,45 @@ export async function addOrderItem(req: Request, res: Response) {
       unit_price,
       item_count,
       item_options,
-      image_url: image_url ?? undefined,
+      // image_url: null (생성 후 업데이트)
     },
   });
 
-  // 노션 동기화: 해당 주문의 전체 order_items와 order/user 정보로 createNotionOrderPage 호출
+  // 2. 이미지 생성 및 업로드 (order_id, order_item_id 넘김)
+  let image_url: string | null = null;
   try {
-    const order = await prisma.order.findUnique({ where: { order_id } });
-    const user = order ? await prisma.user.findUnique({ where: { id: order.user_id } }) : null;
-    const orderItems = await prisma.orderItem.findMany({ where: { order_id } });
-    console.log('[NotionSync][TRACE][orderItemController] Notion sync 분기 진입', {
-      order_id,
-      orderFound: !!order,
-      userFound: !!user,
-      orderItemsCount: orderItems.length,
-      orderItemsSample: orderItems.slice(0, 2)
+    image_url = await generateAndUploadOrderItemImage({
+      order_id: newItem.order_id,
+      order_item_id: newItem.order_item_id,
+      product_type,
+      unit_price,
+      item_count,
+      item_options
     });
-    if (order && user) {
-      let notionService;
-      try {
-        notionService = require("../services/notionService");
-        console.log('[NotionSync][TRACE][orderItemController] notionService require 성공', { keys: Object.keys(notionService) });
-      } catch (e) {
-        console.error('[NotionSync][ERROR][orderItemController] require notionService 실패', e);
-        return;
-      }
-      const createNotionOrderPage = notionService.createNotionOrderPage || notionService.default;
-      if (!createNotionOrderPage) {
-        console.error('[NotionSync][ERROR][orderItemController] createNotionOrderPage is undefined');
-      } else {
-        console.log('[NotionSync][TRACE][orderItemController] createNotionOrderPage 호출 직전', {
-          orderedAt: order.created_at,
-          userRoadAddress: user.user_road_address,
-          userPhone: user.user_phone,
-          recipientPhone: order.recipient_phone,
-          orderType: order.order_type,
-          orderPrice: order.order_price,
-          orderOptions: order.order_options,
-          orderItemsCount: orderItems.length,
-          orderItemsSample: orderItems.slice(0, 2)
-        });
-        await createNotionOrderPage({
-          orderedAt: order.created_at,
-          userRoadAddress: user.user_road_address || "",
-          userPhone: user.user_phone || "",
-          recipientPhone: order.recipient_phone,
-          orderType: order.order_type,
-          orderPrice: order.order_price,
-          orderOptions: order.order_options,
-          orderItems: orderItems.map((item: any) => ({
-            product_type: item.product_type,
-            item_count: item.item_count,
-            unit_price: item.unit_price ?? 0,
-            item_options: item.item_options,
-          })),
-        });
-        console.log('[NotionSync][TRACE][orderItemController] createNotionOrderPage 호출 완료');
-      }
-    }
-  } catch (err) {
-    console.error('[NotionSync][ERROR][orderItemController] Notion sync 전체 실패', err);
+    // 3. image_url 업데이트
+    await prisma.orderItem.update({
+      where: { order_item_id: newItem.order_item_id },
+      data: { image_url }
+    });
+  } catch (e) {
+    console.warn('[OrderItem][WARN] 이미지 생성/업로드 실패', e);
   }
 
+  // 4. 최종 응답
+  const updatedItem = await prisma.orderItem.findUnique({
+    where: { order_item_id: newItem.order_item_id }
+  });
+  if (!updatedItem) {
+    return res.status(404).json({ message: '생성된 주문 아이템을 찾을 수 없습니다.' });
+  }
   return res.status(201).json({
-    order_item_id: newItem.order_item_id,
-    order_id:      newItem.order_id,
-    product_type:  newItem.product_type,
-    unit_price:    newItem.unit_price,
-    item_count:    newItem.item_count,
-    item_options:  newItem.item_options,
-    image_url:     (newItem as any).image_url,
+    order_item_id: updatedItem.order_item_id,
+    order_id:      updatedItem.order_id,
+    product_type:  updatedItem.product_type,
+    unit_price:    updatedItem.unit_price,
+    item_count:    updatedItem.item_count,
+    item_options:  updatedItem.item_options,
+    image_url:     updatedItem.image_url,
   });
 }
 
@@ -142,13 +104,16 @@ export async function updateOrderItem(req: Request, res: Response) {
   if (isNaN(id)) {
     return res.status(400).json({ message: 'order_item_id는 정수여야 합니다' });
   }
-  const { item_options, item_count } = req.body;
+  const { item_options, item_count, image_url } = req.body;
   if (typeof item_options !== 'object') {
     return res.status(400).json({ message: 'item_options는 객체여야 합니다' });
   }
   const updateData: any = { item_options };
   if (typeof item_count === 'number' && item_count > 0) {
     updateData.item_count = item_count;
+  }
+  if (typeof image_url === 'string' && image_url.length > 0) {
+    updateData.image_url = image_url;
   }
   try {
     const updated = await prisma.orderItem.update({

@@ -1,0 +1,18 @@
+<svg width="1200" height="1200" viewBox="0 0 1200 1200" fill="none">
+<rect width="1200" height="1200" fill="white"/>
+<rect x="396" y="196" width="408" height="808" fill="/img/color-png(new)/한솔 테네시월넛.png" stroke="black" stroke-width="8"/>
+<mask id="path-2-outside-1_6_12" maskUnits="userSpaceOnUse" x="756" y="200" width="44" height="800" fill="black">
+<rect fill="white" x="756" y="200" width="44" height="800"/>
+<path d="M760 200H800V1000H760V200Z"/>
+</mask>
+<path d="M760 200H800V1000H760V200Z" fill="#FF0000" fill-opacity="0.2"/>
+<path d="M760 1000H764V200H760H756V1000H760Z" fill="#FF0000" fill-opacity="0.4" mask="url(#path-2-outside-1_6_12)"/>
+<mask id="path-4-outside-2_6_12" maskUnits="userSpaceOnUse" x="400" y="976" width="400" height="24" fill="black">
+<rect fill="white" x="400" y="976" width="400" height="24"/>
+<path d="M400 980H800V1000H400V980Z"/>
+</mask>
+<path d="M400 980H800V1000H400V980Z" fill="#FF0000" fill-opacity="0.2"/>
+<path d="M400 980V984H800V980V976H400V980Z" fill="#FF0000" fill-opacity="0.4" mask="url(#path-4-outside-2_6_12)"/>
+<text x="834" y="600" text-anchor="start" fill="black" style="font-size: 50px; dominant-baseline: middle;">34</text>
+<text x="600" y="1049" text-anchor="middle" fill="black" style="font-size: 50px;">23</text>
+</svg>

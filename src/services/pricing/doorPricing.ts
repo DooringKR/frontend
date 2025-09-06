@@ -1,7 +1,7 @@
 import { getPricingColorName } from "./colorMapping";
 
-// 마진율 (60%)
-const MARGIN = 0.6;
+// 마진율 (0%)
+const MARGIN = 0;
 
 /**
  * 문짝 가격 계산
@@ -9,10 +9,14 @@ const MARGIN = 0.6;
 export function calculateUnitDoorPrice(color: string, width: number, height: number) {
   const originalPrice = calculateOriginalPrice(color);
   const split = calculateSplit(width, height);
-  const unitPrice = Math.round((originalPrice * MARGIN) / split);
-  console.log(originalPrice, split, unitPrice);
 
-  return unitPrice;
+  // 최종 견적 = (original_price / split ) * { 1 + ( margin + 0.1 ) }
+  const unitPrice = (originalPrice / split) * (1 + (MARGIN + 0.1));
+
+  // 백원 단위에서 올림
+  const finalPrice = Math.ceil(unitPrice / 100) * 100;
+
+  return finalPrice;
 }
 
 /**
@@ -43,14 +47,13 @@ function calculateOriginalPrice(color: string): number {
   ];
 
   if (premiumColors.includes(colorName)) {
-    return 90000;
+    return 170000;
   }
-  // 표준 색상 (70,000원)
+  // 표준 색상
   else if (standardColors.includes(colorName)) {
-    return 70000;
+    return 130000;
   } else {
-    // 직접 입력은 25,000원으로 처리
-    return 70000;
+    return 130000;
   }
 }
 
@@ -58,34 +61,63 @@ function calculateOriginalPrice(color: string): number {
  * 분할값 계산
  */
 function calculateSplit(width: number, height: number): number {
-  // width 범위별 분할값 계산
-  if (width >= 1 && width <= 200) {
-    return getSplitByHeight(height, [20, 12, 6]);
-  } else if (width >= 201 && width <= 400) {
-    return getSplitByHeight(height, [10, 6, 3]);
-  } else if (width >= 401 && width <= 600) {
-    return getSplitByHeight(height, [6, 4, 2]);
-  } else if (width >= 601 && width <= 1000) {
-    return getSplitByHeight(height, [3, 2, 1]);
-  } else if (width >= 1001 && width <= 1220) {
-    return 1;
-  } else {
-    // 기본값
-    return 1;
+  // door_width: 1 - 300
+  if (width >= 1 && width <= 300) {
+    if (height >= 1 && height <= 1100) {
+      return 7;
+    } else if (height >= 1101 && height <= 1300) {
+      return 5;
+    } else if (height >= 1301 && height <= 1500) {
+      return 4;
+    } else if (height >= 1501) {
+      return 3;
+    }
   }
-}
+  // door_width: 301 - 400
+  else if (width >= 301 && width <= 400) {
+    if (height >= 1 && height <= 900) {
+      return 6;
+    } else if (height >= 901 && height <= 1100) {
+      return 5;
+    } else if (height >= 1101 && height <= 1300) {
+      return 4;
+    } else if (height >= 1301) {
+      return 3;
+    }
+  }
+  // door_width: 401 - 500
+  else if (width >= 401 && width <= 500) {
+    if (height >= 1 && height <= 900) {
+      return 5;
+    } else if (height >= 901 && height <= 1100) {
+      return 4;
+    } else if (height >= 1101 && height <= 1700) {
+      return 3;
+    } else if (height >= 1701) {
+      return 2;
+    }
+  }
+  // door_width: 501 - 600
+  else if (width >= 501 && width <= 600) {
+    if (height >= 1 && height <= 900) {
+      return 4;
+    } else if (height >= 901 && height <= 1500) {
+      return 3;
+    } else if (height >= 1501) {
+      return 2;
+    }
+  }
+  // door_width: 601 - 1220
+  else if (width >= 601 && width <= 1220) {
+    if (height >= 1 && height <= 900) {
+      return 2;
+    } else if (height >= 901 && height <= 1500) {
+      return 1.5;
+    } else if (height >= 1501) {
+      return 1;
+    }
+  }
 
-/**
- * 높이에 따른 분할값 반환
- */
-function getSplitByHeight(height: number, splits: [number, number, number]): number {
-  if (height >= 1 && height <= 400) {
-    return splits[0];
-  } else if (height >= 401 && height <= 600) {
-    return splits[1];
-  } else if (height >= 601 && height <= 2440) {
-    return splits[2];
-  } else {
-    return splits[2];
-  }
+  // 기본값
+  return 1;
 }

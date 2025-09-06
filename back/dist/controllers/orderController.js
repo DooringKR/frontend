@@ -7,9 +7,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createOrder = createOrder;
 exports.getOrdersByUser = getOrdersByUser;
 exports.getOrderById = getOrderById;
+exports.completeOrder = completeOrder;
 const prismaClient_1 = __importDefault(require("../prismaClient"));
 const notionService_1 = require("../services/notionService");
 // ProductType enum 직접 명시 또는 문자열 비교
+const axios_1 = __importDefault(require("axios"));
 const VALID_SHIPPING_METHODS = ["직접 픽업하러 갈게요", "현장으로 배송해주세요"];
 const VALID_MATERIAL_TYPES = ["문짝", "마감재", "부분장", "하드웨어", "부속", "기타(고객센터 직접 문의)"];
 const NOTION_MATERIAL_TYPE_MAP = {
@@ -40,26 +42,66 @@ async function createOrder(req, res) {
         const user = await prismaClient_1.default.user.findUnique({ where: { id: user_id } });
         if (!user)
             return res.status(404).json({ message: '해당 user_id가 존재하지 않습니다.' });
+        /*
         // 3. cartItems 조회 (cart_id 기반)
-        const cartItems = await prismaClient_1.default.cartItem.findMany({
-            where: { cart_id },
+        const cartItems = await prisma.cartItem.findMany({
+          where: { cart_id },
         });
-        // 4. notionService 호출
-        await (0, notionService_1.createNotionOrderPage)({
-            orderedAt: order.created_at,
-            userRoadAddress: user?.user_road_address || "",
-            userPhone: user?.user_phone || "",
-            recipientPhone: order.recipient_phone,
-            orderType: order.order_type,
-            orderPrice: order.order_price,
-            orderOptions: order.order_options,
-            orderItems: cartItems.map((item) => ({
-                product_type: item.product_type,
-                item_count: item.item_count,
-                unit_price: item.unit_price ?? 0,
-                item_options: item.item_options,
-            })),
-        }).catch(err => console.error("[Notion Sync Error]", err));
+        */
+        // 4. order_items 생성까지 대기 (프론트엔드에서 생성됨)
+        // order_items가 생성될 때까지 대기하는 로직
+        /* let orderItems: {
+          product_type: string;
+          item_count: number;
+          unit_price: number;
+          item_options: any;
+          image_url: string | null;
+        }[] = [];
+        let attempts = 0;
+        const maxAttempts = 60; // 최대 60번 시도 (60초)
+        const waitTime = 1000; // 1초마다 체크
+    
+    
+        while (attempts < maxAttempts) {
+          orderItems = await prisma.orderItem.findMany({
+            where: { order_id: order.order_id },
+            select: {
+              product_type: true,
+              item_count: true,
+              unit_price: true,
+              item_options: true,
+              image_url: true,
+            }
+          });
+    
+          // order_items가 생성되었으면 루프 종료
+          if (orderItems.length > 0) {
+            console.log(`[OrderController] order_items 생성 완료: ${orderItems.length}개`);
+            break;
+          }
+    
+          // 아직 생성되지 않았으면 잠시 대기
+          console.log(`[OrderController] order_items 대기 중... (${attempts + 1}/${maxAttempts})`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+          attempts++;
+        }
+    
+        // order_items가 생성되지 않았으면 경고 로그
+        if (orderItems.length === 0) {
+          console.warn(`[OrderController] order_items 생성 대기 시간 초과 (${maxAttempts}초)`);
+        } */
+        // 5. order_item에서 image_url 포함하여 조회
+        /* const orderItems = await prisma.orderItem.findMany({
+          where: { order_id: order.order_id },
+          select: {
+            product_type: true,
+            item_count: true,
+            unit_price: true,
+            item_options: true,
+            image_url: true,
+          }
+        }); */
+        // 노션 페이지 생성은 별도 API에서 처리
         // 5. 응답
         return res.status(201).json({
             order_id: order.order_id,
@@ -76,6 +118,11 @@ async function createOrder(req, res) {
         console.error("Order creation error:", err.message);
         return res.status(500).json({ message: "서버 내부 오류로 주문을 처리할 수 없습니다." });
     }
+}
+async function sendOrderToAppsScript(order) {
+    const url = 'https://script.google.com/macros/s/AKfycbyb4NLOk4S3q489UFBJChccQfK28H3eSm4RRxwACaUZNFAB97ll3ECMmaNw67hXUCbqFA/exec';
+    // order 객체는 이미 필요한 필드만 포함됨
+    await axios_1.default.post(url, order);
 }
 async function getOrdersByUser(req, res) {
     const user_id = Number(req.query.user_id);
@@ -154,5 +201,47 @@ async function getOrderById(req, res) {
     catch (error) {
         console.error("getOrderById error:", error);
         return res.status(500).json({ message: "서버 내부 오류" });
+    }
+}
+async function completeOrder(req, res) {
+    const { order_id } = req.params;
+    if (!order_id) {
+        return res.status(400).json({ message: "order_id가 필요합니다." });
+    }
+    try {
+        // 주문 정보 조회
+        const order = await prismaClient_1.default.order.findUnique({ where: { order_id } });
+        if (!order) {
+            return res.status(404).json({ message: "해당 주문을 찾을 수 없습니다." });
+        }
+        // 사용자 정보 조회
+        const user = await prismaClient_1.default.user.findUnique({ where: { id: order.user_id } });
+        // order_items 조회
+        const orderItems = await prismaClient_1.default.orderItem.findMany({
+            where: { order_id },
+            select: {
+                product_type: true,
+                item_count: true,
+                unit_price: true,
+                item_options: true,
+                image_url: true,
+            }
+        });
+        // 노션 페이지 생성
+        await (0, notionService_1.createNotionOrderPage)({
+            orderedAt: order.created_at,
+            userRoadAddress: user?.user_road_address || "",
+            userPhone: user?.user_phone || "",
+            recipientPhone: order.recipient_phone,
+            orderType: order.order_type,
+            orderPrice: order.order_price,
+            orderOptions: order.order_options,
+            orderItems: orderItems,
+        });
+        return res.status(200).json({ message: "노션 페이지 생성 완료" });
+    }
+    catch (err) {
+        console.error("[completeOrder] error:", err.message);
+        return res.status(500).json({ message: "노션 페이지 생성 실패" });
     }
 }
