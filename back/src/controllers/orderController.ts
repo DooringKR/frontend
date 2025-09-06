@@ -199,6 +199,15 @@ export async function completeOrder(req: Request, res: Response) {
       orderOptions: order.order_options,
       orderItems: orderItems,
     });
+
+    // 주문 견적서 Apps Script로 전송
+    await sendOrderToAppsScript({
+      created_at: order.created_at,
+      delivery_type: order.order_type,
+      recipient_phone: order.recipient_phone,
+      order_options: order.order_options,
+      order_items: orderItems,
+    });
     return res.status(200).json({ message: "노션 페이지 생성 완료" });
   } catch (err: any) {
     console.error("[completeOrder] error:", err.message);
