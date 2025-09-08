@@ -79,6 +79,15 @@ function RootLayout({
             `,
           }}
         />
+        <script src="https://cdn.amplitude.com/script/1c3c986b6f0e608a2b6d193d238e06c4.js"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.amplitude.add(window.sessionReplay.plugin({sampleRate: 1}));
+              window.amplitude.init('1c3c986b6f0e608a2b6d193d238e06c4', {"fetchRemoteConfig":true,"autocapture":{"attribution":true,"fileDownloads":true,"formInteractions":true,"pageViews":true,"sessions":true,"elementInteractions":true,"networkTracking":true,"webVitals":true,"frustrationInteractions":true}});
+            `,
+          }}
+        />
       </head>
       <body className="min-h-screen bg-gray-100">
         <div className="mx-auto min-h-screen max-w-[460px] bg-white shadow-[0_0_20px_0_rgba(3,7,18,0.10)]">{children}</div>
