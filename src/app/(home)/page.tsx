@@ -58,7 +58,7 @@ export default function Page() {
   useEffect(() => {
     if (!userId) {
       console.log("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
-      router.replace("/login");
+      router.replace("https://landing.baro.dooring.kr/");
     }
   }, [userId, router]);
 
