@@ -200,6 +200,53 @@ function BridgePage() {
             전화 주문
           </div>
         </div>
+  <div className="h-[60px]"></div>
+       {/* 웹 주문 */}
+       <div
+         id="web-start"
+         className="px-4 py-5 cursor-pointer rounded-[12px] bg-white border-4 border-[#BFDBFE] flex flex-col gap-3 items-center"
+         onClick={() => {
+            router.push('/');
+         }}
+       >
+            <div className="text-[17px] leading-[24px] text-center font-pretendard font-semibold text-[#364153]">웹으로 시작하기</div>
+            <div className="flex justify-center items-center gap-2 w-full">
+                <div className="flex justify-center items-center gap-1 rounded-[8px] bg-[#FEF2F2] px-[10px] py-[4px]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
+                      <g clipPath="url(#clip0_2591_11383)">
+                        <path d="M17.874 9.99813C17.874 9.10063 18.6015 8.37313 19.499 8.37313V4.27112C19.499 3.81912 19.1325 3.45312 18.681 3.45312H2.31702C1.86502 3.45312 1.49902 3.81962 1.49902 4.27112V8.37313C2.39652 8.37313 3.12402 9.10063 3.12402 9.99813C3.12402 10.8956 2.39652 11.6231 1.49902 11.6231V15.7251C1.49902 16.1771 1.86552 16.5431 2.31702 16.5431H18.6805C19.1325 16.5431 19.4985 16.1766 19.4985 15.7251V11.6231C18.601 11.6231 17.874 10.8956 17.874 9.99813Z" fill="#F56570"/>
+                        <path d="M13.254 8.97266L11.3515 8.69616L10.501 6.97266L9.65055 8.69616L7.74805 8.97266L9.12455 10.3147L8.79955 12.2092L10.501 11.3147L12.2025 12.2092L11.8775 10.3147L13.254 8.97266Z" fill="#E32939"/>
+                      </g>
+                      <defs>
+                        <clipPath id="clip0_2591_11383">
+                          <rect width="20" height="20" fill="white" transform="translate(0.5)"/>
+                        </clipPath>
+                      </defs>
+                    </svg>
+                    <div className="text-center font-pretendard font-medium text-[#EF4444] text-[14px] leading-[20px]">첫 주문 50% 할인</div>
+                </div>
+                <div className="flex justify-center items-center gap-1 rounded-[8px] bg-[#EFF6FF] px-[10px] py-[4px]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
+                      <g clipPath="url(#clip0_2591_11389)">
+                        <path d="M9.60935 17.3057C10.1504 17.6632 10.8489 17.6632 11.3899 17.3057C13.1074 16.1707 16.8504 13.4597 18.4619 10.4252C20.5874 6.42219 18.0914 2.42969 14.7929 2.42969C12.9124 2.42969 11.7809 3.41219 11.1554 4.25669C10.8259 4.70169 10.1744 4.70169 9.84435 4.25669C9.21885 3.41219 8.08735 2.42969 6.20685 2.42969C2.90835 2.42969 0.412351 6.42219 2.53785 10.4252C4.14885 13.4592 7.89185 16.1707 9.60935 17.3057Z" fill="#1E6EF4"/>
+                      </g>
+                      <defs>
+                        <clipPath id="clip0_2591_11389">
+                          <rect width="20" height="20" fill="white" transform="translate(0.5)"/>
+                        </clipPath>
+                      </defs>
+                    </svg>
+                    <div className="text-center font-pretendard font-medium text-[#3B82F6] text-[14px] leading-[20px]">인기</div>
+                </div>
+            </div>
+       </div>
+  <div className="h-5"></div>
+    {/* 전화 주문 */}
+    <div className="flex flex-col justify-center items-center gap-[10px] w-full rounded-[12px] bg-white px-4 py-3">
+      <div className="w-full text-center font-pretendard font-semibold text-[#364153] text-[17px] leading-[24px] cursor-pointer" onClick={() => {
+        window.open("tel:010-9440-1874", "_blank");
+      }}>전화 주문</div>
+    </div>
       </div>
     </>
   );
