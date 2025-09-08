@@ -1,4 +1,4 @@
-export const formatDate = (dateString: string) => {
+export const formatDate = (dateString: string, includeTime: boolean = false) => {
     const date = new Date(dateString);
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
@@ -6,7 +6,19 @@ export const formatDate = (dateString: string) => {
     const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
     const weekday = weekdays[date.getDay()];
 
-    return `${year}년 ${month}월 ${day}일 (${weekday})`;
+    const baseFormat = `${year}년 ${month}월 ${day}일 (${weekday})`;
+
+    if (!includeTime) {
+        return baseFormat;
+    }
+
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const ampm = hours >= 12 ? '오후' : '오전';
+    const displayHours = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours;
+    const displayMinutes = minutes.toString().padStart(2, '0');
+
+    return `${baseFormat} ${ampm} ${displayHours}시 ${displayMinutes}분`;
 };
 
 export const formatPrice = (price: number) => {

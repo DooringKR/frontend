@@ -17,7 +17,9 @@ interface Order {
     order_price: number;
     order_options: any;
     created_at: string;
-    cart_items: OrderItem[];
+    order_items: OrderItem[];
+    // firstItem?: OrderItem;
+    // itemCount: number;
 }
 
 interface OrderHistoryResponse {
@@ -62,6 +64,44 @@ export const useOrderHistory = () => {
 
                 const data: OrderHistoryResponse = await response.json();
                 console.log("✅ 주문 내역 데이터:", data);
+
+                // // 각 주문에 대해 첫 번째 상품과 상품 개수 정보 추가
+                // const ordersWithDetails = await Promise.all(
+                //     (data.orders || []).map(async (order) => {
+                //         try {
+                //             // 특정 주문의 상세 정보 가져오기
+                //             const detailResponse = await fetch(`/api/order/${order.order_id}`);
+
+                //             if (detailResponse.ok) {
+                //                 const detailData = await detailResponse.json();
+                //                 const orderItems = detailData.order_items || [];
+
+                //                 return {
+                //                     ...order,
+                //                     firstItem: orderItems[0], // 첫 번째 상품
+                //                     itemCount: orderItems.length, // 상품 개수
+                //                 };
+                //             } else {
+                //                 console.warn(`⚠️ 주문 ${order.order_id} 상세 정보 조회 실패`);
+                //                 return {
+                //                     ...order,
+                //                     firstItem: order.cart_items?.[0], // 기존 데이터 사용
+                //                     itemCount: order.cart_items?.length || 0,
+                //                 };
+                //             }
+                //         } catch (error) {
+                //             console.error(`💥 주문 ${order.order_id} 상세 정보 조회 에러:`, error);
+                //             return {
+                //                     ...order,
+                //                     firstItem: order.cart_items?.[0], // 기존 데이터 사용
+                //                     itemCount: order.cart_items?.length || 0,
+                //                 };
+                //             }
+                //         })
+                //     )
+                // );
+
+                // setOrders(ordersWithDetails);
                 setOrders(data.orders || []);
             } catch (err) {
                 console.error("💥 주문 내역 조회 에러:", err);

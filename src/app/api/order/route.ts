@@ -25,7 +25,7 @@ interface OrderHistoryResponse {
 }
 
 async function createOrderInBackend(orderData: CreateOrderPayload) {
-  console.log("📦 백엔드에서 주문 생성 요청:", orderData);
+  // console.log("📦 백엔드에서 주문 생성 요청:", orderData); // [DEBUG 주석처리]
 
   try {
     const response = await fetch(`https://dooring-backend.onrender.com/order`, {
@@ -35,16 +35,16 @@ async function createOrderInBackend(orderData: CreateOrderPayload) {
       credentials: 'include',
     });
 
-    console.log("📡 백엔드 응답 상태:", response.status, response.statusText);
+  // console.log("📡 백엔드 응답 상태:", response.status, response.statusText); // [DEBUG 주석처리]
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("❌ 백엔드 주문 생성 실패:", response.status, response.statusText, errorText);
+  // console.error("❌ 백엔드 주문 생성 실패:", response.status, response.statusText, errorText); // [DEBUG 주석처리]
       throw new Error(`주문 생성 실패: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
-    console.log("✅ 백엔드 주문 생성 성공:", data);
+  // console.log("✅ 백엔드 주문 생성 성공:", data); // [DEBUG 주석처리]
 
     return data;
   } catch (error) {
@@ -66,17 +66,17 @@ async function getOrderHistoryFromBackend(userId: number) {
       credentials: 'include',
     });
 
-    console.log("📡 백엔드 응답 상태:", response.status, response.statusText);
-    console.log("📡 백엔드 응답 헤더:", Object.fromEntries(response.headers.entries()));
+  // console.log("📡 백엔드 응답 상태:", response.status, response.statusText); // [DEBUG 주석처리]
+  // console.log("📡 백엔드 응답 헤더:", Object.fromEntries(response.headers.entries())); // [DEBUG 주석처리]
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("❌ 백엔드 주문 내역 조회 실패:", response.status, response.statusText, errorText);
+  // console.error("❌ 백엔드 주문 내역 조회 실패:", response.status, response.statusText, errorText); // [DEBUG 주석처리]
       throw new Error(`주문 내역 조회 실패: ${response.status} ${response.statusText} - ${errorText}`);
     }
 
     const data = await response.json();
-    console.log("✅ 백엔드 주문 내역 조회 성공:", data);
+  // console.log("✅ 백엔드 주문 내역 조회 성공:", data); // [DEBUG 주석처리]
 
     return data;
   } catch (error) {
@@ -91,7 +91,7 @@ async function getOrderHistoryFromBackend(userId: number) {
 }
 
 export async function GET(request: Request) {
-  console.log("🚀 /api/order GET 요청 시작");
+  // console.log("🚀 /api/order GET 요청 시작"); // [DEBUG 주석처리]
   console.log("🔍 요청 URL:", request.url);
 
   try {
@@ -100,7 +100,7 @@ export async function GET(request: Request) {
     console.log("🔍 추출된 user_id:", userId);
 
     if (!userId) {
-      console.log("❌ user_id 파라미터가 없음");
+  // console.log("❌ user_id 파라미터가 없음"); // [DEBUG 주석처리]
       return NextResponse.json(
         { error: 'user_id 파라미터가 필요합니다.' },
         { status: 400 }
@@ -111,7 +111,7 @@ export async function GET(request: Request) {
     console.log("🔍 파싱된 userIdNumber:", userIdNumber);
 
     if (isNaN(userIdNumber)) {
-      console.log("❌ 유효하지 않은 user_id");
+  // console.log("❌ 유효하지 않은 user_id"); // [DEBUG 주석처리]
       return NextResponse.json(
         { error: '유효하지 않은 user_id입니다.' },
         { status: 400 }
@@ -121,7 +121,7 @@ export async function GET(request: Request) {
     console.log("👤 사용자 ID:", userIdNumber);
     console.log("🔄 getOrderHistoryFromBackend 함수 호출 시작");
     const orderHistory = await getOrderHistoryFromBackend(userIdNumber);
-    console.log("🎉 주문 내역 조회 완료:", orderHistory);
+  // console.log("🎉 주문 내역 조회 완료:", orderHistory); // [DEBUG 주석처리]
 
     return NextResponse.json(orderHistory);
   } catch (error) {
@@ -134,14 +134,14 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  console.log("🚀 /api/order POST 요청 시작");
+  // console.log("🚀 /api/order POST 요청 시작"); // [DEBUG 주석처리]
 
   try {
     const body = await request.json();
-    console.log("📝 요청 바디:", body);
+  // console.log("📝 요청 바디:", body); // [DEBUG 주석처리]
 
     const orderData = await createOrderInBackend(body);
-    console.log("🎉 주문 생성 완료:", orderData);
+  // console.log("🎉 주문 생성 완료:", orderData); // [DEBUG 주석처리]
 
     return NextResponse.json(orderData);
   } catch (error) {

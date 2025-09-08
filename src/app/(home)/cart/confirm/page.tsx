@@ -5,6 +5,7 @@ import {
   ACCESSORY_CATEGORY_LIST,
   CABINET_CATEGORY_LIST,
   DOOR_CATEGORY_LIST,
+  FINISH_CATEGORY_LIST,
   HARDWARE_CATEGORY_LIST,
 } from "@/constants/category";
 import {
@@ -29,6 +30,7 @@ import { getCategoryLabel } from "@/utils/getCategoryLabel";
 
 import PickUpAddressCard from "../pickup/_components/PickUpAddressCard";
 import OrderConfirmCard from "./_components/OrderConfirmCard";
+import formatLocation from "@/utils/formatLocation";
 
 export default function OrderConfirmPage() {
   const router = useRouter();
@@ -234,17 +236,38 @@ export default function OrderConfirmPage() {
                     if (category === "door") {
                       const doorItem = item as DoorItem;
 
+                      // hinge_count에 따라 boring 배열 동적 생성
+                      const boringArray = [];
+                      for (let i = 0; i < doorItem.hinge_count; i++) {
+                        switch (i) {
+                          case 0:
+                            boringArray.push(doorItem.first_hinge ?? null);
+                            break;
+                          case 1:
+                            boringArray.push(doorItem.second_hinge ?? null);
+                            break;
+                          case 2:
+                            boringArray.push(doorItem.third_hinge ?? null);
+                            break;
+                          case 3:
+                            boringArray.push(doorItem.fourth_hinge ?? null);
+                            break;
+                          default:
+                            boringArray.push(null);
+                        }
+                      }
                       return (
                         <OrderConfirmCard
                           key={key}
                           type="door"
-                          title={getCategoryLabel(doorItem.doorType, DOOR_CATEGORY_LIST, "문짝")}
-                          color={formatColor(doorItem.color)}
-                          width={Number(doorItem.width)}
-                          height={Number(doorItem.height)}
-                          hingeCount={doorItem.hingeCount > 0 ? doorItem.hingeCount : undefined}
-                          hingeDirection={formatBoringDirection(doorItem.hingeDirection)}
-                          boring={doorItem.boring}
+                          title={getCategoryLabel(doorItem.door_type, DOOR_CATEGORY_LIST, "문짝")}
+                          color={formatColor(doorItem.door_color)}
+                          width={Number(doorItem.door_width)}
+                          height={Number(doorItem.door_height)}
+                          hingeCount={doorItem.hinge_count > 0 ? doorItem.hinge_count : undefined}
+                          hingeDirection={formatBoringDirection(doorItem.hinge_direction)}
+                          boring={boringArray}
+                          location={doorItem.door_location ?? ""}
                           quantity={doorItem.count}
                           price={item.price}
                         />
@@ -258,13 +281,15 @@ export default function OrderConfirmPage() {
                         <OrderConfirmCard
                           key={key}
                           type="finish"
-                          title="마감재"
-                          color={formatColor(finishItem.color)}
-                          depth={finishItem.baseDepth ?? undefined}
-                          depthIncrease={finishItem.additionalDepth ?? undefined}
-                          height={finishItem.baseHeight ?? undefined}
-                          heightIncrease={finishItem.additionalHeight ?? undefined}
-                          request={finishItem.finishRequest ?? undefined}
+                          title={FINISH_CATEGORY_LIST.find(item => item.slug === finishItem.finish_category.toLowerCase())?.header ?? ""}
+                          color={formatColor(finishItem.finish_color)}
+                          edgeCount={finishItem.finish_edge_count ?? undefined}
+                          depth={finishItem.finish_base_depth ?? undefined}
+                          depthIncrease={finishItem.finish_additional_depth ?? undefined}
+                          height={finishItem.finish_base_height ?? undefined}
+                          heightIncrease={finishItem.finish_additional_height ?? undefined}
+                          request={finishItem.finish_request ?? undefined}
+                          location={finishItem.finish_location ?? ""}
                           quantity={finishItem.count ?? 0}
                           price={item.price}
                         />
@@ -279,21 +304,22 @@ export default function OrderConfirmPage() {
                           key={key}
                           type="cabinet"
                           title={getCategoryLabel(
-                            cabinetItem.cabinetType,
+                            cabinetItem.cabinet_type,
                             CABINET_CATEGORY_LIST,
                             "부분장",
                           )}
-                          color={formatColor(cabinetItem.color ?? "")}
-                          width={Number(cabinetItem.width ?? 0)}
-                          height={Number(cabinetItem.height ?? 0)}
-                          depth={Number(cabinetItem.depth ?? 0)}
-                          bodyMaterial={cabinetItem.bodyMaterial ?? ""}
-                          handleType={cabinetItem.handleType ?? ""}
-                          finishType={cabinetItem.finishType ?? ""}
-                          showBar={cabinetItem.showBar ?? ""}
-                          drawerType={cabinetItem.drawerType ?? ""}
-                          railType={cabinetItem.railType ?? ""}
-                          request={cabinetItem.request ?? ""}
+                          color={formatColor(cabinetItem.cabinet_color ?? "")}
+                          width={Number(cabinetItem.cabinet_width ?? 0)}
+                          height={Number(cabinetItem.cabinet_height ?? 0)}
+                          depth={Number(cabinetItem.cabinet_depth ?? 0)}
+                          bodyMaterial={cabinetItem.body_type ?? ""}
+                          handleType={cabinetItem.handle_type ?? ""}
+                          finishType={cabinetItem.finish_type ?? ""}
+                          showBar={cabinetItem.absorber_type ?? ""}
+                          drawerType={cabinetItem.drawer_type ?? ""}
+                          railType={cabinetItem.rail_type ?? ""}
+                          request={cabinetItem.cabinet_request ?? ""}
+                          location={cabinetItem.cabinet_location ?? ""}
                           quantity={cabinetItem.count ?? 0}
                           price={item.price}
                         />
@@ -308,15 +334,14 @@ export default function OrderConfirmPage() {
                           key={key}
                           type="accessory"
                           title={getCategoryLabel(
-                            accessoryItem.accessoryType,
+                            accessoryItem.accessory_type,
                             ACCESSORY_CATEGORY_LIST,
                             "부속",
                           )}
-                          manufacturer={accessoryItem.manufacturer}
-                          modelName={accessoryItem.modelName}
-                          size={accessoryItem.size}
+                          manufacturer={accessoryItem.accessory_madeby}
+                          modelName={accessoryItem.accessory_model}
                           quantity={accessoryItem.count}
-                          request={accessoryItem.accessoryRequest ?? undefined}
+                          request={accessoryItem.accessory_request ?? undefined}
                           // price={item.price}
                           price={"별도 견적"}
                         />
@@ -330,13 +355,13 @@ export default function OrderConfirmPage() {
                           key={key}
                           type="hardware"
                           title={getCategoryLabel(
-                            hardwareItem.hardwareType,
+                            hardwareItem.hardware_type,
                             HARDWARE_CATEGORY_LIST,
                             "하드웨어",
                           )}
-                          manufacturer={hardwareItem.madeBy}
-                          size={hardwareItem.size ? `${hardwareItem.size}mm` : ""}
-                          request={hardwareItem.hardwareRequest ?? ""}
+                          manufacturer={hardwareItem.hardware_madeby}
+                          size={hardwareItem.hardware_size ? `${hardwareItem.hardware_size}mm` : ""}
+                          request={hardwareItem.hardware_request ?? ""}
                           quantity={hardwareItem.count}
                           // price={item.price}
                           price={"별도 견적"}

@@ -39,7 +39,7 @@ export interface CreateOrderResponse {
 }
 
 export async function createOrder(payload: CreateOrderPayload): Promise<CreateOrderResponse> {
-  console.log("주문 생성 API 호출:", payload);
+  console.log("주문 생성 API 호출:", payload); // [DEBUG 복원]
 
   const res = await fetch(`/api/order`, {
     method: "POST",
@@ -64,7 +64,7 @@ export const createOrderItem = async (itemPayload: {
   item_count: number;
   item_options: any;
 }) => {
-  console.log("📦 order_item 요청 보냄:", itemPayload);
+  console.log("📦 order_item 요청 보냄:", itemPayload); // [DEBUG 복원]
 
   const res = await fetch(`/api/order_item`, {
     method: "POST",
@@ -73,12 +73,27 @@ export const createOrderItem = async (itemPayload: {
   });
 
   if (!res.ok) {
-    console.error("❌ order_item 생성 실패:", await res.text());
+  console.error("❌ order_item 생성 실패:", await res.text()); // [DEBUG 복원]
     throw new Error("order_item 생성 실패");
   }
 
   const data = await res.json();
-  console.log("✅ order_item 생성 성공:", data);
-
+  console.log("✅ order_item 생성 성공:", data); // [DEBUG 복원]
   return data;
 };
+
+export async function completeOrder(orderId: string) {
+  console.log("[completeOrder] 호출: /api/order/" + orderId + "/complete");
+  const res = await fetch(`/api/order/${orderId}/complete`, {
+    method: "POST",
+  });
+  console.log("[completeOrder] 응답 상태:", res.status, res.statusText);
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error("[completeOrder] 실패:", errorText);
+    throw new Error(`노션 동기화 실패: ${res.status} ${errorText}`);
+  }
+  const data = await res.json();
+  console.log("[completeOrder] 성공 응답:", data);
+  return data;
+}

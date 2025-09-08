@@ -1,6 +1,7 @@
 import React from "react";
 
 import formatBoring from "@/utils/formatBoring";
+import formatLocation from "@/utils/formatLocation";
 import formatSize from "@/utils/formatSize";
 
 import Button from "../Button/Button";
@@ -15,6 +16,7 @@ interface ShoppingCartCardProps {
   width?: number;
   height?: number;
   depth?: number;
+  edgeCount?: number;
   hingeCount?: number;
   hingeDirection?: string;
   boring?: string | (number | null)[];
@@ -23,6 +25,7 @@ interface ShoppingCartCardProps {
   trashable: boolean;
   showQuantitySelector?: boolean;
   request?: string;
+  location?: string;
   onOptionClick?: () => void;
   onDecrease?: () => void;
   onIncrease?: () => void;
@@ -49,6 +52,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   width,
   height,
   depth,
+  edgeCount,
   hingeCount,
   hingeDirection,
   boring,
@@ -57,6 +61,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   trashable,
   showQuantitySelector,
   request,
+  location,
   onOptionClick,
   onDecrease,
   onIncrease,
@@ -97,19 +102,29 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
                   : `세로 길이 : ${formatSize(height.toString())}`}
               </div>
             )}
-            {heightIncrease && <div>⤷ 높이 키우기 : {formatSize(heightIncrease.toString())}</div>}
-            {heightIncrease && (
-              <div>
-                ⤷ 합산 높이 : {formatSize((Number(height) + Number(heightIncrease)).toString())}
-              </div>
+            {heightIncrease !== undefined && heightIncrease !== null && heightIncrease > 0 && (
+              <>
+                <div>⤷ 높이 키우기 : {formatSize(heightIncrease.toString())}</div>
+                {height && (
+                  <div>
+                    ⤷ 합산 높이 : {formatSize((Number(height) + Number(heightIncrease)).toString())}
+                  </div>
+                )}
+              </>
             )}
+
             {depth && <div>깊이 : {formatSize(depth.toString())}</div>}
-            {depthIncrease && <div>⤷ 깊이 키우기 : {formatSize(depthIncrease.toString())}</div>}
-            {depthIncrease && (
-              <div>
-                ⤷ 합산 깊이 : {formatSize((Number(depth) + Number(depthIncrease)).toString())}
-              </div>
+            {depthIncrease !== undefined && depthIncrease !== null && depthIncrease > 0 && (
+              <>
+                <div>⤷ 깊이 키우기 : {formatSize(depthIncrease.toString())}</div>
+                {depth && (
+                  <div>
+                    ⤷ 합산 깊이 : {formatSize((Number(depth) + Number(depthIncrease)).toString())}
+                  </div>
+                )}
+              </>
             )}
+            {edgeCount && <div>엣지 면 수 : {edgeCount}면</div>}
             {hingeCount && <div>경첩 개수 : {hingeCount}개</div>}
             {hingeDirection && <div>경첩 방향 : {hingeDirection}</div>}
             {boring && (
@@ -128,6 +143,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
             {modelName && <div>모델명 : {modelName}</div>}
             {size && <div>사이즈 : {size}</div>}
             {request && <div>제작 시 요청 사항 : {request}</div>}
+            {location && <div>용도 ∙ 장소 : {formatLocation(location)}</div>}
           </div>
         </div>
         {type === "door" && (title === "플랩문" || title === "일반문") && hingeCount && (

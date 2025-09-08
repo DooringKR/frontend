@@ -2,9 +2,10 @@
 
 import { Request, Response } from 'express';
 import prisma from '../prismaClient';
-import { ProductType } from '@prisma/client';
+// ProductType enum 직접 명시
+import { generateAndUploadOrderItemImage } from '../services/imageService';
 
-const VALID_PRODUCT_TYPES = Object.values(ProductType);
+const VALID_PRODUCT_TYPES = ["DOOR", "FINISH", "CABINET", "HARDWARE", "ACCESSORY"];
 
 // GET /order_item/:order_item_id — 특정 주문 아이템 조회
 export async function getOrderItem(req: Request, res: Response) {
@@ -27,11 +28,14 @@ export async function getOrderItem(req: Request, res: Response) {
     unit_price:    item.unit_price,
     item_count:    item.item_count,
     item_options:  item.item_options,
+    image_url:     item.image_url,
   });
 }
 
 // POST /order_item — 주문에 아이템 추가
 export async function addOrderItem(req: Request, res: Response) {
+  console.log('[NotionSync][TRACE][orderItemController] addOrderItem 함수 진입', { body: req.body });
+  // ...existing code...
   const { order_id, product_type, unit_price, item_count, item_options } = req.body;
   if (
     !order_id ||
@@ -43,17 +47,54 @@ export async function addOrderItem(req: Request, res: Response) {
     return res.status(400).json({ message: '잘못된 요청입니다' });
   }
 
+
+  // 1. orderItem 먼저 생성
   const newItem = await prisma.orderItem.create({
-    data: { order_id, product_type, unit_price, item_count, item_options },
+    data: {
+      order_id,
+      product_type,
+      unit_price,
+      item_count,
+      item_options,
+      // image_url: null (생성 후 업데이트)
+    },
   });
 
+  // 2. 이미지 생성 및 업로드 (order_id, order_item_id 넘김)
+  let image_url: string | null = null;
+  try {
+    image_url = await generateAndUploadOrderItemImage({
+      order_id: newItem.order_id,
+      order_item_id: newItem.order_item_id,
+      product_type,
+      unit_price,
+      item_count,
+      item_options
+    });
+    // 3. image_url 업데이트
+    await prisma.orderItem.update({
+      where: { order_item_id: newItem.order_item_id },
+      data: { image_url }
+    });
+  } catch (e) {
+    console.warn('[OrderItem][WARN] 이미지 생성/업로드 실패', e);
+  }
+
+  // 4. 최종 응답
+  const updatedItem = await prisma.orderItem.findUnique({
+    where: { order_item_id: newItem.order_item_id }
+  });
+  if (!updatedItem) {
+    return res.status(404).json({ message: '생성된 주문 아이템을 찾을 수 없습니다.' });
+  }
   return res.status(201).json({
-    order_item_id: newItem.order_item_id,
-    order_id:      newItem.order_id,
-    product_type:  newItem.product_type,
-    unit_price:    newItem.unit_price,
-    item_count:    newItem.item_count,
-    item_options:  newItem.item_options,
+    order_item_id: updatedItem.order_item_id,
+    order_id:      updatedItem.order_id,
+    product_type:  updatedItem.product_type,
+    unit_price:    updatedItem.unit_price,
+    item_count:    updatedItem.item_count,
+    item_options:  updatedItem.item_options,
+    image_url:     updatedItem.image_url,
   });
 }
 
@@ -63,13 +104,16 @@ export async function updateOrderItem(req: Request, res: Response) {
   if (isNaN(id)) {
     return res.status(400).json({ message: 'order_item_id는 정수여야 합니다' });
   }
-  const { item_options, item_count } = req.body;
+  const { item_options, item_count, image_url } = req.body;
   if (typeof item_options !== 'object') {
     return res.status(400).json({ message: 'item_options는 객체여야 합니다' });
   }
   const updateData: any = { item_options };
   if (typeof item_count === 'number' && item_count > 0) {
     updateData.item_count = item_count;
+  }
+  if (typeof image_url === 'string' && image_url.length > 0) {
+    updateData.image_url = image_url;
   }
   try {
     const updated = await prisma.orderItem.update({

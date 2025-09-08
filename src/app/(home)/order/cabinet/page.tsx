@@ -19,6 +19,8 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { CabinetCart, useSingleCartStore } from "@/store/singleCartStore";
 
+import formatLocation from "@/utils/formatLocation";
+
 import DrawerCabinetForm from "./_components/DrawerCabinetForm";
 import FlapCabinetForm from "./_components/FlapCabinetForm";
 import LowerCabinetForm from "./_components/LowerCabinetForm";
@@ -82,6 +84,8 @@ type DrawerCabinetFormProps = CabinetFormProps & {
   drawerType: string;
   railType: string;
   finishType: string;
+  handleType: string;
+  setHandleType: (value: string) => void;
   setDrawerType: (value: string) => void;
   setRailType: (value: string) => void;
   setFinishType: (value: string) => void;
@@ -147,10 +151,14 @@ function CabinetPageContent() {
   const [lowerDrawer, setLowerDrawer] = useState(
     (useSingleCartStore.getState().cart as CabinetCart).lowerDrawer ?? "",
   );
+  const [cabinet_location, setCabinetLocation] = useState(
+    (useSingleCartStore.getState().cart as CabinetCart).cabinet_location ?? "",
+  );
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const [isShowBarSheetOpen, setIsShowBarSheetOpen] = useState(false);
   const [isDrawerTypeSheetOpen, setIsDrawerTypeSheetOpen] = useState(false);
   const [isRailTypeSheetOpen, setIsRailTypeSheetOpen] = useState(false);
+  const [isCabinetLocationSheetOpen, setIsCabinetLocationSheetOpen] = useState(false);
 
   // 유효성 검사 훅 사용
   const { widthError, heightError, depthError, isFormValid } = useCabinetValidation({
@@ -208,9 +216,11 @@ function CabinetPageContent() {
     drawerType,
     railType,
     finishType,
+    handleType,
     setDrawerType,
     setRailType,
     setFinishType,
+    setHandleType,
     isDrawerTypeSheetOpen,
     setIsDrawerTypeSheetOpen,
     isRailTypeSheetOpen,
@@ -234,7 +244,7 @@ function CabinetPageContent() {
       button1Disabled || bodyMaterial === "" || !handleType || !finishType || !showBar;
   } else if (category === "drawer") {
     button1Disabled =
-      button1Disabled || bodyMaterial === "" || !drawerType || !railType || !finishType;
+      button1Disabled || bodyMaterial === "" || !drawerType || !railType || !finishType || !handleType;
   } else if (category === "open") {
     button1Disabled =
       button1Disabled || bodyMaterial === "" || !riceRail || !lowerDrawer || !finishType;
@@ -256,6 +266,22 @@ function CabinetPageContent() {
         drawerFormProps,
         openCabinetFormProps,
       )}
+      <div className="h-5" />
+      <div className="px-5">
+        <BoxedSelect
+          label="용도 ∙ 장소"
+          options={[]}
+          value={cabinet_location ? formatLocation(cabinet_location) : ""}
+          onClick={() => setIsCabinetLocationSheetOpen(true)}
+          onChange={() => { }}
+        />
+        <CabinetLocationSheet
+          isOpen={isCabinetLocationSheetOpen}
+          onClose={() => setIsCabinetLocationSheetOpen(false)}
+          value={cabinet_location}
+          onChange={setCabinetLocation}
+        />
+      </div>
       <div className="h-5" />
       <BodyMaterialManualInputSheet
         isOpen={isBottomSheetOpen}
@@ -285,7 +311,8 @@ function CabinetPageContent() {
       {!isBottomSheetOpen &&
         !isShowBarSheetOpen &&
         !isDrawerTypeSheetOpen &&
-        !isRailTypeSheetOpen && (
+        !isRailTypeSheetOpen &&
+        !isCabinetLocationSheetOpen && (
           <BottomButton
             type={"1button"}
             button1Text={"다음"}
@@ -310,6 +337,7 @@ function CabinetPageContent() {
                   railType,
                   riceRail,
                   lowerDrawer,
+                  cabinet_location,
                 },
               }));
               router.push(`/order/cabinet/confirm`);
@@ -697,6 +725,59 @@ function CabinetPage() {
     <React.Suspense fallback={<div>로딩 중...</div>}>
       <CabinetPageContent />
     </React.Suspense>
+  );
+}
+
+// 용도 및 장소 선택 시트 컴포넌트
+function CabinetLocationSheet({
+  isOpen,
+  onClose,
+  value,
+  onChange,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const options = [
+    { value: "KITCHEN", label: "주방" },
+    { value: "SHOES", label: "신발장" },
+    { value: "BUILT_IN", label: "붙박이장" },
+    { value: "BALCONY", label: "발코니 창고문" },
+    { value: "ETC", label: "기타 수납장" },
+  ];
+
+  return (
+    <BottomSheet
+      isOpen={isOpen}
+      title="용도 및 장소를 선택해주세요"
+      contentPadding="px-1"
+      children={
+        <div>
+          <div>
+            {options.map(option => (
+              <SelectToggleButton
+                key={option.value}
+                label={option.label}
+                checked={value === option.value}
+                onClick={() => onChange(option.value)}
+              />
+            ))}
+            <div className="p-5">
+              <Button
+                type="Brand"
+                text="다음"
+                onClick={() => {
+                  onClose();
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      }
+      onClose={onClose}
+    />
   );
 }
 

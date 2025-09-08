@@ -2,8 +2,7 @@
 
 import { Client } from "@notionhq/client";
 import { CreatePageParameters } from "@notionhq/client/build/src/api-endpoints";
-import { ProductType } from "@prisma/client";
-
+// ProductType enum 직접 명시 또는 문자열 비교
 // 환경 변수
 const NOTION_TOKEN = process.env.NOTION_TOKEN!;
 const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID!;
@@ -75,7 +74,7 @@ export interface NotionOrderPayload {
   orderPrice: number;
   orderOptions: any; // { ... } delivery/pick_up 옵션 구조
   orderItems: {
-    product_type: ProductType;
+  product_type: string;
     // product_detail: string; // 옵션에 세부종류 필요시 추가
     item_count: number;
     unit_price: number;
@@ -83,7 +82,7 @@ export interface NotionOrderPayload {
   }[];
 }
 
-const PRODUCT_TYPE_LABEL: Record<ProductType, string> = {
+const PRODUCT_TYPE_LABEL: Record<string, string> = {
   DOOR: "문짝",
   FINISH: "마감재",
   CABINET: "부분장",
@@ -101,6 +100,9 @@ const VALID_GAGU_TYPES = Object.values(PRODUCT_TYPE_LABEL); // = ["문짝", "마
 const VALID_SHIPPING_METHODS = ["직접 픽업하러 갈게요", "현장으로 배송해주세요"];
 
 export async function createNotionOrderPage(payload: NotionOrderPayload) {
+  // orderItems 배열 데이터 구조 점검용 로그
+  console.log('[NotionSync][DEBUG] orderItems:', JSON.stringify(payload.orderItems, null, 2));
+  // ...existing code...
   // 1. 제목: user_road_address 두 어절만 파싱
   const title =
     (payload.userRoadAddress || "")
@@ -181,44 +183,160 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
 받는 분 휴대전화 번호: ${payload.recipientPhone}
 배송 방법: ${shippingMethod}
 ${interpretOptions(payload.orderOptions, payload.orderType)}
-`
-        }},
+` } } as any
       ],
     },
   };
 
-  // 2. 가구정보 블록
-  const furnitureBlocks: any[] = payload.orderItems.map((item, i) => {
-  const optionStr =
-    item.item_options && Object.keys(item.item_options).length > 0
-      ? Object.entries(item.item_options)
-          .map(([k, v]) => {
-            const label = DETAIL_KEY_LABEL_MAP[k] || k;
-            return `${label}: ${v ?? "-"}\n`;
-          })
-          .join(" | ")
-      : "-";
-  const total = (item.unit_price ?? 0) * item.item_count;
-  const textContent = 
-  `${i + 1}. [${PRODUCT_TYPE_LABEL[item.product_type]}]
-- 세부종류: \n${optionStr}
-- 개수: ${item.item_count}
-- 단가: ${item.unit_price?.toLocaleString() ?? "-"}원
-- 총 금액: ${total?.toLocaleString() ?? "-"}원
-`;
-  
-  return {
-    object: "block",
-    type: "callout",
-    callout: {
-      rich_text: [
-        { type: "text", text: { content: textContent } }
-      ],
-    }
-  };
-});
+  // 2. 가구정보 블록 (비동기: SVG→PNG→S3→image)
+  const { JSDOM } = require('jsdom');
+  const sharp = require('sharp');
+  // 이미지 저장 함수: public/images에 저장하고 URL 반환
+  const fs = require('fs');
+  const path = require('path');
+  async function saveImageLocally(buffer: Buffer, filename: string): Promise<string> {
+  // 이미지 저장 경로를 백엔드의 public/images 폴더로 지정
+  const imagesDir = path.join(__dirname, '../public/images');
+  if (!fs.existsSync(imagesDir)) fs.mkdirSync(imagesDir, { recursive: true });
+  const filePath = path.join(imagesDir, filename);
+  await fs.promises.writeFile(filePath, buffer);
+  // Express static middleware serves /images/* from public/images
+  return `/images/${filename}`;
+  }
+  // SVG 생성 함수 import (Node.js 호환 버전 필요)
+  const { genCabinetSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genCabinet'));
+  const { genGeneralDoorSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genGeneral'));
+  const { genFlapSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genFlap'));
+  const { genMaedaDoorSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genMaeda'));
+  const { genFinishSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genFinish'));
 
-  // --------- Notion API로 페이지 생성 ---------
+  // SVG 파라미터 매핑 함수 import
+  const { mapItemOptionsToSvgParams } = require('./svgParamMapper');
+
+  function getSvgForOrderItem(item: any): string {
+    const { product_type, item_options } = item;
+    // Node.js 환경에서 DOM 보장 (jsdom)
+    if (typeof window === 'undefined' && typeof global.document === 'undefined') {
+      const { JSDOM } = require('jsdom');
+      const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
+      global.window = dom.window;
+      global.document = dom.window.document;
+    }
+    const params = mapItemOptionsToSvgParams(product_type, item_options);
+    let svg;
+    if (product_type === "DOOR") {
+      svg = genGeneralDoorSvg(
+        params.subtype,
+        params.size,
+        params.color,
+        params.boringValues
+      );
+    } else if (product_type === "CABINET") {
+      svg = genCabinetSvg(params);
+    } else if (product_type === "FLAP_DOOR") {
+      svg = genFlapSvg(
+        params.subtype,
+        params.size,
+        params.color,
+        params.boringValues
+      );
+    } else if (product_type === "MAEDA") {
+      svg = genMaedaDoorSvg(
+        params.size,
+        params.color
+      );
+    } else if (product_type === "FINISH") {
+      svg = genFinishSvg(
+        params.width,
+        params.height,
+        params.colorOrImage
+      );
+    }
+    if (!svg) {
+      console.warn(`[NotionSync][IMAGE] SVG 생성 실패:`, { product_type, params });
+      return "";
+    }
+    // SVG 생성 결과를 임시 파일로 저장 (테스트 목적)
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const tmpDir = path.join(__dirname, '../../../tmp_svg');
+      if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
+      const fileName = `svgtest_${product_type}_${Date.now()}.svg`;
+      const filePath = path.join(tmpDir, fileName);
+      fs.writeFileSync(filePath, svg.outerHTML, 'utf8');
+      console.log(`[NotionSync][SVG_TEST] SVG 파일 저장됨:`, filePath);
+    } catch (e) {
+      console.warn('[NotionSync][SVG_TEST][ERROR] SVG 파일 저장 실패', e);
+    }
+    return svg.outerHTML;
+  }
+
+  async function makeFurnitureBlock(item: any, i: number): Promise<any> {
+    const optionStr =
+      item.item_options && Object.keys(item.item_options).length > 0
+        ? Object.entries(item.item_options)
+            .map(([k, v]) => {
+              const label = DETAIL_KEY_LABEL_MAP[k] || k;
+              return `${label}: ${v ?? "-"}\n`;
+            })
+            .join(" | ")
+        : "-";
+    const total = (item.unit_price ?? 0) * item.item_count;
+    const textContent = 
+  `${i + 1}. [${PRODUCT_TYPE_LABEL[item.product_type]}]
+세부종류: \n${optionStr}
+개수: ${item.item_count}
+단가: ${item.unit_price?.toLocaleString() ?? "-"}원
+총 금액: ${total?.toLocaleString() ?? "-"}원
+`;
+
+  // DB에서 전달된 image_url을 그대로 사용
+  const imageUrl = item.image_url;
+  const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || 'https://dooring-backend.onrender.com';
+  if (!imageUrl) {
+    // image_url이 없으면 안내 메시지 블록 생성
+    return {
+      object: "block",
+      type: "paragraph",
+      paragraph: {
+        rich_text: [
+          { type: "text", text: { content: "이미지 없음" } }
+        ]
+      }
+    };
+  }
+  // image_url이 /images/로 시작하면 PUBLIC_BASE_URL을 붙여서 절대경로로 변환
+  const notionImageUrl = imageUrl.startsWith('http') ? imageUrl : `${PUBLIC_BASE_URL}${imageUrl}`;
+  return {
+      object: "block",
+      type: "callout",
+      callout: {
+        rich_text: [
+          { type: "text", text: { content: textContent } } as any
+        ],
+        children: [
+          {
+            object: "block",
+            type: "image",
+            image: {
+              type: "external",
+              external: { url: notionImageUrl }
+            }
+          } as any
+        ]
+      }
+    } as any;
+  }
+
+  // 모든 orderItems에 대해 비동기 처리
+  const furnitureBlocks: any[] = await Promise.all(
+    payload.orderItems.map((item: any, i: number) => makeFurnitureBlock(item, i))
+  );
+  if (!furnitureBlocks.length || furnitureBlocks.every(b => !b)) {
+    console.warn('[NotionSync][IMAGE][ERROR] furnitureBlocks가 비어있음. 이미지 생성 실패 가능성 높음.');
+  }
+
   const notionPage: CreatePageParameters = {
     parent: { database_id: NOTION_DATABASE_ID },
     properties: {
@@ -237,7 +355,7 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
         phone_number: payload.recipientPhone
       },
       "주문일시": {
-        date: { start: payload.orderedAt.toISOString() } 
+        date: { start: payload.orderedAt.toISOString() }
       }
     },
     children: [
@@ -260,15 +378,24 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
           ]
         }
       },
-      ...furnitureBlocks
+      ...furnitureBlocks.filter(Boolean)
     ],
   };
 
   try {
     const response = await notion.pages.create(notionPage);
-    console.log(`✅ Notion 페이지 생성 완료: ${response.id}`);
-  } catch (error) {
-    console.error("[Notion Sync Error]", (error as Error).message);
+    if (!response || !response.id) {
+      throw new Error('Notion API 응답에 페이지 ID가 없습니다. 페이지 생성 실패.');
+    }
+    console.log(`[NotionSync][SUCCESS] Notion 페이지 생성됨: ${response.id}`);
+    return response;
+  } catch (error: any) {
+    // Notion API 에러 상세 출력 및 throw
+    if (error && error.body) {
+      console.error('[NotionSync][ERROR] Notion API 호출 실패:', error.body);
+    } else {
+      console.error('[NotionSync][ERROR] Notion API 호출 실패:', error);
+    }
     throw error;
   }
 }

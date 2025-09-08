@@ -17,6 +17,8 @@ async function getUserInfo(req, res) {
         select: {
             user_phone: true,
             user_type: true,
+            user_road_address: true,
+            user_detail_address: true,
         },
     });
     if (!user) {
