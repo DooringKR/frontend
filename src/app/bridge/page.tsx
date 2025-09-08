@@ -66,6 +66,7 @@ function BridgePage() {
   <div className="h-[60px]"></div>
        {/* 웹 주문 */}
        <div
+         id="app_acquisition"
          className="px-4 py-5 cursor-pointer rounded-[12px] bg-white border-4 border-[#BFDBFE] flex flex-col gap-3 items-center"
          onClick={() => {
             router.push('/');
