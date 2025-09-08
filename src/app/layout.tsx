@@ -65,26 +65,25 @@ function RootLayout({
         />
 
         {/* Amplitude 스크립트 */}
-        <script src="https://cdn.amplitude.com/libs/analytics-browser-2.11.1-min.js.gz"></script>
-        <script src="https://cdn.amplitude.com/libs/plugin-session-replay-browser-1.8.0-min.js.gz"></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.amplitude.add(window.sessionReplay.plugin({sampleRate: 1}));
-              window.amplitude.init('66eecfdad205c95650a11f88c68b1d96', {
-                "autocapture": {
-                  "elementInteractions": true
-                }
-              });
-            `,
-          }}
-        />
         <script src="https://cdn.amplitude.com/script/1c3c986b6f0e608a2b6d193d238e06c4.js"></script>
         <script
           dangerouslySetInnerHTML={{
             __html: `
               window.amplitude.add(window.sessionReplay.plugin({sampleRate: 1}));
-              window.amplitude.init('1c3c986b6f0e608a2b6d193d238e06c4', {"fetchRemoteConfig":true,"autocapture":{"attribution":true,"fileDownloads":true,"formInteractions":true,"pageViews":true,"sessions":true,"elementInteractions":true,"networkTracking":true,"webVitals":true,"frustrationInteractions":true}});
+              window.amplitude.init('1c3c986b6f0e608a2b6d193d238e06c4', {
+                fetchRemoteConfig: true,
+                autocapture: {
+                  attribution: true,
+                  fileDownloads: true,
+                  formInteractions: true,
+                  pageViews: true,
+                  sessions: true,
+                  elementInteractions: true,
+                  networkTracking: true,
+                  webVitals: true,
+                  frustrationInteractions: true
+                }
+              });
             `,
           }}
         />

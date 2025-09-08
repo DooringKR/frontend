@@ -188,6 +188,7 @@ function PhoneLoginPage() {
       />
       <div className="px-5 pt-5">
         <UnderlinedInput
+          ref={inputRef}
           label="휴대폰 번호"
           value={watchedPhoneNumber || ""}
           placeholder="휴대폰 번호"
