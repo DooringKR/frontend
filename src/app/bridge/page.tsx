@@ -69,7 +69,7 @@ function BridgePage() {
          id="web-start"
          className="px-4 py-5 cursor-pointer rounded-[12px] bg-white outline outline-4 outline-[#BFDBFE] flex flex-col gap-3 items-center"
          onClick={() => {
-            router.push('/');
+            router.push('/login');
          }}
        >
             <div className="text-[17px] leading-[24px] text-center font-pretendard font-semibold text-[#364153]">웹으로 시작하기</div>
