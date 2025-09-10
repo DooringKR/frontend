@@ -3,7 +3,7 @@
 import { addCartItem } from "@/api/cartItemApi";
 import { calculateUnitCabinetPrice } from "@/services/pricing/cabinetPricing";
 import { useRouter } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
@@ -43,7 +43,9 @@ function CabinetConfirmPageContent() {
     return <div>로딩 중...</div>;
   }
 
-  const unitPrice = calculateUnitCabinetPrice(color!, width!, bodyMaterial!, handleType!);
+
+  const unitPrice = calculateUnitCabinetPrice(category!, color!, width!, bodyMaterial!, handleType!, depth!);
+
 
   return (
     <div>
