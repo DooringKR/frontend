@@ -426,11 +426,13 @@ function getCategoryLabel(
   const found = list.find(item => item.slug === normalized);
   return found?.header ?? found?.name ?? fallback;
 }
-function formatLocation(loc: any): string {
-  if (!loc) return "-";
-  if (typeof loc === "string") return loc;
-  if (typeof loc === "object" && loc.place) {
-    return loc.detail ? `${loc.place} (${loc.detail})` : loc.place;
-  }
-  return "-";
+function formatLocation(value: string): string {
+    const locationMap: Record<string, string> = {
+        KITCHEN: "주방",
+        SHOES: "신발장",
+        BUILT_IN: "붙박이장",
+        ETC: "기타 수납장",
+        BALCONY: "발코니 창고문",
+    };
+    return locationMap[value] || value;
 }
