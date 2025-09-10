@@ -60,41 +60,35 @@ export async function addOrderItem(req: Request, res: Response) {
     },
   });
 
-  // 2. 이미지 생성 및 업로드 (order_id, order_item_id 넘김)
-  let image_url: string | null = null;
-  try {
-    image_url = await generateAndUploadOrderItemImage({
-      order_id: newItem.order_id,
-      order_item_id: newItem.order_item_id,
-      product_type,
-      unit_price,
-      item_count,
-      item_options
-    });
-    // 3. image_url 업데이트
-    await prisma.orderItem.update({
-      where: { order_item_id: newItem.order_item_id },
-      data: { image_url }
-    });
-  } catch (e) {
-    console.warn('[OrderItem][WARN] 이미지 생성/업로드 실패', e);
-  }
-
-  // 4. 최종 응답
-  const updatedItem = await prisma.orderItem.findUnique({
-    where: { order_item_id: newItem.order_item_id }
+  // 2. 응답 먼저 반환
+  res.status(201).json({
+    order_item_id: newItem.order_item_id,
+    order_id:      newItem.order_id,
+    product_type:  newItem.product_type,
+    unit_price:    newItem.unit_price,
+    item_count:    newItem.item_count,
+    item_options:  newItem.item_options,
+    image_url:     newItem.image_url,
   });
-  if (!updatedItem) {
-    return res.status(404).json({ message: '생성된 주문 아이템을 찾을 수 없습니다.' });
-  }
-  return res.status(201).json({
-    order_item_id: updatedItem.order_item_id,
-    order_id:      updatedItem.order_id,
-    product_type:  updatedItem.product_type,
-    unit_price:    updatedItem.unit_price,
-    item_count:    updatedItem.item_count,
-    item_options:  updatedItem.item_options,
-    image_url:     updatedItem.image_url,
+
+  // 3. 이미지 생성 및 업로드 (비동기)
+  setImmediate(async () => {
+    try {
+      const image_url = await generateAndUploadOrderItemImage({
+        order_id: newItem.order_id,
+        order_item_id: newItem.order_item_id,
+        product_type,
+        unit_price,
+        item_count,
+        item_options
+      });
+      await prisma.orderItem.update({
+        where: { order_item_id: newItem.order_item_id },
+        data: { image_url }
+      });
+    } catch (e) {
+      console.warn('[OrderItem][WARN] 이미지 생성/업로드 실패', e);
+    }
   });
 }
 

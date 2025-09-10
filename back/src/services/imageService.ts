@@ -83,10 +83,22 @@ async function saveImageLocally(buffer: Buffer, filename: string): Promise<strin
 
 export async function generateAndUploadOrderItemImage(item: any): Promise<string|null> {
   try {
+    console.log('[imageService][DEBUG] generateAndUploadOrderItemImage 호출:', item);
     const svgString = getSvgForOrderItem(item);
-    if (!svgString) return null;
+    console.log('[imageService][DEBUG] SVG 생성 결과:', svgString ? svgString.slice(0, 200) : svgString);
+    if (!svgString) {
+      console.warn('[imageService][WARN] SVG 생성 실패, 반환값 없음');
+      return null;
+    }
     // sharp가 SVG 내 href를 그대로 처리하도록 경로 치환 없이 변환
-    const pngBuffer = await sharp(Buffer.from(svgString)).png().toBuffer();
+    let pngBuffer;
+    try {
+      pngBuffer = await sharp(Buffer.from(svgString)).png().toBuffer();
+      console.log('[imageService][DEBUG] PNG 변환 성공, buffer 길이:', pngBuffer.length);
+    } catch (err) {
+      console.warn('[imageService][ERROR] PNG 변환 실패:', err);
+      return null;
+    }
 
     // SVG 파일도 저장
     let svgFilename;
@@ -125,6 +137,7 @@ export async function generateAndUploadOrderItemImage(item: any): Promise<string
       filename = `orderitem_${Date.now()}.png`;
     }
     const imageUrl = await saveImageLocally(pngBuffer, filename);
+    console.log('[imageService][DEBUG] PNG 저장 결과 imageUrl:', imageUrl);
     return imageUrl;
   } catch (e) {
     console.warn('[OrderItem][IMAGE][ERROR] 이미지 생성/업로드 실패', e);
