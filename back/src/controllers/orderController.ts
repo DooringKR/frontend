@@ -1,3 +1,49 @@
+// 내부에서 직접 호출 가능한 주문 완성 로직 함수
+async function completeOrderInternal(order_id: string) {
+  try {
+    // 주문 정보 조회
+    const order = await prisma.order.findUnique({ where: { order_id } });
+    if (!order) {
+      console.error("[completeOrderInternal] 해당 주문을 찾을 수 없습니다.");
+      return;
+    }
+    // 사용자 정보 조회
+    const user = await prisma.user.findUnique({ where: { id: order.user_id } });
+    // order_items 조회
+    const orderItems = await prisma.orderItem.findMany({
+      where: { order_id },
+      select: {
+        product_type: true,
+        item_count: true,
+        unit_price: true,
+        item_options: true,
+        image_url: true,
+      }
+    });
+    // 노션 페이지 생성
+    await createNotionOrderPage({
+      orderedAt: order.created_at,
+      userRoadAddress: user?.user_road_address || "",
+      userPhone: user?.user_phone || "",
+      recipientPhone: order.recipient_phone,
+      orderType: order.order_type,
+      orderPrice: order.order_price,
+      orderOptions: order.order_options,
+      orderItems: orderItems,
+    });
+    // 주문 견적서 Apps Script로 전송
+    await sendOrderToAppsScript({
+      created_at: order.created_at,
+      delivery_type: order.order_type,
+      recipient_phone: order.recipient_phone,
+      order_options: order.order_options,
+      order_items: orderItems,
+    });
+    console.log("[completeOrderInternal] 노션/구글 처리 완료");
+  } catch (err: any) {
+    console.error("[completeOrderInternal] error:", err.message);
+  }
+}
 // src/controllers/orderController.ts
 
 import { Request, Response } from "express";
@@ -49,8 +95,8 @@ export async function createOrder(req: Request, res: Response) {
     const user = await prisma.user.findUnique({ where: { id: user_id } });
     if (!user) return res.status(404).json({ message: '해당 user_id가 존재하지 않습니다.' });
 
-    // 3. 응답
-    return res.status(201).json({
+    // 3. 응답 먼저 반환
+    res.status(201).json({
       order_id: order.order_id,
       user_id: order.user_id,
       cart_id: order.cart_id,
@@ -59,6 +105,32 @@ export async function createOrder(req: Request, res: Response) {
       order_price: order.order_price,
       order_options: order.order_options,
       created_at: order.created_at,
+    });
+
+    // 4. 비동기 후처리 (orderItem 생성 및 completeOrder)
+    setImmediate(async () => {
+      try {
+        // 장바구니 아이템 조회 (cart_id 기준)
+        const cartItems = await prisma.cartItem.findMany({
+          where: { cart_id: order.cart_id },
+        });
+        // orderItem 생성
+        for (const item of cartItems) {
+          await prisma.orderItem.create({
+            data: {
+              order_id: order.order_id,
+              product_type: item.product_type,
+              unit_price: item.unit_price ?? 0,
+              item_count: item.item_count ?? 1,
+              item_options: item.item_options as any,
+            },
+          });
+        }
+        // 주문 완성 처리 (노션/구글 등)
+        await completeOrderInternal(order.order_id);
+      } catch (err) {
+        console.error('[createOrder][비동기 후처리] error:', err);
+      }
     });
   } catch (err: any) {
     console.error("Order creation error:", err.message);
