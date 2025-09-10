@@ -59,7 +59,8 @@ export default function Page() {
     // localStorage에서 데이터를 복원하는 동안 잠시 대기
     const timer = setTimeout(() => {
       if (!userId) {
-        router.replace("https://landing.baro.dooring.kr/");
+        // router.replace("https://landing.baro.dooring.kr/");
+        router.replace("/login");
       }
     }, 100); // 100ms 대기
 

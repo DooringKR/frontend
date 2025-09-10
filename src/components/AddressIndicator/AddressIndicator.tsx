@@ -30,26 +30,30 @@ const AddressIndicator: React.FC<AddressIndicatorProps> = props => {
         }}
       >
         <div className="text-[20px] font-600 text-gray-700">
-          {isLoading ? (
-            <div className="flex items-center gap-2">
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-500"></div>
-              <span className="text-gray-500">주소 확인 중...</span>
-            </div>
-          ) : address ? (
-            address
-          ) : (
-            <GradientEffectText text="주소를 입력해주세요" />
-          )}
+          {address ? address : <GradientEffectText text="주소를 입력해주세요" />}
         </div>
         <div className="flex items-center justify-center">
           <AddressIcon isAddressEntered={!!address} />
         </div>
       </div>
-      <DeliveryScheduleDisplay
-        schedule={deliverySchedule}
-        timeLimit={timeLimit}
-        arrivalDate={arrivalDate}
-      />
+      {isLoading ? (
+        <div className="flex h-[28px] items-center gap-2 py-[3px]">
+          <div className="flex items-center gap-1">
+            <div className="h-2 w-2 animate-bounce rounded-full bg-blue-500 [animation-delay:-0.3s]"></div>
+            <div className="h-2 w-2 animate-bounce rounded-full bg-blue-500 [animation-delay:-0.15s]"></div>
+            <div className="h-2 w-2 animate-bounce rounded-full bg-blue-500"></div>
+          </div>
+          <span className="animate-pulse text-[16px] font-500 text-gray-500">
+            배송 정보 계산 중...
+          </span>
+        </div>
+      ) : (
+        <DeliveryScheduleDisplay
+          schedule={deliverySchedule}
+          timeLimit={timeLimit}
+          arrivalDate={arrivalDate}
+        />
+      )}
     </div>
   );
 };

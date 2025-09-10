@@ -39,16 +39,18 @@ interface OrderStore {
   setPickupInfo: (info: PickupInfo) => void;
   clearOrder: () => void;
 
-  deliveryType: "today" | "tomorrow" | null;
+  deliveryType: "today" | "custom" | null;
   deliveryHour: string;
   deliveryMinute: string;
+  selectedDeliveryDate: string | null;
 
-  setDeliveryType: (type: "today" | "tomorrow" | null) => void;
+  setDeliveryType: (type: "today" | "custom" | null) => void;
   setDeliveryHour: (hour: string) => void;
   setDeliveryMinute: (minute: string) => void;
+  setSelectedDeliveryDate: (date: string | null) => void;
 
-  userSelectedDeliveryType: "today" | "tomorrow" | null;
-  setUserSelectedDeliveryType: (type: "today" | "tomorrow") => void;
+  userSelectedDeliveryType: "today" | "custom" | null;
+  setUserSelectedDeliveryType: (type: "today" | "custom") => void;
 }
 
 export const useOrderStore = create<OrderStore>()(
@@ -70,11 +72,11 @@ export const useOrderStore = create<OrderStore>()(
         customVehicleNote: "",
       },
 
-      deliveryType: null, // 배송인 경우 오늘배송 내일배송 인지
+      deliveryType: null, // 배송인 경우 오늘배송 또는 원하는날짜 인지
       deliveryHour: "--",
       deliveryMinute: "--",
+      selectedDeliveryDate: null,
 
-      // setDeliveryType: type => set({ deliveryType: type }),
       setDeliveryType: type => {
         set({ deliveryType: type });
 
@@ -83,11 +85,13 @@ export const useOrderStore = create<OrderStore>()(
           set({
             deliveryHour: "--",
             deliveryMinute: "--",
+            selectedDeliveryDate: null,
           });
         }
       },
       setDeliveryHour: hour => set({ deliveryHour: hour }),
       setDeliveryMinute: minute => set({ deliveryMinute: minute }),
+      setSelectedDeliveryDate: date => set({ selectedDeliveryDate: date }),
 
       setAddress: address => set({ address }),
       setRecipientPhoneNumber: phone => set({ recipientPhoneNumber: phone }),
@@ -113,6 +117,7 @@ export const useOrderStore = create<OrderStore>()(
           deliveryType: null,
           deliveryHour: "--",
           deliveryMinute: "--",
+          selectedDeliveryDate: null,
           receiveMethod: null,
           pickupInfo: {
             vehicleType: "",
@@ -130,6 +135,7 @@ export const useOrderStore = create<OrderStore>()(
             deliveryType: null,
             deliveryHour: "--",
             deliveryMinute: "--",
+            selectedDeliveryDate: null,
           });
         }
       },

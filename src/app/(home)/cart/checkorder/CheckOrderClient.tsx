@@ -1,6 +1,6 @@
 "use client";
 
-import { createOrder, createOrderItem, completeOrder } from "@/api/orderApi";
+import { completeOrder, createOrder, createOrderItem } from "@/api/orderApi";
 import { CHECK_ORDER_PAGE } from "@/constants/pageName";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -79,15 +79,16 @@ function CheckOrderClientPage() {
     // 항상 배송 방식은 DELIVERY로 고정
     store.setReceiveMethod("DELIVERY");
 
-    // 오늘 배송이 불가능하면 강제로 내일로 설정
+    // 오늘 배송이 불가능하면 강제로 custom으로 설정
     if (
       !isTodayAvailable &&
       store.deliveryType === "today" &&
       store.userSelectedDeliveryType !== "today"
     ) {
-      store.setDeliveryType("tomorrow");
+      store.setDeliveryType("custom");
       store.setDeliveryHour("--");
       store.setDeliveryMinute("--");
+      store.setSelectedDeliveryDate(null);
     }
   }, [isTodayAvailable]);
 
@@ -141,19 +142,21 @@ function CheckOrderClientPage() {
     const delivery: Record<string, any> = {
       recipient_road_address: address.address1,
       recipient_detail_address: address.address2,
-      delivery_type: deliveryType === "today" && isTodayAvailable ? "TODAY" : "TOMORROW",
+      delivery_type: deliveryType === "today" && isTodayAvailable ? "TODAY" : "CUSTOM",
     };
 
     // 주문 직전에 상태 기반으로 새로 계산
-    if (delivery.delivery_type === "TOMORROW") {
-      const hour = useOrderStore.getState().deliveryHour;
-      const minute = useOrderStore.getState().deliveryMinute;
+    if (delivery.delivery_type === "CUSTOM") {
+      const store = useOrderStore.getState();
+      const hour = store.deliveryHour;
+      const minute = store.deliveryMinute;
+      const selectedDate = store.selectedDeliveryDate;
 
-      if (hour !== "--" && minute !== "--") {
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        tomorrow.setHours(Number(hour), Number(minute), 0, 0);
-        delivery.tomorrow_delivery_time = tomorrow.toISOString();
+      if (hour !== "--" && minute !== "--" && selectedDate) {
+        // 선택된 날짜와 시간으로 배송 시간 설정
+        const [year, month, day] = selectedDate.split("-").map(Number);
+        const deliveryDateTime = new Date(year, month - 1, day, Number(hour), Number(minute), 0, 0);
+        delivery.detail_delivery_time = deliveryDateTime.toISOString();
       }
     }
     delivery.delivery_request = requestMessage;
@@ -226,11 +229,13 @@ function CheckOrderClientPage() {
   const getTotalPrice = () =>
     cartItems.reduce((sum, item) => sum + (item?.price ?? 0) * (item?.count ?? 1), 0);
 
+  const selectedDeliveryDate = useOrderStore(state => state.selectedDeliveryDate);
+
   const isRequestInvalid =
     !requestMessage ||
     (requestMessage === "OPEN_GATE" && !foyerAccessType.gatePassword?.trim()) ||
     (requestMessage === "DIRECT_INPUT" && !customerRequest?.trim()) ||
-    (deliveryType === "tomorrow" && (hour === "--" || minute === "--"));
+    (deliveryType === "custom" && (hour === "--" || minute === "--" || !selectedDeliveryDate));
   return (
     <div className="flex min-h-screen flex-col justify-between">
       <TopNavigator title="주문하기" />
