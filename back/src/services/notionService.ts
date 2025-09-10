@@ -121,14 +121,14 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
             // 종류: 오픈장, 플랩장 등 세부명칭 표시 (대소문자 무시)
             `종류 : ${itemOptions.cabinet_type ? getCategoryLabel(itemOptions.cabinet_type, CABINET_CATEGORY_LIST, "부분장") : "-"}`,
             // 손잡이 종류 (대소문자 구분 없이)
-            itemOptions.handle_type ? `손잡이 종류: ${CABINET_HANDLE_TYPE_NAME[itemOptions.handle_type.toLowerCase() as keyof typeof CABINET_HANDLE_TYPE_NAME] ?? "기타"}` : "손잡이 종류: 기타",
+            itemOptions.handle_type ? `손잡이 종류: ${CABINET_HANDLE_TYPE_NAME[itemOptions.handle_type.toUpperCase() as keyof typeof CABINET_HANDLE_TYPE_NAME] ?? "기타"}` : "손잡이 종류: 기타",
             // 소재(바디): 값이 있으면 변환, 없으면 "기타"
-            itemOptions.body_type ? `소재: ${CABINET_BODY_TYPE_NAME[itemOptions.body_type.toLowerCase() as keyof typeof CABINET_BODY_TYPE_NAME] ?? "기타"}` : "소재: 기타",
+            itemOptions.body_type ? `소재: ${CABINET_BODY_TYPE_NAME[itemOptions.body_type.toUpperCase() as keyof typeof CABINET_BODY_TYPE_NAME] ?? "기타"}` : "소재: 기타",
             // 마감 방식: finish_category 우선, 없으면 finish_type, 둘 다 없으면 "기타"
             itemOptions.finish_category ? `마감 방식: ${getCategoryLabel(itemOptions.finish_category, FINISH_CATEGORY_LIST, "기타")}` :
-              (itemOptions.finish_type ? `마감 방식: ${CABINET_FINISH_TYPE_NAME[itemOptions.finish_type.toLowerCase() as keyof typeof CABINET_FINISH_TYPE_NAME] ?? "기타"}` : "마감 방식: 기타"),
+              (itemOptions.finish_type ? `마감 방식: ${CABINET_FINISH_TYPE_NAME[itemOptions.finish_type.toUpperCase() as keyof typeof CABINET_FINISH_TYPE_NAME] ?? "기타"}` : "마감 방식: 기타"),
             // 소재(흡음재): 값이 있으면 변환, 없으면 "기타"
-            itemOptions.absorber_type ? `소재: ${CABINET_ABSORBER_TYPE_NAME[itemOptions.absorber_type.toLowerCase() as keyof typeof CABINET_ABSORBER_TYPE_NAME] ?? "기타"}` : "소재: 기타",
+            itemOptions.absorber_type ? `소재: ${CABINET_ABSORBER_TYPE_NAME[itemOptions.absorber_type.toUpperCase() as keyof typeof CABINET_ABSORBER_TYPE_NAME] ?? "기타"}` : "소재: 기타",
             // 색상, 너비, 깊이, 높이, 서랍, 레일, 용도, 요청사항
             `색상: ${itemOptions.cabinet_color || "-"}`,
             `너비: ${itemOptions.cabinet_width ? itemOptions.cabinet_width.toLocaleString() : "-"}mm`,
@@ -390,32 +390,29 @@ const FINISH_CATEGORY_LIST = [
   { slug: "veneer", header: "무늬목" },
   { slug: "etc", header: "기타" },
 ];
+// --- 프론트엔드 modelList.ts에서 이식 ---
 const CABINET_HANDLE_TYPE_NAME = {
-  bar: "바 손잡이",
-  knob: "노브 손잡이",
-  push: "푸쉬형",
-  none: "손잡이 없음",
+  CHANNEL: "찬넬",
+  OUTER: "겉손잡이",
+  PULL_DOWN: "내리기",
 };
 const CABINET_BODY_TYPE_NAME = {
-  pb: "PB",
-  mdf: "MDF",
-  plywood: "합판",
-  steel: "스틸",
-  etc: "기타",
+  HERRINGBONE_PP_15T: "헤링본 PP 15T",
+  HERRINGBONE_PP_18T: "헤링본 PP 18T",
+  PATAGONIA_CREAM_LPM_18T: "파타고니아 크림 LPM 18T",
+  DIRECT_INPUT: "직입",
 };
 const CABINET_FINISH_TYPE_NAME = {
-  pvc: "PVC",
-  pet: "PET",
-  lpm: "LPM",
-  paint: "도장",
-  veneer: "무늬목",
-  etc: "기타",
+  MAK_URA: "막우라",
+  URAHOME: "우라홈",
 };
 const CABINET_ABSORBER_TYPE_NAME = {
-  none: "없음",
-  soft: "소프트 클로징",
-  damper: "댐퍼",
-  etc: "기타",
+  NONE: "없음",
+  MOONJU_AVENTOS: "문주 아벤토스",
+  BLUM_AVENTOS: "블룸 아벤토스",
+  GAS: "가스",
+  FOLDABLE: "폴더블",
+  DIRECT_INPUT: "직접 입력",
 };
 // --- 타입 오류 수정 ---
 function getCategoryLabel(
