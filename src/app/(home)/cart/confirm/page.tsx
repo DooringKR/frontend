@@ -322,6 +322,7 @@ export default function OrderConfirmPage() {
                           request={cabinetItem.cabinet_request ?? ""}
                           location={cabinetItem.cabinet_location ?? ""}
                           addOn_construction={cabinetItem.addOn_construction ?? undefined}
+                          legType={cabinetItem.leg_type ?? undefined}
                           quantity={cabinetItem.count ?? 0}
                           price={item.price}
                         />

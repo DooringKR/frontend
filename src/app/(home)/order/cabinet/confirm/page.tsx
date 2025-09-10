@@ -37,6 +37,7 @@ function CabinetConfirmPageContent() {
   const lowerDrawer = (cart as CabinetCart)?.lowerDrawer;
   const cabinet_location = (cart as CabinetCart)?.cabinet_location;
   const addOn_construction = (cart as CabinetCart)?.addOn_construction;
+  const legType = (cart as CabinetCart)?.legType;
   const [quantity, setQuantity] = useState(1);
 
   // 빌드 시점에 cart가 비어있을 수 있으므로 안전한 처리
@@ -76,6 +77,7 @@ function CabinetConfirmPageContent() {
           request={request ?? undefined}
           location={cabinet_location ?? ""}
           addOn_construction={addOn_construction ?? undefined}
+          legType={legType ?? undefined}
           onOptionClick={() => {
             router.push(`/order/cabinet/?category=${category}&color=${color}`);
           }}
@@ -174,6 +176,7 @@ function CabinetConfirmPageContent() {
                   : {}),
                 cabinet_location: cabinet_location,
                 addOn_construction: addOn_construction,
+                leg_type: legType,
               },
             });
             console.log(result);

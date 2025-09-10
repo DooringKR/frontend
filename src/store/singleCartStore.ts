@@ -33,6 +33,7 @@ export type CabinetCart = {
   lowerDrawer?: string | null;
   cabinet_location?: string | null;
   addOn_construction?: boolean | null;
+  legType?: string | null;
 };
 
 export type HardwareCart = {

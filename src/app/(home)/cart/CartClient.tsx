@@ -156,6 +156,7 @@ export default function CartClient() {
               price: item.unit_price ?? 10000,
               cartItemId: item.cart_item_id,
               addOn_construction: item.item_options.addOn_construction ?? null,
+              leg_type: item.item_options.leg_type ?? null,
             };
             convertedItems.push(convertedItem);
           }
@@ -468,6 +469,7 @@ export default function CartClient() {
                     quantity={cabinetItem.count ?? 0}
                     showQuantitySelector={true}
                     addOn_construction={cabinetItem.addOn_construction ?? undefined}
+                    legType={cabinetItem.leg_type ?? undefined}
                     {...commonProps}
                   />
                 );

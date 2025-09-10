@@ -58,6 +58,7 @@ export type CabinetItem = {
   price: number;
   cartItemId?: number;
   addOn_construction?: boolean | null;
+  leg_type: string | null;
 };
 
 export type FinishItem = {

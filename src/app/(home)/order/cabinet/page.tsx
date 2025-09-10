@@ -154,6 +154,9 @@ function CabinetPageContent() {
   const [cabinet_location, setCabinetLocation] = useState(
     (useSingleCartStore.getState().cart as CabinetCart).cabinet_location ?? "",
   );
+  const [legType, setLegType] = useState(
+    (useSingleCartStore.getState().cart as CabinetCart).legType ?? "",
+  );
   const [addOn_construction, setAddOn_construction] = useState(
     (useSingleCartStore.getState().cart as CabinetCart).addOn_construction ?? false,
   );
@@ -162,6 +165,7 @@ function CabinetPageContent() {
   const [isDrawerTypeSheetOpen, setIsDrawerTypeSheetOpen] = useState(false);
   const [isRailTypeSheetOpen, setIsRailTypeSheetOpen] = useState(false);
   const [isCabinetLocationSheetOpen, setIsCabinetLocationSheetOpen] = useState(false);
+  const [isLegTypeSheetOpen, setIsLegTypeSheetOpen] = useState(false);
 
   // 유효성 검사 훅 사용
   const { widthError, heightError, depthError, isFormValid } = useCabinetValidation({
@@ -304,6 +308,22 @@ function CabinetPageContent() {
         </div>
       </div>
       <div className="h-5" />
+      {!isCabinetLocationSheetOpen && <div className="flex flex-col gap-2 px-5">
+        <BoxedSelect
+          label="다리발"
+          options={[]}
+          value={legType}
+          onClick={() => setIsLegTypeSheetOpen(true)}
+          onChange={() => { }}
+        />
+        <LegTypeInputSheet
+          isOpen={isLegTypeSheetOpen}
+          onClose={() => setIsLegTypeSheetOpen(false)}
+          value={legType}
+          onChange={setLegType}
+        />
+      </div>}
+      <div className="h-5" />
       <BodyMaterialManualInputSheet
         isOpen={isBottomSheetOpen}
         onClose={() => setIsBottomSheetOpen(false)}
@@ -333,6 +353,7 @@ function CabinetPageContent() {
         !isShowBarSheetOpen &&
         !isDrawerTypeSheetOpen &&
         !isRailTypeSheetOpen &&
+        !isLegTypeSheetOpen &&
         !isCabinetLocationSheetOpen && (
           <BottomButton
             type={"1button"}
@@ -360,6 +381,7 @@ function CabinetPageContent() {
                   lowerDrawer,
                   cabinet_location,
                   addOn_construction,
+                  legType,
                 },
               }));
               router.push(`/order/cabinet/confirm`);
@@ -688,6 +710,82 @@ function RailTypeInputSheet({
                 onClose();
               }}
             />
+          </div>
+        </div>
+      }
+      onClose={onClose}
+    />
+  );
+}
+
+// LegTypeInputSheet 컴포넌트 추가
+function LegTypeInputSheet({
+  isOpen,
+  onClose,
+  value,
+  onChange,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // 미리 정의된 옵션
+  const options = [
+    "150 다리 (걸레받이)",
+    "120 다리 (걸레받이)",
+    "다리발 없음 (60 속걸레받이)",
+  ];
+
+  return (
+    <BottomSheet
+      isOpen={isOpen}
+      title="다리발 종류를 선택해주세요"
+      children={
+        <div>
+          <div>
+            {options.map(option => (
+              <SelectToggleButton
+                key={option}
+                label={option}
+                checked={value === option}
+                onClick={() => onChange(option)}
+              />
+            ))}
+            <div className="flex flex-col">
+              <SelectToggleButton
+                label="직접 입력"
+                checked={options.every(opt => value !== opt)}
+                onClick={() => {
+                  onChange(""); // 입력창을 비우고 포커스
+                  setTimeout(() => inputRef.current?.focus(), 0);
+                }}
+              />
+              {options.every(opt => value !== opt) && (
+                <div className="flex items-center gap-2 px-4 pb-3">
+                  <GrayVerticalLine />
+                  <BoxedInput
+                    ref={inputRef}
+                    type="text"
+                    placeholder="다리발 종류를 입력해주세요"
+                    className="w-full"
+                    value={value}
+                    onChange={e => onChange(e.target.value)}
+                  />
+                </div>
+              )}
+            </div>
+            <div className="py-5">
+              <Button
+                type="Brand"
+                text="다음"
+                onClick={() => {
+                  onClose();
+                }}
+              />
+            </div>
           </div>
         </div>
       }

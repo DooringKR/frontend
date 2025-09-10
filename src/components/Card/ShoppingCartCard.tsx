@@ -44,6 +44,7 @@ interface ShoppingCartCardProps {
   size?: string;
   addOn_hinge?: boolean;
   addOn_construction?: boolean;
+  legType?: string;
 }
 
 const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
@@ -82,6 +83,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   size,
   addOn_hinge,
   addOn_construction,
+  legType,
 }) => {
   return (
     <div className="flex w-full flex-col gap-3 rounded-[16px] border-[1px] border-gray-200 bg-white p-[20px]">
@@ -154,6 +156,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
             {addOn_construction !== undefined && addOn_construction !== null && (
               <div>시공 필요 여부 : {addOn_construction ? "시공도 필요해요" : "필요 없어요"}</div>
             )}
+            {legType && <div>다리발 : {legType}</div>}
           </div>
         </div>
         {type === "door" && (title === "플랩문" || title === "일반문") && hingeCount && (

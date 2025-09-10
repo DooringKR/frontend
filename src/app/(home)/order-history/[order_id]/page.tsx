@@ -197,6 +197,7 @@ export default function OrderDetailPage() {
                                                 {itemOptions.addOn_construction !== undefined && itemOptions.addOn_construction !== null && (
                                                     <p className="text-[15px]/[22px] font-400 text-gray-600">시공 필요 여부 : {itemOptions.addOn_construction ? "시공도 필요해요" : "필요 없어요"}</p>
                                                 )}
+                                                {itemOptions.leg_type && <p className="text-[15px]/[22px] font-400 text-gray-600">다리발: {itemOptions.leg_type || "-"}</p>}
                                                 {itemOptions.cabinet_request && <p className="text-[15px]/[22px] font-400 text-gray-600">기타 요청 사항: {itemOptions.cabinet_request}</p>}
                                             </>
                                         );
