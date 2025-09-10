@@ -118,17 +118,17 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
       switch (item.product_type?.toLowerCase()) {
         case "cabinet":
           optionStr = [
-            // 종류
+            // 종류: 오픈장, 플랩장 등 세부명칭 표시
             `종류 : ${itemOptions.cabinet_type ? getCategoryLabel(itemOptions.cabinet_type, CABINET_CATEGORY_LIST, "부분장") : "-"}`,
             // 손잡이 종류
             itemOptions.handle_type ? `손잡이 종류: ${CABINET_HANDLE_TYPE_NAME[itemOptions.handle_type as keyof typeof CABINET_HANDLE_TYPE_NAME] || "-"}` : "",
-            // 소재
-            `소재: ${itemOptions.body_type ? CABINET_BODY_TYPE_NAME[itemOptions.body_type as keyof typeof CABINET_BODY_TYPE_NAME] : "기타"}`,
-            // 마감 방식 (FINISH_CATEGORY_LIST 우선, 없으면 기존 방식)
-            itemOptions.finish_category ? `마감 방식: ${getCategoryLabel(itemOptions.finish_category, FINISH_CATEGORY_LIST, CABINET_FINISH_TYPE_NAME[itemOptions.finish_type as keyof typeof CABINET_FINISH_TYPE_NAME] || "기타")}` :
-              (itemOptions.finish_type ? `마감 방식: ${CABINET_FINISH_TYPE_NAME[itemOptions.finish_type as keyof typeof CABINET_FINISH_TYPE_NAME]}` : "마감 방식: 기타"),
-            // 흡음재
-            `소재: ${itemOptions.absorber_type ? CABINET_ABSORBER_TYPE_NAME[itemOptions.absorber_type as keyof typeof CABINET_ABSORBER_TYPE_NAME] : "기타"}`,
+            // 소재(바디): undefined 방지
+            (itemOptions.body_type && CABINET_BODY_TYPE_NAME[itemOptions.body_type as keyof typeof CABINET_BODY_TYPE_NAME]) ? `소재: ${CABINET_BODY_TYPE_NAME[itemOptions.body_type as keyof typeof CABINET_BODY_TYPE_NAME]}` : "소재: -",
+            // 마감 방식: finish_category 우선, 없으면 finish_type, 둘 다 없으면 "-"
+            itemOptions.finish_category ? `마감 방식: ${getCategoryLabel(itemOptions.finish_category, FINISH_CATEGORY_LIST, "-")}` :
+              (itemOptions.finish_type && CABINET_FINISH_TYPE_NAME[itemOptions.finish_type as keyof typeof CABINET_FINISH_TYPE_NAME]) ? `마감 방식: ${CABINET_FINISH_TYPE_NAME[itemOptions.finish_type as keyof typeof CABINET_FINISH_TYPE_NAME]}` : "마감 방식: -",
+            // 소재(흡음재): undefined 방지
+            (itemOptions.absorber_type && CABINET_ABSORBER_TYPE_NAME[itemOptions.absorber_type as keyof typeof CABINET_ABSORBER_TYPE_NAME]) ? `소재: ${CABINET_ABSORBER_TYPE_NAME[itemOptions.absorber_type as keyof typeof CABINET_ABSORBER_TYPE_NAME]}` : "소재: -",
             // 색상, 너비, 깊이, 높이, 서랍, 레일, 용도, 요청사항
             `색상: ${itemOptions.cabinet_color || "-"}`,
             `너비: ${itemOptions.cabinet_width ? itemOptions.cabinet_width.toLocaleString() : "-"}mm`,
