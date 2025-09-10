@@ -12,6 +12,7 @@ export type DoorCart = {
   boringSize?: (number | null)[];
   request?: string | null;
   door_location?: string | null;
+  addOn_hinge?: boolean | null;
 };
 
 export type CabinetCart = {
@@ -31,6 +32,8 @@ export type CabinetCart = {
   riceRail?: string | null;
   lowerDrawer?: string | null;
   cabinet_location?: string | null;
+  addOn_construction?: boolean | null;
+  legType?: string | null;
 };
 
 export type HardwareCart = {

@@ -56,10 +56,15 @@ export default function Page() {
 
   // 로그인 상태 체크
   useEffect(() => {
-    if (!userId) {
-      console.log("로그인이 필요합니다. 로그인 페이지로 이동합니다.");
-      router.replace("/login");
-    }
+    // localStorage에서 데이터를 복원하는 동안 잠시 대기
+    const timer = setTimeout(() => {
+      if (!userId) {
+        // router.replace("https://landing.baro.dooring.kr/");
+        router.replace("/login");
+      }
+    }, 100); // 100ms 대기
+
+    return () => clearTimeout(timer);
   }, [userId, router]);
 
   useEffect(() => {
@@ -68,8 +73,9 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    const totalCount = cartItems.reduce((acc, item) => acc + (item.item_count ?? 1), 0);
-    setCartItemCount(totalCount);
+    // const totalCount = cartItems.reduce((acc, item) => acc + (item.item_count ?? 1), 0);
+    // setCartItemCount(totalCount);
+    setCartItemCount(cartItems.length);
   }, [cartItems]);
 
   // const formatOrderDeadline = (remainingMinutes: number): string => {

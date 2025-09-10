@@ -127,14 +127,14 @@ const LowerCabinetForm: React.FC<LowerCabinetFormProps> = props => {
         <div className="text-[14px]/[20px] font-400 text-gray-600">마감 방식</div>
         <div className="flex w-full gap-2">
           <Button
+            type={finishType === "우라홈" ? "BrandInverse" : "GrayLarge"}
+            text={"일반 (우라홈)"}
+            onClick={() => setFinishType("우라홈")}
+          />
+          <Button
             type={finishType === "막우라" ? "BrandInverse" : "GrayLarge"}
             text={"막우라"}
             onClick={() => setFinishType("막우라")}
-          />
-          <Button
-            type={finishType === "우라홈" ? "BrandInverse" : "GrayLarge"}
-            text={"우라홈"}
-            onClick={() => setFinishType("우라홈")}
           />
         </div>
       </div>

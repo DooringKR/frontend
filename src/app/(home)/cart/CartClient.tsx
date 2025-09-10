@@ -103,6 +103,7 @@ export default function CartClient() {
               third_hinge: item.item_options.third_hinge_size ?? null,
               fourth_hinge: item.item_options.fourth_hinge_size ?? null,
               door_location: item.item_options.door_location ?? null,
+              addOn_hinge: item.item_options.addOn_hinge ?? null,
               count: item.item_count ?? 1,
               price: item.unit_price ?? 10000,
               cartItemId: item.cart_item_id,
@@ -154,6 +155,8 @@ export default function CartClient() {
               count: item.item_count ?? 1,
               price: item.unit_price ?? 10000,
               cartItemId: item.cart_item_id,
+              addOn_construction: item.item_options.addOn_construction ?? null,
+              leg_type: item.item_options.leg_type ?? null,
             };
             convertedItems.push(convertedItem);
           }
@@ -409,6 +412,7 @@ export default function CartClient() {
                     trashable={true}
                     onIncrease={() => handleCountChange(category, i, doorItem.count + 1)}
                     onDecrease={() => handleCountChange(category, i, doorItem.count - 1)}
+                    addOn_hinge={doorItem.addOn_hinge ?? undefined}
                   />
                 );
               }
@@ -464,6 +468,8 @@ export default function CartClient() {
                     location={cabinetItem.cabinet_location ?? ""}
                     quantity={cabinetItem.count ?? 0}
                     showQuantitySelector={true}
+                    addOn_construction={cabinetItem.addOn_construction ?? undefined}
+                    legType={cabinetItem.leg_type ?? undefined}
                     {...commonProps}
                   />
                 );

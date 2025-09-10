@@ -13,15 +13,36 @@ function TimePicker({ initialHour, initialMinute, onConfirm, onClose }: TimePick
   const [hour, setHour] = useState(initialHour);
   const [minute, setMinute] = useState(initialMinute);
 
-  // const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
-  // const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, "0"));
-  const hours = ["--", ...Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"))];
+  const hours = [
+    "--",
+    ...Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0")), // 00-23시
+  ];
   const minutes = ["--", ...Array.from({ length: 60 }, (_, i) => String(i).padStart(2, "0"))];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="w-72 rounded-3xl bg-white p-5">
-        <h2 className="mb-4 text-xl font-700">희망배송시간</h2>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-xl font-700">희망배송시간</h2>
+          <button
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-gray-100"
+          >
+            <svg
+              className="h-5 w-5 text-gray-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
         <div className="flex justify-center gap-6 py-4">
           <div className="relative">
             <select

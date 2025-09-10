@@ -102,74 +102,153 @@ const VALID_SHIPPING_METHODS = ["직접 픽업하러 갈게요", "현장으로 �
 export async function createNotionOrderPage(payload: NotionOrderPayload) {
   // orderItems 배열 데이터 구조 점검용 로그
   console.log('[NotionSync][DEBUG] orderItems:', JSON.stringify(payload.orderItems, null, 2));
-  // ...existing code...
   // 1. 제목: user_road_address 두 어절만 파싱
-  const title =
-    (payload.userRoadAddress || "")
-      .split(" ")
-      .slice(0, 2)
-      .join(" ")
-      .trim() || "주문";
+  const title = payload.userRoadAddress.split(" ").slice(0, 2).join(" ");
+  // 2. 배송방법: PICK_UP / DELIVERY → 사용자 친화적 문자열
+  const shippingMethod = SHIPPING_METHOD_MAP[payload.orderType as keyof typeof SHIPPING_METHOD_MAP] || payload.orderType;
+  // 3. 가구종류: 중복 제거 및 사용자 친화적 문자열
+  const furnitureTypes = Array.from(new Set(payload.orderItems.map(item => PRODUCT_TYPE_LABEL[item.product_type]))).filter(Boolean) as string[];
 
-  // 2. 배송방법
-  const shippingMethod = SHIPPING_METHOD_MAP[payload.orderType] || "직접 픽업하러 갈게요";
-  // 3. 가구종류(다중선택): order_items의 product_type 중복없이 추출→한글→Array
-  const furnitureTypes = [
-    ...new Set(payload.orderItems.map(item => PRODUCT_TYPE_LABEL[item.product_type])),
-  ].filter(t => VALID_GAGU_TYPES.includes(t));
+  // 1. 제목: user_road_address 두 어절만 파싱
+    // 사용자 친화적 옵션 번역 (page.tsx 참조)
+    // 2. 가구정보 블록 (비동기: SVG→PNG→S3→image)
+    async function makeFurnitureBlock(item: any, i: number): Promise<any> {
+      const itemOptions = item.item_options || {};
+      let optionStr = "";
+      switch (item.product_type?.toLowerCase()) {
+        case "cabinet":
+          optionStr = [
+            // 종류: 오픈장, 플랩장 등 세부명칭 표시 (대소문자 무시)
+            `종류 : ${itemOptions.cabinet_type ? getCategoryLabel(itemOptions.cabinet_type, CABINET_CATEGORY_LIST, "부분장") : "-"}`,
+            // 손잡이 종류 (대소문자 구분 없이)
+            itemOptions.handle_type ? `손잡이 종류: ${CABINET_HANDLE_TYPE_NAME[itemOptions.handle_type.toUpperCase() as keyof typeof CABINET_HANDLE_TYPE_NAME] ?? "기타"}` : "손잡이 종류: 기타",
+            // 소재(바디): 값이 있으면 변환, 없으면 "기타"
+            itemOptions.body_type ? `소재: ${CABINET_BODY_TYPE_NAME[itemOptions.body_type.toUpperCase() as keyof typeof CABINET_BODY_TYPE_NAME] ?? "기타"}` : "소재: 기타",
+            // 마감 방식: finish_category 우선, 없으면 finish_type, 둘 다 없으면 "기타"
+            itemOptions.finish_category ? `마감 방식: ${getCategoryLabel(itemOptions.finish_category, FINISH_CATEGORY_LIST, "기타")}` :
+              (itemOptions.finish_type ? `마감 방식: ${CABINET_FINISH_TYPE_NAME[itemOptions.finish_type.toUpperCase() as keyof typeof CABINET_FINISH_TYPE_NAME] ?? "기타"}` : "마감 방식: 기타"),
+            // 소재(흡음재): 값이 있으면 변환, 없으면 "기타"
+            itemOptions.absorber_type ? `소재: ${CABINET_ABSORBER_TYPE_NAME[itemOptions.absorber_type.toUpperCase() as keyof typeof CABINET_ABSORBER_TYPE_NAME] ?? "기타"}` : "소재: 기타",
+            // 색상, 너비, 깊이, 높이, 서랍, 레일, 용도, 요청사항
+            `색상: ${itemOptions.cabinet_color || "-"}`,
+            `너비: ${itemOptions.cabinet_width ? itemOptions.cabinet_width.toLocaleString() : "-"}mm`,
+            `깊이: ${itemOptions.cabinet_depth ? itemOptions.cabinet_depth.toLocaleString() : "-"}mm`,
+            `높이: ${itemOptions.cabinet_height ? itemOptions.cabinet_height.toLocaleString() : "-"}mm`,
+            itemOptions.drawer_type ? `서랍 종류: ${itemOptions.drawer_type}` : "",
+            itemOptions.rail_type ? `레일 종류: ${itemOptions.rail_type}` : "",
+            itemOptions.cabinet_location ? `용도 ∙ 장소: ${formatLocation(itemOptions.cabinet_location)}` : "",
+            itemOptions.cabinet_request ? `기타 요청 사항: ${itemOptions.cabinet_request}` : ""
+          ].filter(Boolean).join("\n");
+          break;
+        case "door":
+          optionStr = [
+            `종류 : ${itemOptions.door_type ? getCategoryLabel(itemOptions.door_type.toLowerCase(), DOOR_CATEGORY_LIST, "일반문") : "-"}`,
+            `색상 : ${itemOptions.door_color || "-"}`,
+            `가로 길이 : ${itemOptions.door_width ? itemOptions.door_width.toLocaleString() : "-"}mm`,
+            `세로 길이 : ${itemOptions.door_height ? itemOptions.door_height.toLocaleString() : "-"}mm`,
+            `경첩 개수 : ${itemOptions.hinge_count || "-"}`,
+            `경첩 방향 : ${itemOptions.hinge_direction === "left" ? "좌경" : itemOptions.hinge_direction === "right" ? "우경" : "-"}`,
+            itemOptions.door_request ? `추가 요청: ${itemOptions.door_request}` : "",
+            itemOptions.door_location ? `용도 ∙ 장소: ${formatLocation(itemOptions.door_location)}` : ""
+          ].filter(Boolean).join("\n");
+          break;
+        case "finish":
+          optionStr = [
+            `색상 : ${itemOptions.finish_color || "-"}`,
+            `엣지 면 수 : ${itemOptions.finish_edge_count || "-"}`,
+            `깊이 : ${itemOptions.finish_base_depth ? itemOptions.finish_base_depth.toLocaleString() : "-"}mm`,
+            itemOptions.finish_additional_depth !== undefined && itemOptions.finish_additional_depth !== null && itemOptions.finish_additional_depth > 0 ? `⤷ 깊이 키움 : ${itemOptions.finish_additional_depth.toLocaleString()}mm` : "",
+            itemOptions.finish_additional_depth !== undefined && itemOptions.finish_additional_depth !== null && itemOptions.finish_additional_depth > 0 ? `⤷ 합산 깊이 : ${(itemOptions.finish_base_depth + itemOptions.finish_additional_depth).toLocaleString()}mm` : "",
+            `높이 : ${itemOptions.finish_base_height ? itemOptions.finish_base_height.toLocaleString() : "-"}mm`,
+            itemOptions.finish_additional_height !== undefined && itemOptions.finish_additional_height !== null && itemOptions.finish_additional_height > 0 ? `⤷ 높이 키움 : ${itemOptions.finish_additional_height.toLocaleString()}mm` : "",
+            itemOptions.finish_additional_height !== undefined && itemOptions.finish_additional_height !== null && itemOptions.finish_additional_height > 0 ? `⤷ 합산 높이 : ${(itemOptions.finish_base_height + itemOptions.finish_additional_height).toLocaleString()}mm` : "",
+            itemOptions.finish_request ? `요청 사항 : ${itemOptions.finish_request}` : "",
+            itemOptions.finish_location ? `용도 ∙ 장소: ${formatLocation(itemOptions.finish_location)}` : ""
+          ].filter(Boolean).join("\n");
+          break;
+        case "hardware":
+          optionStr = [
+            `종류: ${itemOptions.hardware_type || "-"}`,
+            `제조사 : ${itemOptions.hardware_madeby || "-"}`,
+            `모델명 : ${itemOptions.hardware_size || "-"}`,
+            itemOptions.hardware_request ? `요청 사항 : ${itemOptions.hardware_request}` : ""
+          ].filter(Boolean).join("\n");
+          break;
+        case "accessory":
+          optionStr = [
+            `종류: ${itemOptions.accessory_type || "-"}`,
+            `제조사: ${itemOptions.accessory_madeby || "-"}`,
+            `모델명 : ${itemOptions.accessory_model || "-"}`,
+            itemOptions.accessory_request ? `요청 사항 : ${itemOptions.accessory_request}` : ""
+          ].filter(Boolean).join("\n");
+          break;
+        default:
+          optionStr = Object.entries(itemOptions).map(([k, v]) => `${DETAIL_KEY_LABEL_MAP[k] || k}: ${v ?? "-"}`).join("\n");
+      }
+      const total = (item.unit_price ?? 0) * item.item_count;
+      const textContent = 
+        `${i + 1}. [${PRODUCT_TYPE_LABEL[item.product_type]}]
+${optionStr}
+개수: ${item.item_count}
+단가: ${item.unit_price?.toLocaleString() ?? "-"}원
+총 금액: ${total?.toLocaleString() ?? "-"}원
+`;
 
-  // --- children 본문 생성 ---
-  // 1. 배송정보 블록
-  // (1) 가구종류별 개수
+    // DB에서 전달된 image_url을 그대로 사용
+    const imageUrl = item.image_url;
+    const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || 'https://dooring-backend.onrender.com';
+    if (!imageUrl) {
+      // image_url이 없으면 안내 메시지 블록 생성
+      return {
+        object: "block",
+        type: "paragraph",
+        paragraph: {
+          rich_text: [
+            { type: "text", text: { content: "이미지 없음" } }
+          ]
+        }
+      }
+    }
+    // image_url이 /images/로 시작하면 PUBLIC_BASE_URL을 붙여서 절대경로로 변환
+    const notionImageUrl = imageUrl.startsWith('http') ? imageUrl : `${PUBLIC_BASE_URL}${imageUrl}`;
+    return {
+        object: "block",
+        type: "callout",
+        callout: {
+          rich_text: [
+            { type: "text", text: { content: textContent } } as any
+          ],
+          children: [
+            {
+              object: "block",
+              type: "image",
+              image: {
+                type: "external",
+                external: { url: notionImageUrl }
+              }
+            } as any
+          ]
+        }
+      } as any;
+    }
+
+  // 모든 orderItems에 대해 비동기 처리
+  const furnitureBlocks: any[] = await Promise.all(
+    payload.orderItems.map((item: any, i: number) => makeFurnitureBlock(item, i))
+  );
+  if (!furnitureBlocks.length || furnitureBlocks.every(b => !b)) {
+    console.warn('[NotionSync][IMAGE][ERROR] furnitureBlocks가 비어있음. 이미지 생성 실패 가능성 높음.');
+  }
+
+  // 배송정보 본문 블록
   const typeCounts: Record<string, number> = {};
   for (const item of payload.orderItems) {
     const type = PRODUCT_TYPE_LABEL[item.product_type];
     typeCounts[type] = (typeCounts[type] || 0) + 1;
   }
-
-  // (2) 옵션 번역: delivery/pick_up 구조에서 적절히 해석해 표시
-  function interpretOptions(opts: any, orderType: string): string {
-    if (!opts) return "-";
-    if (orderType === "DELIVERY") {
-      // recipient_road_address, delivery_type, delivery_request 등 상세 표시
-      const lines = [];
-      if (opts.recipient_road_address) lines.push(`배송 주소: ${opts.recipient_road_address}`);
-      if (opts.delivery_type) lines.push(`희망 도착: ${opts.delivery_type === "TOMORROW" ? "내일/지정일" : "오늘중"}`);
-      if (opts.delivery_request) {
-        let request = (opts.delivery_request === "CALL")
-          ? "도착 시 전화"
-          : (opts.delivery_request === "LEAVE_DOOR")
-            ? "문 앞에 놓기"
-            : (opts.delivery_request === "OPEN_GATE")
-              ? "공동현관 비밀번호로 열기"
-              : opts.delivery_request;
-        lines.push(`특이 배송 요청: ${request}`);
-        if (opts.delivery_request === "OPEN_GATE" && opts.gate_password)
-          lines.push(`공동현관 비밀번호: ${opts.gate_password}`);
-        if (opts.delivery_request === "DIRECT_INPUT" && opts.delivery_request_direct_input)
-          lines.push(`직접 입력 요청: ${opts.delivery_request_direct_input}`);
-      }
-      return lines.join("\n") || "-";
-    } else if (orderType === "PICK_UP") {
-      // 차량종류 등 표시
-      if (opts.vehicle_type) {
-        let vehicle = (opts.vehicle_type === "TRUCK") ? "트럭" : (opts.vehicle_type === "CAR") ? "승용차" : opts.vehicle_type;
-        let vehicleLine = `차량종류: ${vehicle}`;
-        if (opts.vehicle_type === "DIRECT_INPUT" && opts.vehicle_type_direct_input)
-          vehicleLine += `(${opts.vehicle_type_direct_input})`;
-        return vehicleLine;
-      }
-      return "-";
-    }
-    return "-";
-  }
-
-  // 배송정보 본문 블록
   const productTypesStats = Object.entries(typeCounts)
     .map(([type, cnt]) => `• ${type}: ${cnt}개`).join("\n");
-
   const orderedAtText = formatDateToYMDHM(payload.orderedAt);
-
   const deliveryInfoBlock = {
     object: "block",
     type: "paragraph",
@@ -187,155 +266,6 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
       ],
     },
   };
-
-  // 2. 가구정보 블록 (비동기: SVG→PNG→S3→image)
-  const { JSDOM } = require('jsdom');
-  const sharp = require('sharp');
-  // 이미지 저장 함수: public/images에 저장하고 URL 반환
-  const fs = require('fs');
-  const path = require('path');
-  async function saveImageLocally(buffer: Buffer, filename: string): Promise<string> {
-  // 이미지 저장 경로를 백엔드의 public/images 폴더로 지정
-  const imagesDir = path.join(__dirname, '../public/images');
-  if (!fs.existsSync(imagesDir)) fs.mkdirSync(imagesDir, { recursive: true });
-  const filePath = path.join(imagesDir, filename);
-  await fs.promises.writeFile(filePath, buffer);
-  // Express static middleware serves /images/* from public/images
-  return `/images/${filename}`;
-  }
-  // SVG 생성 함수 import (Node.js 호환 버전 필요)
-  const { genCabinetSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genCabinet'));
-  const { genGeneralDoorSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genGeneral'));
-  const { genFlapSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genFlap'));
-  const { genMaedaDoorSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genMaeda'));
-  const { genFinishSvg } = require(path.join(__dirname, '../components/svg/svgGenerators/genFinish'));
-
-  // SVG 파라미터 매핑 함수 import
-  const { mapItemOptionsToSvgParams } = require('./svgParamMapper');
-
-  function getSvgForOrderItem(item: any): string {
-    const { product_type, item_options } = item;
-    // Node.js 환경에서 DOM 보장 (jsdom)
-    if (typeof window === 'undefined' && typeof global.document === 'undefined') {
-      const { JSDOM } = require('jsdom');
-      const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
-      global.window = dom.window;
-      global.document = dom.window.document;
-    }
-    const params = mapItemOptionsToSvgParams(product_type, item_options);
-    let svg;
-    if (product_type === "DOOR") {
-      svg = genGeneralDoorSvg(
-        params.subtype,
-        params.size,
-        params.color,
-        params.boringValues
-      );
-    } else if (product_type === "CABINET") {
-      svg = genCabinetSvg(params);
-    } else if (product_type === "FLAP_DOOR") {
-      svg = genFlapSvg(
-        params.subtype,
-        params.size,
-        params.color,
-        params.boringValues
-      );
-    } else if (product_type === "MAEDA") {
-      svg = genMaedaDoorSvg(
-        params.size,
-        params.color
-      );
-    } else if (product_type === "FINISH") {
-      svg = genFinishSvg(
-        params.width,
-        params.height,
-        params.colorOrImage
-      );
-    }
-    if (!svg) {
-      console.warn(`[NotionSync][IMAGE] SVG 생성 실패:`, { product_type, params });
-      return "";
-    }
-    // SVG 생성 결과를 임시 파일로 저장 (테스트 목적)
-    try {
-      const fs = require('fs');
-      const path = require('path');
-      const tmpDir = path.join(__dirname, '../../../tmp_svg');
-      if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir);
-      const fileName = `svgtest_${product_type}_${Date.now()}.svg`;
-      const filePath = path.join(tmpDir, fileName);
-      fs.writeFileSync(filePath, svg.outerHTML, 'utf8');
-      console.log(`[NotionSync][SVG_TEST] SVG 파일 저장됨:`, filePath);
-    } catch (e) {
-      console.warn('[NotionSync][SVG_TEST][ERROR] SVG 파일 저장 실패', e);
-    }
-    return svg.outerHTML;
-  }
-
-  async function makeFurnitureBlock(item: any, i: number): Promise<any> {
-    const optionStr =
-      item.item_options && Object.keys(item.item_options).length > 0
-        ? Object.entries(item.item_options)
-            .map(([k, v]) => {
-              const label = DETAIL_KEY_LABEL_MAP[k] || k;
-              return `${label}: ${v ?? "-"}\n`;
-            })
-            .join(" | ")
-        : "-";
-    const total = (item.unit_price ?? 0) * item.item_count;
-    const textContent = 
-  `${i + 1}. [${PRODUCT_TYPE_LABEL[item.product_type]}]
-세부종류: \n${optionStr}
-개수: ${item.item_count}
-단가: ${item.unit_price?.toLocaleString() ?? "-"}원
-총 금액: ${total?.toLocaleString() ?? "-"}원
-`;
-
-  // DB에서 전달된 image_url을 그대로 사용
-  const imageUrl = item.image_url;
-  const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || 'https://dooring-backend.onrender.com';
-  if (!imageUrl) {
-    // image_url이 없으면 안내 메시지 블록 생성
-    return {
-      object: "block",
-      type: "paragraph",
-      paragraph: {
-        rich_text: [
-          { type: "text", text: { content: "이미지 없음" } }
-        ]
-      }
-    };
-  }
-  // image_url이 /images/로 시작하면 PUBLIC_BASE_URL을 붙여서 절대경로로 변환
-  const notionImageUrl = imageUrl.startsWith('http') ? imageUrl : `${PUBLIC_BASE_URL}${imageUrl}`;
-  return {
-      object: "block",
-      type: "callout",
-      callout: {
-        rich_text: [
-          { type: "text", text: { content: textContent } } as any
-        ],
-        children: [
-          {
-            object: "block",
-            type: "image",
-            image: {
-              type: "external",
-              external: { url: notionImageUrl }
-            }
-          } as any
-        ]
-      }
-    } as any;
-  }
-
-  // 모든 orderItems에 대해 비동기 처리
-  const furnitureBlocks: any[] = await Promise.all(
-    payload.orderItems.map((item: any, i: number) => makeFurnitureBlock(item, i))
-  );
-  if (!furnitureBlocks.length || furnitureBlocks.every(b => !b)) {
-    console.warn('[NotionSync][IMAGE][ERROR] furnitureBlocks가 비어있음. 이미지 생성 실패 가능성 높음.');
-  }
 
   const notionPage: CreatePageParameters = {
     parent: { database_id: NOTION_DATABASE_ID },
@@ -382,6 +312,43 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
     ],
   };
 
+  // (2) 옵션 번역: delivery/pick_up 구조에서 적절히 해석해 표시
+  function interpretOptions(opts: any, orderType: string): string {
+    if (!opts) return "-";
+    if (orderType === "DELIVERY") {
+      // recipient_road_address, delivery_type, delivery_request 등 상세 표시
+      const lines = [];
+      if (opts.recipient_road_address) lines.push(`배송 주소: ${opts.recipient_road_address}`);
+      if (opts.delivery_type) lines.push(`희망 도착: ${opts.delivery_type === "TOMORROW" ? "내일/지정일" : "오늘중"}`);
+      if (opts.delivery_request) {
+        let request = (opts.delivery_request === "CALL")
+          ? "도착 시 전화"
+          : (opts.delivery_request === "LEAVE_DOOR")
+            ? "문 앞에 놓기"
+            : (opts.delivery_request === "OPEN_GATE")
+              ? "공동현관 비밀번호로 열기"
+              : opts.delivery_request;
+        lines.push(`특이 배송 요청: ${request}`);
+        if (opts.delivery_request === "OPEN_GATE" && opts.gate_password)
+          lines.push(`공동현관 비밀번호: ${opts.gate_password}`);
+        if (opts.delivery_request === "DIRECT_INPUT" && opts.delivery_request_direct_input)
+          lines.push(`직접 입력 요청: ${opts.delivery_request_direct_input}`);
+      }
+      return lines.join("\n") || "-";
+    } else if (orderType === "PICK_UP") {
+      // 차량종류 등 표시
+      if (opts.vehicle_type) {
+        let vehicle = (opts.vehicle_type === "TRUCK") ? "트럭" : (opts.vehicle_type === "CAR") ? "승용차" : opts.vehicle_type;
+        let vehicleLine = `차량종류: ${vehicle}`;
+        if (opts.vehicle_type === "DIRECT_INPUT" && opts.vehicle_type_direct_input)
+          vehicleLine += `(${opts.vehicle_type_direct_input})`;
+        return vehicleLine;
+      }
+      return "-";
+    }
+    return "-";
+  }
+
   try {
     const response = await notion.pages.create(notionPage);
     if (!response || !response.id) {
@@ -398,4 +365,74 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
     }
     throw error;
   }
+}
+
+// --- 프론트엔드 옵션/카테고리/포맷 유틸 백엔드 이식 ---
+const DOOR_CATEGORY_LIST = [
+  { slug: "general", header: "일반문" },
+  { slug: "sliding", header: "슬라이딩문" },
+  { slug: "flap", header: "플랩도어" },
+  { slug: "glass", header: "유리문" },
+  { slug: "frame", header: "프레임문" },
+];
+const CABINET_CATEGORY_LIST = [
+  { name: "상부장", image: "/img/cabinet-category/Upper.png", slug: "upper", header: "상부장" },
+  { name: "하부장", image: "/img/cabinet-category/Lower.png", slug: "lower", header: "하부장" },
+  { name: "플랩장", image: "/img/cabinet-category/Flap.png", slug: "flap", header: "플랩장" },
+  { name: "서랍장", image: "/img/cabinet-category/Drawers.png", slug: "drawer", header: "서랍장" },
+  { name: "오픈장", image: "/img/cabinet-category/Open.png", slug: "open", header: "오픈장" },
+];
+const FINISH_CATEGORY_LIST = [
+  { slug: "pvc", header: "PVC" },
+  { slug: "pet", header: "PET" },
+  { slug: "lpm", header: "LPM" },
+  { slug: "paint", header: "도장" },
+  { slug: "veneer", header: "무늬목" },
+  { slug: "etc", header: "기타" },
+];
+// --- 프론트엔드 modelList.ts에서 이식 ---
+const CABINET_HANDLE_TYPE_NAME = {
+  CHANNEL: "찬넬",
+  OUTER: "겉손잡이",
+  PULL_DOWN: "내리기",
+  PUSH: "푸쉬",
+};
+const CABINET_BODY_TYPE_NAME = {
+  HERRINGBONE_PP_15T: "헤링본 PP 15T",
+  HERRINGBONE_PP_18T: "헤링본 PP 18T",
+  PATAGONIA_CREAM_LPM_18T: "파타고니아 크림 LPM 18T",
+  DIRECT_INPUT: "직입",
+};
+const CABINET_FINISH_TYPE_NAME = {
+  MAK_URA: "막우라",
+  URAHOME: "우라홈",
+};
+const CABINET_ABSORBER_TYPE_NAME = {
+  NONE: "없음",
+  MOONJU_AVENTOS: "문주 아벤토스",
+  BLUM_AVENTOS: "블룸 아벤토스",
+  GAS: "가스",
+  FOLDABLE: "폴더블",
+  DIRECT_INPUT: "직접 입력",
+};
+// --- 타입 오류 수정 ---
+function getCategoryLabel(
+  category: string | null,
+  list: { slug: string; name?: string; header?: string }[],
+  fallback = "기타",
+): string {
+  if (!category) return fallback;
+  const normalized = category.toLowerCase();
+  const found = list.find(item => item.slug === normalized);
+  return found?.header ?? found?.name ?? fallback;
+}
+function formatLocation(value: string): string {
+    const locationMap: Record<string, string> = {
+        KITCHEN: "주방",
+        SHOES: "신발장",
+        BUILT_IN: "붙박이장",
+        ETC: "기타 수납장",
+        BALCONY: "발코니 창고문",
+    };
+    return locationMap[value] || value;
 }

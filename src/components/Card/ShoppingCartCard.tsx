@@ -42,6 +42,9 @@ interface ShoppingCartCardProps {
   manufacturer?: string;
   modelName?: string;
   size?: string;
+  addOn_hinge?: boolean;
+  addOn_construction?: boolean;
+  legType?: string;
 }
 
 const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
@@ -78,6 +81,9 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   manufacturer,
   modelName,
   size,
+  addOn_hinge,
+  addOn_construction,
+  legType,
 }) => {
   return (
     <div className="flex w-full flex-col gap-3 rounded-[16px] border-[1px] border-gray-200 bg-white p-[20px]">
@@ -144,6 +150,13 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
             {size && <div>사이즈 : {size}</div>}
             {request && <div>제작 시 요청 사항 : {request}</div>}
             {location && <div>용도 ∙ 장소 : {formatLocation(location)}</div>}
+            {addOn_hinge !== undefined && addOn_hinge !== null && (
+              <div>경첩 추가 선택 : {addOn_hinge ? "경첩도 받기" : "필요 없어요"}</div>
+            )}
+            {addOn_construction !== undefined && addOn_construction !== null && (
+              <div>시공 필요 여부 : {addOn_construction ? "시공도 필요해요" : "필요 없어요"}</div>
+            )}
+            {legType && <div>다리발 : {legType}</div>}
           </div>
         </div>
         {type === "door" && (title === "플랩문" || title === "일반문") && hingeCount && (

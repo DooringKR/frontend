@@ -3,7 +3,7 @@
 import { addCartItem } from "@/api/cartItemApi";
 import { calculateUnitCabinetPrice } from "@/services/pricing/cabinetPricing";
 import { useRouter } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
@@ -36,6 +36,8 @@ function CabinetConfirmPageContent() {
   const riceRail = (cart as CabinetCart)?.riceRail;
   const lowerDrawer = (cart as CabinetCart)?.lowerDrawer;
   const cabinet_location = (cart as CabinetCart)?.cabinet_location;
+  const addOn_construction = (cart as CabinetCart)?.addOn_construction;
+  const legType = (cart as CabinetCart)?.legType;
   const [quantity, setQuantity] = useState(1);
 
   // 빌드 시점에 cart가 비어있을 수 있으므로 안전한 처리
@@ -43,7 +45,9 @@ function CabinetConfirmPageContent() {
     return <div>로딩 중...</div>;
   }
 
-  const unitPrice = calculateUnitCabinetPrice(color!, width!, bodyMaterial!, handleType!);
+
+  const unitPrice = calculateUnitCabinetPrice(category!, color!, width!, bodyMaterial!, handleType!, depth!);
+
 
   return (
     <div>
@@ -72,6 +76,8 @@ function CabinetConfirmPageContent() {
           showQuantitySelector={false}
           request={request ?? undefined}
           location={cabinet_location ?? ""}
+          addOn_construction={addOn_construction ?? undefined}
+          legType={legType ?? undefined}
           onOptionClick={() => {
             router.push(`/order/cabinet/?category=${category}&color=${color}`);
           }}
@@ -169,6 +175,8 @@ function CabinetConfirmPageContent() {
                   ? { add_bottom_drawer: lowerDrawer === "추가" ? true : false }
                   : {}),
                 cabinet_location: cabinet_location,
+                addOn_construction: addOn_construction,
+                leg_type: legType,
               },
             });
             console.log(result);

@@ -33,6 +33,9 @@ interface OrderConfirmCardProps {
   modelName?: string;
   size?: string;
   price: number | string;
+  addOn_hinge?: boolean;
+  addOn_construction?: boolean;
+  legType?: string;
 }
 
 const OrderConfirmCard: React.FC<OrderConfirmCardProps> = ({
@@ -62,6 +65,9 @@ const OrderConfirmCard: React.FC<OrderConfirmCardProps> = ({
   modelName,
   size,
   price,
+  addOn_hinge,
+  addOn_construction,
+  legType,
 }) => {
   return (
     <div className="flex w-full items-start justify-between gap-5">
@@ -109,7 +115,14 @@ const OrderConfirmCard: React.FC<OrderConfirmCardProps> = ({
         {modelName && <p>모델명: {modelName}</p>}
         {size && <p>사이즈: {size}</p>}
         {request && <p>요청사항: {request}</p>}
-        {location && <p>용도 ∙ 장소: {formatLocation(location)}</p>}
+        {location && <p> 용도 ∙ 장소: {formatLocation(location)}</p>}
+        {addOn_hinge !== undefined && addOn_hinge !== null && (
+          <p>경첩 추가 선택 : {addOn_hinge ? "경첩도 받기" : "필요 없어요"}</p>
+        )}
+        {addOn_construction !== undefined && addOn_construction !== null && (
+          <p>시공 필요 여부 : {addOn_construction ? "시공도 필요해요" : "필요 없어요"}</p>
+        )}
+        {legType && <p>다리발: {legType}</p>}
         <p className="mt-1 text-[15px] font-500 text-gray-800">
           {typeof price === "number"
             ? `${(price * (quantity ?? 1)).toLocaleString()}원 ∙ ${quantity}개`
