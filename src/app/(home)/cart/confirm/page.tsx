@@ -270,6 +270,7 @@ export default function OrderConfirmPage() {
                           location={doorItem.door_location ?? ""}
                           quantity={doorItem.count}
                           price={item.price}
+                          addOn_hinge={doorItem.addOn_hinge ?? undefined}
                         />
                       );
                     }
@@ -320,6 +321,7 @@ export default function OrderConfirmPage() {
                           railType={cabinetItem.rail_type ?? ""}
                           request={cabinetItem.cabinet_request ?? ""}
                           location={cabinetItem.cabinet_location ?? ""}
+                          addOn_construction={cabinetItem.addOn_construction ?? undefined}
                           quantity={cabinetItem.count ?? 0}
                           price={item.price}
                         />

@@ -43,6 +43,7 @@ function DoorPageContent() {
 
   const [request, setRequest] = useState(currentCart?.request ?? "");
   const [door_location, setDoorLocation] = useState(currentCart?.door_location ?? "");
+  const [addOn_hinge, setAddOn_hinge] = useState(currentCart?.addOn_hinge ?? false);
   const [isDoorLocationSheetOpen, setIsDoorLocationSheetOpen] = useState(false);
 
   const category = useSingleCartStore(state => (state.cart as DoorCart).category);
@@ -231,6 +232,21 @@ function DoorPageContent() {
           value={door_location}
           onChange={setDoorLocation}
         />
+        <div className="flex flex-col gap-2">
+          <div className="w-full text-[14px] font-400 text-gray-600">경첩 추가 선택</div>
+          <div className="flex flex-row gap-2">
+            <Button
+              type={addOn_hinge ? "BrandInverse" : "GrayLarge"}
+              text={"경첩도 받기"}
+              onClick={() => setAddOn_hinge(true)}
+            />
+            <Button
+              type={addOn_hinge ? "GrayLarge" : "BrandInverse"}
+              text={"필요 없어요"}
+              onClick={() => setAddOn_hinge(false)}
+            />
+          </div>
+        </div>
         <BoxedInput
           label="제작 시 요청사항"
           placeholder="제작 시 요청사항을 입력해주세요"
@@ -254,6 +270,7 @@ function DoorPageContent() {
               boringSize: category === "normal" || category === "flap" ? boringSize : undefined,
               request,
               door_location,
+              addOn_hinge,
             },
           });
           router.push("/order/door/confirm");

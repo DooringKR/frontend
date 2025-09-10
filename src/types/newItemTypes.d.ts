@@ -11,6 +11,7 @@ export type DoorItem = {
   third_hinge: number | null;
   fourth_hinge: number | null;
   door_location: string | null;
+  addOn_hinge: boolean | null;
   count: number;
   price: number;
   cartItemId?: number;
@@ -56,6 +57,7 @@ export type CabinetItem = {
   count: number;
   price: number;
   cartItemId?: number;
+  addOn_construction?: boolean | null;
 };
 
 export type FinishItem = {

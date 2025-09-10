@@ -154,6 +154,9 @@ function CabinetPageContent() {
   const [cabinet_location, setCabinetLocation] = useState(
     (useSingleCartStore.getState().cart as CabinetCart).cabinet_location ?? "",
   );
+  const [addOn_construction, setAddOn_construction] = useState(
+    (useSingleCartStore.getState().cart as CabinetCart).addOn_construction ?? false,
+  );
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const [isShowBarSheetOpen, setIsShowBarSheetOpen] = useState(false);
   const [isDrawerTypeSheetOpen, setIsDrawerTypeSheetOpen] = useState(false);
@@ -267,6 +270,8 @@ function CabinetPageContent() {
         openCabinetFormProps,
       )}
       <div className="h-5" />
+
+
       <div className="px-5">
         <BoxedSelect
           label="용도 ∙ 장소"
@@ -281,6 +286,22 @@ function CabinetPageContent() {
           value={cabinet_location}
           onChange={setCabinetLocation}
         />
+      </div>
+      <div className="h-5" />
+      <div className="flex flex-col gap-2 px-5">
+        <div className="w-full text-[14px] font-400 text-gray-600">시공 필요 여부</div>
+        <div className="flex flex-row gap-2">
+          <Button
+            type={addOn_construction ? "BrandInverse" : "GrayLarge"}
+            text={"시공도 필요해요"}
+            onClick={() => setAddOn_construction(true)}
+          />
+          <Button
+            type={addOn_construction ? "GrayLarge" : "BrandInverse"}
+            text={"필요 없어요"}
+            onClick={() => setAddOn_construction(false)}
+          />
+        </div>
       </div>
       <div className="h-5" />
       <BodyMaterialManualInputSheet
@@ -338,6 +359,7 @@ function CabinetPageContent() {
                   riceRail,
                   lowerDrawer,
                   cabinet_location,
+                  addOn_construction,
                 },
               }));
               router.push(`/order/cabinet/confirm`);

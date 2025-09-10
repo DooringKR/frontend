@@ -56,8 +56,6 @@ export default function Page() {
 
   // 로그인 상태 체크
   useEffect(() => {
-    console.log("userIddfdfdfdf", userId);
-
     // localStorage에서 데이터를 복원하는 동안 잠시 대기
     const timer = setTimeout(() => {
       if (!userId) {
@@ -74,8 +72,9 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    const totalCount = cartItems.reduce((acc, item) => acc + (item.item_count ?? 1), 0);
-    setCartItemCount(totalCount);
+    // const totalCount = cartItems.reduce((acc, item) => acc + (item.item_count ?? 1), 0);
+    // setCartItemCount(totalCount);
+    setCartItemCount(cartItems.length);
   }, [cartItems]);
 
   // const formatOrderDeadline = (remainingMinutes: number): string => {

@@ -147,6 +147,9 @@ export default function OrderDetailPage() {
                                                 <p className="text-[15px]/[22px] font-400 text-gray-600">경첩 방향 : {itemOptions.hinge_direction === "left" ? "좌경" : "우경"}</p>
                                                 {itemOptions.door_request && <p className="text-[15px]/[22px] font-400 text-gray-600">추가 요청: {itemOptions.door_request}</p>}
                                                 {itemOptions.door_location && <p className="text-[15px]/[22px] font-400 text-gray-600">용도 ∙ 장소: {formatLocation(itemOptions.door_location)}</p>}
+                                                {itemOptions.addOn_hinge !== undefined && itemOptions.addOn_hinge !== null && (
+                                                    <p className="text-[15px]/[22px] font-400 text-gray-600">경첩 추가 선택 : {itemOptions.addOn_hinge ? "경첩도 받기" : "필요 없어요"}</p>
+                                                )}
                                             </>
                                         );
 
@@ -191,6 +194,9 @@ export default function OrderDetailPage() {
                                                 {itemOptions.drawer_type && <p className="text-[15px]/[22px] font-400 text-gray-600">서랍 종류: {itemOptions.drawer_type || "-"}</p>}
                                                 {itemOptions.rail_type && <p className="text-[15px]/[22px] font-400 text-gray-600">레일 종류: {itemOptions.rail_type || "-"}</p>}
                                                 {itemOptions.cabinet_location && <p className="text-[15px]/[22px] font-400 text-gray-600">용도 ∙ 장소: {formatLocation(itemOptions.cabinet_location)}</p>}
+                                                {itemOptions.addOn_construction !== undefined && itemOptions.addOn_construction !== null && (
+                                                    <p className="text-[15px]/[22px] font-400 text-gray-600">시공 필요 여부 : {itemOptions.addOn_construction ? "시공도 필요해요" : "필요 없어요"}</p>
+                                                )}
                                                 {itemOptions.cabinet_request && <p className="text-[15px]/[22px] font-400 text-gray-600">기타 요청 사항: {itemOptions.cabinet_request}</p>}
                                             </>
                                         );

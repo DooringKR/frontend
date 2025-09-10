@@ -39,6 +39,7 @@ function DoorConfirmPageContent() {
   const boringSize = (cart as DoorCart)?.boringSize;
   const door_location = (cart as DoorCart)?.door_location;
   const request = (cart as DoorCart)?.request;
+  const addOn_hinge = (cart as DoorCart)?.addOn_hinge;
   const [quantity, setQuantity] = useState(1);
 
   // 빌드 시점에 cart가 비어있을 수 있으므로 안전한 처리
@@ -71,6 +72,7 @@ function DoorConfirmPageContent() {
           showQuantitySelector={false}
           request={request ?? undefined}
           location={door_location ?? undefined}
+          addOn_hinge={addOn_hinge ?? undefined}
           onOptionClick={() => {
             router.push(`/order/door`);
           }}
@@ -118,6 +120,7 @@ function DoorConfirmPageContent() {
                   : {}),
                 door_location: door_location,
                 door_request: request,
+                addOn_hinge: addOn_hinge,
               },
             });
             console.log(result);
