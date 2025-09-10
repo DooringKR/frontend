@@ -26,11 +26,11 @@ import useCartStore from "@/store/cartStore";
 import { useOrderStore } from "@/store/orderStore";
 import { formatBoringDirection } from "@/utils/formatBoring";
 import formatColor from "@/utils/formatColor";
+import formatLocation from "@/utils/formatLocation";
 import { getCategoryLabel } from "@/utils/getCategoryLabel";
 
 import PickUpAddressCard from "../pickup/_components/PickUpAddressCard";
 import OrderConfirmCard from "./_components/OrderConfirmCard";
-import formatLocation from "@/utils/formatLocation";
 
 export default function OrderConfirmPage() {
   const router = useRouter();
@@ -282,7 +282,11 @@ export default function OrderConfirmPage() {
                         <OrderConfirmCard
                           key={key}
                           type="finish"
-                          title={FINISH_CATEGORY_LIST.find(item => item.slug === finishItem.finish_category.toLowerCase())?.header ?? ""}
+                          title={
+                            FINISH_CATEGORY_LIST.find(
+                              item => item.slug === finishItem.finish_category.toLowerCase(),
+                            )?.header ?? ""
+                          }
                           color={formatColor(finishItem.finish_color)}
                           edgeCount={finishItem.finish_edge_count ?? undefined}
                           depth={finishItem.finish_base_depth ?? undefined}
@@ -384,11 +388,11 @@ export default function OrderConfirmPage() {
                     <p>
                       {deliveryType === "today"
                         ? "당일배송"
-                        : deliveryType === "tomorrow"
-                          ? "익일배송"
-                          : deliveryDate
+                        : deliveryType === "custom"
+                          ? deliveryDate
                             ? new Date(deliveryDate).toLocaleDateString()
-                            : "배송일정 없음"}
+                            : "배송일정 없음"
+                          : "배송일정 없음"}
                     </p>
                   )}
                 </div>

@@ -13,11 +13,9 @@ function TimePicker({ initialHour, initialMinute, onConfirm, onClose }: TimePick
   const [hour, setHour] = useState(initialHour);
   const [minute, setMinute] = useState(initialMinute);
 
-  // 모든 시간대를 보여주되, 오전 9시부터 시작하도록 순서 변경
   const hours = [
     "--",
-    ...Array.from({ length: 15 }, (_, i) => String(i + 9).padStart(2, "0")), // 09-23시
-    ...Array.from({ length: 9 }, (_, i) => String(i).padStart(2, "0")), // 00-08시
+    ...Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0")), // 00-23시
   ];
   const minutes = ["--", ...Array.from({ length: 60 }, (_, i) => String(i).padStart(2, "0"))];
 
