@@ -195,6 +195,8 @@ function CheckOrderClientPage() {
       const orderId = order.order_id;
       console.log("오더아이디", orderId);
 
+      /*
+
       // 장바구니 항목을 기반으로 order_item 생성
       const createdOrderItems = await Promise.all(
         cartItems.map(item => {
@@ -213,7 +215,9 @@ function CheckOrderClientPage() {
         }),
       );
 
-      await completeOrder(orderId);
+      */
+
+      // await completeOrder(orderId);
 
       console.log("🚚 order_item 요청 payload:", payload);
       localStorage.setItem("recentOrder", JSON.stringify(order));

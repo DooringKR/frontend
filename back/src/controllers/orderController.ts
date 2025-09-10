@@ -48,6 +48,7 @@ async function completeOrderInternal(order_id: string) {
 
 import { Request, Response } from "express";
 import prisma from "../prismaClient";
+import { generateAndUploadOrderItemImage } from "../services/imageService";
 import { createNotionOrderPage } from "../services/notionService";
 // ProductType enum 직접 명시 또는 문자열 비교
 
@@ -79,6 +80,14 @@ export async function createOrder(req: Request, res: Response) {
   }
 
   try {
+    console.log('[OrderController][DEBUG] 주문 생성 요청:', {
+      user_id,
+      cart_id,
+      order_type,
+      recipient_phone,
+      order_price,
+      order_options,
+    });
     // 1. 주문 생성
     const order = await prisma.order.create({
       data: {
@@ -90,13 +99,80 @@ export async function createOrder(req: Request, res: Response) {
         order_options,
       },
     });
+    console.log('[OrderController][DEBUG] 주문 생성 결과:', order);
 
     // 2. user 조회
     const user = await prisma.user.findUnique({ where: { id: user_id } });
-    if (!user) return res.status(404).json({ message: '해당 user_id가 존재하지 않습니다.' });
+    if (!user) {
+      console.error('[OrderController][ERROR] user_id 조회 실패:', user_id);
+      return res.status(404).json({ message: '해당 user_id가 존재하지 않습니다.' });
+    }
+    console.log('[OrderController][DEBUG] user 조회 결과:', user);
 
-    // 3. 응답 먼저 반환
-    res.status(201).json({
+    // 3. 비동기 후처리 (orderItem 생성 및 completeOrder)
+    setImmediate(async () => {
+      try {
+        // 장바구니 아이템 조회 (cart_id 기준)
+        const cartItems = await prisma.cartItem.findMany({
+          where: { cart_id: order.cart_id },
+        });
+        console.log('[OrderController][DEBUG][비동기] cartItems 조회 결과:', cartItems);
+        // orderItem 생성
+        for (const item of cartItems) {
+          // 1. orderItem 생성
+          console.log('[OrderController][DEBUG][비동기] orderItem 생성 요청:', item);
+          const newOrderItem = await prisma.orderItem.create({
+            data: {
+              order_id: order.order_id,
+              product_type: item.product_type,
+              unit_price: item.unit_price ?? 0,
+              item_count: item.item_count ?? 1,
+              item_options: item.item_options as any,
+            },
+          });
+          console.log('[OrderController][DEBUG][비동기] orderItem 생성 결과:', newOrderItem);
+          // 2. 이미지 생성 및 image_url 업데이트
+          try {
+            console.log('[OrderController][DEBUG][비동기] 이미지 생성 요청:', {
+              order_id: newOrderItem.order_id,
+              order_item_id: newOrderItem.order_item_id,
+              product_type: newOrderItem.product_type,
+              unit_price: newOrderItem.unit_price,
+              item_count: newOrderItem.item_count,
+              item_options: newOrderItem.item_options,
+            });
+            const image_url = await generateAndUploadOrderItemImage({
+              order_id: newOrderItem.order_id,
+              order_item_id: newOrderItem.order_item_id,
+              product_type: newOrderItem.product_type,
+              unit_price: newOrderItem.unit_price,
+              item_count: newOrderItem.item_count,
+              item_options: newOrderItem.item_options,
+            });
+            console.log('[OrderController][DEBUG][비동기] 이미지 생성 결과 image_url:', image_url);
+            if (!image_url) {
+              console.warn('[OrderController][WARN][비동기] image_url이 null/undefined입니다.');
+            }
+            await prisma.orderItem.update({
+              where: { order_item_id: newOrderItem.order_item_id },
+              data: { image_url },
+            });
+            const updated = await prisma.orderItem.findUnique({ where: { order_item_id: newOrderItem.order_item_id } });
+            console.log('[OrderController][DEBUG][비동기] DB 업데이트 후 orderItem:', updated);
+          } catch (e) {
+            console.warn('[OrderController][WARN][비동기] 이미지 생성/업로드 실패', e);
+          }
+        }
+        // 주문 완성 처리 (노션/구글 등)
+        console.log('[OrderController][DEBUG][비동기] completeOrderInternal 호출:', order.order_id);
+        await completeOrderInternal(order.order_id);
+      } catch (err) {
+        console.error('[createOrder][비동기 후처리] error:', err);
+      }
+    });
+
+    // 4. 응답 반환 (주문 생성만 완료 후 바로 반환)
+    console.log('[OrderController][DEBUG] 최종 응답 반환:', {
       order_id: order.order_id,
       user_id: order.user_id,
       cart_id: order.cart_id,
@@ -106,31 +182,15 @@ export async function createOrder(req: Request, res: Response) {
       order_options: order.order_options,
       created_at: order.created_at,
     });
-
-    // 4. 비동기 후처리 (orderItem 생성 및 completeOrder)
-    setImmediate(async () => {
-      try {
-        // 장바구니 아이템 조회 (cart_id 기준)
-        const cartItems = await prisma.cartItem.findMany({
-          where: { cart_id: order.cart_id },
-        });
-        // orderItem 생성
-        for (const item of cartItems) {
-          await prisma.orderItem.create({
-            data: {
-              order_id: order.order_id,
-              product_type: item.product_type,
-              unit_price: item.unit_price ?? 0,
-              item_count: item.item_count ?? 1,
-              item_options: item.item_options as any,
-            },
-          });
-        }
-        // 주문 완성 처리 (노션/구글 등)
-        await completeOrderInternal(order.order_id);
-      } catch (err) {
-        console.error('[createOrder][비동기 후처리] error:', err);
-      }
+    res.status(201).json({
+      order_id: order.order_id,
+      user_id: order.user_id,
+      cart_id: order.cart_id,
+      order_type: order.order_type,
+      recipient_phone: order.recipient_phone,
+      order_price: order.order_price,
+      order_options: order.order_options,
+      created_at: order.created_at,
     });
   } catch (err: any) {
     console.error("Order creation error:", err.message);

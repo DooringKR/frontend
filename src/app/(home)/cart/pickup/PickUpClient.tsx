@@ -123,6 +123,8 @@ export default function PickUpClientPage() {
     try {
       const order = await createOrder(payload);
       const orderId = order.order_id;
+
+      /*
       await Promise.all(
         cartItems.map(item => {
           const itemPayload = {
@@ -138,6 +140,7 @@ export default function PickUpClientPage() {
       );
       
       await completeOrder(orderId);
+      */
       
       localStorage.setItem("recentOrder", JSON.stringify(order));
       router.push("/cart/confirm");
