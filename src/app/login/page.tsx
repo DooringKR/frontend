@@ -315,7 +315,8 @@ function PhoneLoginPage() {
             <div className="text-sm text-gray-400">필수 동의 총 2개</div>
 
             <div className="border-1 ml-3 mt-2 flex flex-col gap-3 border-l-[4px] border-[#E2E2E2] pl-3">
-              <div className="flex items-center justify-between">
+              <div className="flex cursor-pointer items-center justify-between"
+                onClick={() => window.open("https://dooring.notion.site/terms-of-use", "_blank")}>
                 <p>
                   <span className="font-semibold text-brand-500">필수 </span>
                   <span className="text-gray-700">서비스 이용 동의</span>
@@ -328,7 +329,8 @@ function PhoneLoginPage() {
                   className="cursor-pointer"
                 />
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex cursor-pointer items-center justify-between"
+                onClick={() => window.open("https://dooring.notion.site/privacy", "_blank")}>
                 <p>
                   <span className="font-semibold text-brand-500">필수 </span>
                   <span className="text-gray-700">개인정보 수집 및 이용 동의</span>
