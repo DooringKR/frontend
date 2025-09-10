@@ -395,6 +395,7 @@ const CABINET_HANDLE_TYPE_NAME = {
   CHANNEL: "찬넬",
   OUTER: "겉손잡이",
   PULL_DOWN: "내리기",
+  PUSH: "푸쉬",
 };
 const CABINET_BODY_TYPE_NAME = {
   HERRINGBONE_PP_15T: "헤링본 PP 15T",
