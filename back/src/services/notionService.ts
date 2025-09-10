@@ -376,11 +376,11 @@ const DOOR_CATEGORY_LIST = [
   { slug: "frame", header: "프레임문" },
 ];
 const CABINET_CATEGORY_LIST = [
-  { slug: "upper", header: "상부장" },
-  { slug: "lower", header: "하부장" },
-  { slug: "tall", header: "키큰장" },
-  { slug: "sink", header: "싱크장" },
-  { slug: "etc", header: "기타" },
+  { name: "상부장", image: "/img/cabinet-category/Upper.png", slug: "upper", header: "상부장" },
+  { name: "하부장", image: "/img/cabinet-category/Lower.png", slug: "lower", header: "하부장" },
+  { name: "플랩장", image: "/img/cabinet-category/Flap.png", slug: "flap", header: "플랩장" },
+  { name: "서랍장", image: "/img/cabinet-category/Drawers.png", slug: "drawer", header: "서랍장" },
+  { name: "오픈장", image: "/img/cabinet-category/Open.png", slug: "open", header: "오픈장" },
 ];
 const FINISH_CATEGORY_LIST = [
   { slug: "pvc", header: "PVC" },
