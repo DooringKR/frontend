@@ -60,7 +60,7 @@ export default function Page() {
     const timer = setTimeout(() => {
       if (!userId) {
         // router.replace("https://landing.baro.dooring.kr/");
-        router.replace("/login");
+        router.replace("/kako-login");
       }
     }, 100); // 100ms 대기
 
