@@ -143,15 +143,34 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
           ].filter(Boolean).join("\n");
           break;
         case "door":
+          const boringSizes = [
+            itemOptions.boring_size_1,
+            itemOptions.boring_size_2,
+            itemOptions.boring_size_3,
+            itemOptions.boring_size_4
+          ].filter(v => v !== undefined && v !== null && v !== "");
+          let boringStr = "";
+          if (boringSizes.length > 0) {
+            boringStr = `보링 치수 : ${boringSizes.map((v, idx) => `보링 치수 ${idx+1}: ${v}`).join(", ")}`;
+          }
+          let hingeAddStr = "";
+          if (typeof itemOptions.addOn_hinge === "boolean") {
+            hingeAddStr = itemOptions.addOn_hinge ? "경첩도 받기" : "필요없어요";
+          }
+          const doorTypeLower = itemOptions.door_type ? itemOptions.door_type.toLowerCase() : "";
+          const isFlap = doorTypeLower === "flap";
+          const isDrawer = doorTypeLower === "drawer";
           optionStr = [
-            `종류 : ${itemOptions.door_type ? getCategoryLabel(itemOptions.door_type.toLowerCase(), DOOR_CATEGORY_LIST, "일반문") : "-"}`,
+            `종류 : ${itemOptions.door_type ? getCategoryLabel(doorTypeLower, DOOR_CATEGORY_LIST, "일반문") : "-"}`,
             `색상 : ${itemOptions.door_color || "-"}`,
             `가로 길이 : ${itemOptions.door_width ? itemOptions.door_width.toLocaleString() : "-"}mm`,
             `세로 길이 : ${itemOptions.door_height ? itemOptions.door_height.toLocaleString() : "-"}mm`,
-            `경첩 개수 : ${itemOptions.hinge_count || "-"}`,
-            `경첩 방향 : ${itemOptions.hinge_direction === "left" ? "좌경" : itemOptions.hinge_direction === "right" ? "우경" : "-"}`,
-            itemOptions.door_request ? `추가 요청: ${itemOptions.door_request}` : "",
-            itemOptions.door_location ? `용도 ∙ 장소: ${formatLocation(itemOptions.door_location)}` : ""
+            boringStr,
+            itemOptions.door_location ? `용도 ∙ 장소: ${formatLocation(itemOptions.door_location)}` : "",
+            !(isFlap || isDrawer) ? `경첩 개수 : ${itemOptions.hinge_count || "-"}` : "",
+            !(isFlap || isDrawer) ? `경첩 방향 : ${itemOptions.hinge_direction === "left" ? "좌경" : itemOptions.hinge_direction === "right" ? "우경" : "-"}` : "",
+            hingeAddStr,
+            itemOptions.door_request ? `추가 요청: ${itemOptions.door_request}` : ""
           ].filter(Boolean).join("\n");
           break;
         case "finish":
@@ -402,10 +421,8 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
 // --- 프론트엔드 옵션/카테고리/포맷 유틸 백엔드 이식 ---
 const DOOR_CATEGORY_LIST = [
   { slug: "general", header: "일반문" },
-  { slug: "sliding", header: "슬라이딩문" },
+  { slug: "drawer", header: "서랍 마에다" },
   { slug: "flap", header: "플랩도어" },
-  { slug: "glass", header: "유리문" },
-  { slug: "frame", header: "프레임문" },
 ];
 const CABINET_CATEGORY_LIST = [
   { name: "상부장", image: "/img/cabinet-category/Upper.png", slug: "upper", header: "상부장" },
