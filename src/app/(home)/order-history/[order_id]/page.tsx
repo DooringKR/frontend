@@ -143,13 +143,17 @@ export default function OrderDetailPage() {
             {formatDate(order.created_at, true)}
           </div>
         </div>
-        <div className="mx-5 h-[1px] bg-gray-200"></div>
-        <div className="gap-1 px-5 py-4">
-          <div className="text-[17px]/[24px] font-600 text-gray-800">배송 일시</div>
-          <div className="text-[15px]/[22px] font-400 text-gray-500">
-            {formatDate(order.order_options.delivery.detail_delivery_time, true)}
-          </div>
-        </div>
+        {order.order_type === "DELIVERY" && (
+          <>
+            <div className="mx-5 h-[1px] bg-gray-200"></div>
+            <div className="gap-1 px-5 py-4">
+              <div className="text-[17px]/[24px] font-600 text-gray-800">배송 일시</div>
+              <div className="text-[15px]/[22px] font-400 text-gray-500">
+                {formatDate(order.order_options.delivery.detail_delivery_time, true)}
+              </div>
+            </div>
+          </>
+        )}
         <div className="mx-5 h-[1px] bg-gray-200"></div>
         {/* 주문 상품 */}
         <div className="flex flex-col gap-4 px-5 py-4">
@@ -349,24 +353,24 @@ export default function OrderDetailPage() {
                           소재:{" "}
                           {itemOptions.body_type
                             ? CABINET_BODY_TYPE_NAME[
-                                itemOptions.body_type as keyof typeof CABINET_BODY_TYPE_NAME
-                              ]
+                            itemOptions.body_type as keyof typeof CABINET_BODY_TYPE_NAME
+                            ]
                             : "기타"}
                         </p>
                         <p className="text-[15px]/[22px] font-400 text-gray-600">
                           마감 방식:{" "}
                           {itemOptions.finish_type
                             ? CABINET_FINISH_TYPE_NAME[
-                                itemOptions.finish_type as keyof typeof CABINET_FINISH_TYPE_NAME
-                              ]
+                            itemOptions.finish_type as keyof typeof CABINET_FINISH_TYPE_NAME
+                            ]
                             : "기타"}
                         </p>
                         <p className="text-[15px]/[22px] font-400 text-gray-600">
                           소재:{" "}
                           {itemOptions.absorber_type
                             ? CABINET_ABSORBER_TYPE_NAME[
-                                itemOptions.absorber_type as keyof typeof CABINET_ABSORBER_TYPE_NAME
-                              ]
+                            itemOptions.absorber_type as keyof typeof CABINET_ABSORBER_TYPE_NAME
+                            ]
                             : "기타"}
                         </p>
                         {itemOptions.drawer_type && (
