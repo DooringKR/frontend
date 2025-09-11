@@ -151,11 +151,11 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
           ].filter(v => v !== undefined && v !== null && v !== "");
           let boringStr = "";
           if (boringSizes.length > 0) {
-            boringStr = `보링 치수 : ${boringSizes.map((v, idx) => `보링 치수 ${idx+1}: ${v}`).join(", ")}`;
+            boringStr = `보링 치수: ${boringSizes.join(", ")}`;
           }
           let hingeAddStr = "";
           if (typeof itemOptions.addOn_hinge === "boolean") {
-            hingeAddStr = itemOptions.addOn_hinge ? "경첩도 받기" : "필요없어요";
+            hingeAddStr = `경첩 추가 여부: ${itemOptions.addOn_hinge ? "경첩도 받기" : "필요없어요"}`;
           }
           const doorTypeLower = itemOptions.door_type ? itemOptions.door_type.toLowerCase() : "";
           const isFlap = doorTypeLower === "flap";
