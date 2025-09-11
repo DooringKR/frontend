@@ -88,7 +88,7 @@ export default function NormalDoorForm({
         {boringError && <div className="px-1 text-sm text-red-500">{boringError}</div>}
       </div>
       <SegmentedControl
-        options={["좌경", "우경"]}
+        options={["좌경첩", "우경첩"]}
         value={boringDirection === "left" ? 0 : 1}
         onChange={index => setBoringDirection(index === 0 ? "left" : "right")}
       />
