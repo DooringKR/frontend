@@ -112,7 +112,7 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
 
   // 가구 블록 생성 순서 지정: DOOR, FINISH, CABINET, ACCESSORY, HARDWARE
   const PRODUCT_TYPE_ORDER = ['DOOR', 'FINISH', 'CABINET', 'ACCESSORY', 'HARDWARE'];
-  const DOOR_TYPE_ORDER = ['STANDARD', 'FLAP', 'DRAWER'];
+  const DOOR_TYPE_ORDER = ['general', 'flap', 'drawer'];
   const FINISH_TYPE_ORDER = ['ep', 'molding', 'galle'];
   const CABINET_TYPE_ORDER = ['upper', 'lower', 'flap', 'drawer', 'open'];
   const sortedOrderItems = [...payload.orderItems].sort((a, b) => {
@@ -120,8 +120,8 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
     const idxB = PRODUCT_TYPE_ORDER.indexOf(b.product_type?.toUpperCase() || '');
     if (idxA === idxB) {
       if (a.product_type?.toUpperCase() === 'DOOR') {
-        const doorA = DOOR_TYPE_ORDER.indexOf(a.item_options?.door_type?.toUpperCase() || '');
-        const doorB = DOOR_TYPE_ORDER.indexOf(b.item_options?.door_type?.toUpperCase() || '');
+        const doorA = DOOR_TYPE_ORDER.indexOf(a.item_options?.door_type || '');
+        const doorB = DOOR_TYPE_ORDER.indexOf(b.item_options?.door_type || '');
         return doorA - doorB;
       }
       if (a.product_type?.toUpperCase() === 'FINISH') {
