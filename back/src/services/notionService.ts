@@ -151,7 +151,7 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
           ].filter(v => v !== undefined && v !== null && v !== "");
           let boringStr = "";
           if (boringSizes.length > 0) {
-            boringStr = `보링 치수: ${boringSizes.join(", ")}`;
+            boringStr = `보링 치수: ${boringSizes.join(", ")} (아래 이미지 참고)`;
           }
           let hingeAddStr = "";
           if (typeof itemOptions.addOn_hinge === "boolean") {
@@ -174,17 +174,46 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
           ].filter(Boolean).join("\n");
           break;
         case "finish":
+          // 종류: category.ts의 FINISH_CATEGORY_LIST를 따름
+          let finishType = "-";
+          if (itemOptions.finish_category) {
+            const found = FINISH_CATEGORY_LIST.find(cat => cat.slug === itemOptions.finish_category);
+            finishType = found?.header ?? (found && 'name' in found ? found.name : undefined) ?? itemOptions.finish_category;
+          }
+          // 색상
+          const finishColor = itemOptions.finish_color || "-";
+          // 엣지 면 수
+          const edgeCount = itemOptions.finish_edge_count !== undefined ? itemOptions.finish_edge_count : "-";
+          // 깊이
+          let depthStr = "";
+          if (itemOptions.finish_base_depth !== undefined && itemOptions.finish_base_depth !== null) {
+            if (itemOptions.finish_additional_depth !== undefined && itemOptions.finish_additional_depth !== null && itemOptions.finish_additional_depth > 0) {
+              depthStr = `깊이: ${(itemOptions.finish_base_depth + itemOptions.finish_additional_depth).toLocaleString()}mm (${itemOptions.finish_base_depth.toLocaleString()} + ${itemOptions.finish_additional_depth.toLocaleString()})`;
+            } else {
+              depthStr = `깊이: ${itemOptions.finish_base_depth.toLocaleString()}mm(키움 없음)`;
+            }
+          } else {
+            depthStr = "깊이: -";
+          }
+          // 높이
+          let heightStr = "";
+          if (itemOptions.finish_base_height !== undefined && itemOptions.finish_base_height !== null) {
+            if (itemOptions.finish_additional_height !== undefined && itemOptions.finish_additional_height !== null && itemOptions.finish_additional_height > 0) {
+              heightStr = `높이: ${(itemOptions.finish_base_height + itemOptions.finish_additional_height).toLocaleString()}mm (${itemOptions.finish_base_height.toLocaleString()} + ${itemOptions.finish_additional_height.toLocaleString()})`;
+            } else {
+              heightStr = `높이: ${itemOptions.finish_base_height.toLocaleString()}mm(키움 없음)`;
+            }
+          } else {
+            heightStr = "높이: -";
+          }
           optionStr = [
-            `색상 : ${itemOptions.finish_color || "-"}`,
-            `엣지 면 수 : ${itemOptions.finish_edge_count || "-"}`,
-            `깊이 : ${itemOptions.finish_base_depth ? itemOptions.finish_base_depth.toLocaleString() : "-"}mm`,
-            itemOptions.finish_additional_depth !== undefined && itemOptions.finish_additional_depth !== null && itemOptions.finish_additional_depth > 0 ? `⤷ 깊이 키움 : ${itemOptions.finish_additional_depth.toLocaleString()}mm` : "",
-            itemOptions.finish_additional_depth !== undefined && itemOptions.finish_additional_depth !== null && itemOptions.finish_additional_depth > 0 ? `⤷ 합산 깊이 : ${(itemOptions.finish_base_depth + itemOptions.finish_additional_depth).toLocaleString()}mm` : "",
-            `높이 : ${itemOptions.finish_base_height ? itemOptions.finish_base_height.toLocaleString() : "-"}mm`,
-            itemOptions.finish_additional_height !== undefined && itemOptions.finish_additional_height !== null && itemOptions.finish_additional_height > 0 ? `⤷ 높이 키움 : ${itemOptions.finish_additional_height.toLocaleString()}mm` : "",
-            itemOptions.finish_additional_height !== undefined && itemOptions.finish_additional_height !== null && itemOptions.finish_additional_height > 0 ? `⤷ 합산 높이 : ${(itemOptions.finish_base_height + itemOptions.finish_additional_height).toLocaleString()}mm` : "",
-            itemOptions.finish_request ? `요청 사항 : ${itemOptions.finish_request}` : "",
-            itemOptions.finish_location ? `용도 ∙ 장소: ${formatLocation(itemOptions.finish_location)}` : ""
+            `종류: ${finishType}`,
+            `색상: ${finishColor}`,
+            `엣지 면 수: ${edgeCount}`,
+            depthStr,
+            heightStr,
+            itemOptions.finish_location ? `용도 ∙ 장소: ${formatLocation(itemOptions.finish_location)}` : "",
+            itemOptions.finish_request ? `기타 요청 사항: ${itemOptions.finish_request}` : ""
           ].filter(Boolean).join("\n");
           break;
 
