@@ -55,12 +55,13 @@ const DETAIL_KEY_LABEL_MAP: Record<string, string> = {
 const withExtraLine = (s: string) => s + "\n";
 
 function formatDateToYMDHM(date: Date): string {
-  // YYYY-MM-DD HH:mm (초 생략)
-  const yyyy = date.getFullYear();
-  const mm = String(date.getMonth() + 1).padStart(2, "0");
-  const dd = String(date.getDate()).padStart(2, "0");
-  const h = String(date.getHours()).padStart(2, "0");
-  const m = String(date.getMinutes()).padStart(2, "0");
+  // YYYY-MM-DD HH:mm (초 생략, KST)
+  const kstDate = new Date(date.getTime() + 9 * 60 * 60 * 1000);
+  const yyyy = kstDate.getUTCFullYear();
+  const mm = String(kstDate.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(kstDate.getUTCDate()).padStart(2, "0");
+  const h = String(kstDate.getUTCHours()).padStart(2, "0");
+  const m = String(kstDate.getUTCMinutes()).padStart(2, "0");
   return `${yyyy}-${mm}-${dd} ${h}:${m}`;
 }
 /**
