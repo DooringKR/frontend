@@ -122,24 +122,32 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
           optionStr = [
             // 종류: 오픈장, 플랩장 등 세부명칭 표시 (대소문자 무시)
             `종류 : ${itemOptions.cabinet_type ? getCategoryLabel(itemOptions.cabinet_type, CABINET_CATEGORY_LIST, "부분장") : "-"}`,
+            // 소재(바디): 값이 있으면 변환, 없으면 "기타"
+            itemOptions.body_type ? `몸통 소재: ${CABINET_BODY_TYPE_NAME[itemOptions.body_type.toUpperCase() as keyof typeof CABINET_BODY_TYPE_NAME] ?? "기타"}` : "몸통 소재: 기타",
+            // 색상, 너비, 깊이, 높이, 서랍, 레일, 용도, 요청사항
+            `색상: ${itemOptions.cabinet_color || "-"}`,
+            // 소재(바디): 값이 있으면 변환, 없으면 "기타"
+            itemOptions.body_type ? `몸통 소재: ${CABINET_BODY_TYPE_NAME[itemOptions.body_type.toUpperCase() as keyof typeof CABINET_BODY_TYPE_NAME] ?? "기타"}` : "몸통 소재: 기타",
+            `너비: ${itemOptions.cabinet_width ? itemOptions.cabinet_width.toLocaleString() : "-"}mm`,
+            `높이: ${itemOptions.cabinet_height ? itemOptions.cabinet_height.toLocaleString() : "-"}mm`,
+            `깊이: ${itemOptions.cabinet_depth ? itemOptions.cabinet_depth.toLocaleString() : "-"}mm`,
             // 손잡이 종류 (대소문자 구분 없이)
             itemOptions.handle_type ? `손잡이 종류: ${CABINET_HANDLE_TYPE_NAME[itemOptions.handle_type.toUpperCase() as keyof typeof CABINET_HANDLE_TYPE_NAME] ?? "기타"}` : "손잡이 종류: 기타",
-            // 소재(바디): 값이 있으면 변환, 없으면 "기타"
-            itemOptions.body_type ? `소재: ${CABINET_BODY_TYPE_NAME[itemOptions.body_type.toUpperCase() as keyof typeof CABINET_BODY_TYPE_NAME] ?? "기타"}` : "소재: 기타",
             // 마감 방식: finish_category 우선, 없으면 finish_type, 둘 다 없으면 "기타"
             itemOptions.finish_category ? `마감 방식: ${getCategoryLabel(itemOptions.finish_category, FINISH_CATEGORY_LIST, "기타")}` :
               (itemOptions.finish_type ? `마감 방식: ${CABINET_FINISH_TYPE_NAME[itemOptions.finish_type.toUpperCase() as keyof typeof CABINET_FINISH_TYPE_NAME] ?? "기타"}` : "마감 방식: 기타"),
             // 소재(흡음재): 값이 있으면 변환, 없으면 "기타"
-            itemOptions.absorber_type ? `소재: ${CABINET_ABSORBER_TYPE_NAME[itemOptions.absorber_type.toUpperCase() as keyof typeof CABINET_ABSORBER_TYPE_NAME] ?? "기타"}` : "소재: 기타",
-            // 색상, 너비, 깊이, 높이, 서랍, 레일, 용도, 요청사항
-            `색상: ${itemOptions.cabinet_color || "-"}`,
-            `너비: ${itemOptions.cabinet_width ? itemOptions.cabinet_width.toLocaleString() : "-"}mm`,
-            `깊이: ${itemOptions.cabinet_depth ? itemOptions.cabinet_depth.toLocaleString() : "-"}mm`,
-            `높이: ${itemOptions.cabinet_height ? itemOptions.cabinet_height.toLocaleString() : "-"}mm`,
+            itemOptions.absorber_type ? `쇼바 종류: ${CABINET_ABSORBER_TYPE_NAME[itemOptions.absorber_type.toUpperCase() as keyof typeof CABINET_ABSORBER_TYPE_NAME] ?? "기타"}` : "",
             itemOptions.drawer_type ? `서랍 종류: ${itemOptions.drawer_type}` : "",
             itemOptions.rail_type ? `레일 종류: ${itemOptions.rail_type}` : "",
             itemOptions.cabinet_location ? `용도 ∙ 장소: ${formatLocation(itemOptions.cabinet_location)}` : "",
-            itemOptions.cabinet_request ? `기타 요청 사항: ${itemOptions.cabinet_request}` : ""
+            typeof itemOptions.addon_construction === "boolean"
+              ? `시공 필요 여부: ${itemOptions.addon_construction ? "시공도 필요해요" : "필요없어요"}`
+              : (itemOptions.addon_construction ? `시공 필요 여부: ${itemOptions.addon_construction}` : ""),
+            itemOptions.leg_type ? `다리발: ${itemOptions.leg_type}` : "",
+            itemOptions.cabinet_request ? `기타 요청 사항: ${itemOptions.cabinet_request}` : "",
+
+
           ].filter(Boolean).join("\n");
           break;
         case "door":
