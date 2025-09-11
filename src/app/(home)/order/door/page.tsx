@@ -23,6 +23,7 @@ import FlapDoorForm from "./_components/FlapDoorForm";
 import NormalDoorForm from "./_components/NormalDoorForm";
 // Hooks
 import { useDoorValidation } from "./hooks/useDoorValidation";
+import formatColor from "@/utils/formatColor";
 
 function DoorPageContent() {
   const router = useRouter();
@@ -212,7 +213,7 @@ function DoorPageContent() {
         <BoxedSelect
           label="색상"
           options={[]}
-          value={color ?? ""}
+          value={formatColor(color ?? "")}
           onClick={() => router.back()}
           onChange={() => { }}
           truncate={true}

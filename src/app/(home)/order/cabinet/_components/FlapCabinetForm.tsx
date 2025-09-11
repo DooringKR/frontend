@@ -3,6 +3,7 @@ import React from "react";
 import Button from "@/components/Button/Button";
 import BoxedInput from "@/components/Input/BoxedInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";
+import formatColor from "@/utils/formatColor";
 
 type FlapCabinetFormProps = {
   color: string;
@@ -64,7 +65,7 @@ const FlapCabinetForm: React.FC<FlapCabinetFormProps> = props => {
       <BoxedSelect
         label="도어 색상"
         options={[]}
-        value={color}
+        value={formatColor(color)}
         onClick={() => router.back()}
         onChange={() => { }}
       />

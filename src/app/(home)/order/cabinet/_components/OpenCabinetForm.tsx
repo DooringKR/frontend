@@ -3,6 +3,7 @@ import React from "react";
 import Button from "@/components/Button/Button";
 import BoxedInput from "@/components/Input/BoxedInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";
+import formatColor from "@/utils/formatColor";
 
 type OpenCabinetFormProps = {
   color: string;
@@ -60,7 +61,7 @@ const OpenCabinetForm: React.FC<OpenCabinetFormProps> = props => {
       <BoxedSelect
         label="도어 색상"
         options={[]}
-        value={color}
+        value={formatColor(color)}
         onClick={() => router.back()}
         onChange={() => { }}
       />
