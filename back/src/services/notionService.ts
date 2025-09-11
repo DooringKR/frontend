@@ -122,7 +122,7 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
       if (a.product_type?.toUpperCase() === 'DOOR') {
         const doorA = DOOR_TYPE_ORDER.indexOf(a.item_options?.door_type || '');
         const doorB = DOOR_TYPE_ORDER.indexOf(b.item_options?.door_type || '');
-        return doorB- doorA;
+        return doorA - doorB;
       }
       if (a.product_type?.toUpperCase() === 'FINISH') {
         const finishA = FINISH_TYPE_ORDER.indexOf((a.item_options?.finish_category || '').toLowerCase());
@@ -350,7 +350,7 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
 
   // 모든 orderItems에 대해 비동기 처리
   const furnitureBlocks: any[] = await Promise.all(
-    payload.orderItems.map((item: any, i: number) => makeFurnitureBlock(item, i))
+    sortedOrderItems.map((item: any, i: number) => makeFurnitureBlock(item, i))
   );
   if (!furnitureBlocks.length || furnitureBlocks.every(b => !b)) {
     console.warn('[NotionSync][IMAGE][ERROR] furnitureBlocks가 비어있음. 이미지 생성 실패 가능성 높음.');
