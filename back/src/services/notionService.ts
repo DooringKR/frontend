@@ -10,6 +10,7 @@ if (!NOTION_TOKEN || !NOTION_DATABASE_ID) {
   throw new Error("환경변수 NOTION_TOKEN 또는 NOTION_DATABASE_ID가 설정되지 않았습니다.");
 }
 
+
 const notion = new Client({ auth: NOTION_TOKEN });
 
 const DETAIL_KEY_LABEL_MAP: Record<string, string> = {
@@ -113,6 +114,7 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
     // 사용자 친화적 옵션 번역 (page.tsx 참조)
     // 2. 가구정보 블록 (비동기: SVG→PNG→S3→image)
     async function makeFurnitureBlock(item: any, i: number): Promise<any> {
+
       const itemOptions = item.item_options || {};
       let optionStr = "";
       switch (item.product_type?.toLowerCase()) {
@@ -166,22 +168,35 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
             itemOptions.finish_location ? `용도 ∙ 장소: ${formatLocation(itemOptions.finish_location)}` : ""
           ].filter(Boolean).join("\n");
           break;
-        case "hardware":
-          optionStr = [
-            `종류: ${itemOptions.hardware_type || "-"}`,
-            `제조사 : ${itemOptions.hardware_madeby || "-"}`,
-            `모델명 : ${itemOptions.hardware_size || "-"}`,
-            itemOptions.hardware_request ? `요청 사항 : ${itemOptions.hardware_request}` : ""
-          ].filter(Boolean).join("\n");
-          break;
+
+          case "hardware":
+            
+            // 하드웨어/부속 종류 한글 매핑 (함수 최상단)
+            const HARDWARE_TYPE_KR: Record<string, string> = {
+              hinge: "경첩",
+              rail: "레일",
+              bolt: "피스"
+            };
+            optionStr = [
+              `종류: ${itemOptions.hardware_type ? (HARDWARE_TYPE_KR[itemOptions.hardware_type.toLowerCase()] || itemOptions.hardware_type) : "-"}`,
+              `제조사 : ${itemOptions.hardware_madeby || "-"}`,
+              `모델명 : ${itemOptions.hardware_size || "-"}`,
+              itemOptions.hardware_request ? `요청 사항 : ${itemOptions.hardware_request}` : ""
+            ].filter(Boolean).join("\n");
+            break;
         case "accessory":
-          optionStr = [
-            `종류: ${itemOptions.accessory_type || "-"}`,
-            `제조사: ${itemOptions.accessory_madeby || "-"}`,
-            `모델명 : ${itemOptions.accessory_model || "-"}`,
-            itemOptions.accessory_request ? `요청 사항 : ${itemOptions.accessory_request}` : ""
-          ].filter(Boolean).join("\n");
-          break;
+            const ACCESSORY_TYPE_KR: Record<string, string> = {
+              hood: "후드",
+              cooktop: "쿡탑",
+              sinkbowl: "싱크볼"
+            };
+            optionStr = [
+              `종류: ${itemOptions.accessory_type ? (ACCESSORY_TYPE_KR[itemOptions.accessory_type.toLowerCase()] || itemOptions.accessory_type) : "-"}`,
+              `제조사: ${itemOptions.accessory_madeby || "-"}`,
+              `모델명 : ${itemOptions.accessory_model || "-"}`,
+              itemOptions.accessory_request ? `요청 사항 : ${itemOptions.accessory_request}` : ""
+            ].filter(Boolean).join("\n");
+            break;
         default:
           optionStr = Object.entries(itemOptions).map(([k, v]) => `${DETAIL_KEY_LABEL_MAP[k] || k}: ${v ?? "-"}`).join("\n");
       }
