@@ -3,7 +3,7 @@ import React from "react";
 const HeadphonesIcon: React.FC = () => {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-      <span style={{ fontSize: '16px', color: '#444', fontWeight: 500 }}>문의하기</span>
+  <span className="text-base font-medium text-gray-500">문의하기</span>
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
         <path d="M19 12H16V9C16 7.93913 15.5783 6.92202 14.8281 6.17188C14.078 5.42173 13.0609 5 12 5C10.9391 5 9.92202 5.42173 9.17188 6.17188C8.42173 6.92202 8 7.93913 8 9V12H5V9C5 7.14349 5.73705 5.36256 7.0498 4.0498C8.36256 2.73705 10.1435 2 12 2C13.8565 2 15.6374 2.73705 16.9502 4.0498C18.2629 5.36256 19 7.14348 19 9V12Z" fill="#D1D5DC"/>
         <path d="M12 19C11.1716 19 10.5 19.6716 10.5 20.5C10.5 21.3284 11.1716 22 12 22V19ZM15 20.5V22C15.3978 22 15.7794 21.842 16.0607 21.5607L15 20.5ZM12 20.5V22H15V20.5V19H12V20.5ZM15 20.5L16.0607 21.5607L20.0607 17.5607L19 16.5L17.9393 15.4393L13.9393 19.4393L15 20.5Z" fill="#D1D5DC"/>
