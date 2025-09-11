@@ -197,6 +197,7 @@ ${optionStr}
     // DB에서 전달된 image_url을 그대로 사용
     const imageUrl = item.image_url;
     const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || 'https://dooring-backend.onrender.com';
+    /*
     if (!imageUrl) {
       // image_url이 없으면 안내 메시지 블록 생성
       return {
@@ -209,6 +210,7 @@ ${optionStr}
         }
       }
     }
+      */
     // image_url이 /images/로 시작하면 PUBLIC_BASE_URL을 붙여서 절대경로로 변환
     const notionImageUrl = imageUrl.startsWith('http') ? imageUrl : `${PUBLIC_BASE_URL}${imageUrl}`;
     return {
