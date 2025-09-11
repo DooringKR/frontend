@@ -152,9 +152,11 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
           colorName = `${colorParts[1]} ${colorParts[3]}`;
         }
       }
+      const sumDepth = Number(item_options.finish_base_depth || 0) + Number(item_options.finish_additional_depth || 0);
+      const sumHeight = Number(item_options.finish_base_height || 0) + Number(item_options.finish_additional_height || 0);
       result = {
-        width: Number(item_options.finish_base_depth),
-        height: Number(item_options.finish_base_height),
+        width: sumDepth,
+        height: sumHeight,
         colorOrImage: { fallbackColor: `/img/color-png(new)/${colorName}.png` }
       };
       break;

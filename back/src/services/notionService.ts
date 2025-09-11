@@ -461,12 +461,9 @@ const CABINET_CATEGORY_LIST = [
   { name: "오픈장", image: "/img/cabinet-category/Open.png", slug: "open", header: "오픈장" },
 ];
 const FINISH_CATEGORY_LIST = [
-  { slug: "pvc", header: "PVC" },
-  { slug: "pet", header: "PET" },
-  { slug: "lpm", header: "LPM" },
-  { slug: "paint", header: "도장" },
-  { slug: "veneer", header: "무늬목" },
-  { slug: "etc", header: "기타" },
+  { name: "EP 마감", image: "/img/finish-category/EP.png", slug: "ep", header: "EP 마감" },
+  { name: "몰딩", image: "/img/finish-category/Molding.png", slug: "molding", header: "몰딩" },
+  { name: "걸레받이", image: "/img/finish-category/Galle.png", slug: "galle", header: "걸레받이" },
 ];
 // --- 프론트엔드 modelList.ts에서 이식 ---
 const CABINET_HANDLE_TYPE_NAME = {
