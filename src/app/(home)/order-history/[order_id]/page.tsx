@@ -26,6 +26,7 @@ import formatLocation from "@/utils/formatLocation";
 import { getCategoryLabel } from "@/utils/getCategoryLabel";
 
 import { formatDate, formatPrice, getOrderTypeText } from "../utils/formatters";
+import formatColor from "@/utils/formatColor";
 
 interface OrderItem {
   order_item_id: number;
@@ -175,7 +176,7 @@ export default function OrderDetailPage() {
                           ) || "-"}
                         </p>
                         <p className="text-[15px]/[22px] font-400 text-gray-600">
-                          색상 : {itemOptions.door_color || "-"}
+                          색상 : {formatColor(itemOptions.door_color) || "-"}
                         </p>
                         <p className="text-[15px]/[22px] font-400 text-gray-600">
                           가로 길이 :{" "}
@@ -216,7 +217,7 @@ export default function OrderDetailPage() {
                     return (
                       <>
                         <p className="text-[15px]/[22px] font-400 text-gray-600">
-                          색상 : {itemOptions.finish_color || "-"}
+                          색상 : {formatColor(itemOptions.finish_color) || "-"}
                         </p>
                         <p className="text-[15px]/[22px] font-400 text-gray-600">
                           엣지 면 수 : {itemOptions.finish_edge_count || "-"}
@@ -326,7 +327,7 @@ export default function OrderDetailPage() {
                           </p>
                         )}
                         <p className="text-[15px]/[22px] font-400 text-gray-600">
-                          색상: {itemOptions.cabinet_color || "-"}
+                          색상: {formatColor(itemOptions.cabinet_color) || "-"}
                         </p>
                         <p className="text-[15px]/[22px] font-400 text-gray-600">
                           너비:{" "}

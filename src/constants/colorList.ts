@@ -92,4 +92,4 @@ export const COLOR_LIST_BY_TYPE = {
   finish: FINISH_COLOR_LIST,
 } as const;
 
-export const BODY_MATERIAL_LIST = ["헤링본 PP 15T", "헤링본 PP 18T", "파타고니아 크림 LPM 18T"];
+export const BODY_MATERIAL_LIST = ["헤링본 PB 15T", "헤링본 PB 18T", "한솔 파타고니아크림 LPM 18T"];
