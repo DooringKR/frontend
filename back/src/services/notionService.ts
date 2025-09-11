@@ -144,10 +144,10 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
           break;
         case "door":
           const boringSizes = [
-            itemOptions.boring_size_1,
-            itemOptions.boring_size_2,
-            itemOptions.boring_size_3,
-            itemOptions.boring_size_4
+            itemOptions.first_hinge_size,
+            itemOptions.second_hinge_size,
+            itemOptions.third_hinge_size,
+            itemOptions.fourth_hinge_size
           ].filter(v => v !== undefined && v !== null && v !== "");
           let boringStr = "";
           if (boringSizes.length > 0) {
