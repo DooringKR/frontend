@@ -135,7 +135,7 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
         return cabinetA - cabinetB;
       }
     }
-    return idxA - idxB;
+    return idxB - idxA;
   });
 
   // 1. 제목: user_road_address 두 어절만 파싱
