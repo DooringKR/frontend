@@ -153,7 +153,11 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
             // 색상, 너비, 깊이, 높이, 서랍, 레일, 용도, 요청사항
             `색상: ${itemOptions.cabinet_color || "-"}`,
             // 소재(바디): 값이 있으면 변환, 없으면 "기타"
-            itemOptions.body_type ? `몸통 소재: ${CABINET_BODY_TYPE_NAME[itemOptions.body_type.toUpperCase() as keyof typeof CABINET_BODY_TYPE_NAME] ?? "기타"}` : "몸통 소재: 기타",
+            itemOptions.body_type
+              ? (itemOptions.body_type.toUpperCase() === 'DIRECT_INPUT' && itemOptions.body_type_direct_input
+                  ? `몸통 소재: (직접 입력) "${itemOptions.body_type_direct_input}"`
+                  : `몸통 소재: ${CABINET_BODY_TYPE_NAME[itemOptions.body_type.toUpperCase() as keyof typeof CABINET_BODY_TYPE_NAME] ?? "기타"}`)
+              : "몸통 소재: 기타",
             `너비: ${itemOptions.cabinet_width ? itemOptions.cabinet_width.toLocaleString() : "-"}mm`,
             `높이: ${itemOptions.cabinet_height ? itemOptions.cabinet_height.toLocaleString() : "-"}mm`,
             `깊이: ${itemOptions.cabinet_depth ? itemOptions.cabinet_depth.toLocaleString() : "-"}mm`,
@@ -165,7 +169,11 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
             itemOptions.finish_category ? `마감 방식: ${getCategoryLabel(itemOptions.finish_category, FINISH_CATEGORY_LIST, "기타")}` :
               (itemOptions.finish_type ? `마감 방식: ${CABINET_FINISH_TYPE_NAME[itemOptions.finish_type.toUpperCase() as keyof typeof CABINET_FINISH_TYPE_NAME] ?? "기타"}` : "마감 방식: 기타"),
             // 소재(흡음재): 값이 있으면 변환, 없으면 "기타"
-            itemOptions.absorber_type ? `쇼바 종류: ${CABINET_ABSORBER_TYPE_NAME[itemOptions.absorber_type.toUpperCase() as keyof typeof CABINET_ABSORBER_TYPE_NAME] ?? "기타"}` : "",
+            itemOptions.absorber_type
+              ? (itemOptions.absorber_type.toUpperCase() === 'DIRECT_INPUT' && itemOptions.absorber_type_direct_input
+                  ? `쇼바 종류: (직접 입력) "${itemOptions.absorber_type_direct_input}"`
+                  : `쇼바 종류: ${CABINET_ABSORBER_TYPE_NAME[itemOptions.absorber_type.toUpperCase() as keyof typeof CABINET_ABSORBER_TYPE_NAME] ?? "기타"}`)
+              : "",
             itemOptions.drawer_type ? `서랍 종류: ${itemOptions.drawer_type}` : "",
             itemOptions.rail_type ? `레일 종류: ${itemOptions.rail_type}` : "",
             itemOptions.cabinet_location ? `용도 ∙ 장소: ${formatLocation(itemOptions.cabinet_location)}` : "",
@@ -201,10 +209,10 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
             `색상 : ${itemOptions.door_color || "-"}`,
             `가로 길이 : ${itemOptions.door_width ? itemOptions.door_width.toLocaleString() : "-"}mm`,
             `세로 길이 : ${itemOptions.door_height ? itemOptions.door_height.toLocaleString() : "-"}mm`,
+            !(isDrawer) ? `경첩 개수 : ${itemOptions.hinge_count || "-"}` : "",
+            !(isFlap || isDrawer) ? `경첩 방향 : ${itemOptions.hinge_direction === "left" ? "좌경" : itemOptions.hinge_direction === "right" ? "우경" : "-"}` : "",
             boringStr,
             itemOptions.door_location ? `용도 ∙ 장소: ${formatLocation(itemOptions.door_location)}` : "",
-            !(isFlap || isDrawer) ? `경첩 개수 : ${itemOptions.hinge_count || "-"}` : "",
-            !(isFlap || isDrawer) ? `경첩 방향 : ${itemOptions.hinge_direction === "left" ? "좌경" : itemOptions.hinge_direction === "right" ? "우경" : "-"}` : "",
             hingeAddStr,
             itemOptions.door_request ? `추가 요청: ${itemOptions.door_request}` : ""
           ].filter(Boolean).join("\n");
@@ -225,7 +233,7 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
           let depthStr = "";
           if (itemOptions.finish_base_depth !== undefined && itemOptions.finish_base_depth !== null) {
             if (itemOptions.finish_additional_depth !== undefined && itemOptions.finish_additional_depth !== null && itemOptions.finish_additional_depth > 0) {
-              depthStr = `깊이: ${(itemOptions.finish_base_depth + itemOptions.finish_additional_depth).toLocaleString()}mm (${itemOptions.finish_base_depth.toLocaleString()} + ${itemOptions.finish_additional_depth.toLocaleString()})`;
+              depthStr = `깊이: ${(itemOptions.finish_base_depth + itemOptions.finish_additional_depth).toLocaleString()}mm (${itemOptions.finish_base_depth.toLocaleString()} + ${itemOptions.finish_additional_depth.toLocaleString()}키움)`;
             } else {
               depthStr = `깊이: ${itemOptions.finish_base_depth.toLocaleString()}mm(키움 없음)`;
             }
@@ -236,7 +244,7 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
           let heightStr = "";
           if (itemOptions.finish_base_height !== undefined && itemOptions.finish_base_height !== null) {
             if (itemOptions.finish_additional_height !== undefined && itemOptions.finish_additional_height !== null && itemOptions.finish_additional_height > 0) {
-              heightStr = `높이: ${(itemOptions.finish_base_height + itemOptions.finish_additional_height).toLocaleString()}mm (${itemOptions.finish_base_height.toLocaleString()} + ${itemOptions.finish_additional_height.toLocaleString()})`;
+              heightStr = `높이: ${(itemOptions.finish_base_height + itemOptions.finish_additional_height).toLocaleString()}mm (${itemOptions.finish_base_height.toLocaleString()} + ${itemOptions.finish_additional_height.toLocaleString()}키움)`;
             } else {
               heightStr = `높이: ${itemOptions.finish_base_height.toLocaleString()}mm(키움 없음)`;
             }
