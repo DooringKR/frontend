@@ -150,8 +150,6 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
           optionStr = [
             // 종류: 오픈장, 플랩장 등 세부명칭 표시 (대소문자 무시)
             `종류 : ${itemOptions.cabinet_type ? getCategoryLabel(itemOptions.cabinet_type, CABINET_CATEGORY_LIST, "부분장") : "-"}`,
-            // 소재(바디): 값이 있으면 변환, 없으면 "기타"
-            itemOptions.body_type ? `몸통 소재: ${CABINET_BODY_TYPE_NAME[itemOptions.body_type.toUpperCase() as keyof typeof CABINET_BODY_TYPE_NAME] ?? "기타"}` : "몸통 소재: 기타",
             // 색상, 너비, 깊이, 높이, 서랍, 레일, 용도, 요청사항
             `색상: ${itemOptions.cabinet_color || "-"}`,
             // 소재(바디): 값이 있으면 변환, 없으면 "기타"
@@ -160,7 +158,9 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
             `높이: ${itemOptions.cabinet_height ? itemOptions.cabinet_height.toLocaleString() : "-"}mm`,
             `깊이: ${itemOptions.cabinet_depth ? itemOptions.cabinet_depth.toLocaleString() : "-"}mm`,
             // 손잡이 종류 (대소문자 구분 없이)
-            itemOptions.handle_type ? `손잡이 종류: ${CABINET_HANDLE_TYPE_NAME[itemOptions.handle_type.toUpperCase() as keyof typeof CABINET_HANDLE_TYPE_NAME] ?? "기타"}` : "손잡이 종류: 기타",
+            (itemOptions.cabinet_type?.toLowerCase() !== 'open' && itemOptions.handle_type)
+              ? `손잡이 종류: ${CABINET_HANDLE_TYPE_NAME[itemOptions.handle_type.toUpperCase() as keyof typeof CABINET_HANDLE_TYPE_NAME] ?? "기타"}`
+              : "",
             // 마감 방식: finish_category 우선, 없으면 finish_type, 둘 다 없으면 "기타"
             itemOptions.finish_category ? `마감 방식: ${getCategoryLabel(itemOptions.finish_category, FINISH_CATEGORY_LIST, "기타")}` :
               (itemOptions.finish_type ? `마감 방식: ${CABINET_FINISH_TYPE_NAME[itemOptions.finish_type.toUpperCase() as keyof typeof CABINET_FINISH_TYPE_NAME] ?? "기타"}` : "마감 방식: 기타"),
@@ -213,8 +213,9 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
           // 종류: category.ts의 FINISH_CATEGORY_LIST를 따름
           let finishType = "-";
           if (itemOptions.finish_category) {
-            const found = FINISH_CATEGORY_LIST.find(cat => cat.slug === itemOptions.finish_category);
-            finishType = found?.header ?? (found && 'name' in found ? found.name : undefined) ?? itemOptions.finish_category;
+            const normalized = itemOptions.finish_category.toLowerCase();
+            const found = FINISH_CATEGORY_LIST.find(cat => cat.slug === normalized);
+            finishType = found?.header ?? found?.name ?? itemOptions.finish_category;
           }
           // 색상
           const finishColor = itemOptions.finish_color || "-";
