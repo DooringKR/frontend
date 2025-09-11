@@ -185,53 +185,68 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
         default:
           optionStr = Object.entries(itemOptions).map(([k, v]) => `${DETAIL_KEY_LABEL_MAP[k] || k}: ${v ?? "-"}`).join("\n");
       }
-      const total = (item.unit_price ?? 0) * item.item_count;
-      const textContent = 
-        `${i + 1}. [${PRODUCT_TYPE_LABEL[item.product_type]}]
-${optionStr}
-개수: ${item.item_count}
-단가: ${item.unit_price?.toLocaleString() ?? "-"}원
-총 금액: ${total?.toLocaleString() ?? "-"}원
-`;
+        const total = (item.unit_price ?? 0) * item.item_count;
+        const textContent = 
+          `${i + 1}. [${PRODUCT_TYPE_LABEL[item.product_type]}]
+  ${optionStr}
+  개수: ${item.item_count}
+  단가: ${item.unit_price?.toLocaleString() ?? "-"}원
+  총 금액: ${total?.toLocaleString() ?? "-"}원
+  `;
 
-    // DB에서 전달된 image_url을 그대로 사용
+    // DB에서 전달된 image_url을 그대로 사용 (함수 내에서 한 번만 선언)
     const imageUrl = item.image_url;
     const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || 'https://dooring-backend.onrender.com';
-    /*
-    if (!imageUrl) {
-      // image_url이 없으면 안내 메시지 블록 생성
-      return {
-        object: "block",
-        type: "paragraph",
-        paragraph: {
-          rich_text: [
-            { type: "text", text: { content: "이미지 없음" } }
-          ]
+
+        // 부속/하드웨어는 이미지 없이 텍스트 블록만 생성
+        if (["hardware", "accessory"].includes(item.product_type?.toLowerCase())) {
+          return {
+            object: "block",
+            type: "callout",
+            callout: {
+              rich_text: [
+                { type: "text", text: { content: textContent } } as any
+              ]
+            }
+          } as any;
         }
-      }
-    }
-      */
-    // image_url이 /images/로 시작하면 PUBLIC_BASE_URL을 붙여서 절대경로로 변환
-    const notionImageUrl = imageUrl.startsWith('http') ? imageUrl : `${PUBLIC_BASE_URL}${imageUrl}`;
-    return {
-        object: "block",
-        type: "callout",
-        callout: {
-          rich_text: [
-            { type: "text", text: { content: textContent } } as any
-          ],
-          children: [
-            {
-              object: "block",
-              type: "image",
-              image: {
-                type: "external",
-                external: { url: notionImageUrl }
-              }
-            } as any
-          ]
+
+        // 나머지 카테고리는 기존대로 이미지 포함
+        if (imageUrl) {
+          const notionImageUrl = imageUrl.startsWith('http') ? imageUrl : `${PUBLIC_BASE_URL}${imageUrl}`;
+          return {
+            object: "block",
+            type: "callout",
+            callout: {
+              rich_text: [
+                { type: "text", text: { content: textContent } } as any
+              ],
+              children: [
+                {
+                  object: "block",
+                  type: "image",
+                  image: {
+                    type: "external",
+                    external: { url: notionImageUrl }
+                  }
+                } as any
+              ]
+            }
+          } as any;
+        } else {
+          // 이미지가 없으면 텍스트 블록만 생성
+          return {
+            object: "block",
+            type: "callout",
+            callout: {
+              rich_text: [
+                { type: "text", text: { content: textContent } } as any
+              ]
+            }
+          } as any;
         }
-      } as any;
+
+  // ...existing code...
     }
 
   // 모든 orderItems에 대해 비동기 처리
