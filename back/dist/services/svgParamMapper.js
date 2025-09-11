@@ -22,13 +22,15 @@ function mapItemOptionsToSvgParams(product_type, item_options) {
                     hingeDir = '좌경';
                 const boringCount = Number(item_options.hinge_count) || 2;
                 const subtype = `${hingeDir}_${boringCount}보링`;
-                const hingeSizes = [
-                    item_options.first_hinge_size,
-                    item_options.second_hinge_size,
-                    item_options.third_hinge_size,
-                    item_options.fourth_hinge_size
-                ];
-                const boringValues = hingeSizes.slice(0, boringCount).filter(v => v !== undefined && v !== null).map(Number);
+                                const hingeSizes = [
+                                        item_options.first_hinge_size,
+                                        item_options.second_hinge_size,
+                                        item_options.third_hinge_size,
+                                        item_options.fourth_hinge_size
+                                ];
+                                const boringValues = hingeSizes
+                                    .filter((v, idx) => idx < boringCount && v !== undefined && v !== null && v !== "")
+                                    .map(Number);
                 const size = {
                     width: Number(item_options.door_width),
                     height: Number(item_options.door_height)

@@ -23,10 +23,10 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
               return `${hingeDir}_${boringCount}보링`;
             })();
         const hingeSizes = [
-          item_options.first_hinge,
-          item_options.second_hinge,
-          item_options.third_hinge,
-          item_options.fourth_hinge
+          item_options.first_hinge_size,
+          item_options.second_hinge_size,
+          item_options.third_hinge_size,
+          item_options.fourth_hinge_size
         ];
         const boringValues = hingeSizes.slice(0, boringCount).filter(v => v !== undefined && v !== null).map(Number);
         const size = {
@@ -152,9 +152,11 @@ export function mapItemOptionsToSvgParams(product_type: string, item_options: an
           colorName = `${colorParts[1]} ${colorParts[3]}`;
         }
       }
+      const sumDepth = Number(item_options.finish_base_depth || 0) + Number(item_options.finish_additional_depth || 0);
+      const sumHeight = Number(item_options.finish_base_height || 0) + Number(item_options.finish_additional_height || 0);
       result = {
-        width: Number(item_options.finish_base_depth),
-        height: Number(item_options.finish_base_height),
+        width: sumDepth,
+        height: sumHeight,
         colorOrImage: { fallbackColor: `/img/color-png(new)/${colorName}.png` }
       };
       break;
