@@ -11,13 +11,13 @@ export function calculateUnitDoorPrice(color: string, width: number, height: num
   const split = calculateSplit(width, height);
 
   // 최종 견적 = (original_price / split ) * { 1 + ( margin + 0.1 ) }
-  const unitPrice = (originalPrice / split) * (1 + (MARGIN + 0.1)) * 1.4; // 추가 마진, 0911 추가
+  const unitPrice = (originalPrice / split) * (1 + (MARGIN + 0.1)) * 1.2; // 추가 마진, 0911 추가
 
   // 백원 단위에서 올림
   // const finalPrice = Math.ceil(unitPrice / 100) * 100;
 
-  // 만원 단위에서 올림 (0911 추가)
-  const finalPrice = Math.ceil(unitPrice / 10000) * 10000;
+  // 천원 단위에서 올림 (0911 추가)
+  const finalPrice = Math.ceil(unitPrice / 1000) * 1000;
 
   return finalPrice;
 }
