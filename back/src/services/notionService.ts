@@ -122,7 +122,7 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
       if (a.product_type?.toUpperCase() === 'DOOR') {
         const doorA = DOOR_TYPE_ORDER.indexOf(a.item_options?.door_type || '');
         const doorB = DOOR_TYPE_ORDER.indexOf(b.item_options?.door_type || '');
-        return doorA - doorB;
+        return doorB- doorA;
       }
       if (a.product_type?.toUpperCase() === 'FINISH') {
         const finishA = FINISH_TYPE_ORDER.indexOf((a.item_options?.finish_category || '').toLowerCase());
