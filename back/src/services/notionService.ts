@@ -110,6 +110,34 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
   // 3. 가구종류: 중복 제거 및 사용자 친화적 문자열
   const furnitureTypes = Array.from(new Set(payload.orderItems.map(item => PRODUCT_TYPE_LABEL[item.product_type]))).filter(Boolean) as string[];
 
+  // 가구 블록 생성 순서 지정: DOOR, FINISH, CABINET, ACCESSORY, HARDWARE
+  const PRODUCT_TYPE_ORDER = ['DOOR', 'FINISH', 'CABINET', 'ACCESSORY', 'HARDWARE'];
+  const DOOR_TYPE_ORDER = ['STANDARD', 'FLAP', 'DRAWER'];
+  const FINISH_TYPE_ORDER = ['ep', 'molding', 'galle'];
+  const CABINET_TYPE_ORDER = ['upper', 'lower', 'flap', 'drawer', 'open'];
+  const sortedOrderItems = [...payload.orderItems].sort((a, b) => {
+    const idxA = PRODUCT_TYPE_ORDER.indexOf(a.product_type?.toUpperCase() || '');
+    const idxB = PRODUCT_TYPE_ORDER.indexOf(b.product_type?.toUpperCase() || '');
+    if (idxA === idxB) {
+      if (a.product_type?.toUpperCase() === 'DOOR') {
+        const doorA = DOOR_TYPE_ORDER.indexOf(a.item_options?.door_type?.toUpperCase() || '');
+        const doorB = DOOR_TYPE_ORDER.indexOf(b.item_options?.door_type?.toUpperCase() || '');
+        return doorA - doorB;
+      }
+      if (a.product_type?.toUpperCase() === 'FINISH') {
+        const finishA = FINISH_TYPE_ORDER.indexOf((a.item_options?.finish_category || '').toLowerCase());
+        const finishB = FINISH_TYPE_ORDER.indexOf((b.item_options?.finish_category || '').toLowerCase());
+        return finishA - finishB;
+      }
+      if (a.product_type?.toUpperCase() === 'CABINET') {
+        const cabinetA = CABINET_TYPE_ORDER.indexOf((a.item_options?.cabinet_type || '').toLowerCase());
+        const cabinetB = CABINET_TYPE_ORDER.indexOf((b.item_options?.cabinet_type || '').toLowerCase());
+        return cabinetA - cabinetB;
+      }
+    }
+    return idxA - idxB;
+  });
+
   // 1. 제목: user_road_address 두 어절만 파싱
     // 사용자 친화적 옵션 번역 (page.tsx 참조)
     // 2. 가구정보 블록 (비동기: SVG→PNG→S3→image)
