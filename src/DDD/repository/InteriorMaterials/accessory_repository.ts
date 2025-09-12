@@ -1,5 +1,5 @@
 import { Accessory } from 'dooring-core-domain/dist/models/InteriorMaterials/Accessory';
-import { Response } from '../../data/response';
+import { Response } from "@/DDD/data/response";
 
 export interface AccessoryRepository {
     create(accessory: Accessory): Promise<Response<Accessory>>;
