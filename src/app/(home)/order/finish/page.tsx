@@ -21,6 +21,7 @@ import HeightInputSection from "./_components/HeightInputSection";
 // Hooks
 import { useFinishValidation } from "./hooks/useFinishValidation";
 import { FINISH_CATEGORY_LIST } from "@/constants/category";
+import formatColor from "@/utils/formatColor";
 
 function FinishPageContent() {
   const category = useSingleCartStore(state => (state.cart as FinishCart).category);
@@ -91,7 +92,7 @@ function FinishPageContent() {
       />
       <div className="h-5"></div>
       <div className="flex flex-col gap-5 px-5">
-        <BoxedSelect label="색상" value={color ?? ""} onClick={() => router.back()} />
+        <BoxedSelect label="색상" value={formatColor(color ?? "")} onClick={() => router.back()} />
         <BoxedSelect
           label="엣지 면 수"
           value={edgeCount ? (edgeCount === "2" ? "2면" : "4면") : ""}
