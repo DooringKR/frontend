@@ -146,27 +146,29 @@ function FinishPageContent() {
       </div>
       <div className="h-[100px]" />
       {!isFinishLocationSheetOpen && !isEdgeCountSheetOpen && (
-        <BottomButton
-          type={"1button"}
-          button1Text={"다음"}
-          className="fixed bottom-0 w-full max-w-[460px]"
-          button1Disabled={isFormValid()}
-          onButton1Click={() => {
-            setCart({
-              type: "finish",
-              category: category,
-              color: color,
-              edge_count: edgeCount ? Number(edgeCount) : null,
-              depth: depth ? Number(depth) : null,
-              height: height ? Number(height) : null,
-              depthIncrease: depthIncrease ? Number(depthIncrease) : null,
-              heightIncrease: heightIncrease ? Number(heightIncrease) : null,
-              request: request,
-              finish_location: finish_location,
-            });
-            router.push(`/order/finish/confirm`);
-          }}
-        />
+        <div id="finish-next-button">
+          <BottomButton
+            type={"1button"}
+            button1Text={"다음"}
+            className="fixed bottom-0 w-full max-w-[460px]"
+            button1Disabled={isFormValid()}
+            onButton1Click={() => {
+              setCart({
+                type: "finish",
+                category: category,
+                color: color,
+                edge_count: edgeCount ? Number(edgeCount) : null,
+                depth: depth ? Number(depth) : null,
+                height: height ? Number(height) : null,
+                depthIncrease: depthIncrease ? Number(depthIncrease) : null,
+                heightIncrease: heightIncrease ? Number(heightIncrease) : null,
+                request: request,
+                finish_location: finish_location,
+              });
+              router.push(`/order/finish/confirm`);
+            }}
+          />
+        </div>
       )}
     </div>
   );

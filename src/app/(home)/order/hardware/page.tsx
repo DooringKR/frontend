@@ -63,22 +63,24 @@ function HardwarePageContent() {
           onChange={e => setRequest(e.target.value)}
         />
       </div>
-      <BottomButton
-        type={"1button"}
-        button1Text={"다음"}
-        className="fixed bottom-0 w-full max-w-[460px]"
-        button1Disabled={hardware_madeby === "" || hardware_size === ""}
-        onButton1Click={() => {
-          setCart({
-            type: "hardware",
-            category: category ?? null,
-            hardware_madeby: hardware_madeby,
-            hardware_size: hardware_size,
-            request: request ?? null,
-          });
-          router.push(`/order/hardware/confirm`);
-        }}
-      />
+      <div id="hardware-next-button">
+        <BottomButton
+          type={"1button"}
+          button1Text={"다음"}
+          className="fixed bottom-0 w-full max-w-[460px]"
+          button1Disabled={hardware_madeby === "" || hardware_size === ""}
+          onButton1Click={() => {
+            setCart({
+              type: "hardware",
+              category: category ?? null,
+              hardware_madeby: hardware_madeby,
+              hardware_size: hardware_size,
+              request: request ?? null,
+            });
+            router.push(`/order/hardware/confirm`);
+          }}
+        />
+      </div>
     </div>
   );
 }

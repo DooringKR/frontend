@@ -270,7 +270,7 @@ function CheckOrderClientPage() {
         />
       </div>
       <div className="h-[100px]"></div>
-      <div className="fixed bottom-0 w-full max-w-[460px] p-5">
+      <div id="delivery-order-button" className="fixed bottom-0 w-full max-w-[460px] p-5">
         <Button
           selected={true}
           onClick={handleOrderSubmit}

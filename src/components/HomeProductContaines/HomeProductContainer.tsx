@@ -82,6 +82,7 @@ const HomeProductContainer: React.FC = () => {
         {productList.map((item, idx) => (
           <HomeProductButton
             key={item.label}
+            amplitudeEventName={`home-product-button-${item.slug}`}
             label={item.label}
             icon={item.icon}
             image={item.image}

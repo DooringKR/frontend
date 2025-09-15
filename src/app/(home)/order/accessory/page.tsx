@@ -65,22 +65,24 @@ function AccessoryPageContent() {
           onChange={e => setRequest(e.target.value)}
         />
       </div>
-      <BottomButton
-        type={"1button"}
-        button1Text={"다음"}
-        className="fixed bottom-0 w-full max-w-[460px]"
-        button1Disabled={accessory_madeby === "" || accessory_model === ""}
-        onButton1Click={() => {
-          setCart({
-            type: "accessory",
-            category: category ?? null,
-            accessory_madeby: accessory_madeby,
-            accessory_model: accessory_model,
-            request: request ?? null,
-          });
-          router.push(`/order/accessory/confirm`);
-        }}
-      />
+      <div id="accessory-next-button">
+        <BottomButton
+          type={"1button"}
+          button1Text={"다음"}
+          className="fixed bottom-0 w-full max-w-[460px]"
+          button1Disabled={accessory_madeby === "" || accessory_model === ""}
+          onButton1Click={() => {
+            setCart({
+              type: "accessory",
+              category: category ?? null,
+              accessory_madeby: accessory_madeby,
+              accessory_model: accessory_model,
+              request: request ?? null,
+            });
+            router.push(`/order/accessory/confirm`);
+          }}
+        />
+      </div>
     </div>
   );
 }

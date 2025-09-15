@@ -84,52 +84,54 @@ function DoorConfirmPageContent() {
           onDecrease={() => setQuantity(q => Math.max(1, q - 1))}
         />
       </div>
-      <BottomButton
-        type={"1button"}
-        button1Text={"장바구니 담기"}
-        className="fixed bottom-0 w-full max-w-[460px]"
-        onButton1Click={async () => {
-          try {
-            const result = await addCartItem({
-              product_type: "DOOR",
-              unit_price: unitPrice,
-              item_count: quantity,
-              item_options: {
-                door_type:
-                  category === "normal" ? "STANDARD" : category === "flap" ? "FLAP" : "DRAWER",
-                door_color: color,
-                door_width: width,
-                door_height: height,
-                ...(category === "normal" || category === "flap"
-                  ? {
-                    hinge_count: boringSize!.length,
-                    hinge_direction: boringDirection,
-                    ...(boringSize!.length >= 1 && {
-                      first_hinge_size: boringSize![0] ?? undefined,
-                    }),
-                    ...(boringSize!.length >= 2 && {
-                      second_hinge_size: boringSize![1] ?? undefined,
-                    }),
-                    ...(boringSize!.length >= 3 && {
-                      third_hinge_size: boringSize![2] ?? undefined,
-                    }),
-                    ...(boringSize!.length >= 4 && {
-                      fourth_hinge_size: boringSize![3] ?? undefined,
-                    }),
-                  }
-                  : {}),
-                door_location: door_location,
-                door_request: request,
-                addOn_hinge: addOn_hinge,
-              },
-            });
-            console.log(result);
-            router.replace("/cart");
-          } catch (error) {
-            console.error("장바구니 담기 실패:", error);
-          }
-        }}
-      />
+      <div id="door-add-to-cart-button">
+        <BottomButton
+          type={"1button"}
+          button1Text={"장바구니 담기"}
+          className="fixed bottom-0 w-full max-w-[460px]"
+          onButton1Click={async () => {
+            try {
+              const result = await addCartItem({
+                product_type: "DOOR",
+                unit_price: unitPrice,
+                item_count: quantity,
+                item_options: {
+                  door_type:
+                    category === "normal" ? "STANDARD" : category === "flap" ? "FLAP" : "DRAWER",
+                  door_color: color,
+                  door_width: width,
+                  door_height: height,
+                  ...(category === "normal" || category === "flap"
+                    ? {
+                      hinge_count: boringSize!.length,
+                      hinge_direction: boringDirection,
+                      ...(boringSize!.length >= 1 && {
+                        first_hinge_size: boringSize![0] ?? undefined,
+                      }),
+                      ...(boringSize!.length >= 2 && {
+                        second_hinge_size: boringSize![1] ?? undefined,
+                      }),
+                      ...(boringSize!.length >= 3 && {
+                        third_hinge_size: boringSize![2] ?? undefined,
+                      }),
+                      ...(boringSize!.length >= 4 && {
+                        fourth_hinge_size: boringSize![3] ?? undefined,
+                      }),
+                    }
+                    : {}),
+                  door_location: door_location,
+                  door_request: request,
+                  addOn_hinge: addOn_hinge,
+                },
+              });
+              console.log(result);
+              router.replace("/cart");
+            } catch (error) {
+              console.error("장바구니 담기 실패:", error);
+            }
+          }}
+        />
+      </div>
     </div>
   );
 }

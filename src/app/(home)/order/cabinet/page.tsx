@@ -355,38 +355,40 @@ function CabinetPageContent() {
         !isRailTypeSheetOpen &&
         !isLegTypeSheetOpen &&
         !isCabinetLocationSheetOpen && (
-          <BottomButton
-            type={"1button"}
-            button1Text={"다음"}
-            className="fixed bottom-0 w-full max-w-[460px]"
-            button1Disabled={button1Disabled}
-            onButton1Click={() => {
-              useSingleCartStore.setState(state => ({
-                cart: {
-                  ...state.cart,
-                  type: "cabinet",
-                  category,
-                  color,
-                  width: DoorWidth,
-                  height: DoorHeight,
-                  depth: DoorDepth,
-                  bodyMaterial,
-                  request,
-                  handleType,
-                  finishType,
-                  showBar,
-                  drawerType,
-                  railType,
-                  riceRail,
-                  lowerDrawer,
-                  cabinet_location,
-                  addOn_construction,
-                  legType,
-                },
-              }));
-              router.push(`/order/cabinet/confirm`);
-            }}
-          />
+          <div id="cabinet-next-button">
+            <BottomButton
+              type={"1button"}
+              button1Text={"다음"}
+              className="fixed bottom-0 w-full max-w-[460px]"
+              button1Disabled={button1Disabled}
+              onButton1Click={() => {
+                useSingleCartStore.setState(state => ({
+                  cart: {
+                    ...state.cart,
+                    type: "cabinet",
+                    category,
+                    color,
+                    width: DoorWidth,
+                    height: DoorHeight,
+                    depth: DoorDepth,
+                    bodyMaterial,
+                    request,
+                    handleType,
+                    finishType,
+                    showBar,
+                    drawerType,
+                    railType,
+                    riceRail,
+                    lowerDrawer,
+                    cabinet_location,
+                    addOn_construction,
+                    legType,
+                  },
+                }));
+                router.push(`/order/cabinet/confirm`);
+              }}
+            />
+          </div>
         )}
     </div>
   );
