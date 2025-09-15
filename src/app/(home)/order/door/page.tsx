@@ -250,7 +250,7 @@ function DoorPageContent() {
         </div>
         <BoxedInput
           label="제작 시 요청사항"
-          placeholder="제작 시 요청사항을 입력해주세요"
+          placeholder="제작 시 요청사항 | 예) 시공도 필요해요, …"
           value={request}
           onChange={e => setRequest(e.target.value)}
         />
