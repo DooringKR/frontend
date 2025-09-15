@@ -41,8 +41,8 @@ export default function ReceiveOptionClientPage() {
           <br />
           선택해주세요
         </h1>
-        <div className="flex flex-col gap-3 py-5">
-          <div id="receive-option-delivery-card">
+        <div className="flex w-full flex-col gap-3 py-5">
+          <div id="receive-option-delivery-card" className="w-full">
             <ReceiveOptionCard
               icon={"/icons/truck.svg"}
               alt={"트럭 아이콘"}
@@ -51,7 +51,7 @@ export default function ReceiveOptionClientPage() {
               onClick={() => handleSelect("DELIVERY")}
             />
           </div>
-          <div id="receive-option-pickup-card">
+          <div id="receive-option-pickup-card" className="w-full">
             <ReceiveOptionCard
               icon={"/icons/parcel.svg"}
               alt={"소포 아이콘"}

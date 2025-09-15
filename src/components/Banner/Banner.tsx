@@ -1,72 +1,27 @@
 "use client";
 
 import Image from "next/image";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 
 import BannerPagination from "./_components/Pagination";
 
 const images = [
   "/img/banner/Banner1.png",
   "/img/banner/Banner2.png",
-  "/img/banner/Banner2.png",
-  "/img/banner/Banner2.png",
+  "/img/banner/Banner3.png",
+  "/img/banner/Banner4.png",
 ];
 
 const Banner: React.FC = () => {
   const [current, setCurrent] = useState(0);
-  const [dragX, setDragX] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const startX = useRef(0);
   const total = images.length;
 
-  // 마우스 이벤트 핸들러
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!isDragging) return;
-    setDragX(e.clientX - startX.current);
+  const goToPrevious = () => {
+    setCurrent((prev) => (prev > 0 ? prev - 1 : total - 1));
   };
 
-  const handleMouseUp = () => {
-    if (!isDragging) return;
-    setIsDragging(false);
-    if (Math.abs(dragX) > 80) {
-      if (dragX < 0 && current < total - 1) {
-        setCurrent(current + 1);
-      } else if (dragX > 0 && current > 0) {
-        setCurrent(current - 1);
-      }
-    }
-    setDragX(0);
-    window.removeEventListener("mousemove", handleMouseMove);
-    window.removeEventListener("mouseup", handleMouseUp);
-  };
-
-  // 드래그 시작
-  const onMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true);
-    startX.current = e.clientX;
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
-  };
-
-  // 터치 이벤트
-  const onTouchStart = (e: React.TouchEvent) => {
-    setIsDragging(true);
-    startX.current = e.touches[0].clientX;
-  };
-  const onTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging) return;
-    setDragX(e.touches[0].clientX - startX.current);
-  };
-  const onTouchEnd = () => {
-    setIsDragging(false);
-    if (Math.abs(dragX) > 80) {
-      if (dragX < 0 && current < total - 1) {
-        setCurrent(current + 1);
-      } else if (dragX > 0 && current > 0) {
-        setCurrent(current - 1);
-      }
-    }
-    setDragX(0);
+  const goToNext = () => {
+    setCurrent((prev) => (prev < total - 1 ? prev + 1 : 0));
   };
 
   return (
@@ -76,10 +31,113 @@ const Banner: React.FC = () => {
         margin: "0 auto",
         textAlign: "center",
         position: "relative",
-        userSelect: isDragging ? "none" : undefined,
         overflow: "hidden",
       }}
     >
+      {/* 배너 이미지들 */}
+      <div
+        style={{
+          display: "flex",
+          transition: "transform 0.3s cubic-bezier(.4,0,.2,1)",
+          transform: `translateX(-${current * 100}%)`,
+          width: "100%",
+        }}
+      >
+        {images.map((src, idx) => (
+          <div
+            key={idx}
+            style={{ width: "100%", flexShrink: 0, position: "relative" }}
+          >
+            <Image
+              src={src}
+              alt={`배너 이미지 ${idx + 1}`}
+              width={1200}
+              height={400}
+              style={{ width: "100%", height: "auto", objectFit: "contain" } as React.CSSProperties}
+              priority={idx === 0}
+              draggable={false}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* 네비게이션 컨트롤 영역 */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 0", // 24px에서 8px로 줄임
+          pointerEvents: "none",
+        }}
+      >
+        {/* 이전 버튼 */}
+        <button
+          onClick={goToPrevious}
+          style={{
+            background: "none",
+            border: "none",
+            width: 40,
+            height: 40,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            transition: "all 0.2s ease",
+            pointerEvents: "auto",
+            opacity: 0.9,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = "1";
+            e.currentTarget.style.transform = "scale(1.2)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = "0.9";
+            e.currentTarget.style.transform = "scale(1)";
+          }}
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15 18L9 12L15 6" stroke="#1E1E1E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+
+        {/* 다음 버튼 */}
+        <button
+          onClick={goToNext}
+          style={{
+            background: "none",
+            border: "none",
+            width: 40,
+            height: 40,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            transition: "all 0.2s ease",
+            pointerEvents: "auto",
+            opacity: 0.9,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = "1";
+            e.currentTarget.style.transform = "scale(1.2)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = "0.9";
+            e.currentTarget.style.transform = "scale(1)";
+          }}
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 18L15 12L9 6" stroke="#1E1E1E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      </div>
+
+      {/* 페이지네이션 */}
       <div
         style={{
           position: "absolute",
@@ -94,38 +152,6 @@ const Banner: React.FC = () => {
         }}
       >
         <BannerPagination total={total} current={current} />
-      </div>
-      <div
-        style={{
-          display: "flex",
-          transition: isDragging ? "none" : "transform 0.3s cubic-bezier(.4,0,.2,1)",
-          transform: `translateX(calc(${-current * 100}% + ${dragX}px))`,
-          cursor: isDragging ? "grabbing" : "grab",
-          width: "100%",
-        }}
-        onMouseDown={onMouseDown}
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
-      >
-        {images.map((src, idx) => (
-          <div
-            key={idx}
-            style={{ width: "100%", flexShrink: 0, position: "relative" }}
-            draggable={false}
-            onDragStart={e => e.preventDefault()}
-          >
-            <Image
-              src={src}
-              alt={`배너 이미지 ${idx + 1}`}
-              width={1200}
-              height={400}
-              style={{ width: "100%", height: "auto", objectFit: "contain" } as React.CSSProperties}
-              priority={idx === 0}
-              draggable={false}
-            />
-          </div>
-        ))}
       </div>
     </div>
   );

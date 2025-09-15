@@ -17,7 +17,7 @@ export default function ReceiveOptionCard({
     <button
       type="button"
       onClick={onClick}
-      className="flex items-center gap-5 rounded-xl border border-gray-200 px-5 py-4"
+      className="flex w-full items-center gap-5 rounded-xl border border-gray-200 px-5 py-4"
     >
       <img src={icon} alt={alt} className="h-10 w-10" />
       <div className="flex flex-col items-start gap-1">
