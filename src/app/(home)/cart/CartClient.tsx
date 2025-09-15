@@ -535,7 +535,7 @@ export default function CartClient() {
         </div>
       </div>
       <div className="h-[100px]"></div>
-      <div className="fixed bottom-0 w-full max-w-[460px]">
+      <div id="cart-next-button" className="fixed bottom-0 w-full max-w-[460px]">
         <BottomButton
           type="textcombo+button"
           textComboText={{

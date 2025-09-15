@@ -4,15 +4,17 @@ import React from "react";
 import Image from "next/image";
 
 interface HomeProductButtonProps {
+  amplitudeEventName: string;
   label: string;
   icon: React.ReactNode;
   image: string;
   onClick?: () => void;
 }
 
-const HomeProductButton: React.FC<HomeProductButtonProps> = ({ label, icon, image, onClick }) => {
+const HomeProductButton: React.FC<HomeProductButtonProps> = ({ amplitudeEventName, label, icon, image, onClick }) => {
   return (
     <button
+      id={amplitudeEventName}
       type="button"
       className={`flex min-h-0 min-w-0 flex-1 flex-col items-center justify-center gap-2 w-full h-full`}
       onClick={onClick}

@@ -54,30 +54,32 @@ function ConfirmPageContent() {
           onDecrease={() => setQuantity(q => Math.max(1, q - 1))}
         />
       </div>
-      <BottomButton
-        type={"1button"}
-        button1Text={"장바구니 담기"}
-        className="fixed bottom-0 w-full max-w-[460px]"
-        onButton1Click={async () => {
-          try {
-            const result = await addCartItem({
-              product_type: "ACCESSORY",
-              unit_price: 0,
-              item_count: quantity,
-              item_options: {
-                accessory_type: category,
-                accessory_madeby: accessory_madeby,
-                accessory_model: accessory_model,
-                accessory_request: request,
-              },
-            });
-            console.log(result);
-            router.replace("/cart");
-          } catch (error) {
-            console.error("장바구니 담기 실패:", error);
-          }
-        }}
-      />
+      <div id="accessory-add-to-cart-button">
+        <BottomButton
+          type={"1button"}
+          button1Text={"장바구니 담기"}
+          className="fixed bottom-0 w-full max-w-[460px]"
+          onButton1Click={async () => {
+            try {
+              const result = await addCartItem({
+                product_type: "ACCESSORY",
+                unit_price: 0,
+                item_count: quantity,
+                item_options: {
+                  accessory_type: category,
+                  accessory_madeby: accessory_madeby,
+                  accessory_model: accessory_model,
+                  accessory_request: request,
+                },
+              });
+              console.log(result);
+              router.replace("/cart");
+            } catch (error) {
+              console.error("장바구니 담기 실패:", error);
+            }
+          }}
+        />
+      </div>
     </div>
   );
 }

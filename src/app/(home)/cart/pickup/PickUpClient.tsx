@@ -141,7 +141,7 @@ export default function PickUpClientPage() {
       
       await completeOrder(orderId);
       */
-      
+
       localStorage.setItem("recentOrder", JSON.stringify(order));
       router.push("/cart/confirm");
     } catch (error) {
@@ -182,13 +182,14 @@ export default function PickUpClientPage() {
         </div>
       </div>
       <div className="h-[100px]"></div>
-
-      <BottomButton
-        type={"1button"}
-        button1Text={isLoading ? "주문 요청 중..." : "주문 접수하기"}
-        className={`fixed bottom-0 w-full max-w-[460px] ${isDisabled ? "pointer-events-none opacity-50" : ""}`}
-        onButton1Click={handleSubmit}
-      />
+      <div id="pickup-order-button">
+        <BottomButton
+          type={"1button"}
+          button1Text={isLoading ? "주문 요청 중..." : "주문 접수하기"}
+          className={`fixed bottom-0 w-full max-w-[460px] ${isDisabled ? "pointer-events-none opacity-50" : ""}`}
+          onButton1Click={handleSubmit}
+        />
+      </div>
     </div>
   );
 }
