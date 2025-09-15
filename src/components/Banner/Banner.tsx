@@ -13,23 +13,25 @@ interface BannerData {
 }
 
 const banners: BannerData[] = [
-  {
-    src: "/img/banner/Banner1.png",
-    alt: "배너 이미지 1",
-  },
+  // {
+  //   src: "/img/banner/Banner1.png",
+  //   alt: "배너 이미지 1",
+  // },
   {
     src: "/img/banner/Banner2.png",
     alt: "배너 이미지 2",
-    link: "https://tally.so/r/wbaEV7",
+
   },
   {
     src: "/img/banner/Banner3.png",
     alt: "배너 이미지 3",
-    link: "https://litt.ly/membership", // 예시 링크
+    link: "https://tally.so/r/wbaEV7",
+
   },
   {
     src: "/img/banner/Banner4.png",
     alt: "배너 이미지 4",
+    link: "https://litt.ly/membership", // 예시 링크
     // link 없음 - 클릭해도 아무 동작 안함
   },
 ];
