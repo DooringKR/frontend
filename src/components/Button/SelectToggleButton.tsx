@@ -33,13 +33,19 @@ const SelectToggleButton: React.FC<SelectToggleButtonProps> = ({
     >
       {/* 이미지 TODO: 컬러 constant 추가가 필요합니다. 지금 전부 체크박스로 보이네요*/}
       {imageSrc && (
-        <Image
-          src={imageSrc}
-          alt={label}
-          width={24}
-          height={24}
-          className="border-1 h-6 w-6 rounded-[4px] border-[#030712]/5 object-cover"
-        />
+        <div className="relative h-6 w-6">
+          <Image
+            src={imageSrc}
+            alt={label}
+            width={24}
+            height={24}
+            className="h-6 w-6 rounded-[4px] border-1 border-[#030712]/5 object-cover"
+          />
+          <div
+            className="absolute top-0 left-0 h-6 w-6 rounded-[4px] pointer-events-none"
+            style={{ boxShadow: "inset 0px 0px 0px 1px rgba(3,7,18,0.05)" }}
+          />
+        </div>
       )}
       <div className="flex items-center gap-1">
         <div className="text-[17px]/[24px] font-500 text-gray-600">{label}</div>

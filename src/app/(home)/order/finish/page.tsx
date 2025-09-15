@@ -1,26 +1,26 @@
 "use client";
 
+import { FINISH_CATEGORY_LIST } from "@/constants/category";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import Button from "@/components/Button/Button";
+import SelectToggleButton from "@/components/Button/SelectToggleButton";
 import Header from "@/components/Header/Header";
 import BoxedInput from "@/components/Input/BoxedInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";
-import SelectToggleButton from "@/components/Button/SelectToggleButton";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
-import formatLocation from "@/utils/formatLocation";
-
 import { FinishCart, useSingleCartStore } from "@/store/singleCartStore";
+import formatColor from "@/utils/formatColor";
+import formatLocation from "@/utils/formatLocation";
 
 import DepthInputSection from "./_components/DepthInputSection";
 import HeightInputSection from "./_components/HeightInputSection";
 // Hooks
 import { useFinishValidation } from "./hooks/useFinishValidation";
-import { FINISH_CATEGORY_LIST } from "@/constants/category";
 
 function FinishPageContent() {
   const category = useSingleCartStore(state => (state.cart as FinishCart).category);
@@ -66,18 +66,18 @@ function FinishPageContent() {
   useEffect(() => {
     setIsDepthIncrease(
       depthIncrease !== null &&
-      depthIncrease !== undefined &&
-      depthIncrease !== "" &&
-      Number(depthIncrease) !== 0,
+        depthIncrease !== undefined &&
+        depthIncrease !== "" &&
+        Number(depthIncrease) !== 0,
     );
   }, [depthIncrease]);
 
   useEffect(() => {
     setIsHeightIncrease(
       heightIncrease !== null &&
-      heightIncrease !== undefined &&
-      heightIncrease !== "" &&
-      Number(heightIncrease) !== 0,
+        heightIncrease !== undefined &&
+        heightIncrease !== "" &&
+        Number(heightIncrease) !== 0,
     );
   }, [heightIncrease]);
 
@@ -86,28 +86,30 @@ function FinishPageContent() {
       <TopNavigator />
       <Header
         size="Large"
-        title={`${FINISH_CATEGORY_LIST.find(item => item.slug === category)?.header ?? ""
-          } 정보를 입력해주세요`}
+        title={`${
+          FINISH_CATEGORY_LIST.find(item => item.slug === category)?.header ?? ""
+        } 정보를 입력해주세요`}
       />
       <div className="h-5"></div>
       <div className="flex flex-col gap-5 px-5">
-        <BoxedSelect label="색상" value={color ?? ""} onClick={() => router.back()} />
+        <BoxedSelect label="색상" value={formatColor(color ?? "")} onClick={() => router.back()} />
         <BoxedSelect
           label="엣지 면 수"
           value={edgeCount ? (edgeCount === "2" ? "2면" : "4면") : ""}
           onClick={() => setIsEdgeCountSheetOpen(true)}
         />
-
         <DepthInputSection
+          category={category ?? ""}
           depth={depth ? Number(depth) : null}
           setDepth={e => setDepth(e?.toString() ?? null)}
-          isDepthIncrease={isDepthIncrease}
+          isDepthIncrease={category === "galle" ? false : isDepthIncrease}
           setIsDepthIncrease={setIsDepthIncrease}
           depthIncrease={depthIncrease ? Number(depthIncrease) : null}
           setDepthIncrease={e => setDepthIncrease(e?.toString() ?? null)}
           depthError={depthError}
         />
         <HeightInputSection
+          category={category ?? ""}
           height={height ? Number(height) : null}
           setHeight={e => setHeight(e?.toString() ?? null)}
           isHeightIncrease={isHeightIncrease}
@@ -121,7 +123,7 @@ function FinishPageContent() {
           options={[]}
           value={finish_location ? formatLocation(finish_location) : ""}
           onClick={() => setIsFinishLocationSheetOpen(true)}
-          onChange={() => { }}
+          onChange={() => {}}
         />
         <FinishLocationSheet
           isOpen={isFinishLocationSheetOpen}
@@ -137,7 +139,7 @@ function FinishPageContent() {
         />
         <BoxedInput
           label="제작 시 요청사항"
-          placeholder="제작 시 요청사항을 입력해주세요"
+          placeholder="제작 시 요청사항 | 예) 시공도 필요해요, …"
           value={request}
           onChange={e => setRequest(e.target.value)}
         />

@@ -10,7 +10,7 @@ function Door({ item }: { item: DoorItem }) {
           <p>가로 길이 : {item.width?.toLocaleString()}mm</p>
           <p>세로 길이 : {item.height?.toLocaleString()}mm</p>
           <p>경첩 개수 : {item.hinge?.hingeCount ?? "-"}</p>
-          <p>경첩 방향 : {item.hinge?.hingePosition === "left" ? "좌경" : "우경"}</p>
+          <p>경첩 방향 : {item.hinge?.hingePosition === "left" ? "좌경첩" : "우경첩"}</p>
           <p>
             보링 치수 : 상{item.hinge?.topHinge ?? "-"}
             {item.hinge?.middleHinge ? `, 중${item.hinge.middleHinge}` : ""}
