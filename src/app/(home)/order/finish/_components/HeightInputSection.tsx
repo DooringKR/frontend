@@ -6,6 +6,7 @@ import BoxedInput from "@/components/Input/BoxedInput";
 import { Switch } from "@/components/Switches/Switches";
 
 interface HeightInputSectionProps {
+  category: string;
   height: number | null;
   setHeight: (v: number | null) => void;
   isHeightIncrease: boolean;
@@ -16,6 +17,7 @@ interface HeightInputSectionProps {
 }
 
 const HeightInputSection: React.FC<HeightInputSectionProps> = ({
+  category,
   height,
   setHeight,
   isHeightIncrease,

@@ -191,7 +191,7 @@ export default function OrderDetailPage() {
                           경첩 개수 : {itemOptions.hinge_count || "-"}
                         </p>
                         <p className="text-[15px]/[22px] font-400 text-gray-600">
-                          경첩 방향 : {itemOptions.hinge_direction === "left" ? "좌경" : "우경"}
+                          경첩 방향 : {itemOptions.hinge_direction === "left" ? "좌경첩" : "우경첩"}
                         </p>
                         {itemOptions.door_request && (
                           <p className="text-[15px]/[22px] font-400 text-gray-600">

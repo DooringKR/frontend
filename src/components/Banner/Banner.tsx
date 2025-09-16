@@ -1,72 +1,57 @@
 "use client";
 
 import Image from "next/image";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 
 import BannerPagination from "./_components/Pagination";
 
-const images = [
-  "/img/banner/Banner1.png",
-  "/img/banner/Banner2.png",
-  "/img/banner/Banner2.png",
-  "/img/banner/Banner2.png",
+// 배너 데이터 타입 정의
+interface BannerData {
+  src: string;
+  alt: string;
+  link?: string; // 선택적 링크
+}
+
+const banners: BannerData[] = [
+  // {
+  //   src: "/img/banner/Banner1.png",
+  //   alt: "배너 이미지 1",
+  // },
+  {
+    src: "/img/banner/Banner2.png",
+    alt: "배너 이미지 2",
+
+  },
+  {
+    src: "/img/banner/Banner3.png",
+    alt: "배너 이미지 3",
+    link: "https://tally.so/r/wbaEV7",
+
+  },
+  {
+    src: "/img/banner/Banner4.png",
+    alt: "배너 이미지 4",
+    link: "https://litt.ly/membership", // 예시 링크
+    // link 없음 - 클릭해도 아무 동작 안함
+  },
 ];
 
 const Banner: React.FC = () => {
   const [current, setCurrent] = useState(0);
-  const [dragX, setDragX] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const startX = useRef(0);
-  const total = images.length;
+  const total = banners.length;
 
-  // 마우스 이벤트 핸들러
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!isDragging) return;
-    setDragX(e.clientX - startX.current);
+  const goToPrevious = () => {
+    setCurrent((prev) => (prev > 0 ? prev - 1 : total - 1));
   };
 
-  const handleMouseUp = () => {
-    if (!isDragging) return;
-    setIsDragging(false);
-    if (Math.abs(dragX) > 80) {
-      if (dragX < 0 && current < total - 1) {
-        setCurrent(current + 1);
-      } else if (dragX > 0 && current > 0) {
-        setCurrent(current - 1);
-      }
+  const goToNext = () => {
+    setCurrent((prev) => (prev < total - 1 ? prev + 1 : 0));
+  };
+
+  const handleBannerClick = (banner: BannerData) => {
+    if (banner.link) {
+      window.open(banner.link, '_blank', 'noopener,noreferrer');
     }
-    setDragX(0);
-    window.removeEventListener("mousemove", handleMouseMove);
-    window.removeEventListener("mouseup", handleMouseUp);
-  };
-
-  // 드래그 시작
-  const onMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true);
-    startX.current = e.clientX;
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
-  };
-
-  // 터치 이벤트
-  const onTouchStart = (e: React.TouchEvent) => {
-    setIsDragging(true);
-    startX.current = e.touches[0].clientX;
-  };
-  const onTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging) return;
-    setDragX(e.touches[0].clientX - startX.current);
-  };
-  const onTouchEnd = () => {
-    setIsDragging(false);
-    if (Math.abs(dragX) > 80) {
-      if (dragX < 0 && current < total - 1) {
-        setCurrent(current + 1);
-      } else if (dragX > 0 && current > 0) {
-        setCurrent(current - 1);
-      }
-    }
-    setDragX(0);
   };
 
   return (
@@ -76,10 +61,134 @@ const Banner: React.FC = () => {
         margin: "0 auto",
         textAlign: "center",
         position: "relative",
-        userSelect: isDragging ? "none" : undefined,
         overflow: "hidden",
       }}
     >
+      {/* 배너 이미지들 */}
+      <div
+        style={{
+          display: "flex",
+          transition: "transform 0.3s cubic-bezier(.4,0,.2,1)",
+          transform: `translateX(-${current * 100}%)`,
+          width: "100%",
+        }}
+      >
+        {banners.map((banner, idx) => (
+          <div
+            key={idx}
+            style={{
+              width: "100%",
+              flexShrink: 0,
+              position: "relative",
+              cursor: banner.link ? "pointer" : "default",
+            }}
+            onClick={() => handleBannerClick(banner)}
+          >
+            <Image
+              src={banner.src}
+              alt={banner.alt}
+              width={1200}
+              height={400}
+              style={{
+                width: "100%",
+                height: "auto",
+                objectFit: "contain",
+                transition: banner.link ? "opacity 0.2s ease" : "none",
+              } as React.CSSProperties}
+              priority={idx === 0}
+              draggable={false}
+              onMouseEnter={(e) => {
+                if (banner.link) {
+                  e.currentTarget.style.opacity = "0.9";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (banner.link) {
+                  e.currentTarget.style.opacity = "1";
+                }
+              }}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* 네비게이션 컨트롤 영역 */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 0",
+          pointerEvents: "none",
+        }}
+      >
+        {/* 이전 버튼 */}
+        <button
+          onClick={goToPrevious}
+          style={{
+            background: "none",
+            border: "none",
+            width: 40,
+            height: 40,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            transition: "all 0.2s ease",
+            pointerEvents: "auto",
+            opacity: 0.9,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = "1";
+            e.currentTarget.style.transform = "scale(1.2)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = "0.9";
+            e.currentTarget.style.transform = "scale(1)";
+          }}
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15 18L9 12L15 6" stroke="#1E1E1E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+
+        {/* 다음 버튼 */}
+        <button
+          onClick={goToNext}
+          style={{
+            background: "none",
+            border: "none",
+            width: 40,
+            height: 40,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            transition: "all 0.2s ease",
+            pointerEvents: "auto",
+            opacity: 0.9,
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = "1";
+            e.currentTarget.style.transform = "scale(1.2)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = "0.9";
+            e.currentTarget.style.transform = "scale(1)";
+          }}
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 18L15 12L9 6" stroke="#1E1E1E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      </div>
+
+      {/* 페이지네이션 */}
       <div
         style={{
           position: "absolute",
@@ -94,38 +203,6 @@ const Banner: React.FC = () => {
         }}
       >
         <BannerPagination total={total} current={current} />
-      </div>
-      <div
-        style={{
-          display: "flex",
-          transition: isDragging ? "none" : "transform 0.3s cubic-bezier(.4,0,.2,1)",
-          transform: `translateX(calc(${-current * 100}% + ${dragX}px))`,
-          cursor: isDragging ? "grabbing" : "grab",
-          width: "100%",
-        }}
-        onMouseDown={onMouseDown}
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
-      >
-        {images.map((src, idx) => (
-          <div
-            key={idx}
-            style={{ width: "100%", flexShrink: 0, position: "relative" }}
-            draggable={false}
-            onDragStart={e => e.preventDefault()}
-          >
-            <Image
-              src={src}
-              alt={`배너 이미지 ${idx + 1}`}
-              width={1200}
-              height={400}
-              style={{ width: "100%", height: "auto", objectFit: "contain" } as React.CSSProperties}
-              priority={idx === 0}
-              draggable={false}
-            />
-          </div>
-        ))}
       </div>
     </div>
   );

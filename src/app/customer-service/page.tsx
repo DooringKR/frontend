@@ -30,7 +30,7 @@ function CustomerServicePage() {
               }}
             >
               <div className="flex gap-2">
-                <img src={"icons/phone.svg"} alt="전화기 아이콘" />
+                <img src={"/icons/phone.svg"} alt="전화기 아이콘" />
                 <span className="text-[17px] font-600">전화 문의</span>
               </div>
               <ContactStatusChip isContactAvailable={false} />
@@ -45,7 +45,7 @@ function CustomerServicePage() {
               }}
             >
               <div className="flex gap-2">
-                <img src={"icons/kakaoTalk.svg"} alt="카카오톡 아이콘" />
+                <img src={"/icons/kakaoTalk.svg"} alt="카카오톡 아이콘" />
                 <span className="text-[17px] font-600">카카오톡 채널</span>
               </div>
               <ContactStatusChip isContactAvailable={isContactAvailable} />

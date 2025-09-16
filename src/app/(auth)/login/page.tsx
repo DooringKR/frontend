@@ -242,7 +242,7 @@ function PhoneLoginPage() {
         !showSignupAgreementBottomSheet &&
         !showUserTypeBottomSheet && (
           <div className="pointer-events-none fixed inset-0 z-10 flex items-end justify-center">
-            <div className="pointer-events-auto w-full max-w-[460px]">
+            <div id="signup-confirm" className="pointer-events-auto w-full max-w-[460px]">
               <BottomButton
                 type="1button"
                 button1Text="확인"
@@ -347,7 +347,7 @@ function PhoneLoginPage() {
           </div>
         }
         buttonArea={
-          <div className="p-5">
+          <div id="signup-agreement" className="p-5">
             <Button
               type="Brand"
               text="모두 동의하고 회원가입"

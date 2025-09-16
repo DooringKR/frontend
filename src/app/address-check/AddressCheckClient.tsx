@@ -150,7 +150,7 @@ function AddressCheckClientPage() {
         />
       </div>
 
-      <div className="fixed bottom-0 left-1/2 w-full max-w-[460px] -translate-x-1/2">
+      <div id="address-check-next-button" className="fixed bottom-0 left-1/2 w-full max-w-[460px] -translate-x-1/2">
         <BottomButton
           type="1button"
           button1Text="다음"

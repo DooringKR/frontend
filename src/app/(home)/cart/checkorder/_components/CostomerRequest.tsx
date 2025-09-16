@@ -50,7 +50,10 @@ export default function CustomerRequest({
               <button type="button" onClick={() => setIsModalOpen(false)}>
                 <Image src="/icons/Arrow_Left.svg" width={24} height={24} alt="뒤로가기" />
               </button>
-              <Image src="/icons/Headphones.svg" width={24} height={24} alt="문의하기 버튼" />
+              <div className="flex items-center gap-2">
+                <span className="text-base font-medium text-gray-700">문의하기</span>
+                <Image src="/icons/Headphones.svg" width={24} height={24} alt="문의하기 버튼" />
+              </div>
             </div>
 
             <h1 className="text-2xl font-semibold leading-[1.2] text-[#000000]">

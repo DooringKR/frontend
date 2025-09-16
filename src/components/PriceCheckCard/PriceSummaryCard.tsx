@@ -44,8 +44,8 @@ const PriceSummaryCard: React.FC<PriceSummaryCardProps> = ({
             {onlyExtraPriceItems
               ? "별도 견적"
               : page === CHECK_ORDER_PAGE
-                ? `${getTotalPrice().toLocaleString()}원~`
-                : `${getTotalPrice().toLocaleString()}원`}
+                ? <>{getTotalPrice().toLocaleString()}원&nbsp;<span className="text-gray-600">부터~</span></>
+                : <>{getTotalPrice().toLocaleString()}원&nbsp;<span className="text-gray-600">부터~</span></>}
           </span>
         </div>
         {page === CHECK_ORDER_PAGE ? (
@@ -68,7 +68,7 @@ const PriceSummaryCard: React.FC<PriceSummaryCardProps> = ({
               const isExtraPriceCategory = category === "accessory" || category === "hardware";
               const displayPrice = isExtraPriceCategory
                 ? "별도 견적"
-                : `${((item.price ?? 0) * (item.count ?? 1)).toLocaleString()}원`;
+                : `${((item.price ?? 0) * (item.count ?? 1)).toLocaleString()}원 부터~`;
 
               return (
                 <div

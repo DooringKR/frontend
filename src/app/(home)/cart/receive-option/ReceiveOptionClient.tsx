@@ -41,21 +41,26 @@ export default function ReceiveOptionClientPage() {
           <br />
           선택해주세요
         </h1>
-        <div className="flex flex-col gap-3 py-5">
-          <ReceiveOptionCard
-            icon={"/icons/truck.svg"}
-            alt={"트럭 아이콘"}
-            title={"배송"}
-            description={"입력한 주소로 배송해드려요."}
-            onClick={() => handleSelect("DELIVERY")}
-          />
-          <ReceiveOptionCard
-            icon={"/icons/parcel.svg"}
-            alt={"소포 아이콘"}
-            title={"직접 픽업"}
-            description={"공장에서 포장한 상품을 직접 픽업하세요."}
-            onClick={() => handleSelect("PICK_UP")}
-          />
+        <div className="flex w-full flex-col gap-3 py-5">
+          <div id="receive-option-delivery-card" className="w-full">
+            <ReceiveOptionCard
+              icon={"/icons/truck.svg"}
+              alt={"트럭 아이콘"}
+              title={"배송"}
+              description={"입력한 주소로 배송해드려요."}
+              onClick={() => handleSelect("DELIVERY")}
+            />
+          </div>
+          <div id="receive-option-pickup-card" className="w-full">
+            <ReceiveOptionCard
+              icon={"/icons/parcel.svg"}
+              alt={"소포 아이콘"}
+              title={"직접 픽업"}
+              description={"공장에서 포장한 상품을 직접 픽업하세요."}
+              onClick={() => handleSelect("PICK_UP")}
+            />
+          </div>
+
         </div>
         <button
           className="rounded-[10px] bg-gray-100 px-3 py-[9px] font-500"

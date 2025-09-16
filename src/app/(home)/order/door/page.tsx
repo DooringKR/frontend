@@ -250,33 +250,36 @@ function DoorPageContent() {
         </div>
         <BoxedInput
           label="제작 시 요청사항"
-          placeholder="제작 시 요청사항을 입력해주세요"
+          placeholder="제작 시 요청사항 | 예) 시공도 필요해요, …"
           value={request}
           onChange={e => setRequest(e.target.value)}
         />
       </div>
       <div className="h-[100px]"></div>
-      {!isDoorLocationSheetOpen && <BottomButton
-        type={"1button"}
-        button1Text={"다음"}
-        className="fixed bottom-0 w-full max-w-[460px]"
-        button1Disabled={isFormValid()}
-        onButton1Click={() => {
-          useSingleCartStore.setState({
-            cart: {
-              ...(useSingleCartStore.getState().cart as DoorCart),
-              width: DoorWidth,
-              height: DoorHeight,
-              boringDirection: category === "normal" ? boringDirection : null,
-              boringSize: category === "normal" || category === "flap" ? boringSize : undefined,
-              request,
-              door_location,
-              addOn_hinge,
-            },
-          });
-          router.push("/order/door/confirm");
-        }}
-      />
+      {!isDoorLocationSheetOpen &&
+        <div id="door-next-button">
+          <BottomButton
+            type={"1button"}
+            button1Text={"다음"}
+            className="fixed bottom-0 w-full max-w-[460px]"
+            button1Disabled={isFormValid()}
+            onButton1Click={() => {
+              useSingleCartStore.setState({
+                cart: {
+                  ...(useSingleCartStore.getState().cart as DoorCart),
+                  width: DoorWidth,
+                  height: DoorHeight,
+                  boringDirection: category === "normal" ? boringDirection : null,
+                  boringSize: category === "normal" || category === "flap" ? boringSize : undefined,
+                  request,
+                  door_location,
+                  addOn_hinge,
+                },
+              });
+              router.push("/order/door/confirm");
+            }}
+          />
+        </div>
       }
     </div>
   );

@@ -79,35 +79,37 @@ function ConfirmPageContent() {
           }}
         />
       </div>
-      <BottomButton
-        type={"1button"}
-        button1Text={"장바구니 담기"}
-        className="fixed bottom-0 w-full max-w-[460px]"
-        onButton1Click={async () => {
-          try {
-            const result = await addCartItem({
-              product_type: "FINISH",
-              unit_price: unitPrice,
-              item_count: quantity,
-              item_options: {
-                finish_color: color,
-                finish_category: category?.toUpperCase(),
-                finish_edge_count: edgeCount,
-                finish_base_depth: depth,
-                finish_additional_depth: depthIncrease,
-                finish_base_height: height,
-                finish_additional_height: heightIncrease,
-                finish_request: request,
-                finish_location: finish_location,
-              },
-            });
-            console.log(result);
-            router.replace("/cart");
-          } catch (error) {
-            console.error("장바구니 담기 실패:", error);
-          }
-        }}
-      />
+      <div id="finish-add-to-cart-button">
+        <BottomButton
+          type={"1button"}
+          button1Text={"장바구니 담기"}
+          className="fixed bottom-0 w-full max-w-[460px]"
+          onButton1Click={async () => {
+            try {
+              const result = await addCartItem({
+                product_type: "FINISH",
+                unit_price: unitPrice,
+                item_count: quantity,
+                item_options: {
+                  finish_color: color,
+                  finish_category: category?.toUpperCase(),
+                  finish_edge_count: edgeCount,
+                  finish_base_depth: depth,
+                  finish_additional_depth: depthIncrease,
+                  finish_base_height: height,
+                  finish_additional_height: heightIncrease,
+                  finish_request: request,
+                  finish_location: finish_location,
+                },
+              });
+              console.log(result);
+              router.replace("/cart");
+            } catch (error) {
+              console.error("장바구니 담기 실패:", error);
+            }
+          }}
+        />
+      </div>
     </div>
   );
 }
