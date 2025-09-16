@@ -29,10 +29,13 @@ import formatColor from "@/utils/formatColor";
 import formatLocation from "@/utils/formatLocation";
 import { getCategoryLabel } from "@/utils/getCategoryLabel";
 
+
+import { usePageView } from "@/services/hooks/usePageView";
 import PickUpAddressCard from "../pickup/_components/PickUpAddressCard";
 import OrderConfirmCard from "./_components/OrderConfirmCard";
 
 export default function OrderConfirmPage() {
+  usePageView("Confirm");
   const router = useRouter();
   const [recentOrder, setRecentOrder] = useState<any>(null);
   const [showDetails, setShowDetails] = useState(true);

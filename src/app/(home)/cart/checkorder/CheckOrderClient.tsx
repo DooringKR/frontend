@@ -22,6 +22,10 @@ import DeliveryRequestSelector from "./_components/DeliveryRequestSelector";
 import DeliveryScheduleSelector from "./_components/DeliveryScheduleSelector";
 import RecipientPhoneNumber from "./_components/RecipientPhoneNumber";
 
+import { usePageView } from "@/services/hooks/usePageView";
+import { useButtonClick } from "@/services/hooks/useButtonClick";
+
+
 const CATEGORY_MAP: Record<string, string> = {
   door: "문짝",
   finish: "마감재",
@@ -31,6 +35,7 @@ const CATEGORY_MAP: Record<string, string> = {
 };
 
 function CheckOrderClientPage() {
+  usePageView("CheckOrder");
   const { currentItem } = useCurrentOrderStore();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -172,7 +177,9 @@ function CheckOrderClientPage() {
     return { delivery };
   };
 
+  const buttonClick = useButtonClick("CheckOrder", "CheckOrderNextButton");
   const handleOrderSubmit = async () => {
+    buttonClick();
     setIsLoading(true);
     const totalPrice = cartItems.reduce((sum, item) => sum + item.price * (item.count || 1), 0);
 
