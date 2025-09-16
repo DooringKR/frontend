@@ -1,12 +1,13 @@
 "use client"
 
 import { useEffect } from "react";
-import * as amplitude from "@amplitude/analytics-browser"; // 또는 "amplitude-js"
 
 declare global {
-    interface Window {
-        amplitude?: typeof amplitude;
-    }
+  interface Window {
+    amplitude?: {
+      track: (eventName: string, eventProperties?: Record<string, any>) => void;
+    };
+  }
 }
 
 export function usePageView(pageName: string) {
