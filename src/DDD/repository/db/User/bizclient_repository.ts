@@ -1,4 +1,4 @@
-import { BizClient } from 'dooring-core-domain/dist/models/User/Bizclient';
+import { BizClient } from 'dooring-core-domain/dist/models/User/BizClient';
 import { Response } from '@/DDD/data/response';
 
 export abstract class BizClientRepository {

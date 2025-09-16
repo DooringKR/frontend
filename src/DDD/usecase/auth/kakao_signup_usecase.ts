@@ -2,7 +2,7 @@ import { CartRepository } from "@/DDD/repository/db/CartNOrder/cart_repository";
 import { KakaoAuthRepository } from "@/DDD/repository/service/kakao_auth_repository";
 import { BizClientRepository } from "@/DDD/repository/db/User/bizclient_repository";
 import { BusinessType } from "dooring-core-domain/dist/enums/UserEnums";
-import { BizClient } from "dooring-core-domain/dist/models/User/Bizclient";
+import { BizClient } from "dooring-core-domain/dist/models/User/BizClient";
 import { Response } from "@/DDD/data/response";
 import { Cart } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Cart";
 import useSignupStore from "@/store/signupStore";

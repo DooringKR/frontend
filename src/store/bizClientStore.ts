@@ -1,7 +1,7 @@
 // src/store/bizClientStore.ts
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { BizClient } from "dooring-core-domain/dist/models/User/Bizclient";
+import { BizClient } from "dooring-core-domain/dist/models/User/BizClient";
 import { BusinessType } from "dooring-core-domain/dist/enums/UserEnums";
 
 interface BizClientStore {

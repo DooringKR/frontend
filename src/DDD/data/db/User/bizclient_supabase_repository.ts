@@ -1,6 +1,6 @@
 import { BizClientRepository } from "@/DDD/repository/db/User/bizclient_repository";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { BizClient } from "dooring-core-domain/dist/models/User/Bizclient";
+import { BizClient } from "dooring-core-domain/dist/models/User/BizClient";
 import { Response } from "@/DDD/data/response";
 import { supabase } from "@/lib/supabase";
 
