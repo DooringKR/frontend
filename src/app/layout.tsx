@@ -76,7 +76,7 @@ function RootLayout({
                   attribution: true,
                   fileDownloads: true,
                   formInteractions: true,
-                  pageViews: true,
+                  pageViews: false,
                   sessions: true,
                   elementInteractions: true,
                   networkTracking: true,

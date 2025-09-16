@@ -30,6 +30,7 @@ import useUserStore from "@/store/userStore";
 import { formatBoringDirection } from "@/utils/formatBoring";
 import formatColor from "@/utils/formatColor";
 import { getCategoryLabel } from "@/utils/getCategoryLabel";
+import { usePageView } from "@/services/hooks/usePageView";
 
 const DOOR_TYPE_SLUG_MAP: Record<string, string> = {
   standard: "STANDARD",
@@ -67,6 +68,8 @@ export default function CartClient() {
   const userId = useUserStore.getState().id;
 
   const [originalItemOptionsMap, setOriginalItemOptionsMap] = useState<Record<number, any>>({});
+
+  usePageView("Shopping Cart");
 
   useEffect(() => {
     const fetchCart = async () => {
