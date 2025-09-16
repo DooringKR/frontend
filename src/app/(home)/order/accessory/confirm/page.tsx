@@ -12,6 +12,8 @@ import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { AccessoryCart, useSingleCartStore } from "@/store/singleCartStore";
+import { usePageView } from "@/services/hooks/usePageView";
+import { useButtonClick } from "@/services/hooks/useButtonClick";
 
 function ConfirmPageContent() {
   const router = useRouter();
@@ -25,6 +27,19 @@ function ConfirmPageContent() {
   const request = useSingleCartStore(state => (state.cart as AccessoryCart).request);
 
   const [quantity, setQuantity] = useState(1);
+
+  // PV/BC 이벤트 네이밍을 위한 헬퍼
+  function capitalize(str: string | null | undefined) {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+  const capitalizedType = "Accessory";
+  const capitalizedCategorySlug = capitalize(category);
+  usePageView(`${capitalizedType}${capitalizedCategorySlug}Confirm`);
+  const handleAddToCartClick = useButtonClick(
+    `${capitalizedType}${capitalizedCategorySlug}Confirm`,
+    "toCart"
+  );
 
   return (
     <div className="flex flex-col">
@@ -73,6 +88,7 @@ function ConfirmPageContent() {
                 },
               });
               console.log(result);
+              handleAddToCartClick();
               router.replace("/cart");
             } catch (error) {
               console.error("장바구니 담기 실패:", error);

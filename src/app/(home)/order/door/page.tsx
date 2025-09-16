@@ -61,7 +61,7 @@ function DoorPageContent() {
   }
   const capitalizedType = "Door";
   const capitalizedCategorySlug = capitalize(category);
-  usePageView(`PV_${capitalizedType}${capitalizedCategorySlug}`);
+  usePageView(`${capitalizedType}${capitalizedCategorySlug}`);
   const handleNextClick = useButtonClick(
     `${capitalizedType}${capitalizedCategorySlug}`,
     `to${capitalizedType}${capitalizedCategorySlug}Confirm`

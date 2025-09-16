@@ -14,6 +14,8 @@ import BoxedSelect from "@/components/Select/BoxedSelect";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { FinishCart, useSingleCartStore } from "@/store/singleCartStore";
+import { usePageView } from "@/services/hooks/usePageView";
+import { useButtonClick } from "@/services/hooks/useButtonClick";
 import formatColor from "@/utils/formatColor";
 import formatLocation from "@/utils/formatLocation";
 
@@ -27,6 +29,18 @@ function FinishPageContent() {
   const color = useSingleCartStore(state => (state.cart as FinishCart).color);
   const setCart = useSingleCartStore(state => state.setCart);
   const router = useRouter();
+  // PV/BC 이벤트 네이밍을 위한 헬퍼
+  function capitalize(str: string | null | undefined) {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+  const capitalizedType = "Finish";
+  const capitalizedCategorySlug = capitalize(category);
+  usePageView(`${capitalizedType}${capitalizedCategorySlug}`);
+  const handleNextClick = useButtonClick(
+    `${capitalizedType}${capitalizedCategorySlug}`,
+    `to${capitalizedType}${capitalizedCategorySlug}Confirm`
+  );
   const [depth, setDepth] = useState<string | null>(
     useSingleCartStore(state => (state.cart as FinishCart).depth?.toString() ?? null),
   );
@@ -165,6 +179,7 @@ function FinishPageContent() {
                 request: request,
                 finish_location: finish_location,
               });
+              handleNextClick();
               router.push(`/order/finish/confirm`);
             }}
           />

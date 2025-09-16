@@ -10,6 +10,8 @@ import BoxedInput from "@/components/Input/BoxedInput";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { AccessoryCart, useSingleCartStore } from "@/store/singleCartStore";
+import { usePageView } from "@/services/hooks/usePageView";
+import { useButtonClick } from "@/services/hooks/useButtonClick";
 
 function AccessoryPageContent() {
   const router = useRouter();
@@ -28,6 +30,19 @@ function AccessoryPageContent() {
   );
 
   const setCart = useSingleCartStore(state => state.setCart);
+
+  // PV/BC 이벤트 네이밍을 위한 헬퍼
+  function capitalize(str: string | null | undefined) {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+  const capitalizedType = "Accessory";
+  const capitalizedCategorySlug = capitalize(category);
+  usePageView(`${capitalizedType}${capitalizedCategorySlug}`);
+  const handleNextClick = useButtonClick(
+    `${capitalizedType}${capitalizedCategorySlug}`,
+    `to${capitalizedType}${capitalizedCategorySlug}Confirm`
+  );
 
   // const category = searchParams.get("category") ?? "";
   // category(slug)에 맞는 header 값 찾기
@@ -79,6 +94,7 @@ function AccessoryPageContent() {
               accessory_model: accessory_model,
               request: request ?? null,
             });
+            handleNextClick();
             router.push(`/order/accessory/confirm`);
           }}
         />

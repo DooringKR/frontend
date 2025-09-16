@@ -13,6 +13,8 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { FinishCart } from "@/store/singleCartStore";
 import { useSingleCartStore } from "@/store/singleCartStore";
+import { usePageView } from "@/services/hooks/usePageView";
+import { useButtonClick } from "@/services/hooks/useButtonClick";
 import formatColor from "@/utils/formatColor";
 import { FINISH_CATEGORY_LIST } from "@/constants/category";
 
@@ -30,6 +32,19 @@ function ConfirmPageContent() {
   const request = (cart as FinishCart)?.request;
   const finish_location = (cart as FinishCart)?.finish_location;
   const [quantity, setQuantity] = useState(1);
+
+  // PV/BC 이벤트 네이밍을 위한 헬퍼
+  function capitalize(str: string | null | undefined) {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+  const capitalizedType = "Finish";
+  const capitalizedCategorySlug = capitalize(category);
+  usePageView(`${capitalizedType}${capitalizedCategorySlug}Confirm`);
+  const handleAddToCartClick = useButtonClick(
+    `${capitalizedType}${capitalizedCategorySlug}Confirm`,
+    "toCart"
+  );
 
   // 빌드 시점에 cart가 비어있을 수 있으므로 안전한 처리
   if (!cart || Object.keys(cart).length === 0) {
@@ -103,6 +118,7 @@ function ConfirmPageContent() {
                 },
               });
               console.log(result);
+              handleAddToCartClick();
               router.replace("/cart");
             } catch (error) {
               console.error("장바구니 담기 실패:", error);

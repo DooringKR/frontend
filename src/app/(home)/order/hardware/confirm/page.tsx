@@ -12,6 +12,8 @@ import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { HardwareCart, useSingleCartStore } from "@/store/singleCartStore";
+import { usePageView } from "@/services/hooks/usePageView";
+import { useButtonClick } from "@/services/hooks/useButtonClick";
 
 function HardwareConfirmPageContent() {
   const router = useRouter();
@@ -21,6 +23,19 @@ function HardwareConfirmPageContent() {
   const request = useSingleCartStore(state => (state.cart as HardwareCart).request);
 
   const [quantity, setQuantity] = useState(1);
+
+  // PV/BC 이벤트 네이밍을 위한 헬퍼
+  function capitalize(str: string | null | undefined) {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+  const capitalizedType = "Hardware";
+  const capitalizedCategorySlug = capitalize(category);
+  usePageView(`${capitalizedType}${capitalizedCategorySlug}Confirm`);
+  const handleAddToCartClick = useButtonClick(
+    `${capitalizedType}${capitalizedCategorySlug}Confirm`,
+    "toCart"
+  );
 
   return (
     <div>
@@ -69,6 +84,7 @@ function HardwareConfirmPageContent() {
                 },
               });
               console.log(result);
+              handleAddToCartClick();
               router.replace("/cart");
             } catch (error) {
               console.error("장바구니 담기 실패:", error);
