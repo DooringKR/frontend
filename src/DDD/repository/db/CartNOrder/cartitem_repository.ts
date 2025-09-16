@@ -1,4 +1,4 @@
-import { CartItem } from "dooring-core-domain/dist/models/BizclientCartandOrder/CartItem";
+import { CartItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/CartItem";
 import { Response } from "@/DDD/data/response";
 
 export interface CartItemRepository {

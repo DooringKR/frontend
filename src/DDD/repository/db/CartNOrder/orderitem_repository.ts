@@ -1,4 +1,4 @@
-import { OrderItem } from "dooring-core-domain/dist/models/BizclientCartandOrder/Order/OrderItem";
+import { OrderItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/OrderItem";
 import { Response } from "@/DDD/data/response";
 
 export interface OrderItemRepository { 
