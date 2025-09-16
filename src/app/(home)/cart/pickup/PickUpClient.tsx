@@ -83,7 +83,7 @@ export default function PickUpClientPage() {
     setGroupedCartItems(grouped);
   }, [cartItems]);
 
-  const buttonClick = useButtonClick("CheckPickUp", "CheckPickUpNextButton");
+  const buttonClick = useButtonClick("CheckPickUp", "ToConfirm");
   const handleSubmit = async () => {
     buttonClick();
     setIsLoading(true);

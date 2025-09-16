@@ -12,7 +12,7 @@ declare global {
 export function usePageView(pageName: string) {
     useEffect(() => {
     if (typeof window !== "undefined" && window.amplitude) {
-        window.amplitude.track("PV", { page: pageName });
+        window.amplitude.track(`PV_${pageName}`, { page: pageName });
     }
     }, [pageName]);
 }

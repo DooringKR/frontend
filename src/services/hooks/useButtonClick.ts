@@ -18,9 +18,8 @@ declare global {
  */
 export function useButtonClick(pageName: string, buttonId: string) {
   return useCallback(() => {
-    console.log("[BC] button click event fired", { page: pageName, buttonId });
     if (typeof window !== "undefined" && window.amplitude) {
-      window.amplitude.track("BC", { page: pageName, buttonId });
+      window.amplitude.track(`BC_${pageName}_${buttonId}`, { page: pageName, buttonId });
     }
   }, [pageName, buttonId]);
 }

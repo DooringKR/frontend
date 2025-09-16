@@ -22,8 +22,8 @@ export default function ReceiveOptionClientPage() {
 
   const [isPickupAddressModalOpen, setIsPickupAddressModalOpen] = useState(false);
 
-  const handleDeliveryClick = useButtonClick("ReceiveOption", "Delivery");
-  const handlePickUpClick = useButtonClick("ReceiveOption", "PickUp");
+  const handleDeliveryClick = useButtonClick("ReceiveOption", "ToCheckOrder");
+  const handlePickUpClick = useButtonClick("ReceiveOption", "ToCheckPickUp");
 
   const handleSelect = (method: "DELIVERY" | "PICK_UP") => {
     setReceiveMethod(method);
