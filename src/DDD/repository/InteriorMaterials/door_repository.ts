@@ -1,5 +1,5 @@
 import { Door } from 'dooring-core-domain/dist/models/InteriorMaterials/Door';
-import { Response } from '../../data/response';
+import { Response } from "@/DDD/data/response";
 
 export interface DoorRepository {
     create(door: Door): Promise<Response<Door>>;

@@ -1,5 +1,5 @@
 import { Cabinet } from 'dooring-core-domain/dist/models/InteriorMaterials/Cabinet/Cabinet';
-import { Response } from '../../data/response';
+import { Response } from "@/DDD/data/response";
 
 export interface CabinetRepository {
   create(cabinet: Cabinet): Promise<Response<Cabinet>>;

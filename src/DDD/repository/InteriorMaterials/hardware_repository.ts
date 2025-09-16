@@ -1,5 +1,5 @@
 import { Hardware } from 'dooring-core-domain/dist/models/InteriorMaterials/Hardware/Hardware';
-import { Response } from '../../data/response';
+import { Response } from "@/DDD/data/response";
 
 export interface HardwareRepository {
     create(hardware: Hardware): Promise<Response<Hardware>>;
