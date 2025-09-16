@@ -38,7 +38,7 @@ function DoorCategoryPage() {
   };
 
   const categories = categoryLists[type as keyof typeof categoryLists] || [];
-  const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
+  const capitalizedType = type ? type.charAt(0).toUpperCase() + type.slice(1) : "";
 
   // PV_Order{Category} 이벤트 전송
   usePageView(`Order${capitalizedType}`);
@@ -49,7 +49,7 @@ function DoorCategoryPage() {
       <Header size="Large" title={`${header} 종류를 선택해주세요`} />
       <div className="grid w-full grid-cols-2 gap-x-3 gap-y-[40px] px-5 pb-5 pt-10">
         {categories.map((category, idx) => {
-          const capitalizedCategorySlug = category.slug.charAt(0).toUpperCase() + category.slug.slice(1);
+          const capitalizedCategorySlug = category && category.slug ? (category.slug.charAt(0).toUpperCase() + category.slug.slice(1)) : "";
           const toEvent = (type === "accessory" || type === "hardware")
             ? `To${capitalizedType}${capitalizedCategorySlug}`
             : `To${capitalizedType}${capitalizedCategorySlug}Color`;
@@ -59,12 +59,12 @@ function DoorCategoryPage() {
           );
           return (
             <div
-              key={category.slug}
+              key={category?.slug ?? idx}
               className="flex flex-1 cursor-pointer flex-col items-center gap-2"
               onClick={() => {
                 setCart({
                   type: type,
-                  category: category.slug,
+                  category: category?.slug,
                 });
                 buttonClick();
                 if (type === "accessory" || type === "hardware") {
@@ -76,18 +76,18 @@ function DoorCategoryPage() {
             >
               <div className="relative aspect-square w-full">
                 <Image
-                  src={category.image}
-                  alt={category.name}
+                  src={category?.image}
+                  alt={category?.name}
                   fill
                   style={{
                     objectFit: "contain",
-                    verticalAlign: category.slug === "drawer" ? "top" : "middle",
+                    verticalAlign: category?.slug === "drawer" ? "top" : "middle",
                   }}
                   className="w-full h-full object-cover rounded-[28px] border-[2px] border-[rgba(3,7,18,0.05)]"
                 />
               </div>
               <div className="text-center text-[17px]/[24px] font-500 text-gray-500">
-                {category.name}
+                {category?.name}
               </div>
             </div>
           );
