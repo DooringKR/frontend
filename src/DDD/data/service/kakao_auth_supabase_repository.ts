@@ -5,10 +5,14 @@ import { Response } from "../response";
 export class KakaoAuthSupabaseRepository implements KakaoAuthRepository {
     async signup(): Promise<Response> {
         try {
+            // 환경에 따라 동적으로 redirectTo 설정
+            const redirectTo = process.env.NODE_ENV === 'production'
+                ? `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?type=signup`
+                : `${window.location.origin}/auth/callback?type=signup`;
             const supabaseResponse = await supabase.auth.signInWithOAuth({
                 provider: 'kakao',
                 options: {
-                    redirectTo: `${window.location.origin}/auth/callback?type=signup`
+                    redirectTo: redirectTo
                 }
             });
 
@@ -37,10 +41,13 @@ export class KakaoAuthSupabaseRepository implements KakaoAuthRepository {
     }
 
     async login(): Promise<Response> {
+        const redirectTo = process.env.NODE_ENV === 'production'
+            ? `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?type=login`
+            : `${window.location.origin}/auth/callback?type=login`;
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'kakao',
             options: {
-                redirectTo: `${window.location.origin}/auth/callback?type=login`
+                redirectTo: redirectTo
             }
         });
 

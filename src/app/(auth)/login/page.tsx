@@ -1,24 +1,25 @@
 "use client";
 
-import BottomButton from "@/components/BottomButton/BottomButton";
-import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import { KakaoSignupUsecase } from "@/DDD/usecase/auth/kakao_signup_usecase";
 import { BizClientSupabaseRepository } from "@/DDD/data/db/User/bizclient_supabase_repository";
 import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_repository";
 import { KakaoAuthSupabaseRepository } from "@/DDD/data/service/kakao_auth_supabase_repository";
 import Image from "next/image";
-import Header from "@/components/Header/Header";
-import CompanyTypeButton from "@/components/Button/CompanyTypeButton";
-import PaintBruchVertical from "public/icons/paintbrush_vertical";
-import Factory from "public/icons/factory";
-import { BusinessType } from "dooring-core-domain/dist/enums/UserEnums";
-import useSignupStore from "@/store/signupStore";
-import { useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-
+import { supabase } from "@/lib/supabase";
 function LoginPage() {
-    const { businessType, setBusinessType } = useSignupStore();
     const router = useRouter();
+
+    useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
+                router.push('/');
+            } else {
+                router.push('/login');
+            }
+        });
+    }, [router]);
 
     const kakaoSignupUsecase = new KakaoSignupUsecase(
         new KakaoAuthSupabaseRepository(),
