@@ -20,6 +20,9 @@ import ColorManualInputSheet from "./_components/ColorManualInputSheet";
 import ColorSelectBottomButton from "./_components/ColorSelectBottomButton";
 import ColorSelectList from "./_components/ColorSelectList";
 
+import { usePageView } from "@/services/hooks/usePageView";
+import { useButtonClick } from "@/services/hooks/useButtonClick";
+
 const categoryMap: Record<string, any[]> = {
   door: DOOR_CATEGORY_LIST,
   cabinet: CABINET_CATEGORY_LIST,
@@ -53,6 +56,21 @@ function ColorListPageContent() {
   const colorList = COLOR_LIST_BY_TYPE[type as keyof typeof COLOR_LIST_BY_TYPE] || [];
   const filteredColors = colorList.filter(item =>
     item.name.toLowerCase().includes(searchKeyword.toLowerCase()),
+  );
+
+  // Capitalize type and category slug for event name
+  function capitalize(str: string | null | undefined) {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+  const capitalizedType = capitalize(type);
+  const capitalizedCategorySlug = capitalize(category);
+  usePageView(`${capitalizedType}${capitalizedCategorySlug}Color`);
+
+  // For BC event: pageName = `${capitalizedType}${capitalizedCategorySlug}Color`, buttonId = `to${capitalizedType}${capitalizedCategorySlug}`
+  const handleColorToCategoryClick = useButtonClick(
+    `${capitalizedType}${capitalizedCategorySlug}Color`,
+    `to${capitalizedType}${capitalizedCategorySlug}`
   );
 
   return (
@@ -104,6 +122,7 @@ function ColorListPageContent() {
               category: category,
               color: selectedColor,
             });
+            handleColorToCategoryClick();
             router.push(`/order/${type}`);
           }
         }}
@@ -118,6 +137,7 @@ function ColorListPageContent() {
               category: category,
               color: selectedColor,
             });
+            handleColorToCategoryClick();
             router.push(`/order/${type}`);
           }}
         />

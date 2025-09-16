@@ -24,6 +24,8 @@ import NormalDoorForm from "./_components/NormalDoorForm";
 // Hooks
 import { useDoorValidation } from "./hooks/useDoorValidation";
 import formatColor from "@/utils/formatColor";
+import { usePageView } from "@/services/hooks/usePageView";
+import { useButtonClick } from "@/services/hooks/useButtonClick";
 
 function DoorPageContent() {
   const router = useRouter();
@@ -51,6 +53,19 @@ function DoorPageContent() {
   const color = useSingleCartStore(state => (state.cart as DoorCart).color);
 
   const doorCategory = DOOR_CATEGORY_LIST.find(item => item.slug === category);
+
+  // Capitalize helpers for event names
+  function capitalize(str: string | null | undefined) {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+  const capitalizedType = "Door";
+  const capitalizedCategorySlug = capitalize(category);
+  usePageView(`PV_${capitalizedType}${capitalizedCategorySlug}`);
+  const handleNextClick = useButtonClick(
+    `${capitalizedType}${capitalizedCategorySlug}`,
+    `to${capitalizedType}${capitalizedCategorySlug}Confirm`
+  );
 
   // 유효성 검사 훅 사용
   const { widthError, heightError, boringError, isFormValid } = useDoorValidation({
@@ -276,6 +291,7 @@ function DoorPageContent() {
                   addOn_hinge,
                 },
               });
+              handleNextClick();
               router.push("/order/door/confirm");
             }}
           />

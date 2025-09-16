@@ -13,6 +13,7 @@ import {
 } from "@/store/singleCartStore";
 
 import HomeProductButton from "./HomeProductButton";
+import { useButtonClick } from "@/services/hooks/useButtonClick";
 import AttachedIcon from "./Icons/Attached";
 import CustomOrderIcon from "./Icons/CustomOrder";
 import DoorIcon from "./Icons/Door";
@@ -33,47 +34,51 @@ const HomeProductContainer: React.FC = () => {
   const router = useRouter();
   const setCart = useSingleCartStore(state => state.setCart);
 
-  const handleCategoryClick = (slug: string) => {
-    if (slug === "custom") {
-      router.push("/customer-service");
-      return;
-    }
+  const getButtonClick = (slug: string) => {
+    const capitalizedSlug = slug.charAt(0).toUpperCase() + slug.slice(1);
+    const buttonClick = useButtonClick("Home", `toOrder${capitalizedSlug}`);
+    return () => {
+      buttonClick();
+      if (slug === "custom") {
+        router.push("/customer-service");
+        return;
+      }
 
-    const addressStorage = localStorage.getItem("address-storage");
-    if (!addressStorage) {
-      router.push(`/address-check?category=${slug}`);
-    } else if (slug === "finish") {
-      const initialFinishCart: FinishCart = {
-        type: "finish",
-      };
-      setCart(initialFinishCart);
-      router.push(`/order`);
-      // router.push(`/order/color?type=${slug}`);
-    } else if (slug === "hardware") {
-      const initialHardwareCart: HardwareCart = {
-        type: "hardware",
-      };
-      setCart(initialHardwareCart);
-      router.push(`/order`);
-    } else if (slug === "accessory") {
-      const initialAccessoryCart: AccessoryCart = {
-        type: "accessory",
-      };
-      setCart(initialAccessoryCart);
-      router.push(`/order`);
-    } else if (slug === "cabinet") {
-      const initialAccessoryCart: CabinetCart = {
-        type: "cabinet",
-      };
-      setCart(initialAccessoryCart);
-      router.push(`/order`);
-    } else if (slug === "door") {
-      const initialDoorCart: DoorCart = {
-        type: "door",
-      };
-      setCart(initialDoorCart);
-      router.push(`/order`);
-    }
+      const addressStorage = localStorage.getItem("address-storage");
+      if (!addressStorage) {
+        router.push(`/address-check?category=${slug}`);
+      } else if (slug === "finish") {
+        const initialFinishCart: FinishCart = {
+          type: "finish",
+        };
+        setCart(initialFinishCart);
+        router.push(`/order`);
+      } else if (slug === "hardware") {
+        const initialHardwareCart: HardwareCart = {
+          type: "hardware",
+        };
+        setCart(initialHardwareCart);
+        router.push(`/order`);
+      } else if (slug === "accessory") {
+        const initialAccessoryCart: AccessoryCart = {
+          type: "accessory",
+        };
+        setCart(initialAccessoryCart);
+        router.push(`/order`);
+      } else if (slug === "cabinet") {
+        const initialAccessoryCart: CabinetCart = {
+          type: "cabinet",
+        };
+        setCart(initialAccessoryCart);
+        router.push(`/order`);
+      } else if (slug === "door") {
+        const initialDoorCart: DoorCart = {
+          type: "door",
+        };
+        setCart(initialDoorCart);
+        router.push(`/order`);
+      }
+    };
   };
 
   return (
@@ -86,7 +91,7 @@ const HomeProductContainer: React.FC = () => {
             label={item.label}
             icon={item.icon}
             image={item.image}
-            onClick={() => handleCategoryClick(item.slug)}
+            onClick={getButtonClick(item.slug)}
           />
         ))}
       </div>

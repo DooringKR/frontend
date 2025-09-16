@@ -10,11 +10,14 @@ import {
 } from "@/constants/category";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
+import { useButtonClick } from "@/services/hooks/useButtonClick";
+import { usePageView } from "@/services/hooks/usePageView";
 
 import Header from "@/components/Header/Header";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import { useSingleCartStore } from "@/store/singleCartStore";
+
 
 function DoorCategoryPage() {
   const router = useRouter();
@@ -35,46 +38,60 @@ function DoorCategoryPage() {
   };
 
   const categories = categoryLists[type as keyof typeof categoryLists] || [];
+  const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
+
+  // PV_Order{Category} 이벤트 전송
+  usePageView(`Order${capitalizedType}`);
 
   return (
     <div className="flex flex-col">
       <TopNavigator />
       <Header size="Large" title={`${header} 종류를 선택해주세요`} />
       <div className="grid w-full grid-cols-2 gap-x-3 gap-y-[40px] px-5 pb-5 pt-10">
-        {categories.map((category, idx) => (
-          <div
-            key={category.slug}
-            className="flex flex-1 cursor-pointer flex-col items-center gap-2"
-            onClick={() => {
-              //type, catergory 추가 후 다음 페이지로 이동
-              setCart({
-                type: type,
-                category: category.slug,
-              });
-              if (type === "accessory" || type === "hardware") {
-                router.push(`/order/${type}`);
-              } else {
-                router.push(`/order/color`);
-              }
-            }}
-          >
-            <div className="relative aspect-square w-full">
-              <Image
-                src={category.image}
-                alt={category.name}
-                fill
-                style={{
-                  objectFit: "contain",
-                  verticalAlign: category.slug === "drawer" ? "top" : "middle",
-                }}
-                className="w-full h-full object-cover rounded-[28px] border-[2px] border-[rgba(3,7,18,0.05)]"
-              />
+        {categories.map((category, idx) => {
+          const capitalizedCategorySlug = category.slug.charAt(0).toUpperCase() + category.slug.slice(1);
+          const toEvent = (type === "accessory" || type === "hardware")
+            ? `To${capitalizedType}${capitalizedCategorySlug}`
+            : `To${capitalizedType}${capitalizedCategorySlug}Color`;
+          const buttonClick = useButtonClick(
+            `Order${capitalizedType}`,
+            `${toEvent}`
+          );
+          return (
+            <div
+              key={category.slug}
+              className="flex flex-1 cursor-pointer flex-col items-center gap-2"
+              onClick={() => {
+                setCart({
+                  type: type,
+                  category: category.slug,
+                });
+                buttonClick();
+                if (type === "accessory" || type === "hardware") {
+                  router.push(`/order/${type}`);
+                } else {
+                  router.push(`/order/color`);
+                }
+              }}
+            >
+              <div className="relative aspect-square w-full">
+                <Image
+                  src={category.image}
+                  alt={category.name}
+                  fill
+                  style={{
+                    objectFit: "contain",
+                    verticalAlign: category.slug === "drawer" ? "top" : "middle",
+                  }}
+                  className="w-full h-full object-cover rounded-[28px] border-[2px] border-[rgba(3,7,18,0.05)]"
+                />
+              </div>
+              <div className="text-center text-[17px]/[24px] font-500 text-gray-500">
+                {category.name}
+              </div>
             </div>
-            <div className="text-center text-[17px]/[24px] font-500 text-gray-500">
-              {category.name}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
