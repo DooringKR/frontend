@@ -5,6 +5,8 @@ import { BusinessType } from "dooring-core-domain/dist/enums/UserEnums";
 import { BizClient } from "dooring-core-domain/dist/models/User/Bizclient";
 import { Response } from "@/DDD/data/response";
 import { Cart } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Cart";
+import useSignupStore from "@/store/signupStore";
+import { KakaoLoginUsecase } from "./kakao_login_usecase";
 
 export class KakaoSignupUsecase {
     constructor(
@@ -44,7 +46,7 @@ export class KakaoSignupUsecase {
     }
 
     // 별도 메서드: OAuth 콜백 후 사용자 정보 처리
-    async handleAuthCallback(): Promise<Response> {
+    async handleAuthCallback(userType: BusinessType): Promise<Response> {
         try {
             console.log('OAuth 콜백 처리 시작');
 
@@ -60,14 +62,32 @@ export class KakaoSignupUsecase {
                 };
             }
 
+            //TODO: 3단계: 중복 체크
+            const duplicateCheckResponse = await this.bizClientRepository.findUserById(userInfo.data.user.id);
+            console.log('중복 체크 결과:', duplicateCheckResponse);
+
+            if (duplicateCheckResponse.success) {
+                //TODO: 중복이면 로그인 처리 해주기
+                const kakaoLoginUsecase = new KakaoLoginUsecase(this.kakaoAuthRepository);
+                const loginResponse = await kakaoLoginUsecase.execute();
+                console.log('로그인 결과:', loginResponse);
+                useSignupStore.getState().resetBusinessType();
+                return {
+                    success: true,
+                    data: duplicateCheckResponse.data,
+                    message: "이미 존재하는 사용자입니다",
+                };
+            }
+
             // 3단계: BizClient 생성
             const bizClient = new BizClient({
                 id: userInfo.data.user.id,
                 created_at: new Date(),
-                business_type: BusinessType.FACTORY,
+                business_type: userType,
                 nick_name: userInfo.data.user.user_metadata?.nickname || "test",
                 phone_number: userInfo.data.user.phone || "01012345678",
             });
+            console.log('BizClient:', bizClient);
 
             const bizClientResponse = await this.bizClientRepository.createUser(bizClient);
             console.log('BizClient 생성 결과:', bizClientResponse);
@@ -84,6 +104,10 @@ export class KakaoSignupUsecase {
 
             const cartResponse = await this.cartRepository.createCart(cart);
             console.log('Cart 생성 결과:', cartResponse);
+
+            if (bizClientResponse.success && cartResponse.success) {
+                useSignupStore.getState().resetBusinessType();
+            }
 
 
             return {

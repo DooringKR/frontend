@@ -8,7 +8,7 @@ export class KakaoAuthSupabaseRepository implements KakaoAuthRepository {
             const supabaseResponse = await supabase.auth.signInWithOAuth({
                 provider: 'kakao',
                 options: {
-                    redirectTo: `${window.location.origin}/auth/callback`
+                    redirectTo: `${window.location.origin}/auth/callback?type=signup`
                 }
             });
 
@@ -39,6 +39,9 @@ export class KakaoAuthSupabaseRepository implements KakaoAuthRepository {
     async login(): Promise<Response> {
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'kakao',
+            options: {
+                redirectTo: `${window.location.origin}/auth/callback?type=login`
+            }
         });
 
         if (error) {

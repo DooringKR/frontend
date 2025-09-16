@@ -16,7 +16,7 @@ export class BizClientSupabaseRepository extends BizClientRepository {
     }
 
     async findUserById(id: string): Promise<Response<BizClient | null>> {
-        const { data, error } = await supabase.from('bizclient').select('*').eq('id', id);
+        const { data, error } = await supabase.from('BizClient').select('*').eq('id', id);
         if (error) {
             return { success: false, data: null, message: error.message };
         }

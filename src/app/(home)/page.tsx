@@ -61,7 +61,7 @@ export default function Page() {
       if (!userId) {
         // router.replace("https://landing.baro.dooring.kr/");
         // router.replace("/kako-login");
-        router.replace("/login");
+        // router.replace("/login");
       }
     }, 100); // 100ms 대기
 
