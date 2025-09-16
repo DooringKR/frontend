@@ -4,6 +4,7 @@ import { BizClientRepository } from "@/DDD/repository/db/User/bizclient_reposito
 import { BusinessType } from "dooring-core-domain/dist/enums/UserEnums";
 import { BizClient } from "dooring-core-domain/dist/models/User/Bizclient";
 import { Response } from "@/DDD/data/response";
+import { Cart } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Cart";
 
 export class KakaoSignupUsecase {
     constructor(
@@ -71,9 +72,26 @@ export class KakaoSignupUsecase {
             const bizClientResponse = await this.bizClientRepository.createUser(bizClient);
             console.log('BizClient 생성 결과:', bizClientResponse);
 
+            // 4단계: Cart 생성
+            // Cart 생성자에 필요한 인자가 4~5개임을 반영하여 수정
+            const cart = new Cart(
+                undefined, // id
+                new Date(), // created_at
+                userInfo.data.user.id, // user_id
+                0 // cart_count
+                // 필요하다면 5번째 인자 추가
+            );
+
+            const cartResponse = await this.cartRepository.createCart(cart);
+            console.log('Cart 생성 결과:', cartResponse);
+
+
             return {
                 success: true,
-                data: bizClientResponse.data,
+                data: {
+                    bizClient: bizClientResponse.data,
+                    cart: cartResponse.data,
+                },
                 message: "회원가입이 완료되었습니다",
             };
 

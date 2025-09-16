@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 export class CartSupabaseRepository extends CartRepository {
 
     async createCart(cart: Cart): Promise<Response<Cart>> {
-        const { data, error } = await supabase.from('cart').insert(cart).select();
+        const { data, error } = await supabase.from('Cart').insert(cart).select();
         if (error || !data || data.length === 0) {
             return { success: false, data: undefined as any, message: error ? error.message : "장바구니 생성에 실패했습니다." };
         }

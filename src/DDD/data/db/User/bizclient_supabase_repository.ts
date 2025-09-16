@@ -8,7 +8,7 @@ export class BizClientSupabaseRepository extends BizClientRepository {
 
     async createUser(user: BizClient): Promise<Response<BizClient>> {
 
-        const { data, error } = await supabase.from('BizClient').insert(user.toDB()).select();
+        const { data, error } = await supabase.from('BizClient').insert(user).select();
         if (error || !data || data.length === 0) {
             return { success: false, data: undefined as any, message: error ? error.message : "사용자 생성에 실패했습니다." };
         }
