@@ -9,19 +9,16 @@ import BottomNavigation from "@/components/BottomNavigation/BottomNavigation";
 import Button from "@/components/Button/Button";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
-import useUserStore from "@/store/userStore";
 import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
+import useBizClientStore from "@/store/bizClientStore";
+import { supabase } from "@/lib/supabase";
 
-const USER_TYPE_LABELS: Record<string, string> = {
-  INTERIOR: "인테리어 업체",
-  FACTORY: "공장",
-};
 
 function MyPageClient() {
   const router = useRouter();
-  const { id, userType, user_phoneNumber, cart_id } = useUserStore();
+  const bizClient = useBizClientStore(state => state.bizClient);
 
-  if (!user_phoneNumber) {
+  if (!bizClient) {
     return <div>로그인이 필요합니다</div>;
   }
 
@@ -46,11 +43,11 @@ function MyPageClient() {
           <div className="text-[17px] font-500">
             <div className="flex justify-between py-[10px]">
               <h3 className="text-gray-700">휴대폰 번호</h3>
-              <h3 className="text-gray-500">{formatPhoneNumber(user_phoneNumber)}</h3>
+              <h3 className="text-gray-500">{formatPhoneNumber(bizClient.phone_number)}</h3>
             </div>
             <div className="flex justify-between py-[10px]">
               <h3 className="text-gray-700">업체 유형</h3>
-              <h3 className="text-gray-500"> {userType ? USER_TYPE_LABELS[userType] : ""}</h3>
+              <h3 className="text-gray-500"> {bizClient.business_type}</h3>
             </div>
           </div>
         </div>
@@ -79,6 +76,8 @@ function MyPageClient() {
           onClick={() => {
             console.log("로그아웃");
             logout();
+            supabase.auth.signOut();
+            useBizClientStore.setState({ bizClient: null });
             router.replace("/login");
           }}
         />
@@ -88,6 +87,7 @@ function MyPageClient() {
           type={"GrayMedium"}
           onClick={() => {
             console.log("로그아웃");
+            useBizClientStore.setState({ bizClient: null });
             router.replace("/login");
           }}
         />

@@ -21,9 +21,11 @@ import useUserStore from "@/store/userStore";
 import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 
 import Footer from "./_components/Footer";
+import useBizClientStore from "@/store/bizClientStore";
 
 export default function Page() {
   const router = useRouter();
+  const bizClient = useBizClientStore(state => state.bizClient);
   const resetCart = useSingleCartStore(state => state.reset);
   const { address1, address2, setAddress } = useAddressStore();
   const fullAddress = address1 || "";
@@ -58,15 +60,15 @@ export default function Page() {
   useEffect(() => {
     // localStorage에서 데이터를 복원하는 동안 잠시 대기
     const timer = setTimeout(() => {
-      if (!userId) {
+      if (!bizClient) {
         // router.replace("https://landing.baro.dooring.kr/");
         // router.replace("/kako-login");
-        // router.replace("/login");
+        router.replace("/login");
       }
     }, 100); // 100ms 대기
 
     return () => clearTimeout(timer);
-  }, [userId, router]);
+  }, [router, bizClient]);
 
   useEffect(() => {
     useSingleCartStore.persist.clearStorage();
@@ -163,7 +165,7 @@ export default function Page() {
   }, [userId]);
 
   // 로그인되지 않은 경우 로딩 화면 표시
-  if (!userId) {
+  if (!bizClient) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-gray-500">로그인 확인 중...</div>
