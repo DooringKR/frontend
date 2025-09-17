@@ -95,7 +95,21 @@ function LoginPage() {
             <div className="px-8 pb-8">
                 <div className="text-center">
                     <p className="text-xs text-gray-400">
-                        로그인 시 서비스 이용약관 및 개인정보처리방침에
+                        로그인 시{" "}
+                        <span
+                            className="text-blue-500 underline cursor-pointer hover:text-blue-600"
+                            onClick={() => window.open("https://dooring.notion.site/terms-of-use", "_blank")}
+                        >
+                            서비스 이용약관
+                        </span>
+                        {" "}및{" "}
+                        <span
+                            className="text-blue-500 underline cursor-pointer hover:text-blue-600"
+                            onClick={() => window.open("https://dooring.notion.site/privacy", "_blank")}
+                        >
+                            개인정보처리방침
+                        </span>
+                        에
                     </p>
                     <p className="text-xs text-gray-400">
                         동의하는 것으로 간주됩니다

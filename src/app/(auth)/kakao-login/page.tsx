@@ -75,7 +75,21 @@ function KakaoLoginPage() {
                     {/* 하단 안내 텍스트 */}
                     <div className="mt-8 text-center">
                         <p className="text-sm text-gray-500">
-                            로그인 시 서비스 이용약관 및 개인정보처리방침에
+                            로그인 시{" "}
+                            <span
+                                className="text-blue-500 underline cursor-pointer hover:text-blue-600"
+                                onClick={() => window.open("https://dooring.notion.site/terms-of-use", "_blank")}
+                            >
+                                서비스 이용약관
+                            </span>
+                            {" "}및{" "}
+                            <span
+                                className="text-blue-500 underline cursor-pointer hover:text-blue-600"
+                                onClick={() => window.open("https://dooring.notion.site/privacy", "_blank")}
+                            >
+                                개인정보처리방침
+                            </span>
+                            에
                         </p>
                         <p className="text-sm text-gray-500">
                             동의하는 것으로 간주됩니다
