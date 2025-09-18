@@ -35,8 +35,7 @@ const HomeProductContainer: React.FC = () => {
   const setCart = useSingleCartStore(state => state.setCart);
 
   const getButtonClick = (slug: string) => {
-    const capitalizedSlug = slug.charAt(0).toUpperCase() + slug.slice(1);
-    const buttonClick = useButtonClick("Home", `toOrder${capitalizedSlug}`);
+    const buttonClick = useButtonClick(`go_to_${slug}`, "home");
     return () => {
       buttonClick();
       if (slug === "custom") {

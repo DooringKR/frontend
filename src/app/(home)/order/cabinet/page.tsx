@@ -118,17 +118,11 @@ function CabinetPageContent() {
   const router = useRouter();
 
   // PV/BC 이벤트 네이밍을 위한 헬퍼
-  function capitalize(str: string | null | undefined) {
-    if (!str) return "";
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-  const capitalizedType = "Cabinet";
-  const capitalizedCategorySlug = capitalize(category);
-  usePageView(`${capitalizedType}${capitalizedCategorySlug}`);
-  const handleNextClick = useButtonClick(
-    `${capitalizedType}${capitalizedCategorySlug}`,
-    `to${capitalizedType}${capitalizedCategorySlug}Confirm`
-  );
+  // PV/BC 이벤트 네이밍: 모두 소문자, 언더스코어만 사용
+  const typeSlug = "cabinet";
+  const pageName = `${typeSlug}_${category}`;
+  usePageView(pageName);
+  const handleNextClick = useButtonClick("go_to_confirm", pageName);
 
   const [DoorWidth, setDoorWidth] = useState<number | null>(
     (useSingleCartStore.getState().cart as CabinetCart).width ?? null,

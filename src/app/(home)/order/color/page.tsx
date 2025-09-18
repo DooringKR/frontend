@@ -58,20 +58,10 @@ function ColorListPageContent() {
     item.name.toLowerCase().includes(searchKeyword.toLowerCase()),
   );
 
-  // Capitalize type and category slug for event name
-  function capitalize(str: string | null | undefined) {
-    if (!str) return "";
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-  const capitalizedType = capitalize(type);
-  const capitalizedCategorySlug = capitalize(category);
-  usePageView(`${capitalizedType}${capitalizedCategorySlug}Color`);
-
-  // For BC event: pageName = `${capitalizedType}${capitalizedCategorySlug}Color`, buttonId = `to${capitalizedType}${capitalizedCategorySlug}`
-  const handleColorToCategoryClick = useButtonClick(
-    `${capitalizedType}${capitalizedCategorySlug}Color`,
-    `to${capitalizedType}${capitalizedCategorySlug}`
-  );
+  // PV/BC 이벤트 네이밍: button_name은 go_to_type_slug, page_name은 color
+  usePageView("color");
+  const buttonName = `go_to_${type}_${category}`;
+  const handleColorToCategoryClick = useButtonClick(buttonName, "color");
 
   return (
     <div className="flex flex-col">

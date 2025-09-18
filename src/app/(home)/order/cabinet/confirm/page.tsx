@@ -42,18 +42,11 @@ function CabinetConfirmPageContent() {
   const legType = (cart as CabinetCart)?.legType;
   const [quantity, setQuantity] = useState(1);
 
-  // PV/BC 이벤트 네이밍을 위한 헬퍼
-  function capitalize(str: string | null | undefined) {
-    if (!str) return "";
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-  const capitalizedType = "Cabinet";
-  const capitalizedCategorySlug = capitalize(category);
-  usePageView(`${capitalizedType}${capitalizedCategorySlug}Confirm`);
-  const handleAddToCartClick = useButtonClick(
-    `${capitalizedType}${capitalizedCategorySlug}Confirm`,
-    "toCart"
-  );
+  // PV/BC 이벤트 네이밍: 모두 소문자, 언더스코어만 사용
+  const typeSlug = "cabinet";
+  const pageName = `${typeSlug}_${category}_confirm`;
+  usePageView(pageName); // PV도 소문자, 언더스코어
+  const handleAddToCartClick = useButtonClick("add_to_cart", pageName);
 
   // 빌드 시점에 cart가 비어있을 수 있으므로 안전한 처리
   if (!cart || Object.keys(cart).length === 0) {

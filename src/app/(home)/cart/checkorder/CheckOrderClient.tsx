@@ -177,7 +177,7 @@ function CheckOrderClientPage() {
     return { delivery };
   };
 
-  const buttonClick = useButtonClick("CheckOrder", "ToConfirm");
+  const buttonClick = useButtonClick("go_to_confirm", "check_delivery");
   const handleOrderSubmit = async () => {
     buttonClick();
     setIsLoading(true);

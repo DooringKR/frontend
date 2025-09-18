@@ -54,18 +54,11 @@ function DoorPageContent() {
 
   const doorCategory = DOOR_CATEGORY_LIST.find(item => item.slug === category);
 
-  // Capitalize helpers for event names
-  function capitalize(str: string | null | undefined) {
-    if (!str) return "";
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-  const capitalizedType = "Door";
-  const capitalizedCategorySlug = capitalize(category);
-  usePageView(`${capitalizedType}${capitalizedCategorySlug}`);
-  const handleNextClick = useButtonClick(
-    `${capitalizedType}${capitalizedCategorySlug}`,
-    `to${capitalizedType}${capitalizedCategorySlug}Confirm`
-  );
+  // PV/BC 이벤트 네이밍: 모두 소문자, 언더스코어만 사용
+  const typeSlug = "door";
+  const pageName = `${typeSlug}_${category}`;
+  usePageView(pageName);
+  const handleNextClick = useButtonClick("go_to_confirm", pageName);
 
   // 유효성 검사 훅 사용
   const { widthError, heightError, boringError, isFormValid } = useDoorValidation({

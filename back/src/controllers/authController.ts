@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../prismaClient";
+import amplitude from "../amplitudeClient";
 
 // 회원가입
 export async function signup(req: Request, res: Response) {
@@ -31,6 +32,7 @@ export async function signup(req: Request, res: Response) {
   }
 
   try {
+
     // 3) User와 Cart을 원자적으로 생성
     const [newUser] = await prisma.$transaction([
       prisma.user.create({
@@ -42,6 +44,15 @@ export async function signup(req: Request, res: Response) {
     // 4) 빈 장바구니 생성
     await prisma.cart.create({
       data: { user_id: newUser.id },
+    });
+
+    // 5) Amplitude 이벤트 전송
+    amplitude.track({
+      event_type: "Signed Up",
+      user_id: String(newUser.id),
+      event_properties: {
+        business_type: newUser.user_type,
+      },
     });
 
     return res

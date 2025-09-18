@@ -29,18 +29,11 @@ function FinishPageContent() {
   const color = useSingleCartStore(state => (state.cart as FinishCart).color);
   const setCart = useSingleCartStore(state => state.setCart);
   const router = useRouter();
-  // PV/BC 이벤트 네이밍을 위한 헬퍼
-  function capitalize(str: string | null | undefined) {
-    if (!str) return "";
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-  const capitalizedType = "Finish";
-  const capitalizedCategorySlug = capitalize(category);
-  usePageView(`${capitalizedType}${capitalizedCategorySlug}`);
-  const handleNextClick = useButtonClick(
-    `${capitalizedType}${capitalizedCategorySlug}`,
-    `to${capitalizedType}${capitalizedCategorySlug}Confirm`
-  );
+  // PV/BC 이벤트 네이밍: 모두 소문자, 언더스코어만 사용
+  const typeSlug = "finish";
+  const pageName = `${typeSlug}_${category}`;
+  usePageView(pageName);
+  const handleNextClick = useButtonClick("go_to_confirm", pageName);
   const [depth, setDepth] = useState<string | null>(
     useSingleCartStore(state => (state.cart as FinishCart).depth?.toString() ?? null),
   );

@@ -300,7 +300,7 @@ export default function CartClient() {
     return originalItemOptionsMap[item.cartItemId ?? -1] ?? {};
   };
 
-  const buttonClick = useButtonClick("Cart", "ToReceiveOption");
+  const buttonClick = useButtonClick("go_to_receive_option", "cart");
   const handleGoToReceiveOption = async () => {
     buttonClick();
     try {

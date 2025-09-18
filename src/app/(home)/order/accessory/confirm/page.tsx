@@ -29,17 +29,11 @@ function ConfirmPageContent() {
   const [quantity, setQuantity] = useState(1);
 
   // PV/BC 이벤트 네이밍을 위한 헬퍼
-  function capitalize(str: string | null | undefined) {
-    if (!str) return "";
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-  const capitalizedType = "Accessory";
-  const capitalizedCategorySlug = capitalize(category);
-  usePageView(`${capitalizedType}${capitalizedCategorySlug}Confirm`);
-  const handleAddToCartClick = useButtonClick(
-    `${capitalizedType}${capitalizedCategorySlug}Confirm`,
-    "toCart"
-  );
+  // page_name: accessory_{category}_confirm (all lowercase)
+  const type = "accessory";
+  const pageName = `${type}_${category ?? ""}_confirm`;
+  usePageView(pageName);
+  const handleAddToCartClick = useButtonClick("add_to_cart", pageName);
 
   return (
     <div className="flex flex-col">

@@ -38,10 +38,8 @@ function DoorCategoryPage() {
   };
 
   const categories = categoryLists[type as keyof typeof categoryLists] || [];
-  const capitalizedType = type ? type.charAt(0).toUpperCase() + type.slice(1) : "";
-
-  // PV_Order{Category} 이벤트 전송
-  usePageView(`Order${capitalizedType}`);
+  // PV/BC 이벤트 네이밍: button_name은 go_to_type_category, page_name은 order
+  usePageView("order");
 
   return (
     <div className="flex flex-col">
@@ -49,14 +47,8 @@ function DoorCategoryPage() {
       <Header size="Large" title={`${header} 종류를 선택해주세요`} />
       <div className="grid w-full grid-cols-2 gap-x-3 gap-y-[40px] px-5 pb-5 pt-10">
         {categories.map((category, idx) => {
-          const capitalizedCategorySlug = category && category.slug ? (category.slug.charAt(0).toUpperCase() + category.slug.slice(1)) : "";
-          const toEvent = (type === "accessory" || type === "hardware")
-            ? `To${capitalizedType}${capitalizedCategorySlug}`
-            : `To${capitalizedType}${capitalizedCategorySlug}Color`;
-          const buttonClick = useButtonClick(
-            `Order${capitalizedType}`,
-            `${toEvent}`
-          );
+          const buttonName = `go_to_${type}_${category.slug}`;
+          const buttonClick = useButtonClick(buttonName, "order");
           return (
             <div
               key={category?.slug ?? idx}
