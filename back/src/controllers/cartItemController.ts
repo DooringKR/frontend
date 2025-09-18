@@ -47,7 +47,7 @@ export async function addCartItem(req: Request, res: Response) {
   // cart_id로 cart의 user_id를 조회해서 amplitude 전용 user_id 생성
   let productTypeKey = product_type.toLowerCase() + '_type';
   let productTypeValue = item_options[productTypeKey] || '';
-  const product_name = product_type + (productTypeValue ? `_${productTypeValue}` : '');
+  const product_name = product_type.toLowerCase() + (productTypeValue ? `_${productTypeValue}` : '');
   const cart = await prisma.cart.findUnique({ where: { id: cart_id } });
   if (!cart) {
     return res.status(400).json({ message: '유효하지 않은 cart_id입니다' });
