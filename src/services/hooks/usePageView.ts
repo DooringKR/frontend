@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { previousPage, setPreviousPage } from "@/utils/previousPage";
 import useUserStore from "@/store/userStore";
+import { toAmplitudeUserId } from "@/utils/amplitudeUserId";
 
 declare global {
   interface Window {
@@ -14,15 +15,15 @@ declare global {
 }
 
 export function usePageView(pageName: string) {
-  const amplitudeUserId = useUserStore(state => state.amplitude_user_id);
+  const userId = useUserStore(state => state.id);
   useEffect(() => {
     if (typeof window !== "undefined" && window.amplitude) {
       window.amplitude.track(`Page Viewed`, {
         page_name: pageName,
         previous_page: previousPage,
-        user_id: amplitudeUserId,
+        user_id: toAmplitudeUserId(userId),
       });
     }
     setPreviousPage(pageName);
-  }, [pageName, amplitudeUserId]);
+  }, [pageName, userId]);
 }

@@ -49,7 +49,14 @@ export async function addCartItem(req: Request, res: Response) {
   let productTypeValue = item_options[productTypeKey] || '';
   const product_name = product_type + (productTypeValue ? `_${productTypeValue}` : '');
   // 프론트에서 amplitude 전용 user_id를 body에 포함해서 보내야 함
-  const amplitudeUserId = req.body.user_id;
+  // Amplitude user_id는 5자 이상이어야 하므로, 5자 미만이면 접두어 추가
+  let amplitudeUserId = String(req.body.user_id);
+  if (amplitudeUserId.length < 5) {
+    amplitudeUserId = `user_${amplitudeUserId}`;
+    while (amplitudeUserId.length < 5) {
+      amplitudeUserId = amplitudeUserId + "0";
+    }
+  }
   amplitude.track({
     event_type: 'Added to Cart',
     user_id: amplitudeUserId,

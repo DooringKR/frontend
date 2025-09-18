@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../prismaClient";
 import amplitude from "../amplitudeClient";
-import { generateDeviceId } from "../utils/generateDeviceId";
 
 // 회원가입
 export async function signup(req: Request, res: Response) {
