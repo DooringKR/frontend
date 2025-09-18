@@ -39,6 +39,24 @@ async function completeOrderInternal(order_id: string) {
       order_options: order.order_options,
       order_items: orderItems,
     });
+
+    // 주문 생성 후 Amplitude Purchased 이벤트 전송
+    try {
+      const amplitudeUserId = toAmplitudeUserId(order.user_id);
+      amplitude.track({
+        event_type: "Purchased",
+        user_id: amplitudeUserId,
+        event_properties: {
+          order_id: order.order_id,
+          order_price: order.order_price,
+          item_count: orderItems.length,
+          fulfillment_type: String(order.order_type).toLowerCase(),
+        },
+      });
+      console.log("[completeOrderInternal] Amplitude Purchased 이벤트 전송 완료");
+    } catch (e) {
+      console.warn('[completeOrderInternal][WARN] Amplitude Purchased 이벤트 전송 실패', e);
+    }
     console.log("[completeOrderInternal] 노션/구글 처리 완료");
   } catch (err: any) {
     console.error("[completeOrderInternal] error:", err.message);
