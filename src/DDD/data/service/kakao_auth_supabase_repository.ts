@@ -9,6 +9,8 @@ const getRedirectUrl = (type: 'signup' | 'login'): string => {
         process.env.NEXT_PUBLIC_VERCEL_URL ||
         window.location.origin;
 
+    console.log(baseUrl);
+
     // URL이 http로 시작하지 않으면 https 추가
     const fullUrl = baseUrl.startsWith('http') ? baseUrl : `https://${baseUrl}`;
 

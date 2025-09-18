@@ -13,18 +13,66 @@ import PaintBruchVertical from "public/icons/paintbrush_vertical";
 import Factory from "public/icons/factory";
 import { BusinessType } from "dooring-core-domain/dist/enums/UserEnums";
 import useSignupStore from "@/store/signupStore";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 function LoginPage() {
     const { businessType, setBusinessType } = useSignupStore();
     const router = useRouter();
+    const [isLoading, setIsLoading] = useState(true);
 
     const kakaoSignupUsecase = new KakaoSignupUsecase(
         new KakaoAuthSupabaseRepository(),
         new BizClientSupabaseRepository(),
         new CartSupabaseRepository()
     );
+
+    useEffect(() => {
+        // 유저 정보 확인 및 리다이렉트 처리
+        const checkUserAndRedirect = async () => {
+            try {
+                const { data: { user }, error } = await supabase.auth.getUser();
+
+                console.log("User check result:", { user, error });
+                console.log("login page");
+
+                // 유저가 로그인되어 있으면 홈으로 리다이렉트
+                if (user && !error) {
+                    console.log("User is already logged in, redirecting to home");
+                    router.push('/');
+                    return;
+                }
+
+                // 에러가 있거나 유저가 없으면 로그인 페이지 유지
+                console.log("User not logged in, staying on login page");
+            } catch (err) {
+                console.error("Error checking user:", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        checkUserAndRedirect();
+    }, [router]);
+
+    // 로딩 중일 때는 로딩 화면 표시
+    if (isLoading) {
+        return (
+            <div className="flex h-screen w-full flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white">
+                <div className="text-center">
+                    <Image
+                        src="/img/logo-192x192.png"
+                        alt="로고"
+                        width={80}
+                        height={80}
+                        className="mx-auto mb-4"
+                    />
+                    <p className="text-gray-600">로딩 중...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex h-screen w-full flex-col bg-gradient-to-b from-blue-50 to-white">
