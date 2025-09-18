@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../prismaClient";
 import amplitude from "../amplitudeClient";
+import { generateDeviceId } from "../utils/generateDeviceId";
 
 // 회원가입
 export async function signup(req: Request, res: Response) {
@@ -46,9 +47,11 @@ export async function signup(req: Request, res: Response) {
       data: { user_id: newUser.id },
     });
 
-    // 5) Amplitude 이벤트 전송
+
+    // 5) Amplitude 이벤트 전송 (device_id 필수)
     amplitude.track({
       event_type: "Signed Up",
+      device_id: generateDeviceId(),
       event_properties: {
         business_type: newUser.user_type,
       },

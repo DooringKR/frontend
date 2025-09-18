@@ -25,7 +25,7 @@ import { usePageView } from "@/services/hooks/usePageView";
 import Footer from "./_components/Footer";
 
 export default function Page() {
-  usePageView("Home");
+  usePageView("home");
   const router = useRouter();
   const resetCart = useSingleCartStore(state => state.reset);
   const { address1, address2, setAddress } = useAddressStore();
