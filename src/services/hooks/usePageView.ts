@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from "react";
+import { previousPage, setPreviousPage } from "@/utils/previousPage";
 
 declare global {
   interface Window {
@@ -11,9 +12,13 @@ declare global {
 }
 
 export function usePageView(pageName: string) {
-    useEffect(() => {
+  useEffect(() => {
     if (typeof window !== "undefined" && window.amplitude) {
-        window.amplitude.track(`PV_${pageName}`, { page: pageName });
+      window.amplitude.track(`Page Viewed`, {
+        page_name: pageName,
+        previous_page: previousPage,
+      });
     }
-    }, [pageName]);
+    setPreviousPage(pageName);
+  }, [pageName]);
 }

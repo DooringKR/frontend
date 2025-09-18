@@ -16,7 +16,7 @@ import { useButtonClick } from "@/services/hooks/useButtonClick";
 
 export default function ReceiveOptionClientPage() {
 
-  usePageView("ReceiveOption");
+  usePageView("receive_option");
   const router = useRouter();
   const setReceiveMethod = useOrderStore(state => state.setReceiveMethod);
 

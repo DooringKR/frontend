@@ -35,7 +35,7 @@ import PickUpAddressCard from "../pickup/_components/PickUpAddressCard";
 import OrderConfirmCard from "./_components/OrderConfirmCard";
 
 export default function OrderConfirmPage() {
-  usePageView("Confirm");
+  usePageView("confirm");
   const router = useRouter();
   const [recentOrder, setRecentOrder] = useState<any>(null);
   const [showDetails, setShowDetails] = useState(true);

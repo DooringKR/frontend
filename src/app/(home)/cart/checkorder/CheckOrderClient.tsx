@@ -35,7 +35,7 @@ const CATEGORY_MAP: Record<string, string> = {
 };
 
 function CheckOrderClientPage() {
-  usePageView("CheckOrder");
+  usePageView("check_delivery");
   const { currentItem } = useCurrentOrderStore();
   const router = useRouter();
   const searchParams = useSearchParams();

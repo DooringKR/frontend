@@ -41,7 +41,7 @@ const CATEGORY_MAP: Record<string, string> = {
 
 export default function PickUpClientPage() {
 
-  usePageView("CheckPickUp");
+  usePageView("check_pickup");
   const router = useRouter();
   const searchParams = useSearchParams();
   const [cartItems, setCartItems] = useState<any[]>([]);

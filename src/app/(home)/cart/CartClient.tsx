@@ -70,7 +70,7 @@ export default function CartClient() {
 
   const [originalItemOptionsMap, setOriginalItemOptionsMap] = useState<Record<number, any>>({});
 
-  usePageView("Cart");
+  usePageView("cart");
 
   useEffect(() => {
     const fetchCart = async () => {

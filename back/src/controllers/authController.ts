@@ -49,7 +49,6 @@ export async function signup(req: Request, res: Response) {
     // 5) Amplitude 이벤트 전송
     amplitude.track({
       event_type: "Signed Up",
-      user_id: String(newUser.id),
       event_properties: {
         business_type: newUser.user_type,
       },
