@@ -46,13 +46,19 @@ async function completeOrderInternal(order_id: string) {
 }
 // src/controllers/orderController.ts
 
+
 import { Request, Response } from "express";
 import prisma from "../prismaClient";
 import { generateAndUploadOrderItemImage } from "../services/imageService";
 import { createNotionOrderPage } from "../services/notionService";
-// ProductType enum 직접 명시 또는 문자열 비교
-
+import amplitude from "../amplitudeClient";
 import axios from 'axios';
+
+// Amplitude user_id 변환 헬퍼
+function toAmplitudeUserId(userId: number | string | null | undefined): string | undefined {
+  if (userId === null || userId === undefined) return undefined;
+  return `user_${String(userId)}`;
+}
 
 const VALID_SHIPPING_METHODS = ["직접 픽업하러 갈게요", "현장으로 배송해주세요"]; 
 const VALID_MATERIAL_TYPES = ["문짝", "마감재", "부분장", "하드웨어", "부속", "기타(고객센터 직접 문의)"];
@@ -98,8 +104,29 @@ export async function createOrder(req: Request, res: Response) {
         order_price,
         order_options,
       },
+      include: {
+        order_items: true,
+      },
     });
     console.log('[OrderController][DEBUG] 주문 생성 결과:', order);
+
+    // Amplitude Purchased 이벤트 전송
+    try {
+      const amplitudeUserId = toAmplitudeUserId(order.user_id);
+      const itemCount = order.order_items ? order.order_items.length : 0;
+      amplitude.track({
+        event_type: "Purchased",
+        user_id: amplitudeUserId,
+        event_properties: {
+          order_id: order.order_id,
+          order_price: order.order_price,
+          item_count: itemCount,
+          fulfillment_type: String(order.order_type).toLowerCase(),
+        },
+      });
+    } catch (e) {
+      console.warn('[OrderController][WARN] Amplitude Purchased 이벤트 전송 실패', e);
+    }
 
     // 2. user 조회
     const user = await prisma.user.findUnique({ where: { id: user_id } });
