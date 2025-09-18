@@ -128,23 +128,6 @@ export async function createOrder(req: Request, res: Response) {
     });
     console.log('[OrderController][DEBUG] 주문 생성 결과:', order);
 
-    // Amplitude Purchased 이벤트 전송
-    try {
-      const amplitudeUserId = toAmplitudeUserId(order.user_id);
-      const itemCount = order.order_items ? order.order_items.length : 0;
-      amplitude.track({
-        event_type: "Purchased",
-        user_id: amplitudeUserId,
-        event_properties: {
-          order_id: order.order_id,
-          order_price: order.order_price,
-          item_count: itemCount,
-          fulfillment_type: String(order.order_type).toLowerCase(),
-        },
-      });
-    } catch (e) {
-      console.warn('[OrderController][WARN] Amplitude Purchased 이벤트 전송 실패', e);
-    }
 
     // 2. user 조회
     const user = await prisma.user.findUnique({ where: { id: user_id } });
