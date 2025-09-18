@@ -1,6 +1,7 @@
 "use client";
 
 import { updateUserAddress } from "@/api/authApi";
+import { usePageView } from "@/services/hooks/usePageView";
 import { useRouter, useSearchParams } from "next/navigation";
 import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
@@ -17,6 +18,8 @@ import useUserStore from "@/store/userStore";
 import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 
 function AddressCheckClientPage() {
+  usePageView("address_check");
+
   const searchParams = useSearchParams();
   const router = useRouter();
 
