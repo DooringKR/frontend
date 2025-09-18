@@ -94,6 +94,8 @@ function ConfirmPageContent() {
           className="fixed bottom-0 w-full max-w-[460px]"
           onButton1Click={async () => {
             try {
+              
+              handleAddToCartClick();
               const result = await addCartItem({
                 product_type: "FINISH",
                 unit_price: unitPrice,
@@ -111,7 +113,6 @@ function ConfirmPageContent() {
                 },
               });
               console.log(result);
-              handleAddToCartClick();
               router.replace("/cart");
             } catch (error) {
               console.error("장바구니 담기 실패:", error);
