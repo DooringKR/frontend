@@ -23,8 +23,8 @@ export function useButtonClick(buttonName: string, pageName: string) {
   return useCallback(() => {
     if (typeof window !== "undefined" && window.amplitude) {
       window.amplitude.track("Button Clicked", {
-        button_name: String(buttonName),
         page_name: String(pageName),
+        button_name: String(buttonName),
       });
     }
   }, [buttonName, pageName]);

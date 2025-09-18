@@ -9,7 +9,7 @@ import ContactStatusChip from "./components/contactStatusChip";
 import { usePageView } from "@/services/hooks/usePageView";
 
 function CustomerServicePage() {
-  usePageView("CustomerService");
+  usePageView("customer_service");
   const [isContactAvailable, setIsContactAvailable] = useState(true);
 
   return (
