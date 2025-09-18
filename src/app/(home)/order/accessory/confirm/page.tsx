@@ -69,8 +69,8 @@ function ConfirmPageContent() {
           button1Text={"장바구니 담기"}
           className="fixed bottom-0 w-full max-w-[460px]"
           onButton1Click={async () => {
-            try {
               handleAddToCartClick();
+            try {
               const result = await addCartItem({
                 product_type: "ACCESSORY",
                 unit_price: 0,

@@ -109,9 +109,9 @@ function CabinetConfirmPageContent() {
           button1Text={"장바구니 담기"}
           className="fixed bottom-0 w-full max-w-[460px]"
           onButton1Click={async () => {
+              handleAddToCartClick();
             try {
               
-              handleAddToCartClick();
               const result = await addCartItem({
                 product_type: "CABINET",
                 unit_price: unitPrice,
