@@ -2,13 +2,31 @@ import { KakaoAuthRepository } from "@/DDD/repository/service/kakao_auth_reposit
 import { supabase } from "@/lib/supabase";
 import { Response } from "../response";
 
+// 환경에 따른 redirect URL 생성 함수
+const getRedirectUrl = (type: 'signup' | 'login'): string => {
+    // 환경 변수에서 기본 URL 가져오기
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ||
+        process.env.NEXT_PUBLIC_VERCEL_URL ||
+        window.location.origin;
+
+    // URL이 http로 시작하지 않으면 https 추가
+    const fullUrl = baseUrl.startsWith('http') ? baseUrl : `https://${baseUrl}`;
+
+    // URL이 /로 끝나지 않으면 / 추가
+    const normalizedUrl = fullUrl.endsWith('/') ? fullUrl : `${fullUrl}/`;
+
+    return `${normalizedUrl}auth/callback?type=${type}`;
+};
+
 export class KakaoAuthSupabaseRepository implements KakaoAuthRepository {
     async signup(): Promise<Response> {
         try {
+            const redirectUrl = getRedirectUrl('signup');
+
             const supabaseResponse = await supabase.auth.signInWithOAuth({
                 provider: 'kakao',
                 options: {
-                    redirectTo: `${window.location.origin}/auth/callback?type=signup`
+                    redirectTo: redirectUrl
                 }
             });
 
@@ -37,10 +55,12 @@ export class KakaoAuthSupabaseRepository implements KakaoAuthRepository {
     }
 
     async login(): Promise<Response> {
+        const redirectUrl = getRedirectUrl('login');
+
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'kakao',
             options: {
-                redirectTo: `${window.location.origin}/auth/callback?type=login`
+                redirectTo: redirectUrl
             }
         });
 
