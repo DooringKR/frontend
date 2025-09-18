@@ -61,7 +61,7 @@ function DoorCategoryPage() {
             <div className="relative aspect-square w-full">
               <Image
                 src={category.image}
-                alt={category.name}
+                alt={category.type || ''}
                 fill
                 style={{
                   objectFit: "contain",
@@ -71,7 +71,7 @@ function DoorCategoryPage() {
               />
             </div>
             <div className="text-center text-[17px]/[24px] font-500 text-gray-500">
-              {category.name}
+              {category.type || ''}
             </div>
           </div>
         ))}

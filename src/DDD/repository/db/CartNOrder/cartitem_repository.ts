@@ -1,9 +1,9 @@
 import { CartItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/CartItem";
 import { Response } from "@/DDD/data/response";
 
-export interface CartItemRepository {
-    createCartItem(cartItem: CartItem): Promise<Response<CartItem>>;
-    findCartItemById(id: string): Promise<Response<CartItem | null>>;
-    updateCartItem(cartItem: CartItem): Promise<Response<boolean>>;
-    deleteCartItem(id: string): Promise<Response<boolean>>;
+export abstract class CartItemRepository {
+    abstract createCartItem(cartItem: CartItem): Promise<Response<CartItem>>;
+    abstract findCartItemById(id: string): Promise<Response<CartItem | null>>;
+    abstract updateCartItem(cartItem: CartItem): Promise<Response<boolean>>;
+    abstract deleteCartItem(id: string): Promise<Response<boolean>>;
 }

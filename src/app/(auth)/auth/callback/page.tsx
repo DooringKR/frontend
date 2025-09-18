@@ -13,6 +13,8 @@ import { BusinessType } from 'dooring-core-domain/dist/enums/UserEnums';
 import { KakaoLoginUsecase } from '@/DDD/usecase/auth/kakao_login_usecase';
 import { ReadBizClientUsecase } from '@/DDD/usecase/user/read_bizClient_usecase';
 import useBizClientStore from '@/store/bizClientStore';
+import useCartStore from '@/store/cartStore';
+import { CrudCartUsecase } from '@/DDD/usecase/crud_cart_usecase';
 
 // 콜백 처리 컴포넌트를 분리
 function AuthCallbackContent() {
@@ -57,6 +59,7 @@ function AuthCallbackContent() {
 
                         if (result.success) {
                             useBizClientStore.setState({ bizClient: result.data.bizClient });
+                            useCartStore.setState({ cart: result.data.cart });
                             router.push('/');
                         } else {
                             router.push('/login?error=signup_failed');
@@ -88,11 +91,14 @@ function AuthCallbackContent() {
                         console.log('✅ 세션 확인됨, 사용자 정보 조회 시작');
                         const readBizClientUsecase = new ReadBizClientUsecase(new BizClientSupabaseRepository());
                         const user = await readBizClientUsecase.execute(data.session.user.id);
+                        const readCartUsecase = new CrudCartUsecase(new CartSupabaseRepository());
+                        const cart = await readCartUsecase.findById(data.session.user.id)!;
                         console.log('📡 API 응답 상태:', user);
                         console.log('📡 API 응답:', user);
 
                         if (user.success && user.data) {
                             useBizClientStore.setState({ bizClient: user.data });
+                            useCartStore.setState({ cart: cart! });
                             router.push(`/`);
                         } else {
                             router.push('/login?error=user_not_found');
