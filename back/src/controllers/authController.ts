@@ -48,10 +48,19 @@ export async function signup(req: Request, res: Response) {
     });
 
 
-    // 5) Amplitude 이벤트 전송 (device_id 필수)
+
+    // 5) Amplitude user_id는 5자 이상이어야 하므로, 5자 미만이면 접두어 추가
+    let amplitudeUserId = String(newUser.id);
+    if (amplitudeUserId.length < 5) {
+      amplitudeUserId = `user_${amplitudeUserId}`;
+      // 그래도 5자 미만일 경우(극히 드물지만), 0 padding
+      while (amplitudeUserId.length < 5) {
+        amplitudeUserId = amplitudeUserId + "0";
+      }
+    }
     amplitude.track({
       event_type: "Signed Up",
-      user_id: String(newUser.id),
+      user_id: amplitudeUserId,
       event_properties: {
         business_type: newUser.user_type,
       },
@@ -106,11 +115,19 @@ export async function login(req: Request, res: Response) {
       .json({ message: "등록된 회원이 아닙니다." });
   }
 
-  // 3) 성공 응답 (user_id 포함)
+  // 3) Amplitude user_id 규칙에 맞춰 5자 미만이면 접두어 추가 (프론트에서 사용하도록)
+  let amplitudeUserId = String(user.id);
+  if (amplitudeUserId.length < 5) {
+    amplitudeUserId = `user_${amplitudeUserId}`;
+    while (amplitudeUserId.length < 5) {
+      amplitudeUserId = amplitudeUserId + "0";
+    }
+  }
+  // 성공 응답 (user_id 포함)
   return res
     .status(200)
     .json({
-      user_id: user.id,
+      user_id: amplitudeUserId,
       message: "로그인 성공",
     });
 }
