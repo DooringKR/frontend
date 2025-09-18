@@ -46,7 +46,7 @@ export class KakaoSignupUsecase {
     }
 
     // 별도 메서드: OAuth 콜백 후 사용자 정보 처리
-    async handleAuthCallback(userType: BusinessType): Promise<Response> {
+    async handleAuthCallback(userType: BusinessType, phoneNumber: string): Promise<Response> {
         try {
             console.log('OAuth 콜백 처리 시작');
 
@@ -72,6 +72,7 @@ export class KakaoSignupUsecase {
                 const loginResponse = await kakaoLoginUsecase.execute();
                 console.log('로그인 결과:', loginResponse);
                 useSignupStore.getState().resetBusinessType();
+                useSignupStore.getState().resetPhoneNumber();
                 return {
                     success: true,
                     data: duplicateCheckResponse.data,
@@ -85,7 +86,7 @@ export class KakaoSignupUsecase {
                 created_at: new Date(),
                 business_type: userType,
                 nick_name: userInfo.data.user.user_metadata?.nickname || "test",
-                phone_number: userInfo.data.user.phone || "01012345678",
+                phone_number: phoneNumber,
             });
             console.log('BizClient:', bizClient);
 
@@ -107,6 +108,7 @@ export class KakaoSignupUsecase {
 
             if (bizClientResponse.success && cartResponse.success) {
                 useSignupStore.getState().resetBusinessType();
+                useSignupStore.getState().resetPhoneNumber();
             }
 
 

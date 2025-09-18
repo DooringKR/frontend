@@ -17,14 +17,16 @@ export class BizClientSupabaseRepository extends BizClientRepository {
 
     async findUserById(id: string): Promise<Response<BizClient | null>> {
         const { data, error } = await supabase.from('BizClient').select('*').eq('id', id);
-        if (error) {
-            return { success: false, data: null, message: error.message };
+        console.log('📝 dat111111a:', data);
+        if (data && data.length > 0) {
+            return { success: true, data: data[0] };
+        } else {
+            return { success: false, data: null, message: "사용자를 찾을 수 없습니다." };
         }
-        return { success: true, data: data[0] };
     }
 
-    async updateUser(user: BizClient): Promise<Response<boolean>> {
-        const { data, error } = await supabase.from('bizclient').update(user).eq('id', user.id);
+    async updateUser(user: Partial<BizClient>): Promise<Response<boolean>> {
+        const { data, error } = await supabase.from('BizClient').update(user).eq('id', user.id);
         if (error) {
             return { success: false, data: false, message: error.message };
         }
@@ -32,7 +34,7 @@ export class BizClientSupabaseRepository extends BizClientRepository {
     }
 
     async deleteUser(id: string): Promise<Response<boolean>> {
-        const { data, error } = await supabase.from('bizclient').delete().eq('id', id);
+        const { data, error } = await supabase.from('BizClient').delete().eq('id', id);
         if (error) {
             return { success: false, data: false, message: error.message };
         }

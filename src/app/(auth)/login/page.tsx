@@ -14,12 +14,15 @@ import Factory from "public/icons/factory";
 import { BusinessType } from "dooring-core-domain/dist/enums/UserEnums";
 import useSignupStore from "@/store/signupStore";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 function LoginPage() {
     const { businessType, setBusinessType } = useSignupStore();
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const loginError = searchParams.get('error');
+
     const [isLoading, setIsLoading] = useState(true);
 
     const kakaoSignupUsecase = new KakaoSignupUsecase(
@@ -32,6 +35,9 @@ function LoginPage() {
         // 유저 정보 확인 및 리다이렉트 처리
         const checkUserAndRedirect = async () => {
             try {
+                if (loginError === 'user_not_found') {
+                    return;
+                }
                 const { data: { user }, error } = await supabase.auth.getUser();
 
                 console.log("User check result:", { user, error });

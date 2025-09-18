@@ -22,6 +22,7 @@ function AuthCallbackContent() {
     useEffect(() => {
         const handleAuthCallback = async () => {
             const type = searchParams.get('type');
+
             if (type === 'signup') {
                 try {
                     console.log('🔄 OAuth 콜백 처리 시작 (회원가입)');
@@ -50,7 +51,7 @@ function AuthCallbackContent() {
                             new BizClientSupabaseRepository(),
                             new CartSupabaseRepository()
                         );
-                        const result = await kakaoSignupUsecase.handleAuthCallback(parsed.state.businessType as BusinessType);
+                        const result = await kakaoSignupUsecase.handleAuthCallback(parsed.state.businessType as BusinessType, parsed.state.phoneNumber as string);
                         console.log('📡 API 응답 상태:', result);
                         console.log('📡 API 응답:', result);
 

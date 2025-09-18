@@ -15,10 +15,16 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import useAddressStore from "@/store/addressStore";
 import useUserStore from "@/store/userStore";
 import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
+import useBizClientStore from "@/store/bizClientStore";
+import { UpdateBizClientUsecase } from "@/DDD/usecase/user/update_BizClient_usecase";
+import { BizClientSupabaseRepository } from "@/DDD/data/db/User/bizclient_supabase_repository";
 
 function AddressCheckClientPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { bizClient } = useBizClientStore();
+  const updateBizClientUsecase = new UpdateBizClientUsecase(new BizClientSupabaseRepository());
+
 
   const [isDeliveryPossible, setIsDeliveryPossible] = useState(false);
 
@@ -34,20 +40,6 @@ function AddressCheckClientPage() {
   const handleScriptLoad = () => {
     scriptLoadedRef.current = true;
   };
-  // //다음 주소 api 팝업용 함수
-  // const handleAddressClick = () => {
-  //   if (!scriptLoadedRef.current || !window.daum?.Postcode) {
-  //     alert("주소 검색 스크립트가 아직 로드되지 않았습니다. 잠시 후 다시 시도해주세요.");
-  //     return;
-  //   }
-
-  //   new window.daum.Postcode({
-  //     oncomplete: data => {
-  //       const selectedAddress = data.roadAddress || data.address;
-  //       setAddress(selectedAddress, address2); // 상세주소 유지
-  //     },
-  //   }).open();
-  // };
 
   useEffect(() => {
     if (typeof window !== "undefined" && window.daum?.Postcode) {
@@ -86,19 +78,22 @@ function AddressCheckClientPage() {
       return;
     }
 
-    if (userId === null) {
-      alert("로그인 정보가 없습니다.");
-      return;
-    }
-
     try {
-      await updateUserAddress(userId, address1, address2);
-      console.log("📦 주소 업데이트 완료 후 후처리 시작");
-      useUserStore.setState({
-        user_road_address: address1,
-        user_detail_address: address2,
+      await updateBizClientUsecase.execute({
+        id: bizClient?.id,
+        road_address: address1,
+        detail_address: address2,
       });
-      setAddress(address1, address2);
+
+      // await updateUserAddress(userId, address1, address2);
+      console.log("📦 주소 업데이트 완료 후 후처리 시작");
+
+      useBizClientStore.getState().updateBizClient({
+        road_address: address1,
+        detail_address: address2,
+      });
+
+      // setAddress(address1, address2);
       router.replace("/");
     } catch (error) {
       alert("주소 저장 중 오류가 발생했습니다.");
