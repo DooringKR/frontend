@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback } from "react";
+import useUserStore from "@/store/userStore";
 
 declare global {
   interface Window {
@@ -9,7 +10,7 @@ declare global {
       setUserId?: (userId: string) => void;
     };
   }
-}
+// ...
 
 /**
  * 버튼 클릭 이벤트를 Amplitude로 전송하는 커스텀 훅
@@ -20,13 +21,14 @@ declare global {
  * Amplitude 이벤트명: "Button Clicked"
  * Properties: { button_name: string, page_name: string }
  */
-export function useButtonClick(buttonName: string, pageName: string) {
+  const amplitudeUserId = useUserStore(state => state.amplitude_user_id);
   return useCallback(() => {
     if (typeof window !== "undefined" && window.amplitude) {
       window.amplitude.track("Button Clicked", {
         page_name: String(pageName),
         button_name: String(buttonName),
+        user_id: amplitudeUserId,
       });
     }
-  }, [buttonName, pageName]);
+  }, [buttonName, pageName, amplitudeUserId]);
 }

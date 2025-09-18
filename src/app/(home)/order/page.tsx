@@ -48,7 +48,7 @@ function DoorCategoryPage() {
       <div className="grid w-full grid-cols-2 gap-x-3 gap-y-[40px] px-5 pb-5 pt-10">
         {categories.map((category, idx) => {
           const buttonName = `go_to_${type}_${category.slug}`;
-          const buttonClick = useButtonClick(buttonName, "order");
+          const buttonClick = useButtonClick(buttonName, `${type}_type`);
           return (
             <div
               key={category?.slug ?? idx}
