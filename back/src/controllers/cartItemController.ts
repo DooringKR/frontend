@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import prisma from '../prismaClient';
 import { ProductType } from '@prisma/client';
+import amplitude from '../amplitudeClient';
+import { generateDeviceId } from '../utils/generateDeviceId';
 
 const VALID_PRODUCT_TYPES = Object.values(ProductType);
 
@@ -42,6 +44,21 @@ export async function addCartItem(req: Request, res: Response) {
 
   const newItem = await prisma.cartItem.create({
     data: { cart_id, product_type, unit_price, item_count, item_options },
+  });
+
+  // Amplitude: Added to Cart 이벤트 전송
+  // product_name: item.product_type + item.item_options[`${item.product_type.toLowerCase()}_type`]
+  let productTypeKey = product_type.toLowerCase() + '_type';
+  let productTypeValue = item_options[productTypeKey] || '';
+  const product_name = product_type + (productTypeValue ? `_${productTypeValue}` : '');
+  amplitude.track({
+    event_type: 'Added to Cart',
+    device_id: generateDeviceId(),
+    event_properties: {
+      product_name,
+      quantity: item_count,
+      price_per_unit: unit_price,
+    },
   });
 
   return res.status(201).json({
