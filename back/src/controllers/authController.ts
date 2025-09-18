@@ -51,7 +51,7 @@ export async function signup(req: Request, res: Response) {
     // 5) Amplitude 이벤트 전송 (device_id 필수)
     amplitude.track({
       event_type: "Signed Up",
-      device_id: generateDeviceId(),
+      user_id: String(newUser.id),
       event_properties: {
         business_type: newUser.user_type,
       },

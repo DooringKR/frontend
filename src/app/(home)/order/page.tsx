@@ -39,7 +39,7 @@ function DoorCategoryPage() {
 
   const categories = categoryLists[type as keyof typeof categoryLists] || [];
   // PV/BC 이벤트 네이밍: button_name은 go_to_type_category, page_name은 order
-  usePageView("order");
+  usePageView(`${type}_type`);
 
   return (
     <div className="flex flex-col">
