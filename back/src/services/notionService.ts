@@ -450,7 +450,7 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
       if (opts.recipient_road_address) lines.push(`배송 주소: ${opts.recipient_road_address}${opts.recipient_detail_address ? ' / ' + opts.recipient_detail_address : ''}`);
       if (opts.delivery_type) {
         if (opts.delivery_type === "TODAY") {
-          lines.push("희망 도착: 오늘중");
+          lines.push("희망 도착: 오늘배송");
         } else {
           // detail_delivery_time을 한국 표준시로 변환
           let kstTime = "-";
