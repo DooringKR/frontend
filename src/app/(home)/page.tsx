@@ -81,15 +81,6 @@ export default function Page() {
     setCartItemCount(cartItems.length);
   }, [cartItems]);
 
-  // const formatOrderDeadline = (remainingMinutes: number): string => {
-  //   const hours = Math.floor(remainingMinutes / 60);
-  //   const minutes = remainingMinutes % 60;
-
-  //   if (remainingMinutes <= 0) return "주문 마감";
-
-  //   return `${hours > 0 ? `${hours}시간 ` : ""}${minutes}분 내 주문 시`;
-  // };
-
   useEffect(() => {
     const checkDelivery = async () => {
       if (address1) {

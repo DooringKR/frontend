@@ -5,11 +5,22 @@ import { BizClientSupabaseRepository } from "@/DDD/data/db/User/bizclient_supaba
 import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_repository";
 import { KakaoAuthSupabaseRepository } from "@/DDD/data/service/kakao_auth_supabase_repository";
 import Image from "next/image";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import Header from "@/components/Header/Header";
+import CompanyTypeButton from "@/components/Button/CompanyTypeButton";
+import PaintBruchVertical from "public/icons/paintbrush_vertical";
+import Factory from "public/icons/factory";
+import { BusinessType } from "dooring-core-domain/dist/enums/UserEnums";
+import useSignupStore from "@/store/signupStore";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+
 function LoginPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const loginError = searchParams.get('error');
+
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
@@ -26,6 +37,55 @@ function LoginPage() {
         new BizClientSupabaseRepository(),
         new CartSupabaseRepository()
     );
+
+    useEffect(() => {
+        // 유저 정보 확인 및 리다이렉트 처리
+        const checkUserAndRedirect = async () => {
+            try {
+                if (loginError === 'user_not_found') {
+                    return;
+                }
+                const { data: { user }, error } = await supabase.auth.getUser();
+
+                console.log("User check result:", { user, error });
+                console.log("login page");
+
+                // 유저가 로그인되어 있으면 홈으로 리다이렉트
+                if (user && !error) {
+                    console.log("User is already logged in, redirecting to home");
+                    router.push('/');
+                    return;
+                }
+
+                // 에러가 있거나 유저가 없으면 로그인 페이지 유지
+                console.log("User not logged in, staying on login page");
+            } catch (err) {
+                console.error("Error checking user:", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        checkUserAndRedirect();
+    }, [router]);
+
+    // 로딩 중일 때는 로딩 화면 표시
+    if (isLoading) {
+        return (
+            <div className="flex h-screen w-full flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white">
+                <div className="text-center">
+                    <Image
+                        src="/img/logo-192x192.png"
+                        alt="로고"
+                        width={80}
+                        height={80}
+                        className="mx-auto mb-4"
+                    />
+                    <p className="text-gray-600">로딩 중...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex h-screen w-full flex-col bg-gradient-to-b from-blue-50 to-white">
@@ -96,7 +156,21 @@ function LoginPage() {
             <div className="px-8 pb-8">
                 <div className="text-center">
                     <p className="text-xs text-gray-400">
-                        로그인 시 서비스 이용약관 및 개인정보처리방침에
+                        로그인 시{" "}
+                        <span
+                            className="text-blue-500 underline cursor-pointer hover:text-blue-600"
+                            onClick={() => window.open("https://dooring.notion.site/terms-of-use", "_blank")}
+                        >
+                            서비스 이용약관
+                        </span>
+                        {" "}및{" "}
+                        <span
+                            className="text-blue-500 underline cursor-pointer hover:text-blue-600"
+                            onClick={() => window.open("https://dooring.notion.site/privacy", "_blank")}
+                        >
+                            개인정보처리방침
+                        </span>
+                        에
                     </p>
                     <p className="text-xs text-gray-400">
                         동의하는 것으로 간주됩니다

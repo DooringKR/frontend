@@ -1,5 +1,8 @@
+import { FinishType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+
 type Category = {
-  name: string;
+  type?: FinishType;
+  name?: string;
   image: string;
   slug: string;
   header?: string;
@@ -41,7 +44,7 @@ export const CABINET_CATEGORY_LIST: Category[] = [
 ]
 
 export const FINISH_CATEGORY_LIST: Category[] = [
-  { name: "EP 마감", image: "/img/finish-category/EP.png", slug: "ep", header: "EP 마감" },
-  { name: "몰딩", image: "/img/finish-category/Molding.png", slug: "molding", header: "몰딩" },
-  { name: "걸레받이", image: "/img/finish-category/Galle.png", slug: "galle", header: "걸레받이" },
+  { type: FinishType.EP, image: "/img/finish-category/EP.png", slug: "ep" },
+  { type: FinishType.MOLDING, image: "/img/finish-category/Molding.png", slug: "molding" },
+  { type: FinishType.GALLE, image: "/img/finish-category/Galle.png", slug: "galle" },
 ]

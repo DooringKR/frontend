@@ -7,6 +7,7 @@ import formatSize from "@/utils/formatSize";
 import Button from "../Button/Button";
 import DoorPreviewIcon from "../DoorPreviewIcon/DoorPreviewIcon";
 import QuantitySelector from "../QuantitySelector/QuantitySelector";
+import { FinishEdgeCount } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 interface ShoppingCartCardProps {
   type: "door" | "cabinet" | "finish" | "accessory" | "hardware";
@@ -16,7 +17,7 @@ interface ShoppingCartCardProps {
   width?: number;
   height?: number;
   depth?: number;
-  edgeCount?: number;
+  edgeCount?: FinishEdgeCount;
   hingeCount?: number;
   hingeDirection?: string;
   boring?: string | (number | null)[];
@@ -130,7 +131,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
                 )}
               </>
             )}
-            {edgeCount && <div>엣지 면 수 : {edgeCount}면</div>}
+            {edgeCount && <div>엣지 면 수 : {edgeCount}</div>}
             {hingeCount && <div>경첩 개수 : {hingeCount}개</div>}
             {hingeDirection && <div>경첩 방향 : {hingeDirection}</div>}
             {boring && (

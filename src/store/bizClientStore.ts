@@ -49,14 +49,15 @@ const useBizClientStore = create<BizClientStore>()(
                     if (!state.bizClient) {
                         return { bizClient: null, error: null };
                     }
-                    // toDB 메서드가 BizClient 타입에 항상 존재해야 하므로, 기존 toDB를 유지
-                    const { toDB, ...rest } = state.bizClient;
+
+                    // 기존 bizClient와 업데이트를 병합
+                    const updatedBizClient = {
+                        ...state.bizClient,
+                        ...updates
+                    } as BizClient;
+
                     return {
-                        bizClient: {
-                            ...rest,
-                            ...updates,
-                            toDB: state.bizClient.toDB
-                        },
+                        bizClient: updatedBizClient,
                         error: null
                     };
                 }),

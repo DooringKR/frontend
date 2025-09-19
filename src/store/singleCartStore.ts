@@ -1,3 +1,4 @@
+import { FinishEdgeCount, Location } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -55,14 +56,14 @@ export type AccessoryCart = {
 export type FinishCart = {
   type: "finish";
   category?: string | null;
-  edge_count?: number | null;
+  edge_count?: FinishEdgeCount | null;
   color?: string | null;
   depth?: number | null;
   height?: number | null;
   depthIncrease?: number | null;
   heightIncrease?: number | null;
   request?: string | null;
-  finish_location?: string | null;
+  finish_location?: Location | null;
 };
 
 export type SingleCart = CabinetCart | HardwareCart | AccessoryCart | FinishCart | DoorCart;
