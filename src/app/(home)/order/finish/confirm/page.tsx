@@ -113,6 +113,7 @@ function ConfirmPageContent() {
               const colorId = getColorId(color ?? "");
               // dooring-core-domain의 Finish 클래스를 사용하여 finish 객체 생성
               const finish = new Finish({
+                //TODO: category에 맞는 FinishType 사용
                 finish_type: FinishType.EP,
                 finish_color: colorId, // color.id로 변경 (없으면 undefined)
                 finish_edge_count: edgeCount!,
@@ -126,12 +127,12 @@ function ConfirmPageContent() {
               });
 
               // Finish 객체를 Supabase에 저장
-              // const createdFinish = await new CrudInteriorMaterialsUsecase(
-              //   new InteriorMaterialsSupabaseRepository<Finish>("Finish")
-              // ).create(finish);
+              const createdFinish = await new CrudInteriorMaterialsUsecase(
+                new InteriorMaterialsSupabaseRepository<Finish>("Finish")
+              ).create(finish);
 
               // cartitem 생성
-              // console.log(createdFinish);
+              console.log(createdFinish);
 
               console.log(
                 cart!.getId()

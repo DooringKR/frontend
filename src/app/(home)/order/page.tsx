@@ -47,6 +47,9 @@ function DoorCategoryPage() {
             className="flex flex-1 cursor-pointer flex-col items-center gap-2"
             onClick={() => {
               //type, catergory 추가 후 다음 페이지로 이동
+              console.log(category.slug);
+              console.log(type);
+              // 'accessory' 타입은 SingleCart의 type에 할당할 수 없으므로 예외 처리
               setCart({
                 type: type,
                 category: category.slug,

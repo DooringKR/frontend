@@ -32,7 +32,7 @@ function AccessoryPageContent() {
   // const category = searchParams.get("category") ?? "";
   // category(slug)에 맞는 header 값 찾기
   const currentCategory = ACCESSORY_CATEGORY_LIST.find(item => item.slug === category);
-  const headerTitle = currentCategory?.header || category;
+  const headerTitle = currentCategory?.type || category;
 
   return (
     <div className="flex flex-col">

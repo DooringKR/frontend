@@ -12,6 +12,10 @@ import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { AccessoryCart, useSingleCartStore } from "@/store/singleCartStore";
+import { Accessory } from "dooring-core-domain/dist/models/InteriorMaterials/Accessory";
+import { InteriorMaterialsSupabaseRepository } from "@/DDD/data/db/interior_materials_supabase_repository";
+import { CrudInteriorMaterialsUsecase } from "@/DDD/usecase/crud_interior_materials_usecase";
+import { AccessoryType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 function ConfirmPageContent() {
   const router = useRouter();
@@ -61,19 +65,28 @@ function ConfirmPageContent() {
           className="fixed bottom-0 w-full max-w-[460px]"
           onButton1Click={async () => {
             try {
-              const result = await addCartItem({
-                product_type: "ACCESSORY",
-                unit_price: 0,
-                item_count: quantity,
-                item_options: {
-                  accessory_type: category,
-                  accessory_madeby: accessory_madeby,
-                  accessory_model: accessory_model,
-                  accessory_request: request,
-                },
+              const accessory = new Accessory({
+                accessory_type: AccessoryType.SINK,
+                accessory_madeby: accessory_madeby!,
+                accessory_model: accessory_model!,
+                accessory_request: request ?? undefined,
               });
-              console.log(result);
-              router.replace("/cart");
+              const createdAccessory = await new CrudInteriorMaterialsUsecase(
+                new InteriorMaterialsSupabaseRepository<Accessory>("Accessory")
+              ).create(accessory);
+              // const result = await addCartItem({
+              //   product_type: "ACCESSORY",
+              //   unit_price: 0,
+              //   item_count: quantity,
+              //   item_options: {
+              //     accessory_type: category,
+              //     accessory_madeby: accessory_madeby,
+              //     accessory_model: accessory_model,
+              //     accessory_request: request,
+              //   },
+              // });
+              // console.log(result);
+              // router.replace("/cart");
             } catch (error) {
               console.error("장바구니 담기 실패:", error);
             }

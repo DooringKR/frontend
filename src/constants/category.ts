@@ -1,7 +1,7 @@
-import { FinishType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import { AccessoryType, FinishType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 type Category = {
-  type?: FinishType;
+  type?: FinishType | AccessoryType;
   name?: string;
   image: string;
   slug: string;
@@ -24,9 +24,9 @@ export const DOOR_CATEGORY_LIST: Category[] = [
 ];
 
 export const ACCESSORY_CATEGORY_LIST: Category[] = [
-  { name: "싱크볼", image: "/img/accessory-category/sinkbowl.png", slug: "sinkbowl", header: "싱크볼" },
-  { name: "쿡탑", image: "/img/accessory-category/cooktop.png", slug: "cooktop", header: "쿡탑" },
-  { name: "후드", image: "/img/accessory-category/hood.png", slug: "hood", header: "후드" },
+  { type: AccessoryType.SINK, image: "/img/accessory-category/sinkbowl.png", slug: "sinkbowl" },
+  { type: AccessoryType.COOKTOP, image: "/img/accessory-category/cooktop.png", slug: "cooktop" },
+  { type: AccessoryType.HOOD, image: "/img/accessory-category/hood.png", slug: "hood" },
 ]
 
 export const HARDWARE_CATEGORY_LIST: Category[] = [

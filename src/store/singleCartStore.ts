@@ -1,4 +1,4 @@
-import { FinishEdgeCount, Location } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import { AccessoryType, FinishEdgeCount, Location } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
