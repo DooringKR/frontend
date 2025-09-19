@@ -1,7 +1,7 @@
-import { AccessoryType, FinishType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import { AccessoryType, FinishType, HardwareType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 type Category = {
-  type?: FinishType | AccessoryType;
+  type?: FinishType | AccessoryType | HardwareType;
   name?: string;
   image: string;
   slug: string;
@@ -30,9 +30,9 @@ export const ACCESSORY_CATEGORY_LIST: Category[] = [
 ]
 
 export const HARDWARE_CATEGORY_LIST: Category[] = [
-  { name: "경첩", image: "/img/hardware-category/hinge.png", slug: "hinge", header: "경첩" },
-  { name: "레일", image: "/img/hardware-category/rail.png", slug: "rail", header: "레일" },
-  { name: "피스", image: "/img/hardware-category/bolt.png", slug: "bolt", header: "피스" },
+  { type: HardwareType.HINGE,  image: "/img/hardware-category/hinge.png", slug: "hinge" },
+  { type: HardwareType.RAIL, image: "/img/hardware-category/rail.png", slug: "rail" },
+  { type: HardwareType.PIECE, image: "/img/hardware-category/bolt.png", slug: "bolt" },
 ]
 
 export const CABINET_CATEGORY_LIST: Category[] = [
