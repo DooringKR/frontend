@@ -14,10 +14,11 @@ export class CartSupabaseRepository extends CartRepository {
     }
 
     async findCartById(id: string): Promise<Response<Cart | null>> {
-        const { data, error } = await supabase.from('Cart').select('*').eq('id', id);
+        const { data, error } = await supabase.from('Cart').select('*').eq('user_id', id);
         if (error) {
             return { success: false, data: null, message: error.message };
         }
+        console.log('data', data);
         return { success: true, data: data[0] };
     }
 

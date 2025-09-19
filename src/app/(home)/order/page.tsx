@@ -15,6 +15,7 @@ import { Suspense } from "react";
 import Header from "@/components/Header/Header";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import { useSingleCartStore } from "@/store/singleCartStore";
+import { AccessoryType, FinishType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 function DoorCategoryPage() {
   const router = useRouter();
@@ -49,10 +50,11 @@ function DoorCategoryPage() {
               //type, catergory 추가 후 다음 페이지로 이동
               console.log(category.slug);
               console.log(type);
-              // 'accessory' 타입은 SingleCart의 type에 할당할 수 없으므로 예외 처리
+              console.log(category.type as FinishType | AccessoryType | null);
               setCart({
                 type: type,
                 category: category.slug,
+                enum_type: category.type as any,
               });
               if (type === "accessory" || type === "hardware") {
                 router.push(`/order/${type}`);

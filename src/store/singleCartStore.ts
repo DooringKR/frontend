@@ -1,4 +1,9 @@
-import { AccessoryType, FinishEdgeCount, Location } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import {
+  AccessoryType,
+  FinishEdgeCount,
+  FinishType,
+  Location,
+} from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -48,6 +53,7 @@ export type HardwareCart = {
 export type AccessoryCart = {
   type: "accessory";
   category?: string | null;
+  enum_type?: any | null;
   accessory_madeby?: string | null;
   accessory_model?: string | null;
   request?: string | null;
@@ -56,6 +62,7 @@ export type AccessoryCart = {
 export type FinishCart = {
   type: "finish";
   category?: string | null;
+  enum_type?: any | null;
   edge_count?: FinishEdgeCount | null;
   color?: string | null;
   depth?: number | null;

@@ -43,11 +43,11 @@ const HomeProductContainer: React.FC = () => {
     if (!addressStorage) {
       router.push(`/address-check?category=${slug}`);
     } else if (slug === "finish") {
-      const initialFinishCart: FinishCart = {
-        type: "finish",
-      };
-      setCart(initialFinishCart);
-      router.push(`/order`);
+      // const initialFinishCart: FinishCart = {
+      //   type: "finish",
+      // };
+      // setCart(initialFinishCart);
+      router.push(`/finish`);
       // router.push(`/order/color?type=${slug}`);
     } else if (slug === "hardware") {
       const initialHardwareCart: HardwareCart = {

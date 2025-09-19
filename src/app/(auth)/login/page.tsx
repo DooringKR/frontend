@@ -59,12 +59,14 @@ function LoginPage() {
 
                 // 유저가 로그인되어 있으면 홈으로 리다이렉트
                 if (user && !error) {
+                    console.log('12312312312312312');
                     const readBizClientUsecase = new ReadBizClientUsecase(new BizClientSupabaseRepository());
                     const bizClient = await readBizClientUsecase.execute(user!.id);
                     const readCartUsecase = new CrudCartUsecase(new CartSupabaseRepository());
                     const cart = await readCartUsecase.findById(user!.id)!;
-                    console.log('📡 API 응답 상태:', bizClient);
                     console.log('📡 API 응답:', bizClient);
+                    console.log('456456456456456456');
+                    console.log('📡 API 응답cart:', cart);
 
                     if (bizClient.success && bizClient.data) {
                         useBizClientStore.setState({ bizClient: bizClient.data });
