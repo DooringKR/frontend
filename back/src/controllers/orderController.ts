@@ -24,6 +24,7 @@ async function completeOrderInternal(order_id: string) {
     await createNotionOrderPage({
       orderedAt: order.created_at,
       userRoadAddress: user?.user_road_address || "",
+      userDetailAddress: user?.user_detail_address || "",
       userPhone: user?.user_phone || "",
       recipientPhone: order.recipient_phone,
       orderType: order.order_type,
@@ -354,6 +355,7 @@ export async function completeOrder(req: Request, res: Response) {
     await createNotionOrderPage({
       orderedAt: order.created_at,
       userRoadAddress: user?.user_road_address || "",
+      userDetailAddress: user?.user_detail_address || "",
       userPhone: user?.user_phone || "",
       recipientPhone: order.recipient_phone,
       orderType: order.order_type,

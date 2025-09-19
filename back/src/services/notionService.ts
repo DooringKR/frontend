@@ -70,6 +70,7 @@ function formatDateToYMDHM(date: Date): string {
 export interface NotionOrderPayload {
   orderedAt: Date; // 주문 생성 시각
   userRoadAddress: string; // 주소(도로명)
+  userDetailAddress: string; // 주소(상세)
   userPhone: string; // 주문한 분 전화번호
   recipientPhone: string; // 받는 분 전화번호
   orderType: string; // PICK_UP / DELIVERY
@@ -375,6 +376,10 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
   const productTypesStats = Object.entries(typeCounts)
     .map(([type, cnt]) => `• ${type}: ${cnt}개`).join("\n");
   const orderedAtText = formatDateToYMDHM(payload.orderedAt);
+  let deliveryAddressLine = "";
+  if (payload.orderType === "DELIVERY") {
+    deliveryAddressLine = `\n배송 주소: ${payload.userRoadAddress} / ${payload.userDetailAddress}`;
+  }
   const deliveryInfoBlock = {
     object: "block",
     type: "paragraph",
@@ -386,7 +391,7 @@ export async function createNotionOrderPage(payload: NotionOrderPayload) {
 주문 일시: ${orderedAtText}
 주문한 분 휴대전화 번호: ${payload.userPhone}
 받는 분 휴대전화 번호: ${payload.recipientPhone}
-배송 방법: ${shippingMethod}
+배송 방법: ${shippingMethod}${deliveryAddressLine}
 ${interpretOptions(payload.orderOptions, payload.orderType)}
 ` } } as any
       ],
