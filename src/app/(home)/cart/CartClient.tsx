@@ -30,6 +30,8 @@ import useUserStore from "@/store/userStore";
 import { formatBoringDirection } from "@/utils/formatBoring";
 import formatColor from "@/utils/formatColor";
 import { getCategoryLabel } from "@/utils/getCategoryLabel";
+import { usePageView } from "@/services/hooks/usePageView";
+import { useButtonClick } from "@/services/hooks/useButtonClick";
 
 const DOOR_TYPE_SLUG_MAP: Record<string, string> = {
   standard: "STANDARD",
@@ -67,6 +69,8 @@ export default function CartClient() {
   const userId = useUserStore.getState().id;
 
   const [originalItemOptionsMap, setOriginalItemOptionsMap] = useState<Record<number, any>>({});
+
+  usePageView("cart");
 
   useEffect(() => {
     const fetchCart = async () => {
@@ -296,7 +300,9 @@ export default function CartClient() {
     return originalItemOptionsMap[item.cartItemId ?? -1] ?? {};
   };
 
+  const buttonClick = useButtonClick("go_to_receive_option", "cart");
   const handleGoToReceiveOption = async () => {
+    buttonClick();
     try {
       const promises = cartItems.map(item => {
         if (!item.cartItemId) return null;

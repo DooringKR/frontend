@@ -26,6 +26,9 @@ import RecipientPhoneNumber from "../checkorder/_components/RecipientPhoneNumber
 import PickUpAddressCard from "./_components/PickUpAddressCard";
 import PickUpVehicleSelector from "./_components/PickUpVehicleSelector";
 
+import { usePageView } from "@/services/hooks/usePageView";
+import { useButtonClick } from "@/services/hooks/useButtonClick";
+
 type AnyCartItem = DoorItem | CabinetItem | AccessoryItem | FinishItem | HardwareItem;
 
 const CATEGORY_MAP: Record<string, string> = {
@@ -37,6 +40,8 @@ const CATEGORY_MAP: Record<string, string> = {
 };
 
 export default function PickUpClientPage() {
+
+  usePageView("check_pickup");
   const router = useRouter();
   const searchParams = useSearchParams();
   const [cartItems, setCartItems] = useState<any[]>([]);
@@ -78,7 +83,9 @@ export default function PickUpClientPage() {
     setGroupedCartItems(grouped);
   }, [cartItems]);
 
+  const buttonClick = useButtonClick("go_to_confirm", "check_pickup");
   const handleSubmit = async () => {
+    buttonClick();
     setIsLoading(true);
     const totalPrice = cartItems.reduce((sum, item) => sum + item.price * (item.count || 1), 0);
 

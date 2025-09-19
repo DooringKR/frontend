@@ -24,6 +24,7 @@ async function completeOrderInternal(order_id: string) {
     await createNotionOrderPage({
       orderedAt: order.created_at,
       userRoadAddress: user?.user_road_address || "",
+      userDetailAddress: user?.user_detail_address || "",
       userPhone: user?.user_phone || "",
       recipientPhone: order.recipient_phone,
       orderType: order.order_type,
@@ -39,6 +40,24 @@ async function completeOrderInternal(order_id: string) {
       order_options: order.order_options,
       order_items: orderItems,
     });
+
+    // 주문 생성 후 Amplitude Purchased 이벤트 전송
+    try {
+      const amplitudeUserId = toAmplitudeUserId(order.user_id);
+      amplitude.track({
+        event_type: "Purchased",
+        user_id: amplitudeUserId,
+        event_properties: {
+          order_id: order.order_id,
+          order_price: order.order_price,
+          item_count: orderItems.length,
+          fulfillment_type: String(order.order_type).toLowerCase(),
+        },
+      });
+      console.log("[completeOrderInternal] Amplitude Purchased 이벤트 전송 완료");
+    } catch (e) {
+      console.warn('[completeOrderInternal][WARN] Amplitude Purchased 이벤트 전송 실패', e);
+    }
     console.log("[completeOrderInternal] 노션/구글 처리 완료");
   } catch (err: any) {
     console.error("[completeOrderInternal] error:", err.message);
@@ -46,13 +65,19 @@ async function completeOrderInternal(order_id: string) {
 }
 // src/controllers/orderController.ts
 
+
 import { Request, Response } from "express";
 import prisma from "../prismaClient";
 import { generateAndUploadOrderItemImage } from "../services/imageService";
 import { createNotionOrderPage } from "../services/notionService";
-// ProductType enum 직접 명시 또는 문자열 비교
-
+import amplitude from "../amplitudeClient";
 import axios from 'axios';
+
+// Amplitude user_id 변환 헬퍼
+function toAmplitudeUserId(userId: number | string | null | undefined): string | undefined {
+  if (userId === null || userId === undefined) return undefined;
+  return `user_${String(userId)}`;
+}
 
 const VALID_SHIPPING_METHODS = ["직접 픽업하러 갈게요", "현장으로 배송해주세요"]; 
 const VALID_MATERIAL_TYPES = ["문짝", "마감재", "부분장", "하드웨어", "부속", "기타(고객센터 직접 문의)"];
@@ -98,8 +123,12 @@ export async function createOrder(req: Request, res: Response) {
         order_price,
         order_options,
       },
+      include: {
+        order_items: true,
+      },
     });
     console.log('[OrderController][DEBUG] 주문 생성 결과:', order);
+
 
     // 2. user 조회
     const user = await prisma.user.findUnique({ where: { id: user_id } });
@@ -326,6 +355,7 @@ export async function completeOrder(req: Request, res: Response) {
     await createNotionOrderPage({
       orderedAt: order.created_at,
       userRoadAddress: user?.user_road_address || "",
+      userDetailAddress: user?.user_detail_address || "",
       userPhone: user?.user_phone || "",
       recipientPhone: order.recipient_phone,
       orderType: order.order_type,

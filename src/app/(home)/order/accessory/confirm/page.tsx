@@ -12,6 +12,8 @@ import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { AccessoryCart, useSingleCartStore } from "@/store/singleCartStore";
+import { usePageView } from "@/services/hooks/usePageView";
+import { useButtonClick } from "@/services/hooks/useButtonClick";
 
 function ConfirmPageContent() {
   const router = useRouter();
@@ -25,6 +27,13 @@ function ConfirmPageContent() {
   const request = useSingleCartStore(state => (state.cart as AccessoryCart).request);
 
   const [quantity, setQuantity] = useState(1);
+
+  // PV/BC 이벤트 네이밍을 위한 헬퍼
+  // page_name: accessory_{category}_confirm (all lowercase)
+  const type = "accessory";
+  const pageName = `${type}_${category ?? ""}_confirm`;
+  usePageView(pageName);
+  const handleAddToCartClick = useButtonClick("add_to_cart", pageName);
 
   return (
     <div className="flex flex-col">
@@ -60,6 +69,7 @@ function ConfirmPageContent() {
           button1Text={"장바구니 담기"}
           className="fixed bottom-0 w-full max-w-[460px]"
           onButton1Click={async () => {
+              handleAddToCartClick();
             try {
               const result = await addCartItem({
                 product_type: "ACCESSORY",

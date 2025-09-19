@@ -13,6 +13,8 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { FinishCart } from "@/store/singleCartStore";
 import { useSingleCartStore } from "@/store/singleCartStore";
+import { usePageView } from "@/services/hooks/usePageView";
+import { useButtonClick } from "@/services/hooks/useButtonClick";
 import formatColor from "@/utils/formatColor";
 import { FINISH_CATEGORY_LIST } from "@/constants/category";
 
@@ -30,6 +32,12 @@ function ConfirmPageContent() {
   const request = (cart as FinishCart)?.request;
   const finish_location = (cart as FinishCart)?.finish_location;
   const [quantity, setQuantity] = useState(1);
+
+  // PV/BC 이벤트 네이밍: 모두 소문자, 언더스코어만 사용
+  const typeSlug = "finish";
+  const pageName = `${typeSlug}_${category}_confirm`;
+  usePageView(pageName); // PV도 소문자, 언더스코어
+  const handleAddToCartClick = useButtonClick("add_to_cart", pageName);
 
   // 빌드 시점에 cart가 비어있을 수 있으므로 안전한 처리
   if (!cart || Object.keys(cart).length === 0) {
@@ -85,7 +93,9 @@ function ConfirmPageContent() {
           button1Text={"장바구니 담기"}
           className="fixed bottom-0 w-full max-w-[460px]"
           onButton1Click={async () => {
+              handleAddToCartClick();
             try {
+              
               const result = await addCartItem({
                 product_type: "FINISH",
                 unit_price: unitPrice,

@@ -1,6 +1,8 @@
 "use client";
 
 import { updateUserAddress } from "@/api/authApi";
+import { usePageView } from "@/services/hooks/usePageView";
+import { useButtonClick } from "@/services/hooks/useButtonClick";
 import { useRouter, useSearchParams } from "next/navigation";
 import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
@@ -17,6 +19,9 @@ import useUserStore from "@/store/userStore";
 import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 
 function AddressCheckClientPage() {
+  usePageView("address_check");
+  const submitAddressClick = useButtonClick("submit_address", "address_check");
+
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -99,6 +104,7 @@ function AddressCheckClientPage() {
         user_detail_address: address2,
       });
       setAddress(address1, address2);
+      submitAddressClick();
       router.replace("/");
     } catch (error) {
       alert("주소 저장 중 오류가 발생했습니다.");

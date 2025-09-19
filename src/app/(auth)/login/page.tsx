@@ -1,3 +1,12 @@
+// Amplitude 타입 확장 (setUserId 지원)
+declare global {
+  interface Window {
+    amplitude?: {
+      track: (eventName: string, eventProperties?: Record<string, any>) => void;
+      setUserId?: (userId: string) => void;
+    };
+  }
+}
 "use client";
 
 import { checkPhoneDuplicate, signin, signup } from "@/api/authApi";
@@ -74,6 +83,11 @@ function PhoneLoginPage() {
         phoneNumber: cleanPhoneNumber,
       });
       console.log("로그인 성공:", userId);
+
+      // 회원가입/로그인 성공 후 user_id를 amplitude에 세팅
+      if (typeof window !== "undefined" && window.amplitude && userId) {
+        window.amplitude.setUserId?.(`user_${userId}`);
+      }
       router.replace("/");
     } catch (error) {
       console.error("로그인 실패:", error);
@@ -93,6 +107,11 @@ function PhoneLoginPage() {
       });
 
       console.log("회원가입 성공:", result.user_id);
+
+      // 회원가입/로그인 성공 후 user_id를 amplitude에 세팅
+      if (typeof window !== "undefined" && window.amplitude && result.user_id) {
+        window.amplitude.setUserId?.(`user_${result.user_id}`);
+      }
       router.replace("/");
     } catch (error) {
       console.error("회원가입 오류:", error);

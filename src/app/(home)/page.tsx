@@ -20,9 +20,12 @@ import { useSingleCartStore } from "@/store/singleCartStore";
 import useUserStore from "@/store/userStore";
 import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 
+import { usePageView } from "@/services/hooks/usePageView";
+
 import Footer from "./_components/Footer";
 
 export default function Page() {
+  usePageView("home");
   const router = useRouter();
   const resetCart = useSingleCartStore(state => state.reset);
   const { address1, address2, setAddress } = useAddressStore();
