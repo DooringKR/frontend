@@ -86,7 +86,7 @@ function PhoneLoginPage() {
 
       // 회원가입/로그인 성공 후 user_id를 amplitude에 세팅
       if (typeof window !== "undefined" && window.amplitude && userId) {
-        window.amplitude.setUserId?.(String(userId));
+        window.amplitude.setUserId?.(`user_${userId}`);
       }
       router.replace("/");
     } catch (error) {
@@ -110,7 +110,7 @@ function PhoneLoginPage() {
 
       // 회원가입/로그인 성공 후 user_id를 amplitude에 세팅
       if (typeof window !== "undefined" && window.amplitude && result.user_id) {
-        window.amplitude.setUserId?.(String(result.user_id));
+        window.amplitude.setUserId?.(`user_${result.user_id}`);
       }
       router.replace("/");
     } catch (error) {
