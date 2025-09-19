@@ -16,6 +16,10 @@ import useSignupStore from "@/store/signupStore";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import useCartStore from "@/store/cartStore";
+import useBizClientStore from "@/store/bizClientStore";
+import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
+import { ReadBizClientUsecase } from "@/DDD/usecase/user/read_bizClient_usecase";
 
 function LoginPage() {
     const { businessType, setBusinessType } = useSignupStore();
@@ -43,8 +47,25 @@ function LoginPage() {
                 console.log("User check result:", { user, error });
                 console.log("login page");
 
+                console.log('✅ 세션 확인됨, 사용자 정보 조회 시작');
+
+
                 // 유저가 로그인되어 있으면 홈으로 리다이렉트
                 if (user && !error) {
+                    const readBizClientUsecase = new ReadBizClientUsecase(new BizClientSupabaseRepository());
+                    const bizClient = await readBizClientUsecase.execute(user!.id);
+                    const readCartUsecase = new CrudCartUsecase(new CartSupabaseRepository());
+                    const cart = await readCartUsecase.findById(user!.id)!;
+                    console.log('📡 API 응답 상태:', bizClient);
+                    console.log('📡 API 응답:', bizClient);
+
+                    if (bizClient.success && bizClient.data) {
+                        useBizClientStore.setState({ bizClient: bizClient.data });
+                        useCartStore.setState({ cart: cart! });
+                        router.push(`/`);
+                    } else {
+                        router.push('/login?error=user_not_found');
+                    }
                     console.log("User is already logged in, redirecting to home");
                     router.push('/');
                     return;
