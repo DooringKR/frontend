@@ -26,6 +26,8 @@ import { CrudCartItemUsecase } from "@/DDD/usecase/crud_cart_item_usecase";
 import { CartItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/cartitem_supabase_repository";
 import useCartStore from "@/store/cartStore";
 import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
+import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
+import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_repository";
 
 function ConfirmPageContent() {
   const router = useRouter();
@@ -103,6 +105,9 @@ function ConfirmPageContent() {
           button1Text={"장바구니 담기"}
           className="fixed bottom-0 w-full max-w-[460px]"
           onButton1Click={async () => {
+            console.log(
+              cart!
+            );
             try {
               // color 문자열을 id로 변환
               const colorId = getColorId(color ?? "");
@@ -121,29 +126,42 @@ function ConfirmPageContent() {
               });
 
               // Finish 객체를 Supabase에 저장
-              const createdFinish = await new CrudInteriorMaterialsUsecase(
-                new InteriorMaterialsSupabaseRepository<Finish>("Finish")
-              ).create(finish);
+              // const createdFinish = await new CrudInteriorMaterialsUsecase(
+              //   new InteriorMaterialsSupabaseRepository<Finish>("Finish")
+              // ).create(finish);
 
               // cartitem 생성
-              console.log(createdFinish);
+              // console.log(createdFinish);
 
-              const cartItem = new CartItem({
-                id: undefined, // id
-                created_at: new Date(), // created_at
-                cart_id: cart!.getId(), // 
-                item_detail: createdFinish["id"], // interior_material_id (Finish 객체의 id 프로퍼티가 private이므로, 인덱싱으로 접근)
-                detail_product_type: DetailProductType.FINISH, // quantity
-                item_count: quantity, // quantity
-                unit_price: unitPrice, // unit_price (필요하다면 값 할당)
-                last_updated_at: undefined  // last_updated_at (필요하다면 값 할당)
-              });
-              const createdCartItem = await new CrudCartItemUsecase(
-                new CartItemSupabaseRepository()
-              ).create(cartItem);
+              console.log(
+                cart!.getId()
+              );
 
-              // cartcount 증가 (구현 필요시 아래에 코드 추가)
-              // 예시: cart.increaseCount(quantity);
+              // const cartItem = new CartItem({
+              //   id: undefined, // id
+              //   created_at: new Date(), // created_at
+              //   cart_id: cart!.getId(), // 
+              //   item_detail: createdFinish["id"], // interior_material_id (Finish 객체의 id 프로퍼티가 private이므로, 인덱싱으로 접근)
+              //   detail_product_type: DetailProductType.FINISH, // quantity
+              //   item_count: quantity, // quantity
+              //   unit_price: unitPrice, // unit_price (필요하다면 값 할당)
+              //   last_updated_at: undefined  // last_updated_at (필요하다면 값 할당)
+              // });
+              // const createdCartItem = await new CrudCartItemUsecase(
+              //   new CartItemSupabaseRepository()
+              // ).create(cartItem);
+
+              // console.log(createdCartItem);
+
+              // cart_count 증가 (전체 카트 객체 전달 없이)
+              // const cartCountResponse = await new CrudCartUsecase(
+              //   new CartSupabaseRepository()
+              // ).incrementCartCount(cart!.getId(), quantity);
+
+              // console.log(cartCountResponse);
+
+              // TODO: 전역변수에 추가
+              // cart!.increaseCount(quantity);
 
               // 장바구니 페이지로 이동
               router.replace("/cart");

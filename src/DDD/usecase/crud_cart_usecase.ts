@@ -83,4 +83,21 @@ export class CrudCartUsecase {
         }
     }
 
+    // cart_count만 증가시키는 메서드 추가
+    async incrementCartCount(cartId: string, incrementBy: number = 1): Promise<boolean> {
+        try {
+            if (!cartId || cartId.trim() === '') {
+                throw new Error("Cart ID is required");
+            }
+
+            const response = await this.repository.incrementCartCount(cartId, incrementBy);
+            if (!response.success) {
+                throw new Error(response.message || "Failed to increment cart count");
+            }
+
+            return response.data!;
+        } catch (error) {
+            throw new Error(`Failed to increment cart count: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+    }
 }

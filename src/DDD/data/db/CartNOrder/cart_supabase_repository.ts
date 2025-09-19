@@ -41,4 +41,47 @@ export class CartSupabaseRepository extends CartRepository {
         }
         return { success: true, data: true };
     }
+
+    // cart_count만 증가시키는 메서드 (RPC 함수 없이 직접 SQL 사용)
+    async incrementCartCount(cartId: string, incrementBy: number = 1): Promise<Response<boolean>> {
+        try {
+            // 현재 cart_count 값을 가져와서 증가시키는 방식
+            const { data: currentCart, error: fetchError } = await supabase
+                .from('Cart')
+                .select('cart_count')
+                .eq('id', cartId)
+                .single();
+
+            if (fetchError) {
+                return {
+                    success: false,
+                    data: false,
+                    message: `Failed to fetch current cart count: ${fetchError.message}`
+                };
+            }
+
+            const newCount = (currentCart.cart_count || 0) + incrementBy;
+
+            const { error: updateError } = await supabase
+                .from('Cart')
+                .update({ cart_count: newCount })
+                .eq('id', cartId);
+
+            if (updateError) {
+                return {
+                    success: false,
+                    data: false,
+                    message: `Failed to update cart count: ${updateError.message}`
+                };
+            }
+
+            return { success: true, data: true };
+        } catch (error) {
+            return {
+                success: false,
+                data: false,
+                message: `Error incrementing cart count: ${error instanceof Error ? error.message : 'Unknown error'}`
+            };
+        }
+    }
 }

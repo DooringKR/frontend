@@ -6,5 +6,6 @@ export abstract class CartRepository {
     abstract findCartById(id: string): Promise<Response<Cart | null>>;
     abstract updateCart(cart: Cart): Promise<Response<boolean>>;
     abstract deleteCart(id: string): Promise<Response<boolean>>;
+    abstract incrementCartCount(cartId: string, incrementBy: number): Promise<Response<boolean>>;
 }
 
