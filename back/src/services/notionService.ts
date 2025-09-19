@@ -446,10 +446,12 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
   // (2) 옵션 번역: delivery/pick_up 구조에서 적절히 해석해 표시
   function interpretOptions(opts: any, orderType: string): string {
     if (!opts) return "-";
+    // orderOptions가 { delivery: {...} } 또는 { pickup: {...} } 형태면 내부로 진입
+    if (opts.delivery) opts = opts.delivery;
+    if (opts.pickup) opts = opts.pickup;
     if (orderType === "DELIVERY") {
-      // recipient_road_address, delivery_type, delivery_request 등 상세 표시
       const lines = [];
-      if (opts.recipient_road_address) lines.push(`배송 주소: ${opts.recipient_road_address}`);
+      if (opts.recipient_road_address) lines.push(`배송 주소: ${opts.recipient_road_address}${opts.recipient_detail_address ? ' / ' + opts.recipient_detail_address : ''}`);
       if (opts.delivery_type) lines.push(`희망 도착: ${opts.delivery_type === "TOMORROW" ? "내일/지정일" : "오늘중"}`);
       if (opts.delivery_request) {
         let request = (opts.delivery_request === "CALL")
@@ -467,15 +469,11 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
       }
       return lines.join("\n") || "-";
     } else if (orderType === "PICK_UP") {
-      // 차량종류 등 표시
-      if (opts.vehicle_type) {
-        let vehicle = (opts.vehicle_type === "TRUCK") ? "트럭" : (opts.vehicle_type === "CAR") ? "승용차" : opts.vehicle_type;
-        let vehicleLine = `차량종류: ${vehicle}`;
-        if (opts.vehicle_type === "DIRECT_INPUT" && opts.vehicle_type_direct_input)
-          vehicleLine += `(${opts.vehicle_type_direct_input})`;
-        return vehicleLine;
-      }
-      return "-";
+      const lines = [];
+      if (opts.pickup_address1) lines.push(`픽업 주소: ${opts.pickup_address1}${opts.pickup_address2 ? ' / ' + opts.pickup_address2 : ''}`);
+      if (opts.pickup_vehicle_type) lines.push(`차량종류: ${opts.pickup_vehicle_type}`);
+      if (opts.pickup_custom_note) lines.push(`요청사항: ${opts.pickup_custom_note}`);
+      return lines.join("\n") || "-";
     }
     return "-";
   }
