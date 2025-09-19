@@ -126,7 +126,7 @@ export async function login(req: Request, res: Response) {
   return res
     .status(200)
     .json({
-      user_id: amplitudeUserId,
+      user_id: user.id,
       message: "로그인 성공",
     });
 }
