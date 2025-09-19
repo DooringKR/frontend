@@ -10,40 +10,38 @@ import { Suspense } from "react";
 
 import Header from "@/components/Header/Header";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
-import { useSingleCartStore } from "@/store/singleCartStore";
+import { HardwareType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import useItemStore from "@/store/Items/itemStore";
+import { DetailProductType, ProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 
 function HardwareCategoryPage() {
   const router = useRouter();
-  const type = "hardware";
-  const setCart = useSingleCartStore(state => state.setCart);
+  const hardwarecategory = HARDWARE_CATEGORY_LIST;
+  const setItem = useItemStore(state => state.setItem);
+  
+  // const category = CATEGORY_LIST.find(item => item.slug === type);
+  // let header;
+  // if (category) header = category.name;
 
-  const category = CATEGORY_LIST.find(item => item.slug === type);
-  let header;
-  if (category) header = category.name;
+  // // 카테고리별 리스트 매핑
+  // const categoryLists = { hardware: HARDWARE_CATEGORY_LIST};
 
-  // 카테고리별 리스트 매핑
-  const categoryLists = { hardware: HARDWARE_CATEGORY_LIST};
-
-  const categories = categoryLists[type as keyof typeof categoryLists] || [];
+  // const categories = categoryLists[type as keyof typeof categoryLists] || [];
 
   return (
     <div className="flex flex-col">
       <TopNavigator />
-      <Header size="Large" title={`${header} 종류를 선택해주세요`} />
+      <Header size="Large" title={`하드웨어 종류를 선택해주세요`} />
       <div className="grid w-full grid-cols-2 gap-x-3 gap-y-[40px] px-5 pb-5 pt-10">
-        {categories.map((category, idx) => (
+        {hardwarecategory.map((category, idx) => (
           <div
             key={category.slug}
             className="flex flex-1 cursor-pointer flex-col items-center gap-2"
             onClick={() => {
-              //type, catergory 추가 후 다음 페이지로 이동
-            //   console.log(category.slug);
-            //   console.log(type);
-              // 'accessory' 타입은 SingleCart의 type에 할당할 수 없으므로 예외 처리
-              setCart({
-                type,
-                category: category.slug,
-              });
+              setItem({
+                category: ProductType.HARDWARE,
+                type: category.type as HardwareType,
+              })
               router.push(`/hardware/${category.slug}`);
             }}
           >

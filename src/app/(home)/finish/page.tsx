@@ -16,7 +16,7 @@ import Header from "@/components/Header/Header";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import { AccessoryType, FinishType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import useItemStore from "@/store/Items/itemStore";
-import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
+import { DetailProductType, ProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 
 function DoorCategoryPage() {
     const router = useRouter();
@@ -34,7 +34,7 @@ function DoorCategoryPage() {
                         className="flex flex-1 cursor-pointer flex-col items-center gap-2"
                         onClick={() => {
                             setItem({
-                                category: DetailProductType.FINISH,
+                                category: ProductType.FINISH,
                                 type: category.type as FinishType,
                             });
                             router.push(`/finish/color`);
