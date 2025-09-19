@@ -32,7 +32,7 @@ export const ACCESSORY_CATEGORY_LIST: Category[] = [
 export const HARDWARE_CATEGORY_LIST: Category[] = [
   { type: HardwareType.HINGE,  image: "/img/hardware-category/hinge.png", slug: "hinge" },
   { type: HardwareType.RAIL, image: "/img/hardware-category/rail.png", slug: "rail" },
-  { type: HardwareType.PIECE, image: "/img/hardware-category/bolt.png", slug: "bolt" },
+  { type: HardwareType.PIECE, image: "/img/hardware-category/bolt.png", slug: "piece" },
 ]
 
 export const CABINET_CATEGORY_LIST: Category[] = [
