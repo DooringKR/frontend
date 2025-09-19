@@ -14,19 +14,71 @@ import Factory from "public/icons/factory";
 import { BusinessType } from "dooring-core-domain/dist/enums/UserEnums";
 import useSignupStore from "@/store/signupStore";
 import Input from "@/components/Input/Input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { ReadBizClientUsecase } from "@/DDD/usecase/user/read_bizClient_usecase";
+import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
+import useBizClientStore from "@/store/bizClientStore";
+import useCartStore from "@/store/cartStore";
+import { useRouter } from "next/navigation";
 
 function KakaoLoginPage() {
     // SignupStore 사용
     const { businessType, setBusinessType, setPhoneNumber } = useSignupStore();
     const [phoneNumber, setPhoneNumberLocal] = useState("");
     const [displayPhoneNumber, setDisplayPhoneNumber] = useState(""); // 화면 표시용
+    const router = useRouter();
+    const [isLoading, setIsLoading] = useState(true);
 
     const kakaoSignupUsecase = new KakaoSignupUsecase(
         new KakaoAuthSupabaseRepository(),
         new BizClientSupabaseRepository(),
         new CartSupabaseRepository()
     );
+
+    useEffect(() => {
+        // 유저 정보 확인 및 리다이렉트 처리
+        const checkUserAndRedirect = async () => {
+            try {
+                const { data: { user }, error } = await supabase.auth.getUser();
+
+                console.log("User check result:", { user, error });
+                console.log("login page");
+
+                console.log('✅ 세션 확인됨, 사용자 정보 조회 시작');
+
+                // 유저가 로그인되어 있으면 홈으로 리다이렉트
+                if (user && !error) {
+                    const readBizClientUsecase = new ReadBizClientUsecase(new BizClientSupabaseRepository());
+                    const bizClient = await readBizClientUsecase.execute(user!.id);
+                    const readCartUsecase = new CrudCartUsecase(new CartSupabaseRepository());
+                    const cart = await readCartUsecase.findById(user!.id)!;
+                    console.log('📡 API 응답 상태:', bizClient);
+                    console.log('📡 API 응답:', bizClient);
+
+                    if (bizClient.success && bizClient.data) {
+                        useBizClientStore.setState({ bizClient: bizClient.data });
+                        useCartStore.setState({ cart: cart! });
+                        router.push(`/`);
+                    } else {
+                        router.push('/login?error=user_not_found');
+                    }
+                    console.log("User is already logged in, redirecting to home");
+                    router.push('/');
+                    return;
+                }
+
+                // 에러가 있거나 유저가 없으면 로그인 페이지 유지
+                console.log("User not logged in, staying on login page");
+            } catch (err) {
+                console.error("Error checking user:", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        checkUserAndRedirect();
+    }, [router]);
 
     // 휴대전화 번호 포맷팅 함수
     const formatPhoneNumber = (value: string) => {
@@ -80,6 +132,28 @@ function KakaoLoginPage() {
         // 모든 검증 통과 시 카카오 로그인 실행
         kakaoSignupUsecase.execute();
     };
+
+    // 로딩 UI
+    if (isLoading) {
+        return (
+            <div className="flex h-screen w-full flex-col bg-gradient-to-b from-blue-50 to-white items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                    {/* 로딩 스피너 */}
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+
+                    {/* 로딩 텍스트 */}
+                    <div className="text-center">
+                        <h2 className="text-lg font-semibold text-gray-800 mb-2">
+                            로딩 중...
+                        </h2>
+                        <p className="text-sm text-gray-600">
+                            사용자 정보를 확인하고 있습니다
+                        </p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex h-screen w-full flex-col bg-gradient-to-b from-blue-50 to-white">

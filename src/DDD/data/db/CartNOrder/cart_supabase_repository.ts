@@ -14,7 +14,7 @@ export class CartSupabaseRepository extends CartRepository {
     }
 
     async findCartById(id: string): Promise<Response<Cart | null>> {
-        const { data, error } = await supabase.from('cart').select('*').eq('id', id);
+        const { data, error } = await supabase.from('Cart').select('*').eq('id', id);
         if (error) {
             return { success: false, data: null, message: error.message };
         }
@@ -27,7 +27,7 @@ export class CartSupabaseRepository extends CartRepository {
         // 만약 없다면, Cart 클래스에 public get id() { return this.id; }를 추가해야 합니다.
         // 아래는 getId() 메서드를 사용하는 예시입니다.
         const cartId = (cart as any).getId ? (cart as any).getId() : (cart as any).id;
-        const { data, error } = await supabase.from('cart').update(cart).eq('id', cartId);
+        const { data, error } = await supabase.from('Cart').update(cart).eq('id', cartId);
         if (error) {
             return { success: false, data: false, message: error.message };
         }
@@ -35,7 +35,7 @@ export class CartSupabaseRepository extends CartRepository {
     }
 
     async deleteCart(id: string): Promise<Response<boolean>> {
-        const { data, error } = await supabase.from('cart').delete().eq('id', id);
+        const { data, error } = await supabase.from('Cart').delete().eq('id', id);
         if (error) {
             return { success: false, data: false, message: error.message };
         }
