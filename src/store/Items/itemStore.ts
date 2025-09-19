@@ -1,10 +1,10 @@
-import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
+import { ProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 // 기본 아이템 타입
 export interface BaseItem {
-    category: DetailProductType;
+    category: ProductType;
     type: any; //세부 타입 정의하는 곳, 예시: FinishType, AccessoryType, HardwareType, CabinetType, DoorType
     color?: string | null;
     [key: string]: any; // 추가 속성들을 위한 인덱스 시그니처
