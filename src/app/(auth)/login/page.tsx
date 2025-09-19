@@ -1,7 +1,5 @@
 "use client";
 
-import BottomButton from "@/components/BottomButton/BottomButton";
-import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import { KakaoSignupUsecase } from "@/DDD/usecase/auth/kakao_signup_usecase";
 import { BizClientSupabaseRepository } from "@/DDD/data/db/User/bizclient_supabase_repository";
 import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_repository";
@@ -22,12 +20,21 @@ import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
 import { ReadBizClientUsecase } from "@/DDD/usecase/user/read_bizClient_usecase";
 
 function LoginPage() {
-    const { businessType, setBusinessType } = useSignupStore();
     const router = useRouter();
     const searchParams = useSearchParams();
     const loginError = searchParams.get('error');
 
     const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
+                router.push('/');
+            } else {
+                router.push('/login');
+            }
+        });
+    }, [router]);
 
     const kakaoSignupUsecase = new KakaoSignupUsecase(
         new KakaoAuthSupabaseRepository(),
