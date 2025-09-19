@@ -55,11 +55,5 @@ export const FINISH_COLOR_LIST = [
   { id: 19, name: "PB,, 15T, 헤링본 - 미백색", image: "/img/color-new-list/herringbone-off-white.png" },
 ] as const;
 
-// 타입별 색상 리스트를 객체로 관리
-export const COLOR_LIST_BY_TYPE = {
-  door: DOOR_COLOR_LIST,
-  cabinet: CABINET_COLOR_LIST,
-  finish: FINISH_COLOR_LIST,
-} as const;
 
 export const BODY_MATERIAL_LIST = ["헤링본 PB 15T", "헤링본 PB 18T", "한솔 파타고니아크림 LPM 18T"];

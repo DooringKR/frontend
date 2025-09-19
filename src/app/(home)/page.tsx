@@ -22,11 +22,17 @@ import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 
 import Footer from "./_components/Footer";
 import useBizClientStore from "@/store/bizClientStore";
+import { ReadBizClientUsecase } from "@/DDD/usecase/user/read_bizClient_usecase";
+import { BizClientSupabaseRepository } from "@/DDD/data/db/User/bizclient_supabase_repository";
+import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
+import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_repository";
+import { BizClient } from "dooring-core-domain/dist/models/User/BizClient";
 
 export default function Page() {
   const router = useRouter();
+  const cart = useSingleCartStore(state => state.cart);
   const bizClient = useBizClientStore(state => state.bizClient);
-  const resetCart = useSingleCartStore(state => state.reset);
+  // const resetCart = useSingleCartStore(state => state.reset);
   const { address1, address2, setAddress } = useAddressStore();
   const fullAddress = address1 || "";
 
@@ -35,7 +41,7 @@ export default function Page() {
   const [timeLimit, setTimeLimit] = useState<string | undefined>(undefined);
   const [arrivalDate, setArrivalDate] = useState<string | undefined>(undefined);
 
-  const userId = useUserStore(state => state.id);
+  // const userId = useUserStore(state => state.id);
   const userAddress1 = useUserStore(state => state.user_road_address);
   const userAddress2 = useUserStore(state => state.user_detail_address);
   const setCartItems = useCartStore(state => state.setCartItems);
@@ -59,11 +65,35 @@ export default function Page() {
   // 로그인 상태 체크
   useEffect(() => {
     // localStorage에서 데이터를 복원하는 동안 잠시 대기
-    const timer = setTimeout(() => {
+    const timer = setTimeout(async () => {
       if (!bizClient) {
         // router.replace("https://landing.baro.dooring.kr/");
         // router.replace("/kako-login");
         router.replace("/login");
+      } else {
+        try {
+          // console.log('11112222211');
+          // console.log(bizClient);
+          // console.log('12312312312312312');
+          // const readBizClientUsecase = new ReadBizClientUsecase(new BizClientSupabaseRepository());
+          // BizClient의 id를 올바르게 가져와야 합니다. 예시로 localStorage에서 가져오는 방식 사용
+          // const bizClientId = localStorage.getItem('bizClientId');
+          // if (!bizClientId) {
+          //   throw new Error('bizClientId가 존재하지 않습니다.');
+          // }
+          // const bizClient = await readBizClientUsecase.execute(bizClient.id);
+          const readCartUsecase = new CrudCartUsecase(new CartSupabaseRepository());
+          const cart = await readCartUsecase.findById(bizClient.id!);
+          console.log('📡 API 응답:', bizClient);
+          console.log('456456456456456456');
+          console.log('📡 API 응답cart:', cart);
+
+          useBizClientStore.setState({ bizClient: bizClient });
+          useCartStore.setState({ cart: cart! });
+          return;
+        } catch (err) {
+          console.error("Error checking user:", err);
+        }
       }
     }, 100); // 100ms 대기
 
@@ -71,9 +101,47 @@ export default function Page() {
   }, [router, bizClient]);
 
   useEffect(() => {
-    useSingleCartStore.persist.clearStorage();
-    resetCart();
-  }, []);
+    // 유저 정보 확인 및 리다이렉트 처리
+    const checkUserAndRedirect = async () => {
+      try {
+        // console.log('11112222211');
+        // console.log(bizClient);
+        // console.log('12312312312312312');
+        // const readBizClientUsecase = new ReadBizClientUsecase(new BizClientSupabaseRepository());
+        // BizClient의 id를 올바르게 가져와야 합니다. 예시로 localStorage에서 가져오는 방식 사용
+        // const bizClientId = localStorage.getItem('bizClientId');
+        // if (!bizClientId) {
+        //   throw new Error('bizClientId가 존재하지 않습니다.');
+        // }
+        // const bizClient = await readBizClientUsecase.execute(bizClient.id);
+        // const readCartUsecase = new CrudCartUsecase(new CartSupabaseRepository());
+        // const cart = await readCartUsecase.findById(bizClientId);
+        // console.log('📡 API 응답:', bizClient);
+        // console.log('456456456456456456');
+        // console.log('📡 API 응답cart:', cart);
+
+        // if (bizClient.success && bizClient.data) {
+        //   useBizClientStore.setState({ bizClient: bizClient.data });
+        //   useCartStore.setState({ cart: cart! });
+        //   router.push(`/`);
+        // } else {
+        //   router.push('/login?error=user_not_found');
+        // }
+        // console.log("User is already logged in, redirecting to home");
+        // router.push('/');
+        return;
+      } catch (err) {
+        console.error("Error checking user:", err);
+      }
+    };
+
+    checkUserAndRedirect();
+  }, [router, bizClient]);
+
+  // useEffect(() => {
+  //   useSingleCartStore.persist.clearStorage();
+  //   resetCart();
+  // }, []);
 
   useEffect(() => {
     // const totalCount = cartItems.reduce((acc, item) => acc + (item.item_count ?? 1), 0);
@@ -141,19 +209,19 @@ export default function Page() {
     checkDelivery();
   }, [address1]);
 
-  useEffect(() => {
-    const fetchCart = async () => {
-      if (!userId) return;
-      try {
-        const cartData = await getCartItems(userId);
-        setCartItems(cartData.items);
-      } catch (err) {
-        console.error("장바구니 불러오기 실패", err);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchCart = async () => {
+  //     if (!userId) return;
+  //     try {
+  //       const cartData = await getCartItems(userId);
+  //       setCartItems(cartData.items);
+  //     } catch (err) {
+  //       console.error("장바구니 불러오기 실패", err);
+  //     }
+  //   };
 
-    fetchCart();
-  }, [userId]);
+  //   fetchCart();
+  // }, [userId]);
 
   // 로그인되지 않은 경우 로딩 화면 표시
   if (!bizClient) {

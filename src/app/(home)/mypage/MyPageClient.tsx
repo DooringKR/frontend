@@ -12,11 +12,13 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 import useBizClientStore from "@/store/bizClientStore";
 import { supabase } from "@/lib/supabase";
+import useCartStore from "@/store/cartStore";
 
 
 function MyPageClient() {
   const router = useRouter();
   const bizClient = useBizClientStore(state => state.bizClient);
+  const cart = useCartStore(state => state.cart);
 
   if (!bizClient) {
     return <div>로그인이 필요합니다</div>;
@@ -48,6 +50,10 @@ function MyPageClient() {
             <div className="flex justify-between py-[10px]">
               <h3 className="text-gray-700">업체 유형</h3>
               <h3 className="text-gray-500"> {bizClient.business_type}</h3>
+            </div>
+            <div className="flex justify-between py-[10px]">
+              <h3 className="text-gray-700">장바구니 개수</h3>
+              <h3 className="text-gray-500">{cart?.cart_count}</h3>
             </div>
           </div>
         </div>

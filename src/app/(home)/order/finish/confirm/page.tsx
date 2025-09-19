@@ -36,6 +36,7 @@ function ConfirmPageContent() {
   const cart = useCartStore(state => state.cart);
   const color = (singleCart as FinishCart)?.color;
   const category = (singleCart as FinishCart)?.category;
+  const enum_type = (singleCart as FinishCart)?.enum_type;
   const edgeCount = (singleCart as FinishCart)?.edge_count;
   const depth = (singleCart as FinishCart)?.depth;
   const height = (singleCart as FinishCart)?.height;
@@ -49,6 +50,20 @@ function ConfirmPageContent() {
   const getColorId = (colorName: string) => {
     const colorItem = FINISH_COLOR_LIST.find(item => item.name === colorName);
     return colorItem?.id;
+  };
+
+  // category에 따른 FinishType 매핑 함수
+  const getFinishTypeFromCategory = (categorySlug: string | null | undefined): FinishType => {
+    switch (categorySlug) {
+      case "ep":
+        return FinishType.EP;
+      case "molding":
+        return FinishType.MOLDING;
+      case "galle":
+        return FinishType.GALLE;
+      default:
+        return FinishType.EP; // 기본값
+    }
   };
 
   // 빌드 시점에 cart가 비어있을 수 있으므로 안전한 처리
@@ -105,16 +120,17 @@ function ConfirmPageContent() {
           button1Text={"장바구니 담기"}
           className="fixed bottom-0 w-full max-w-[460px]"
           onButton1Click={async () => {
-            console.log(
-              cart!
-            );
+            console.log(cart!);
             try {
               // color 문자열을 id로 변환
               const colorId = getColorId(color ?? "");
+
+              // category에 맞는 FinishType 가져오기
+              const finishType = enum_type || getFinishTypeFromCategory(category);
+
               // dooring-core-domain의 Finish 클래스를 사용하여 finish 객체 생성
               const finish = new Finish({
-                //TODO: category에 맞는 FinishType 사용
-                finish_type: FinishType.EP,
+                finish_type: finishType, // 올바른 FinishType 사용
                 finish_color: colorId, // color.id로 변경 (없으면 undefined)
                 finish_edge_count: edgeCount!,
                 finish_base_depth: depth!,

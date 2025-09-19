@@ -1,9 +1,12 @@
 import { useRouter } from "next/navigation";
 import React, { useEffect, useRef } from "react";
 
+import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import Button from "@/components/Button/Button";
 import BoxedInput from "@/components/Input/BoxedInput";
+
+import { useSingleCartStore } from "@/store/singleCartStore";
 
 interface ColorManualInputSheetProps {
   isOpen: boolean;
@@ -22,6 +25,7 @@ const ColorManualInputSheet: React.FC<ColorManualInputSheetProps> = ({
   type,
   onNext,
 }) => {
+  const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
 
   // BottomSheet가 열릴 때 Input에 포커스
