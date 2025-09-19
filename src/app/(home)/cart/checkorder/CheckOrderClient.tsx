@@ -198,7 +198,7 @@ function CheckOrderClientPage() {
     };
 
     try {
-      // console.log("🚚 order_item 요청 payload:", payload);
+      console.log("🚚 order_item 요청 payload:", payload);
       const order = await createOrder(payload);
       const orderId = order.order_id;
       console.log("오더아이디", orderId);
