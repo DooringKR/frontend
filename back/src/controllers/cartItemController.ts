@@ -45,7 +45,9 @@ export async function addCartItem(req: Request, res: Response) {
   });
 
   // cart_id로 cart의 user_id를 조회해서 amplitude 전용 user_id 생성
-  let productTypeKey = product_type.toLowerCase() + '_type';
+  let productTypeKey = product_type.toLowerCase() === 'finish'
+    ? 'finish_category'
+    : product_type.toLowerCase() + '_type';
   let productTypeValue = '';
   if (
     item_options &&
