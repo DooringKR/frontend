@@ -22,6 +22,7 @@ import HeightInputSection from "./_components/HeightInputSection";
 // Hooks
 import { useFinishValidation } from "./hooks/useFinishValidation";
 import { FinishEdgeCount, Location } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import useItemStore from "@/store/Items/itemStore";
 
 // Location enum을 사용하여 options 생성
 const getLocationOptions = () => {
@@ -35,6 +36,8 @@ const getLocationOptions = () => {
 };
 
 function FinishPageContent() {
+    const item = useItemStore(state => state.item);
+    const updateItem = useItemStore(state => state.updateItem);
     const category = useSingleCartStore(state => (state.cart as FinishCart).category);
     const color = useSingleCartStore(state => (state.cart as FinishCart).color);
     const setCart = useSingleCartStore(state => state.setCart);
@@ -46,7 +49,7 @@ function FinishPageContent() {
         useSingleCartStore(state => (state.cart as FinishCart).height?.toString() ?? null),
     );
     const [edgeCount, setEdgeCount] = useState<FinishEdgeCount | null>(
-        useSingleCartStore(state => (state.cart as FinishCart).edge_count ?? null),
+        item?.edgeCount ?? null,
     );
     const [request, setRequest] = useState<string | null>(
         useSingleCartStore(state => (state.cart as FinishCart).request) ?? null,
@@ -93,17 +96,22 @@ function FinishPageContent() {
         );
     }, [heightIncrease]);
 
+    // 엣지 면 수 변경 시 useItemStore에 저장
+    const handleEdgeCountChange = (newEdgeCount: FinishEdgeCount) => {
+        setEdgeCount(newEdgeCount);
+        updateItem({ edgeCount: newEdgeCount });
+    };
+
     return (
         <div className="flex flex-col">
             <TopNavigator />
             <Header
                 size="Large"
-                title={`${FINISH_CATEGORY_LIST.find(item => item.slug === category)?.header ?? ""
-                    } 정보를 입력해주세요`}
+                title={`${item?.type} 정보를 입력해주세요`}
             />
             <div className="h-5"></div>
             <div className="flex flex-col gap-5 px-5">
-                <BoxedSelect label="색상" value={formatColor(color ?? "")} onClick={() => router.back()} />
+                <BoxedSelect label="색상" value={formatColor(item?.color ?? "")} onClick={() => router.back()} />
                 <BoxedSelect
                     label="엣지 면 수"
                     value={edgeCount ? (edgeCount === FinishEdgeCount.TWO ? "2면" : "4면") : ""}
@@ -146,7 +154,7 @@ function FinishPageContent() {
                     isOpen={isEdgeCountSheetOpen}
                     onClose={() => setIsEdgeCountSheetOpen(false)}
                     value={edgeCount}
-                    onChange={setEdgeCount}
+                    onChange={handleEdgeCountChange}
                 />
                 <BoxedInput
                     label="제작 시 요청사항"
@@ -267,24 +275,16 @@ function EdgeCountSheet({
                     <div>
                         <SelectToggleButton
                             key={FinishEdgeCount.TWO}
-                            label={"2면"}
+                            label={FinishEdgeCount.TWO}
                             checked={value === FinishEdgeCount.TWO}
                             onClick={() => onChange(FinishEdgeCount.TWO)}
                         />
                         <SelectToggleButton
                             key={FinishEdgeCount.FOUR}
-                            label={"4면"}
+                            label={FinishEdgeCount.FOUR}
                             checked={value === FinishEdgeCount.FOUR}
                             onClick={() => onChange(FinishEdgeCount.FOUR)}
                         />
-                        {/* {options.map(option => (
-              <SelectToggleButton
-                key={option.value}
-                label={option.label}
-                checked={value === option.value}
-                onClick={() => onChange(option.value)}
-              />
-            ))} */}
                         <div className="p-5">
                             <Button
                                 type="Brand"
