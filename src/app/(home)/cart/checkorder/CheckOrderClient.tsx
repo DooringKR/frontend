@@ -166,12 +166,12 @@ function CheckOrderClientPage() {
     }
     delivery.delivery_request = requestMessage;
 
-    if (requestMessage === "OPEN_GATE") {
+    if (requestMessage === "공동현관으로 올라오세요") {
       delivery.gate_password = foyerAccessType.gatePassword;
     }
 
-    if (requestMessage === "DIRECT_INPUT") {
-      delivery.delivery_request_direct_input = customerRequest;
+    if (requestMessage === "직접 입력") {
+      delivery.delivery_request_direct_input = foyerAccessType.customRequest || customerRequest;
     }
 
     return { delivery };
@@ -198,6 +198,7 @@ function CheckOrderClientPage() {
     };
 
     try {
+      // console.log("🚚 order_item 요청 payload:", payload);
       const order = await createOrder(payload);
       const orderId = order.order_id;
       console.log("오더아이디", orderId);
@@ -222,9 +223,10 @@ function CheckOrderClientPage() {
         }),
       );
 
+      await completeOrder(orderId);
+
       */
 
-      // await completeOrder(orderId);
 
       console.log("🚚 order_item 요청 payload:", payload);
       localStorage.setItem("recentOrder", JSON.stringify(order));
