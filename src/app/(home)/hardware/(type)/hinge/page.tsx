@@ -2,7 +2,8 @@
 
 import { HardwareMadeBy, HingeThickness, HingeAngle } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import { useRouter } from "next/navigation";
-import { Suspense, useState, useRef, useEffect } from "react";
+import React, { Suspense, useRef } from "react";
+
 import BottomButton from "@/components/BottomButton/BottomButton";
 import Header from "@/components/Header/Header";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
@@ -11,31 +12,37 @@ import BoxedInput from "@/components/Input/BoxedInput";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import SelectToggleButton from "@/components/Button/SelectToggleButton";
 import Button from "@/components/Button/Button";
+import useItemStore from "@/store/Items/itemStore";
 
 
 function HingePageContent() {
   const router = useRouter();
-  // hinge 입력값: enum 기반 select와 textarea만 사용, zustand cart 사용 안함
-  const [madeby, setMadeby] = useState<HardwareMadeBy | "">("");
-  const [thickness, setThickness] = useState<HingeThickness | "">("");
-  const [angle, setAngle] = useState<HingeAngle | "">("");
-  const [request, setRequest] = useState("");
-  const [isMadebySheetOpen, setIsMadebySheetOpen] = useState(false);
-  const [isThicknessSheetOpen, setIsThicknessSheetOpen] = useState(false);
-  const [isAngleSheetOpen, setIsAngleSheetOpen] = useState(false);
-  // direct input mode states
-  const [madebyMode, setMadebyMode] = useState<string>("option");
-  const [thicknessMode, setThicknessMode] = useState<string>("option");
-  const [angleMode, setAngleMode] = useState<string>("option");
-  // direct input values
-  const [madebyInput, setMadebyInput] = useState("");
-  const [thicknessInput, setThicknessInput] = useState("");
-  const [angleInput, setAngleInput] = useState("");
+  const item = useItemStore(state => state.item);
+  const setItem = useItemStore(state => state.setItem);
+  const updateItem = useItemStore(state => state.updateItem);
+  // Modal open states
+  const [isMadebySheetOpen, setIsMadebySheetOpen] = React.useState(false);
+  const [isThicknessSheetOpen, setIsThicknessSheetOpen] = React.useState(false);
+  const [isAngleSheetOpen, setIsAngleSheetOpen] = React.useState(false);
+  // Direct input mode states
+  const [madebyMode, setMadebyMode] = React.useState<string>("option");
+  const [thicknessMode, setThicknessMode] = React.useState<string>("option");
+  const [angleMode, setAngleMode] = React.useState<string>("option");
+  // Direct input values (local, only for input field)
+  const [madebyInput, setMadebyInput] = React.useState("");
+  const [thicknessInput, setThicknessInput] = React.useState("");
+  const [angleInput, setAngleInput] = React.useState("");
   // refs for focusing
   const madebyInputRef = useRef<HTMLInputElement>(null);
   const thicknessInputRef = useRef<HTMLInputElement>(null);
   const angleInputRef = useRef<HTMLInputElement>(null);
   const headerTitle = "경첩";
+
+  // Extract hinge fields from itemStore
+  const madeby = item?.madeby ?? "";
+  const thickness = item?.thickness ?? "";
+  const angle = item?.angle ?? "";
+  const request = item?.request ?? "";
 
   const isAnySheetOpen = isMadebySheetOpen || isThicknessSheetOpen || isAngleSheetOpen;
   return (
@@ -46,7 +53,13 @@ function HingePageContent() {
       <div className="flex flex-col gap-5 px-5">
         <BoxedSelect
           label="제조사"
-          value={isMadebySheetOpen && madebyMode === "input" ? madebyInput : madeby}
+          value={(() => {
+            const v = isMadebySheetOpen && madebyMode === "input" ? madebyInput : madeby;
+            if (v === "문주") return "국산 (문주) + 1,500원";
+            if (v === "헤펠레") return "헤펠레 (Haffle) + 2,500원";
+            if (v === "블룸") return "블룸 (Blum) + 10,500원";
+            return v;
+          })()}
           options={(Object.values(HardwareMadeBy) as string[]).map(v => ({ label: v, value: v }))}
           onClick={() => setIsMadebySheetOpen(true)}
           onChange={() => {}}
@@ -69,7 +82,7 @@ function HingePageContent() {
           label="제작 시 요청사항"
           placeholder="제작 시 요청사항을 입력해주세요"
           value={request}
-          onChange={e => setRequest(e.target.value)}
+          onChange={e => updateItem({ request: e.target.value })}
         />
       </div>
       <div className="h-5" />
@@ -86,25 +99,31 @@ function HingePageContent() {
             <div>
               {(Object.values(HardwareMadeBy) as string[])
                 .filter(option => option !== "직접 입력")
-                .map(option => (
-                  <SelectToggleButton
-                    key={option}
-                    label={option}
-                    checked={madeby === option && madebyMode !== "input"}
-                    onClick={() => {
-                      setMadeby(option as HardwareMadeBy);
-                      setMadebyMode("option");
-                      setMadebyInput("");
-                    }}
-                  />
-                ))}
+                .map(option => {
+                  let label = option;
+                  if (option === "문주") label = "국산 (문주) + 1,500원";
+                  if (option === "헤펠레") label = "헤펠레 (Haffle) + 2,500원";
+                  if (option === "블룸") label = "블룸 (Blum) + 10,500원";
+                  return (
+                    <SelectToggleButton
+                      key={option}
+                      label={label}
+                      checked={madeby === option && madebyMode !== "input"}
+                      onClick={() => {
+                        updateItem({ madeby: option });
+                        setMadebyMode("option");
+                        setMadebyInput("");
+                      }}
+                    />
+                  );
+                })}
               <div className="flex flex-col">
                 <SelectToggleButton
                   label="직접 입력"
                   checked={madebyMode === "input"}
                   onClick={() => {
                     setMadebyMode("input");
-                    setMadeby("");
+                    updateItem({ madeby: "" });
                     setTimeout(() => madebyInputRef.current?.focus(), 0);
                   }}
                 />
@@ -128,7 +147,7 @@ function HingePageContent() {
                 text="다음"
                 onClick={() => {
                   if (madebyMode === "input" && madebyInput) {
-                    setMadeby(madebyInput as HardwareMadeBy);
+                    updateItem({ madeby: madebyInput });
                   }
                   setIsMadebySheetOpen(false);
                   setMadebyMode("option");
@@ -157,7 +176,7 @@ function HingePageContent() {
                     label={option}
                     checked={thickness === option && thicknessMode !== "input"}
                     onClick={() => {
-                      setThickness(option as HingeThickness);
+                      updateItem({ thickness: option });
                       setThicknessMode("option");
                       setThicknessInput("");
                     }}
@@ -169,7 +188,7 @@ function HingePageContent() {
                   checked={thicknessMode === "input"}
                   onClick={() => {
                     setThicknessMode("input");
-                    setThickness("");
+                    updateItem({ thickness: "" });
                     setTimeout(() => thicknessInputRef.current?.focus(), 0);
                   }}
                 />
@@ -193,7 +212,7 @@ function HingePageContent() {
                 text="다음"
                 onClick={() => {
                   if (thicknessMode === "input" && thicknessInput) {
-                    setThickness(thicknessInput as HingeThickness);
+                    updateItem({ thickness: thicknessInput });
                   }
                   setIsThicknessSheetOpen(false);
                   setThicknessMode("option");
@@ -222,7 +241,7 @@ function HingePageContent() {
                     label={option}
                     checked={angle === option && angleMode !== "input"}
                     onClick={() => {
-                      setAngle(option as HingeAngle);
+                      updateItem({ angle: option });
                       setAngleMode("option");
                       setAngleInput("");
                     }}
@@ -234,7 +253,7 @@ function HingePageContent() {
                   checked={angleMode === "input"}
                   onClick={() => {
                     setAngleMode("input");
-                    setAngle("");
+                    updateItem({ angle: "" });
                     setTimeout(() => angleInputRef.current?.focus(), 0);
                   }}
                 />
@@ -258,7 +277,7 @@ function HingePageContent() {
                 text="다음"
                 onClick={() => {
                   if (angleMode === "input" && angleInput) {
-                    setAngle(angleInput as HingeAngle);
+                    updateItem({ angle: angleInput });
                   }
                   setIsAngleSheetOpen(false);
                   setAngleMode("option");
@@ -277,8 +296,7 @@ function HingePageContent() {
             className="fixed bottom-0 w-full max-w-[460px]"
             button1Disabled={madeby === "" || thickness === "" || angle === ""}
             onButton1Click={() => {
-              // TODO: 다음 페이지로 정보 전달 (예: router.push에 state/params 전달)
-              router.push(`/order/hardware/confirm`);
+              router.push(`/hardware/report`);
             }}
           />
         </div>
