@@ -43,25 +43,27 @@ function ColorListPageContent() {
                 setSelectedColor={color => {
                     updateItem({
                         color: color,
+                        finish_color_direct_input: undefined,
                     });
                 }}
             />
             <ColorManualInputGuide
-                selectedColor={item?.color ?? null}
+                selectedColor={item?.color || item?.finish_color_direct_input || null}
                 onClick={() => setIsBottomSheetOpen(true)}
             />
             <ColorManualInputSheet
                 isOpen={isBottomSheetOpen}
                 onClose={() => setIsBottomSheetOpen(false)}
-                value={item?.color ?? ""}
+                value={item?.finish_color_direct_input ?? ""}
                 onChange={color => {
                     updateItem({
-                        color: color,
+                        finish_color_direct_input: color,
+                        color: undefined,
                     });
                 }}
                 type={item?.type ?? ""}
                 onNext={() => {
-                    if (item?.color) {
+                    if (item?.color || item?.finish_color_direct_input) {
                         const slug = FINISH_CATEGORY_LIST.find(cat => cat.type === item?.type)?.slug || "";
                         router.push(`/finish/${slug}`);
                     }
@@ -69,7 +71,7 @@ function ColorListPageContent() {
             />
             {!isBottomSheetOpen && (
                 <ColorSelectBottomButton
-                    selectedColor={item?.color ?? null}
+                    selectedColor={item?.color || item?.finish_color_direct_input || null}
                     type={item?.type ?? ""}
                     onClick={() => {
                         const slug = FINISH_CATEGORY_LIST.find(cat => cat.type === item?.type)?.slug || "";

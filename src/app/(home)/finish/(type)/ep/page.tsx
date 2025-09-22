@@ -1,6 +1,5 @@
 "use client";
 
-import { FINISH_CATEGORY_LIST } from "@/constants/category";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
@@ -13,7 +12,6 @@ import BoxedInput from "@/components/Input/BoxedInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
-import { FinishCart, useSingleCartStore } from "@/store/singleCartStore";
 import formatColor from "@/utils/formatColor";
 import formatLocation from "@/utils/formatLocation";
 
@@ -38,30 +36,28 @@ const getLocationOptions = () => {
 function FinishPageContent() {
     const item = useItemStore(state => state.item);
     const updateItem = useItemStore(state => state.updateItem);
-    const category = useSingleCartStore(state => (state.cart as FinishCart).category);
-    const color = useSingleCartStore(state => (state.cart as FinishCart).color);
-    const setCart = useSingleCartStore(state => state.setCart);
     const router = useRouter();
-    const [depth, setDepth] = useState<string | null>(
-        useSingleCartStore(state => (state.cart as FinishCart).depth?.toString() ?? null),
-    );
-    const [height, setHeight] = useState<string | null>(
-        useSingleCartStore(state => (state.cart as FinishCart).height?.toString() ?? null),
-    );
     const [edgeCount, setEdgeCount] = useState<FinishEdgeCount | null>(
         item?.edgeCount ?? null,
     );
+    const [depth, setDepth] = useState<number | null>(
+        item?.depth ?? null,
+    );
+    const [depthIncrease, setDepthIncrease] = useState<number | null>(
+        item?.depthIncrease ?? null,
+    );
+    const [height, setHeight] = useState<number | null>(
+        item?.height ?? null,
+    );
+    const [heightIncrease, setHeightIncrease] = useState<number | null>(
+        item?.heightIncrease ?? null,
+    );
     const [request, setRequest] = useState<string | null>(
-        useSingleCartStore(state => (state.cart as FinishCart).request) ?? null,
+        item?.request ?? null,
     );
-    const [depthIncrease, setDepthIncrease] = useState<string | null>(
-        useSingleCartStore(state => (state.cart as FinishCart).depthIncrease?.toString() ?? null),
-    );
-    const [heightIncrease, setHeightIncrease] = useState<string | null>(
-        useSingleCartStore(state => (state.cart as FinishCart).heightIncrease?.toString() ?? null),
-    );
+
     const [finish_location, setFinishLocation] = useState<Location | null>(
-        useSingleCartStore(state => (state.cart as FinishCart).finish_location ?? null),
+        item?.finish_location ?? null,
     );
     const [isDepthIncrease, setIsDepthIncrease] = useState(false);
     const [isHeightIncrease, setIsHeightIncrease] = useState(false);
@@ -70,11 +66,11 @@ function FinishPageContent() {
 
     // 유효성 검사 훅 사용
     const { depthError, heightError, isFormValid } = useFinishValidation({
-        edgeCount: edgeCount ? Number(edgeCount) : null,
-        depth: depth ? Number(depth) : null,
-        height: height ? Number(height) : null,
-        depthIncrease: depthIncrease ? Number(depthIncrease) : null,
-        heightIncrease: heightIncrease ? Number(heightIncrease) : null,
+        edgeCount: edgeCount ?? null,
+        depth: depth,
+        height: height,
+        depthIncrease: depthIncrease,
+        heightIncrease: heightIncrease,
     });
 
     // 동기화
@@ -82,8 +78,7 @@ function FinishPageContent() {
         setIsDepthIncrease(
             depthIncrease !== null &&
             depthIncrease !== undefined &&
-            depthIncrease !== "" &&
-            Number(depthIncrease) !== 0,
+            depthIncrease !== 0,
         );
     }, [depthIncrease]);
 
@@ -91,8 +86,7 @@ function FinishPageContent() {
         setIsHeightIncrease(
             heightIncrease !== null &&
             heightIncrease !== undefined &&
-            heightIncrease !== "" &&
-            Number(heightIncrease) !== 0,
+            heightIncrease !== 0,
         );
     }, [heightIncrease]);
 
@@ -100,6 +94,31 @@ function FinishPageContent() {
     const handleEdgeCountChange = (newEdgeCount: FinishEdgeCount) => {
         setEdgeCount(newEdgeCount);
         updateItem({ edgeCount: newEdgeCount });
+    };
+
+    const handleDepthChange = (newDepth: number | null) => {
+        setDepth(newDepth);
+        updateItem({ depth: newDepth });
+    };
+
+    const handleDepthIncreaseChange = (newDepthIncrease: number | null) => {
+        setDepthIncrease(newDepthIncrease);
+        updateItem({ depthIncrease: newDepthIncrease });
+    };
+
+    const handleFinishLocationChange = (newFinishLocation: Location | null) => {
+        setFinishLocation(newFinishLocation);
+        updateItem({ finish_location: newFinishLocation });
+    };
+
+    const handleHeightChange = (newHeight: number | null) => {
+        setHeight(newHeight);
+        updateItem({ height: newHeight });
+    };
+
+    const handleHeightIncreaseChange = (newHeightIncrease: number | null) => {
+        setHeightIncrease(newHeightIncrease);
+        updateItem({ heightIncrease: newHeightIncrease });
     };
 
     return (
@@ -111,30 +130,28 @@ function FinishPageContent() {
             />
             <div className="h-5"></div>
             <div className="flex flex-col gap-5 px-5">
-                <BoxedSelect label="색상" value={formatColor(item?.color ?? "")} onClick={() => router.back()} />
+                <BoxedSelect label="색상" value={formatColor(item?.color ?? "") || item?.finish_color_direct_input || ""} onClick={() => router.back()} />
                 <BoxedSelect
                     label="엣지 면 수"
-                    value={edgeCount ? (edgeCount === FinishEdgeCount.TWO ? "2면" : "4면") : ""}
+                    value={edgeCount?.toString() ?? ""}
                     onClick={() => setIsEdgeCountSheetOpen(true)}
                 />
                 <DepthInputSection
-                    category={category ?? ""}
-                    depth={depth ? Number(depth) : null}
-                    setDepth={e => setDepth(e?.toString() ?? null)}
-                    isDepthIncrease={category === "galle" ? false : isDepthIncrease}
+                    depth={depth}
+                    setDepth={handleDepthChange}
+                    isDepthIncrease={isDepthIncrease}
                     setIsDepthIncrease={setIsDepthIncrease}
-                    depthIncrease={depthIncrease ? Number(depthIncrease) : null}
-                    setDepthIncrease={e => setDepthIncrease(e?.toString() ?? null)}
+                    depthIncrease={depthIncrease}
+                    setDepthIncrease={handleDepthIncreaseChange}
                     depthError={depthError}
                 />
                 <HeightInputSection
-                    category={category ?? ""}
-                    height={height ? Number(height) : null}
-                    setHeight={e => setHeight(e?.toString() ?? null)}
+                    height={height}
+                    setHeight={handleHeightChange}
                     isHeightIncrease={isHeightIncrease}
                     setIsHeightIncrease={setIsHeightIncrease}
-                    heightIncrease={heightIncrease ? Number(heightIncrease) : null}
-                    setHeightIncrease={e => setHeightIncrease(e?.toString() ?? null)}
+                    heightIncrease={heightIncrease}
+                    setHeightIncrease={handleHeightIncreaseChange}
                     heightError={heightError}
                 />
                 <BoxedSelect
@@ -148,7 +165,7 @@ function FinishPageContent() {
                     isOpen={isFinishLocationSheetOpen}
                     onClose={() => setIsFinishLocationSheetOpen(false)}
                     value={finish_location}
-                    onChange={setFinishLocation}
+                    onChange={handleFinishLocationChange}
                 />
                 <EdgeCountSheet
                     isOpen={isEdgeCountSheetOpen}
@@ -172,19 +189,19 @@ function FinishPageContent() {
                         className="fixed bottom-0 w-full max-w-[460px]"
                         button1Disabled={isFormValid()}
                         onButton1Click={() => {
-                            setCart({
-                                type: "finish",
-                                category: category,
-                                color: color,
-                                edge_count: edgeCount,
-                                depth: depth ? Number(depth) : null,
-                                height: height ? Number(height) : null,
-                                depthIncrease: depthIncrease ? Number(depthIncrease) : null,
-                                heightIncrease: heightIncrease ? Number(heightIncrease) : null,
-                                request: request,
-                                finish_location: finish_location,
-                            });
-                            router.push(`/order/finish/confirm`);
+                            // setCart({
+                            //     type: "finish",
+                            //     category: category,
+                            //     // color: item?.color ?? "",
+                            //     edge_count: edgeCount,
+                            //     depth: depth,
+                            //     height: height,
+                            //     depthIncrease: depthIncrease,
+                            //     heightIncrease: heightIncrease,
+                            //     request: request,
+                            //     finish_location: finish_location,
+                            // });
+                            router.push(`/finish/report`);
                         }}
                     />
                 </div>
@@ -201,52 +218,6 @@ function FinishPage() {
     );
 }
 
-// 용도 및 장소 선택 시트 컴포넌트
-function FinishLocationSheet({
-    isOpen,
-    onClose,
-    value,
-    onChange,
-}: {
-    isOpen: boolean;
-    onClose: () => void;
-    value: Location | null;
-    onChange: (v: Location) => void;
-}) {
-    const options = getLocationOptions(); // enum을 사용한 options
-
-    return (
-        <BottomSheet
-            isOpen={isOpen}
-            title="용도 및 장소를 선택해주세요"
-            contentPadding="px-1"
-            children={
-                <div>
-                    <div>
-                        {options.map(option => (
-                            <SelectToggleButton
-                                key={option.value}
-                                label={option.value} // enum 값 그대로 사용
-                                checked={value === option.value}
-                                onClick={() => onChange(option.value)}
-                            />
-                        ))}
-                        <div className="p-5">
-                            <Button
-                                type="Brand"
-                                text="다음"
-                                onClick={() => {
-                                    onClose();
-                                }}
-                            />
-                        </div>
-                    </div>
-                </div>
-            }
-            onClose={onClose}
-        />
-    );
-}
 
 // 엣지 면 수 선택 시트 컴포넌트
 function EdgeCountSheet({
@@ -301,5 +272,53 @@ function EdgeCountSheet({
         />
     );
 }
+
+// 용도 및 장소 선택 시트 컴포넌트
+function FinishLocationSheet({
+    isOpen,
+    onClose,
+    value,
+    onChange,
+}: {
+    isOpen: boolean;
+    onClose: () => void;
+    value: Location | null;
+    onChange: (v: Location) => void;
+}) {
+    const options = getLocationOptions(); // enum을 사용한 options
+
+    return (
+        <BottomSheet
+            isOpen={isOpen}
+            title="용도 및 장소를 선택해주세요"
+            contentPadding="px-1"
+            children={
+                <div>
+                    <div>
+                        {options.map(option => (
+                            <SelectToggleButton
+                                key={option.value}
+                                label={option.value} // enum 값 그대로 사용
+                                checked={value === option.value}
+                                onClick={() => onChange(option.value)}
+                            />
+                        ))}
+                        <div className="p-5">
+                            <Button
+                                type="Brand"
+                                text="다음"
+                                onClick={() => {
+                                    onClose();
+                                }}
+                            />
+                        </div>
+                    </div>
+                </div>
+            }
+            onClose={onClose}
+        />
+    );
+}
+
 
 export default FinishPage;
