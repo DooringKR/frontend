@@ -43,10 +43,6 @@ const HomeProductContainer: React.FC = () => {
     if (!addressStorage) {
       router.push(`/address-check?category=${slug}`);
     } else if (slug === "finish") {
-      // const initialFinishCart: FinishCart = {
-      //   type: "finish",
-      // };
-      // setCart(initialFinishCart);
       router.push(`/finish`);
       // router.push(`/order/color?type=${slug}`);
     } else if (slug === "hardware") {
@@ -56,11 +52,7 @@ const HomeProductContainer: React.FC = () => {
       setCart(initialHardwareCart);
       router.push(`/order`);
     } else if (slug === "accessory") {
-      const initialAccessoryCart: AccessoryCart = {
-        type: "accessory",
-      };
-      setCart(initialAccessoryCart);
-      router.push(`/order`);
+      router.push(`/accessory`);
     } else if (slug === "cabinet") {
       const initialAccessoryCart: CabinetCart = {
         type: "cabinet",

@@ -84,7 +84,7 @@ export class CrudCartUsecase {
     }
 
     // cart_count만 증가시키는 메서드 추가
-    async incrementCartCount(cartId: string, incrementBy: number = 1): Promise<boolean> {
+    async incrementCartCount(cartId: string, incrementBy: number = 1): Promise<Response> {
         try {
             if (!cartId || cartId.trim() === '') {
                 throw new Error("Cart ID is required");
@@ -95,7 +95,7 @@ export class CrudCartUsecase {
                 throw new Error(response.message || "Failed to increment cart count");
             }
 
-            return response.data!;
+            return response;
         } catch (error) {
             throw new Error(`Failed to increment cart count: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }

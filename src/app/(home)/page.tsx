@@ -44,8 +44,8 @@ export default function Page() {
   // const userId = useUserStore(state => state.id);
   const userAddress1 = useUserStore(state => state.user_road_address);
   const userAddress2 = useUserStore(state => state.user_detail_address);
-  const setCartItems = useCartStore(state => state.setCartItems);
-  const cartItems = useCartStore(state => state.cartItems);
+  // const setCartItems = useCartStore(state => state.setCartItems);
+  // const cartItems = useCartStore(state => state.cartItems);
   const [cartItemCount, setCartItemCount] = useState(0);
   const [isCheckingDelivery, setIsCheckingDelivery] = useState(false);
   // useEffect(() => {
@@ -146,8 +146,9 @@ export default function Page() {
   useEffect(() => {
     // const totalCount = cartItems.reduce((acc, item) => acc + (item.item_count ?? 1), 0);
     // setCartItemCount(totalCount);
-    setCartItemCount(cartItems.length);
-  }, [cartItems]);
+    // setCartItemCount(cartItems.length);
+    // setCartItemCount(cart!.cart_count);
+  }, [cart]);
 
   useEffect(() => {
     const checkDelivery = async () => {

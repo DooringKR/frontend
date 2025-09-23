@@ -56,14 +56,14 @@ export class CartSupabaseRepository extends CartRepository {
             if (fetchError) {
                 return {
                     success: false,
-                    data: false,
+                    data: undefined as any,
                     message: `Failed to fetch current cart count: ${fetchError.message}`
                 };
             }
 
             const newCount = (currentCart.cart_count || 0) + incrementBy;
 
-            const { error: updateError } = await supabase
+            const { data: updatedCart, error: updateError } = await supabase
                 .from('Cart')
                 .update({ cart_count: newCount })
                 .eq('id', cartId);
@@ -71,16 +71,16 @@ export class CartSupabaseRepository extends CartRepository {
             if (updateError) {
                 return {
                     success: false,
-                    data: false,
+                    data: undefined as any,
                     message: `Failed to update cart count: ${updateError.message}`
                 };
             }
 
-            return { success: true, data: true };
+            return { success: true, data: updatedCart as any };
         } catch (error) {
             return {
                 success: false,
-                data: false,
+                data: undefined as any,
                 message: `Error incrementing cart count: ${error instanceof Error ? error.message : 'Unknown error'}`
             };
         }

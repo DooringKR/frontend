@@ -28,7 +28,7 @@ import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_r
 function ReportPageContent() {
     const router = useRouter();
     const { item } = useItemStore();
-    const { cart, setCartItems, cartItems } = useCartStore();
+    const { cart, incrementCartCount } = useCartStore();
 
     const [quantity, setQuantity] = useState(1);
 
@@ -140,11 +140,11 @@ function ReportPageContent() {
                                 new CartSupabaseRepository()
                             ).incrementCartCount(cart!.id!, 1);
 
-                            console.log(cartCountResponse);
+                            console.log("cartCountResponse", cartCountResponse);
 
                             // TODO: 전역변수에 추가
-                            setCartItems([...cartItems, createdCartItem]);
-                            console.log(cartItems);
+                            incrementCartCount(1);
+                            console.log(cart);
 
                             // 장바구니 페이지로 이동
 
