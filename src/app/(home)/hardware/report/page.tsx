@@ -9,7 +9,7 @@ import Header from "@/components/Header/Header";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
-import { HardwareType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import { HardwareType, RailType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import { Hinge } from "dooring-core-domain/dist/models/InteriorMaterials/Hardware/Hinge";
 import { Rail } from "dooring-core-domain/dist/models/InteriorMaterials/Hardware/Rail";
 import { Piece } from "dooring-core-domain/dist/models/InteriorMaterials/Hardware/Piece";
@@ -17,19 +17,30 @@ import useItemStore from "@/store/Items/itemStore";
 
 function createHardwareInstance(item: any) {
   switch (item.type) {
-    case HardwareType.HINGE:
-      return new Hinge(
-        undefined, // id
-        undefined, // created_at
-        item.request || undefined, // hardware_request
-        item.madeby || undefined, // hinge_madeby
-        item.thickness || undefined, // hinge_thickness
-        item.angle || undefined // hinge_angle
-      )
+      case HardwareType.HINGE:
+        // Hinge 네임드 파라미터(객체 리터럴) 생성 방식
+        return new Hinge({
+          hardware_request: item.request,
+          hinge_madeby: item.madeby,
+          hinge_thickness: item.thickness,
+          hinge_angle: item.angle,
+        });
     case HardwareType.RAIL:
-      return new Rail(/* 생성자 인자 */);
+      // Rail 네임드 파라미터(객체 리터럴) 생성 방식
+      return new Rail({
+        hardware_request: item.request,
+        rail_madeby: item.madeby,
+        rail_type: item.railType,
+        rail_length: item.railLength,
+        rail_damping: item.railDamping,
+      });
     case HardwareType.PIECE:
-      return new Piece(/* 생성자 인자 */);
+      // Piece 네임드 파라미터(객체 리터럴) 생성 방식
+      return new Piece({
+        hardware_request: item.request,
+        piece_color: item.color,
+        piece_size: item.size,
+      });
     default:
       throw new Error("Unknown hardware type");
   }
@@ -69,6 +80,7 @@ function ReportPageContent() {
           railLength={item?.railLength ?? ""}
           color={item?.color ?? ""}
           size={item?.size ?? ""}
+          railDamping={item?.railType === RailType.BALL ? item?.railDamping ?? "" : undefined}
           request={item?.request ?? undefined}
           quantity={0}
           trashable={false}

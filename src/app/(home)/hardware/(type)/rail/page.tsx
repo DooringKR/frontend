@@ -42,48 +42,79 @@ function RailPageContent() {
 	const railType = item?.railType ?? "";
 	const railLength = item?.railLength ?? "";
 	const request = item?.request ?? "";
+	const railDamping = item?.railDamping ?? "";
+
+	// railType 변경 시 불필요한 값 리셋
+	React.useEffect(() => {
+		if (railType !== RailType.BALL && railType !== RailType.UNDER) {
+			if (railLength !== "") updateItem({ railLength: "" });
+		}
+		if (railType !== RailType.BALL) {
+			if (railDamping !== "") updateItem({ railDamping: "" });
+		}
+	}, [railType]);
 
 	const isAnySheetOpen = isMadebySheetOpen || isTypeSheetOpen || isLengthSheetOpen;
-	return (
-		<div className="flex flex-col">
-			<TopNavigator />
-			<Header title={`${headerTitle} 정보를 입력해주세요`} />
-			<div className="h-5" />
-			<div className="flex flex-col gap-5 px-5">
+		return (
+			<div className="flex flex-col">
+				<TopNavigator />
+				<Header title={`${headerTitle} 정보를 입력해주세요`} />
+				<div className="h-5" />
+				<div className="flex flex-col gap-5 px-5">
+					<BoxedSelect
+						label="제조사"
+						value={(() => {
+							const v = isMadebySheetOpen && madebyMode === "input" ? madebyInput : madeby;
+							if (v === "문주") return "국산 (문주) + 1,500원";
+							if (v === "헤펠레") return "헤펠레 (Haffle) + 2,500원";
+							if (v === "블룸") return "블룸 (Blum) + 10,500원";
+							return v;
+						})()}
+						options={(Object.values(HardwareMadeBy) as string[]).map(v => ({ label: v, value: v }))}
+						onClick={() => setIsMadebySheetOpen(true)}
+						onChange={() => {}}
+					/>
+					<BoxedSelect
+						label="레일 종류"
+						value={isTypeSheetOpen && typeMode === "input" ? typeInput : railType}
+						options={(Object.values(RailType) as string[]).map(v => ({ label: v, value: v }))}
+						onClick={() => setIsTypeSheetOpen(true)}
+						onChange={() => {}}
+					/>
+					{(railType === RailType.BALL || railType === RailType.UNDER) && (
 						<BoxedSelect
-							label="제조사"
-							value={(() => {
-								const v = isMadebySheetOpen && madebyMode === "input" ? madebyInput : madeby;
-								if (v === "문주") return "국산 (문주) + 1,500원";
-								if (v === "헤펠레") return "헤펠레 (Haffle) + 2,500원";
-								if (v === "블룸") return "블룸 (Blum) + 10,500원";
-								return v;
-							})()}
-							options={(Object.values(HardwareMadeBy) as string[]).map(v => ({ label: v, value: v }))}
-							onClick={() => setIsMadebySheetOpen(true)}
+							label="레일 길이"
+							value={isLengthSheetOpen && lengthMode === "input" ? lengthInput : railLength}
+							options={(Object.values(RailLength) as string[]).map(v => ({ label: v, value: v }))}
+							onClick={() => setIsLengthSheetOpen(true)}
 							onChange={() => {}}
 						/>
-				<BoxedSelect
-					label="레일 종류"
-					value={isTypeSheetOpen && typeMode === "input" ? typeInput : railType}
-					options={(Object.values(RailType) as string[]).map(v => ({ label: v, value: v }))}
-					onClick={() => setIsTypeSheetOpen(true)}
-					onChange={() => {}}
-				/>
-				<BoxedSelect
-					label="길이"
-					value={isLengthSheetOpen && lengthMode === "input" ? lengthInput : railLength}
-					options={(Object.values(RailLength) as string[]).map(v => ({ label: v, value: v }))}
-					onClick={() => setIsLengthSheetOpen(true)}
-					onChange={() => {}}
-				/>
-				<BoxedInput
-					label="제작 시 요청사항"
-					placeholder="제작 시 요청사항을 입력해주세요"
-					value={request}
-					onChange={e => updateItem({ request: e.target.value })}
-				/>
-			</div>
+					)}
+					{/* 댐핑 여부 선택: railType이 볼레일일 때만 노출, Button group 형식 */}
+					{railType === RailType.BALL && (
+						<div className="flex flex-col gap-2">
+							<div className="text-[14px]/[20px] font-400 text-gray-600">댐핑 여부</div>
+							<div className="flex w-full gap-2">
+								<Button
+									type={railDamping === true ? "BrandInverse" : "GrayLarge"}
+									text={"댐핑 O"}
+									onClick={() => updateItem({ railDamping: true })}
+								/>
+								<Button
+									type={railDamping === false ? "BrandInverse" : "GrayLarge"}
+									text={"댐핑 X"}
+									onClick={() => updateItem({ railDamping: false })}
+								/>
+							</div>
+						</div>
+					)}
+					<BoxedInput
+						label="제작 시 요청사항"
+						placeholder="제작 시 요청사항을 입력해주세요"
+						value={request}
+						onChange={e => updateItem({ request: e.target.value })}
+					/>
+				</div>
 			<div className="h-5" />
 			{/* 제조사 바텀시트 */}
 			<BottomSheet
@@ -97,26 +128,26 @@ function RailPageContent() {
 				children={
 					<div>
 						<div>
-											{(Object.values(HardwareMadeBy) as string[])
-												.filter(option => option !== "직접 입력")
-												.map(option => {
-													let label = option;
-													if (option === "문주") label = "국산 (문주) + 1,500원";
-													if (option === "헤펠레") label = "헤펠레 (Haffle) + 2,500원";
-													if (option === "블룸") label = "블룸 (Blum) + 10,500원";
-													return (
-														<SelectToggleButton
-															key={option}
-															label={label}
-															checked={madeby === option && madebyMode !== "input"}
-															onClick={() => {
-																updateItem({ madeby: option });
-																setMadebyMode("option");
-																setMadebyInput("");
-															}}
-														/>
-													);
-												})}
+							{(Object.values(HardwareMadeBy) as string[])
+								.filter(option => option !== "직접 입력")
+								.map(option => {
+									let label = option;
+									if (option === "문주") label = "국산 (문주) + 1,500원";
+									if (option === "헤펠레") label = "헤펠레 (Haffle) + 2,500원";
+									if (option === "블룸") label = "블룸 (Blum) + 10,500원";
+									return (
+										<SelectToggleButton
+											key={option}
+											label={label}
+											checked={madeby === option && madebyMode !== "input"}
+											onClick={() => {
+												updateItem({ madeby: option });
+												setMadebyMode("option");
+												setMadebyInput("");
+											}}
+										/>
+									);
+								})}
 							<div className="flex flex-col">
 								<SelectToggleButton
 									label="직접 입력"
@@ -296,7 +327,10 @@ function RailPageContent() {
 						type={"1button"}
 						button1Text={"다음"}
 						className="fixed bottom-0 w-full max-w-[460px]"
-						button1Disabled={madeby === "" || railType === "" || railLength === ""}
+						button1Disabled={
+							madeby === "" || railType === "" ||
+							((railType === RailType.BALL || railType === RailType.UNDER) && railLength === "")
+						}
 						onButton1Click={() => {
 							router.push(`/hardware/report`);
 						}}

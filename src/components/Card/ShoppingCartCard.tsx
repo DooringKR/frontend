@@ -48,6 +48,7 @@ interface ShoppingCartCardProps {
   legType?: string;
   thickness?: string;
   angle?: string;
+  railDamping?: boolean;
 }
 
 const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
@@ -90,6 +91,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   thickness,
   angle,
   railLength,
+  railDamping,
 }) => {
   return (
     <div className="flex w-full flex-col gap-3 rounded-[16px] border-[1px] border-gray-200 bg-white p-[20px]">
@@ -144,6 +146,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
             {type === "hardware" && size && <div>사이즈 : {size}</div>}
             {type === "hardware" && thickness && <div>합판 두께 : {thickness}</div>}
             {type === "hardware" && angle && <div>각도 : {angle}</div>}
+            {type === "hardware" && railDamping !== undefined && <div>레일 댐핑 : {railDamping ? "있음" : "없음"}</div>}
             {hingeCount && <div>경첩 개수 : {hingeCount}개</div>}
             {hingeDirection && <div>경첩 방향 : {hingeDirection}</div>}
             {boring && (
