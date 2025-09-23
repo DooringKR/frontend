@@ -1,27 +1,34 @@
 "use client";
 
-import { calculateUnitFinishPrice } from "@/services/pricing/finishPricing";
-import { useRouter } from "next/navigation";
-import { Suspense, useState } from "react";
-
 import BottomButton from "@/components/BottomButton/BottomButton";
 import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
 import Header from "@/components/Header/Header";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
-import formatColor from "@/utils/formatColor";
 import { FINISH_COLOR_LIST } from "@/constants/colorList";
-import { Finish } from "dooring-core-domain/dist/models/InteriorMaterials/Finish";
-import { FinishType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
-import { CrudInteriorMaterialsUsecase } from "@/DDD/usecase/crud_interior_materials_usecase";
 import { InteriorMaterialsSupabaseRepository } from "@/DDD/data/db/interior_materials_supabase_repository";
-import useItemStore from "@/store/Items/itemStore";
 import { FINISH_CATEGORY_LIST } from "@/constants/category";
+import useItemStore from "@/store/Items/itemStore";
+import { calculateUnitFinishPrice } from "@/services/pricing/finishPricing";
+import { Finish } from "dooring-core-domain/dist/models/InteriorMaterials/Finish";
+import { Suspense, useState } from "react";
+import { useRouter } from "next/navigation";
+
+import formatColor from "@/utils/formatColor";
+import { CrudCartItemUsecase } from "@/DDD/usecase/crud_cart_item_usecase";
+import { CrudInteriorMaterialsUsecase } from "@/DDD/usecase/crud_interior_materials_usecase";
+import useCartStore from "@/store/cartStore";
+import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
+import { CartItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/CartItem";
+import { CartItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/cartitem_supabase_repository";
+import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
+import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_repository";
 
 function ReportPageContent() {
     const router = useRouter();
     const { item } = useItemStore();
+    const { cart, setCartItems, cartItems } = useCartStore();
 
     const [quantity, setQuantity] = useState(1);
 
@@ -115,31 +122,29 @@ function ReportPageContent() {
                                 item.id
                             );
 
-                            // const cartItem = new CartItem({
-                            //   id: undefined, // id
-                            //   created_at: new Date(), // created_at
-                            //   cart_id: cart!.getId(), // 
-                            //   item_detail: createdFinish["id"], // interior_material_id (Finish 객체의 id 프로퍼티가 private이므로, 인덱싱으로 접근)
-                            //   detail_product_type: DetailProductType.FINISH, // quantity
-                            //   item_count: quantity, // quantity
-                            //   unit_price: unitPrice, // unit_price (필요하다면 값 할당)
-                            //   last_updated_at: undefined  // last_updated_at (필요하다면 값 할당)
-                            // });
-                            // const createdCartItem = await new CrudCartItemUsecase(
-                            //   new CartItemSupabaseRepository()
-                            // ).create(cartItem);
+                            const cartItem = new CartItem({
+                                cart_id: cart!.id!, // 
+                                item_detail: createdFinish.id!, // interior_material_id (Finish 객체의 id 프로퍼티가 private이므로, 인덱싱으로 접근)
+                                detail_product_type: DetailProductType.FINISH, // quantity
+                                item_count: quantity, // quantity
+                                unit_price: unitPrice, // unit_price (필요하다면 값 할당)
+                            });
+                            const createdCartItem = await new CrudCartItemUsecase(
+                                new CartItemSupabaseRepository()
+                            ).create(cartItem);
 
-                            // console.log(createdCartItem);
+                            console.log(createdCartItem);
 
                             // cart_count 증가 (전체 카트 객체 전달 없이)
-                            // const cartCountResponse = await new CrudCartUsecase(
-                            //   new CartSupabaseRepository()
-                            // ).incrementCartCount(cart!.getId(), quantity);
+                            const cartCountResponse = await new CrudCartUsecase(
+                                new CartSupabaseRepository()
+                            ).incrementCartCount(cart!.id!, 1);
 
-                            // console.log(cartCountResponse);
+                            console.log(cartCountResponse);
 
                             // TODO: 전역변수에 추가
-                            // cart!.increaseCount(quantity);
+                            setCartItems([...cartItems, createdCartItem]);
+                            console.log(cartItems);
 
                             // 장바구니 페이지로 이동
 
