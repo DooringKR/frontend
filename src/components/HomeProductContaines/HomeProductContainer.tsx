@@ -44,7 +44,6 @@ const HomeProductContainer: React.FC = () => {
       router.push(`/address-check?category=${slug}`);
     } else if (slug === "finish") {
       router.push(`/finish`);
-      // router.push(`/order/color?type=${slug}`);
     } else if (slug === "hardware") {
       const initialHardwareCart: HardwareCart = {
         type: "hardware",
@@ -60,11 +59,7 @@ const HomeProductContainer: React.FC = () => {
       setCart(initialAccessoryCart);
       router.push(`/order`);
     } else if (slug === "door") {
-      const initialDoorCart: DoorCart = {
-        type: "door",
-      };
-      setCart(initialDoorCart);
-      router.push(`/order`);
+      router.push(`/door`);
     }
   };
 
