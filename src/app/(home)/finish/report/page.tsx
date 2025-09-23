@@ -93,13 +93,11 @@ function ReportPageContent() {
                     onButton1Click={async () => {
                         console.log(item!);
                         try {
-                            // color 문자열을 id로 변환
-                            const colorId = getColorId(item.color ?? "");
 
                             // dooring-core-domain의 Finish 클래스를 사용하여 finish 객체 생성
                             const finish = new Finish({
                                 finish_type: item.type, // 올바른 FinishType 사용
-                                finish_color: colorId, // color.id로 변경 (없으면 undefined)
+                                finish_color: getColorId(item.color ?? ""), // color.id로 변경 (없으면 undefined)
                                 finish_edge_count: item.edgeCount!,
                                 finish_base_depth: item.depth!,
                                 finish_base_height: item.height!,

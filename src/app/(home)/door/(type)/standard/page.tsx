@@ -38,9 +38,9 @@ function StandardDoorPageContent() {
     const [door_height, setDoorHeight] = useState<number | null>(item?.door_height ?? null);
 
     // boringSize 초기값 설정
-    const [boringSize, setBoringSize] = useState<(number | null)[]>(item?.hinge ?? []);
+    const [hinge, setHinge] = useState<(number | null)[]>(item?.hinge ?? []);
 
-    const [request, setRequest] = useState(item?.request ?? "");
+    const [door_request, setDoorRequest] = useState(item?.request ?? "");
     const [door_location, setDoorLocation] = useState(item?.door_location ?? "");
     // const [addOn_hinge, setAddOn_hinge] = useState(item?.addOn_hinge ?? false);
     const [isDoorLocationSheetOpen, setIsDoorLocationSheetOpen] = useState(false);
@@ -49,7 +49,7 @@ function StandardDoorPageContent() {
     const { widthError, heightError, boringError, isFormValid } = useDoorValidation({
         DoorWidth: door_width,
         DoorHeight: door_height,
-        boringSize,
+        hinge,
         boringNum,
     });
 
@@ -57,9 +57,9 @@ function StandardDoorPageContent() {
     useEffect(() => {
         // 기존 값을 유지하면서 새로운 길이에 맞게 조정
         const newBoringSize = Array.from({ length: boringNum }, (_, i) =>
-            boringSize && boringSize[i] !== undefined ? boringSize[i] : null,
+            hinge && hinge[i] !== undefined ? hinge[i] : null,
         );
-        setBoringSize(newBoringSize);
+        setHinge(newBoringSize);
     }, [boringNum]);
 
 
@@ -67,10 +67,10 @@ function StandardDoorPageContent() {
     const handleBoringNumChange = (newBoringNum: 2 | 3 | 4) => {
         setBoringNum(newBoringNum);
         const newBoringSize = Array.from({ length: newBoringNum }, (_, i) =>
-            boringSize && boringSize[i] !== undefined ? boringSize[i] : null,
+            hinge && hinge[i] !== undefined ? hinge[i] : null,
         );
-        setBoringSize(newBoringSize);
-        updateItem({ boringNum: newBoringNum, boringSize: newBoringSize });
+        setHinge(newBoringSize);
+        updateItem({ boringNum: newBoringNum, hinge: newBoringSize });
     };
 
     const handleBoringDirectionChange = (newBoringDirection: HingeDirection) => {
@@ -80,22 +80,22 @@ function StandardDoorPageContent() {
 
     const handleDoorWidthChange = (newWidth: number | null) => {
         setDoorWidth(newWidth);
-        updateItem({ width: newWidth });
+        updateItem({ door_width: newWidth });
     };
 
     const handleDoorHeightChange = (newHeight: number | null) => {
         setDoorHeight(newHeight);
-        updateItem({ height: newHeight });
+        updateItem({ door_height: newHeight });
     };
 
     const handleBoringSizeChange = (newBoringSize: (number | null)[]) => {
-        setBoringSize(newBoringSize);
-        updateItem({ boringSize: newBoringSize });
+        setHinge(newBoringSize);
+        updateItem({ hinge: newBoringSize });
     };
 
     const handleRequestChange = (newRequest: string) => {
-        setRequest(newRequest);
-        updateItem({ request: newRequest });
+        setDoorRequest(newRequest);
+        updateItem({ door_request: newRequest });
     };
 
     const handleDoorLocationChange = (newLocation: string) => {
@@ -120,8 +120,8 @@ function StandardDoorPageContent() {
                 <BoxedSelect
                     label="색상"
                     options={[]}
-                    value={formatColor(item?.color ?? "")}
-                    onClick={() => router.back()}
+                    value={formatColor(item?.color ?? "") || item?.door_color_direct_input || ""}
+                    onClick={() => router.push("/door/color")}
                     onChange={() => { }}
                     truncate={true}
                 />
@@ -183,7 +183,7 @@ function StandardDoorPageContent() {
                         DoorHeight={door_height}
                         boringDirection={hinge_direction}
                         boringNum={boringNum}
-                        boringSize={boringSize}
+                        boringSize={hinge}
                         onChangeBoringSize={handleBoringSizeChange}
                         doorColor={item?.color ?? ""}
                     />
@@ -220,7 +220,7 @@ function StandardDoorPageContent() {
                 <BoxedInput
                     label="제작 시 요청사항"
                     placeholder="제작 시 요청사항 | 예) 시공도 필요해요, …"
-                    value={request}
+                    value={door_request}
                     onChange={e => handleRequestChange(e.target.value)}
                 />
             </div>

@@ -3,14 +3,14 @@ import { useEffect, useState } from "react";
 interface UseDoorValidationProps {
   DoorWidth: number | null;
   DoorHeight: number | null;
-  boringSize: (number | null)[];
+  hinge: (number | null)[];
   boringNum: 2 | 3 | 4;
 }
 
 export function useDoorValidation({
   DoorWidth,
   DoorHeight,
-  boringSize,
+  hinge,
   boringNum,
 }: UseDoorValidationProps) {
   const [widthError, setWidthError] = useState<string>("");
@@ -48,8 +48,8 @@ export function useDoorValidation({
 
   // 보링 위치 유효성 검사 (일반문만)
   useEffect(() => {
-    if (boringSize.length > 0 && DoorHeight !== null) {
-      const [firstHinge, secondHinge, thirdHinge, fourthHinge] = boringSize;
+    if (hinge.length > 0 && DoorHeight !== null) {
+      const [firstHinge, secondHinge, thirdHinge, fourthHinge] = hinge;
 
       let errorMessage = "";
 
@@ -95,14 +95,14 @@ export function useDoorValidation({
     } else {
       setBoringError("");
     }
-  }, [boringSize, boringNum, DoorHeight]);
+  }, [hinge, boringNum, DoorHeight]);
 
   // 일반문 유효성 검사
   const isFormValid = () => {
     return (
       DoorWidth === null ||
       DoorHeight === null ||
-      boringSize.some(v => v === null) ||
+      hinge.some(v => v === null) ||
       !!widthError ||
       !!heightError ||
       !!boringError
