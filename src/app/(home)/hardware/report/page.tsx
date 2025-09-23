@@ -1,63 +1,200 @@
 "use client";
 
-import { HardwareMadeBy, HingeThickness, HingeAngle } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
-import BottomButton from "@/components/BottomButton/BottomButton";
-import Header from "@/components/Header/Header";
-import TopNavigator from "@/components/TopNavigator/TopNavigator";
-import BoxedSelect from "@/components/Select/BoxedSelect";
-import BoxedInput from "@/components/Input/BoxedInput";
 
-function HingePageContent() {
+import BottomButton from "@/components/BottomButton/BottomButton";
+import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
+import Header from "@/components/Header/Header";
+import OrderSummaryCard from "@/components/OrderSummaryCard";
+import TopNavigator from "@/components/TopNavigator/TopNavigator";
+
+import { HardwareType, RailType, RailLength } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import { HardwareMadeBy, HingeThickness, HingeAngle } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+
+import { Hinge } from "dooring-core-domain/dist/models/InteriorMaterials/Hardware/Hinge";
+import { Rail } from "dooring-core-domain/dist/models/InteriorMaterials/Hardware/Rail";
+import { Piece } from "dooring-core-domain/dist/models/InteriorMaterials/Hardware/Piece";
+import useItemStore from "@/store/Items/itemStore";
+import useCartStore from "@/store/cartStore";
+import { CrudInteriorMaterialsUsecase } from "@/DDD/usecase/crud_interior_materials_usecase";
+import { InteriorMaterialsSupabaseRepository } from "@/DDD/data/db/interior_materials_supabase_repository";
+import { CartItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/CartItem";
+import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
+import { CrudCartItemUsecase } from "@/DDD/usecase/crud_cart_item_usecase";
+import { CartItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/cartitem_supabase_repository";
+import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
+import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_repository";
+
+function createHardwareInstance(item: any) {
+  switch (item.type) {
+    case HardwareType.HINGE:
+      // enum의 DIRECT_INPUT일 때는 enum 필드는 DIRECT_INPUT, *_direct_input만 값 전달
+      const isMadebyDirect = item.madeby === HardwareMadeBy.DIRECT_INPUT;
+      const isThicknessDirect = item.thickness === HingeThickness.DIRECT_INPUT;
+      const isAngleDirect = item.angle === HingeAngle.DIRECT_INPUT;
+      // 방어: "직접 입력" 같은 잘못된 값이 enum에 들어가지 않도록
+      // finish 방식처럼: 직접입력이면 enum은 undefined, *_direct_input만 값 전달
+      const isEmptyOrPlaceholder = (val: string | undefined) => !val || val === "직접 입력";
+      return new Hinge({
+        hardware_request: item.request,
+        hinge_madeby: (Object.values(HardwareMadeBy).includes(item.madeby) ? item.madeby : undefined),
+        hinge_thickness: (Object.values(HingeThickness).includes(item.thickness) ? item.thickness : undefined),
+        hinge_angle: (Object.values(HingeAngle).includes(item.angle) ? item.angle : undefined),
+        hinge_madeby_direct_input: isMadebyDirect && !isEmptyOrPlaceholder(item.madebyInput) ? item.madebyInput : undefined,
+        hinge_thickness_direct_input: isThicknessDirect && !isEmptyOrPlaceholder(item.thicknessInput) ? item.thicknessInput : undefined,
+        hinge_angle_direct_input: isAngleDirect && !isEmptyOrPlaceholder(item.angleInput) ? item.angleInput : undefined,
+      });
+    case HardwareType.RAIL: {
+      // enum의 DIRECT_INPUT일 때는 enum 필드는 undefined, *_direct_input만 값 전달
+      const isMadebyDirect = item.madeby === HardwareMadeBy.DIRECT_INPUT;
+      const isTypeDirect = item.railType === RailType.DIRECT_INPUT;
+      const isLengthDirect = item.railLength === RailLength.DIRECT_INPUT;
+      const isEmptyOrPlaceholder = (val: string | undefined) => !val || val === "직접 입력";
+      return new Rail({
+        hardware_request: item.request,
+        rail_madeby: (Object.values(HardwareMadeBy).includes(item.madeby) ? item.madeby : undefined),
+        rail_type: (Object.values(RailType).includes(item.railType) ? item.railType : undefined),
+        rail_length: (Object.values(RailLength).includes(item.railLength) ? item.railLength : undefined),
+        rail_damping: item.railDamping,
+        rail_madeby_direct_input: isMadebyDirect && !isEmptyOrPlaceholder(item.madebyInput) ? item.madebyInput : undefined,
+        rail_type_direct_input: isTypeDirect && !isEmptyOrPlaceholder(item.railTypeInput) ? item.railTypeInput : undefined,
+        rail_length_direct_input: isLengthDirect && !isEmptyOrPlaceholder(item.railLengthInput) ? item.railLengthInput : undefined,
+      });
+    }
+    case HardwareType.PIECE:
+      // Piece 네임드 파라미터(객체 리터럴) 생성 방식
+      return new Piece({
+        hardware_request: item.request,
+        piece_color: item.color,
+        piece_size: item.size,
+      });
+    default:
+      throw new Error("Unknown hardware type");
+  }
+}
+
+function ReportPageContent() {
   const router = useRouter();
-  // hinge 입력값: enum 기반 select와 textarea만 사용, zustand cart 사용 안함
-  const [madeby, setMadeby] = useState<HardwareMadeBy | "">("");
-  const [thickness, setThickness] = useState<HingeThickness | "">("");
-  const [angle, setAngle] = useState<HingeAngle | "">("");
-  const [request, setRequest] = useState("");
-  const headerTitle = "경첩 정보";
+  const { item } = useItemStore();
+  const { cart, setCartItems, cartItems } = useCartStore();
+  const [quantity, setQuantity] = useState(1);
+
+  // 빌드 시점에 cart가 비어있을 수 있으므로 안전한 처리
+  if (!item || Object.keys(item).length === 0) {
+    return <div>로딩 중...</div>;
+  }
+
+  // TODO: 단가 계산 함수 필요시 추가
+  const unitPrice = 0; // 하드웨어 단가 계산 함수로 대체
 
   return (
-    <div>
+    <div className="flex flex-col">
       <TopNavigator />
-      <Header size="Large" title={`${headerTitle}를 입력해주세요`} />
-      <div className="h-5"></div>
-      <div className="flex flex-col gap-5 px-5">
-        <BoxedSelect
-          label="제조사"
-          value={madeby}
-          options={(Object.values(HardwareMadeBy) as string[]).map(v => ({ label: v, value: v }))}
-          onChange={v => setMadeby(v as HardwareMadeBy)}
+      <Header
+        size="Large"
+        title={(() => {
+          const slug = item?.type?.slug;
+          return `${item.type} 주문 개수를 선택해주세요`;
+        })()}
+      />
+      <div className="flex flex-col gap-[20px] px-5 pb-[100px] pt-5">
+        <ShoppingCartCard
+          type="hardware"
+          title={item?.type ?? ""}
+          manufacturer={(() => {
+            if (item?.madeby === HardwareMadeBy.DIRECT_INPUT) return item?.madebyInput || "";
+            return item?.madeby ?? "";
+          })()}
+          thickness={(() => {
+            if (item?.thickness === HingeThickness.DIRECT_INPUT) return item?.thicknessInput || "";
+            return item?.thickness ?? "";
+          })()}
+          angle={(() => {
+            if (item?.angle === HingeAngle.DIRECT_INPUT) return item?.angleInput || "";
+            return item?.angle ?? "";
+          })()}
+          railType={item?.railType === RailType.DIRECT_INPUT ? item?.railTypeInput || "" : item?.railType ?? ""}
+          railLength={item?.railLength === RailLength.DIRECT_INPUT ? item?.railLengthInput || "" : item?.railLength ?? ""}
+          color={item?.color ?? ""}
+          size={item?.size ?? ""}
+          railDamping={item?.railType === RailType.BALL ? item?.railDamping ?? "" : undefined}
+          request={item?.request ?? undefined}
+          quantity={0}
+          trashable={false}
+          showQuantitySelector={false}
+          onOptionClick={() => {
+            router.push(`/hardware/${item?.type ?? "hinge"}`);
+          }}
         />
-        <BoxedSelect
-          label="합판 두께"
-          value={thickness}
-          options={(Object.values(HingeThickness) as string[]).map(v => ({ label: v, value: v }))}
-          onChange={v => setThickness(v as HingeThickness)}
-        />
-        <BoxedSelect
-          label="각도"
-          value={angle}
-          options={(Object.values(HingeAngle) as string[]).map(v => ({ label: v, value: v }))}
-          onChange={v => setAngle(v as HingeAngle)}
-        />
-        <BoxedInput
-          label="제작 시 요청사항"
-          placeholder="제작 시 요청사항을 입력해주세요"
-          value={request}
-          onChange={e => setRequest(e.target.value)}
+        <OrderSummaryCard
+          quantity={quantity}
+          unitPrice={unitPrice}
+          onIncrease={() => setQuantity(q => q + 1)}
+          onDecrease={() => setQuantity(q => Math.max(1, q - 1))}
         />
       </div>
-      <div id="hardware-next-button">
+      <div id="hardware-add-to-cart-button">
         <BottomButton
           type={"1button"}
-          button1Text={"다음"}
+          button1Text={"장바구니 담기"}
           className="fixed bottom-0 w-full max-w-[460px]"
-          button1Disabled={madeby === "" || thickness === "" || angle === ""}
-          onButton1Click={() => {
-            // TODO: 다음 페이지로 정보 전달 (예: router.push에 state/params 전달)
-            router.push(`/order/hardware/confirm`);
+          onButton1Click={async () => {
+            console.log(item!);
+            try {
+              // 하드웨어 객체 생성
+              const hardware = createHardwareInstance(item);
+
+              // Supabase에 저장
+              const createdHardware = await new CrudInteriorMaterialsUsecase(
+                new InteriorMaterialsSupabaseRepository<typeof hardware>(hardware.constructor.name)
+              ).create(hardware);
+
+              // cart, cartItems, setCartItems는 useCartStore에서 가져옴
+              if (!cart) throw new Error("장바구니 정보가 없습니다.");
+
+              // CartItem 생성
+              // id 접근: protected라면 createdHardware["id"]로 접근
+              // detail_product_type은 HINGE, RAIL, PIECE 중 하나여야 함
+              let detailProductType;
+              switch (item.type) {
+                case HardwareType.HINGE:
+                  detailProductType = DetailProductType.HINGE;
+                  break;
+                case HardwareType.RAIL:
+                  detailProductType = DetailProductType.RAIL;
+                  break;
+                case HardwareType.PIECE:
+                  detailProductType = DetailProductType.PIECE;
+                  break;
+                default:
+                  throw new Error("Unknown hardware type for cart item");
+              }
+              const cartItem = new CartItem({
+                cart_id: cart!.id!,
+                item_detail: createdHardware["id"]!,
+                detail_product_type: detailProductType,
+                item_count: quantity,
+                unit_price: unitPrice,
+              });
+              const createdCartItem = await new CrudCartItemUsecase(
+                new CartItemSupabaseRepository()
+              ).create(cartItem);
+
+              // cart_count 증가
+              const cartCountResponse = await new CrudCartUsecase(
+                new CartSupabaseRepository()
+              ).incrementCartCount(cart.id!, quantity);
+
+              // 전역변수에 추가
+              setCartItems([...cartItems, createdCartItem]);
+
+              // 장바구니 페이지로 이동
+              useItemStore.setState({ item: undefined });
+              router.replace("/cart");
+            } catch (error: any) {
+              console.error("장바구니 담기 실패:", error);
+            }
           }}
         />
       </div>
@@ -65,12 +202,12 @@ function HingePageContent() {
   );
 }
 
-function HardwarePage() {
+function ReportPage() {
   return (
     <Suspense fallback={<div>로딩 중...</div>}>
-      <HingePageContent />
+      <ReportPageContent />
     </Suspense>
   );
 }
 
-export default HardwarePage;
+export default ReportPage;

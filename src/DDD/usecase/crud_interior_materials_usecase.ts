@@ -1,7 +1,7 @@
 import { InteriorMaterialsRepository } from "@/DDD/repository/db/InteriorMaterials/repository";
 
 export class CrudInteriorMaterialsUsecase<T> {
-    constructor(private readonly repository: InteriorMaterialsRepository<T>) { }
+    constructor(public readonly repository: InteriorMaterialsRepository<T>) { }
 
     async create(item: T): Promise<T> {
         try {
