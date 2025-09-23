@@ -32,6 +32,17 @@ function HingePageContent() {
   const [madebyInput, setMadebyInput] = React.useState("");
   const [thicknessInput, setThicknessInput] = React.useState("");
   const [angleInput, setAngleInput] = React.useState("");
+
+  // itemStore에 직접입력값 동기화
+  React.useEffect(() => {
+    if (madebyMode === "input") updateItem({ madebyInput });
+  }, [madebyInput, madebyMode]);
+  React.useEffect(() => {
+    if (thicknessMode === "input") updateItem({ thicknessInput });
+  }, [thicknessInput, thicknessMode]);
+  React.useEffect(() => {
+    if (angleMode === "input") updateItem({ angleInput });
+  }, [angleInput, angleMode]);
   // refs for focusing
   const madebyInputRef = useRef<HTMLInputElement>(null);
   const thicknessInputRef = useRef<HTMLInputElement>(null);
@@ -43,6 +54,10 @@ function HingePageContent() {
   const thickness = item?.thickness ?? "";
   const angle = item?.angle ?? "";
   const request = item?.request ?? "";
+  // 직접입력값도 item에서 추출
+  const madebyInputVal = item?.madebyInput ?? "";
+  const thicknessInputVal = item?.thicknessInput ?? "";
+  const angleInputVal = item?.angleInput ?? "";
 
   const isAnySheetOpen = isMadebySheetOpen || isThicknessSheetOpen || isAngleSheetOpen;
   return (
@@ -55,26 +70,26 @@ function HingePageContent() {
           label="제조사"
           value={(() => {
             const v = isMadebySheetOpen && madebyMode === "input" ? madebyInput : madeby;
-            if (v === "문주") return "국산 (문주) + 1,500원";
-            if (v === "헤펠레") return "헤펠레 (Haffle) + 2,500원";
-            if (v === "블룸") return "블룸 (Blum) + 10,500원";
+            if (v === HardwareMadeBy.MOONJOO) return "국산 (문주) + 1,500원";
+            if (v === HardwareMadeBy.HAFFLE) return "헤펠레 (Haffle) + 2,500원";
+            if (v === HardwareMadeBy.BLUM) return "블룸 (Blum) + 10,500원";
             return v;
           })()}
-          options={(Object.values(HardwareMadeBy) as string[]).map(v => ({ label: v, value: v }))}
+          options={Object.values(HardwareMadeBy).map(v => ({ label: v, value: v }))}
           onClick={() => setIsMadebySheetOpen(true)}
           onChange={() => {}}
         />
         <BoxedSelect
           label="합판 두께"
           value={isThicknessSheetOpen && thicknessMode === "input" ? thicknessInput : thickness}
-          options={(Object.values(HingeThickness) as string[]).map(v => ({ label: v, value: v }))}
+          options={Object.values(HingeThickness).map(v => ({ label: v, value: v }))}
           onClick={() => setIsThicknessSheetOpen(true)}
           onChange={() => {}}
         />
         <BoxedSelect
           label="각도"
           value={isAngleSheetOpen && angleMode === "input" ? angleInput : angle}
-          options={(Object.values(HingeAngle) as string[]).map(v => ({ label: v, value: v }))}
+          options={Object.values(HingeAngle).map(v => ({ label: v, value: v }))}
           onClick={() => setIsAngleSheetOpen(true)}
           onChange={() => {}}
         />
@@ -97,13 +112,13 @@ function HingePageContent() {
         children={
           <div>
             <div>
-              {(Object.values(HardwareMadeBy) as string[])
-                .filter(option => option !== "직접 입력")
+              {Object.values(HardwareMadeBy)
+                .filter(option => option !== HardwareMadeBy.DIRECT_INPUT)
                 .map(option => {
-                  let label = option;
-                  if (option === "문주") label = "국산 (문주) + 1,500원";
-                  if (option === "헤펠레") label = "헤펠레 (Haffle) + 2,500원";
-                  if (option === "블룸") label = "블룸 (Blum) + 10,500원";
+                  let label = "";
+                  if (option === HardwareMadeBy.MOONJOO) label = "국산 (문주) + 1,500원";
+                  if (option === HardwareMadeBy.HAFFLE) label = "헤펠레 (Haffle) + 2,500원";
+                  if (option === HardwareMadeBy.BLUM) label = "블룸 (Blum) + 10,500원";
                   return (
                     <SelectToggleButton
                       key={option}
@@ -123,7 +138,7 @@ function HingePageContent() {
                   checked={madebyMode === "input"}
                   onClick={() => {
                     setMadebyMode("input");
-                    updateItem({ madeby: "" });
+                    updateItem({ madeby: HardwareMadeBy.DIRECT_INPUT });
                     setTimeout(() => madebyInputRef.current?.focus(), 0);
                   }}
                 />
@@ -168,8 +183,8 @@ function HingePageContent() {
         children={
           <div>
             <div>
-              {(Object.values(HingeThickness) as string[])
-                .filter(option => option !== "직접 입력")
+              {Object.values(HingeThickness)
+                .filter(option => option !== HingeThickness.DIRECT_INPUT)
                 .map(option => (
                   <SelectToggleButton
                     key={option}
@@ -188,7 +203,7 @@ function HingePageContent() {
                   checked={thicknessMode === "input"}
                   onClick={() => {
                     setThicknessMode("input");
-                    updateItem({ thickness: "" });
+                    updateItem({ thickness: HingeThickness.DIRECT_INPUT });
                     setTimeout(() => thicknessInputRef.current?.focus(), 0);
                   }}
                 />
@@ -233,8 +248,8 @@ function HingePageContent() {
         children={
           <div>
             <div>
-              {(Object.values(HingeAngle) as string[])
-                .filter(option => option !== "직접 입력")
+              {Object.values(HingeAngle)
+                .filter(option => option !== HingeAngle.DIRECT_INPUT)
                 .map(option => (
                   <SelectToggleButton
                     key={option}
@@ -253,7 +268,7 @@ function HingePageContent() {
                   checked={angleMode === "input"}
                   onClick={() => {
                     setAngleMode("input");
-                    updateItem({ angle: "" });
+                    updateItem({ angle: HingeAngle.DIRECT_INPUT });
                     setTimeout(() => angleInputRef.current?.focus(), 0);
                   }}
                 />
