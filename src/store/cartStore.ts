@@ -1,22 +1,15 @@
-// interface CartStore {
-//   cartItems: any[];
-//   setCartItems: (items: any[]) => void;
-// }
-// const useCartStore = create<CartStore>((set) => ({
-//   cartItems: [],
-//   setCartItems: (items) => set({ cartItems: items }),
-// }));
-// export default useCartStore;
 import { Cart } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Cart";
+import { CartItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/CartItem";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 interface CartStore {
   cart: Cart | null;
   setCart: (cart: Cart) => void;
-  cartItems: any[];
+  cartItems: CartItem[];
+  //cartItems 배열 길이가 cart_count
   cartId: string | null;
-  setCartItems: (items: any[]) => void;
+  setCartItems: (items: CartItem[]) => void;
   setCartId: (id: string) => void;
   clearCartItems: () => void;
 }

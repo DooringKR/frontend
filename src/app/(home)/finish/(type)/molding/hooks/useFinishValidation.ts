@@ -1,3 +1,4 @@
+import { FinishEdgeCount } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import { useEffect, useState } from "react";
 
 interface UseFinishValidationProps {
@@ -5,7 +6,7 @@ interface UseFinishValidationProps {
   height: number | null;
   depthIncrease: number | null;
   heightIncrease: number | null;
-  edgeCount: number | null;
+  edgeCount: FinishEdgeCount | null;
 }
 
 export function useFinishValidation({
