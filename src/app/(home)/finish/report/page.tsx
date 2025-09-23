@@ -31,20 +31,6 @@ function ReportPageContent() {
         return colorItem?.id;
     };
 
-    // category에 따른 FinishType 매핑 함수
-    const getFinishTypeFromCategory = (categorySlug: string | null | undefined): FinishType => {
-        switch (categorySlug) {
-            case "ep":
-                return FinishType.EP;
-            case "molding":
-                return FinishType.MOLDING;
-            case "galle":
-                return FinishType.GALLE;
-            default:
-                return FinishType.EP; // 기본값
-        }
-    };
-
     // 빌드 시점에 cart가 비어있을 수 있으므로 안전한 처리
     if (!item || Object.keys(item).length === 0) {
         return <div>로딩 중...</div>;
@@ -103,12 +89,9 @@ function ReportPageContent() {
                             // color 문자열을 id로 변환
                             const colorId = getColorId(item.color ?? "");
 
-                            // category에 맞는 FinishType 가져오기
-                            const finishType = item.enum_type || getFinishTypeFromCategory(item.type);
-
                             // dooring-core-domain의 Finish 클래스를 사용하여 finish 객체 생성
                             const finish = new Finish({
-                                finish_type: finishType, // 올바른 FinishType 사용
+                                finish_type: item.type, // 올바른 FinishType 사용
                                 finish_color: colorId, // color.id로 변경 (없으면 undefined)
                                 finish_edge_count: item.edgeCount!,
                                 finish_base_depth: item.depth!,

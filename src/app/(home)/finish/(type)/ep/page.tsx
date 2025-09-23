@@ -231,11 +231,6 @@ function EdgeCountSheet({
     value: string | null;
     onChange: (v: FinishEdgeCount) => void;
 }) {
-    const options = [
-        { value: FinishEdgeCount.TWO, label: "2면" },
-        { value: FinishEdgeCount.FOUR, label: "4면" },
-    ];
-
     return (
         <BottomSheet
             isOpen={isOpen}

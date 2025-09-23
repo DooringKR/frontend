@@ -1,6 +1,5 @@
 "use client";
 
-import { FINISH_CATEGORY_LIST } from "@/constants/category";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
@@ -13,15 +12,13 @@ import BoxedInput from "@/components/Input/BoxedInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
-import { FinishCart, useSingleCartStore } from "@/store/singleCartStore";
 import formatColor from "@/utils/formatColor";
 import formatLocation from "@/utils/formatLocation";
-
+import { FinishEdgeCount, Location } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import useItemStore from "@/store/Items/itemStore";
+import { useFinishValidation } from "./hooks/useFinishValidation";
 import DepthInputSection from "./_components/DepthInputSection";
 import HeightInputSection from "./_components/HeightInputSection";
-// Hooks
-import { useFinishValidation } from "./hooks/useFinishValidation";
-import { FinishEdgeCount, Location } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 // Location enum을 사용하여 options 생성
 const getLocationOptions = () => {
@@ -35,30 +32,30 @@ const getLocationOptions = () => {
 };
 
 function FinishPageContent() {
-    const category = useSingleCartStore(state => (state.cart as FinishCart).category);
-    const color = useSingleCartStore(state => (state.cart as FinishCart).color);
-    const setCart = useSingleCartStore(state => state.setCart);
+    const item = useItemStore(state => state.item);
+    const updateItem = useItemStore(state => state.updateItem);
     const router = useRouter();
-    const [depth, setDepth] = useState<string | null>(
-        useSingleCartStore(state => (state.cart as FinishCart).depth?.toString() ?? null),
-    );
-    const [height, setHeight] = useState<string | null>(
-        useSingleCartStore(state => (state.cart as FinishCart).height?.toString() ?? null),
-    );
     const [edgeCount, setEdgeCount] = useState<FinishEdgeCount | null>(
-        useSingleCartStore(state => (state.cart as FinishCart).edge_count ?? null),
+        item?.edgeCount ?? null,
+    );
+    const [depth, setDepth] = useState<number | null>(
+        item?.depth ?? null,
+    );
+    const [depthIncrease, setDepthIncrease] = useState<number | null>(
+        item?.depthIncrease ?? null,
+    );
+    const [height, setHeight] = useState<number | null>(
+        item?.height ?? null,
+    );
+    const [heightIncrease, setHeightIncrease] = useState<number | null>(
+        item?.heightIncrease ?? null,
     );
     const [request, setRequest] = useState<string | null>(
-        useSingleCartStore(state => (state.cart as FinishCart).request) ?? null,
+        item?.request ?? null,
     );
-    const [depthIncrease, setDepthIncrease] = useState<string | null>(
-        useSingleCartStore(state => (state.cart as FinishCart).depthIncrease?.toString() ?? null),
-    );
-    const [heightIncrease, setHeightIncrease] = useState<string | null>(
-        useSingleCartStore(state => (state.cart as FinishCart).heightIncrease?.toString() ?? null),
-    );
+
     const [finish_location, setFinishLocation] = useState<Location | null>(
-        useSingleCartStore(state => (state.cart as FinishCart).finish_location ?? null),
+        item?.finish_location ?? null,
     );
     const [isDepthIncrease, setIsDepthIncrease] = useState(false);
     const [isHeightIncrease, setIsHeightIncrease] = useState(false);
@@ -67,11 +64,11 @@ function FinishPageContent() {
 
     // 유효성 검사 훅 사용
     const { depthError, heightError, isFormValid } = useFinishValidation({
-        edgeCount: edgeCount ? Number(edgeCount) : null,
-        depth: depth ? Number(depth) : null,
-        height: height ? Number(height) : null,
-        depthIncrease: depthIncrease ? Number(depthIncrease) : null,
-        heightIncrease: heightIncrease ? Number(heightIncrease) : null,
+        edgeCount: edgeCount ?? null,
+        depth: depth,
+        height: height,
+        depthIncrease: depthIncrease,
+        heightIncrease: heightIncrease,
     });
 
     // 동기화
@@ -79,8 +76,7 @@ function FinishPageContent() {
         setIsDepthIncrease(
             depthIncrease !== null &&
             depthIncrease !== undefined &&
-            depthIncrease !== "" &&
-            Number(depthIncrease) !== 0,
+            depthIncrease !== 0,
         );
     }, [depthIncrease]);
 
@@ -88,45 +84,72 @@ function FinishPageContent() {
         setIsHeightIncrease(
             heightIncrease !== null &&
             heightIncrease !== undefined &&
-            heightIncrease !== "" &&
-            Number(heightIncrease) !== 0,
+            heightIncrease !== 0,
         );
     }, [heightIncrease]);
+
+    // 엣지 면 수 변경 시 useItemStore에 저장
+    const handleEdgeCountChange = (newEdgeCount: FinishEdgeCount) => {
+        setEdgeCount(newEdgeCount);
+        updateItem({ edgeCount: newEdgeCount });
+    };
+
+    const handleDepthChange = (newDepth: number | null) => {
+        setDepth(newDepth);
+        updateItem({ depth: newDepth });
+    };
+
+    const handleDepthIncreaseChange = (newDepthIncrease: number | null) => {
+        setDepthIncrease(newDepthIncrease);
+        updateItem({ depthIncrease: newDepthIncrease });
+    };
+
+    const handleFinishLocationChange = (newFinishLocation: Location | null) => {
+        setFinishLocation(newFinishLocation);
+        updateItem({ finish_location: newFinishLocation });
+    };
+
+    const handleHeightChange = (newHeight: number | null) => {
+        setHeight(newHeight);
+        updateItem({ height: newHeight });
+    };
+
+    const handleHeightIncreaseChange = (newHeightIncrease: number | null) => {
+        setHeightIncrease(newHeightIncrease);
+        updateItem({ heightIncrease: newHeightIncrease });
+    };
 
     return (
         <div className="flex flex-col">
             <TopNavigator />
             <Header
                 size="Large"
-                title={`${FINISH_CATEGORY_LIST.find(item => item.slug === category)?.header ?? ""
-                    } 정보를 입력해주세요`}
+                title={`${item?.type} 정보를 입력해주세요`}
             />
             <div className="h-5"></div>
             <div className="flex flex-col gap-5 px-5">
-                <BoxedSelect label="색상" value={formatColor(color ?? "")} onClick={() => router.back()} />
+                <BoxedSelect label="색상" value={formatColor(item?.color ?? "") || item?.finish_color_direct_input || ""} onClick={() => router.back()} />
                 <BoxedSelect
                     label="엣지 면 수"
-                    value={edgeCount ? (edgeCount === FinishEdgeCount.TWO ? "2면" : "4면") : ""}
+                    value={edgeCount?.toString() ?? ""}
                     onClick={() => setIsEdgeCountSheetOpen(true)}
                 />
                 <DepthInputSection
-                    category={category ?? ""}
-                    depth={depth ? Number(depth) : null}
-                    setDepth={e => setDepth(e?.toString() ?? null)}
-                    isDepthIncrease={category === "galle" ? false : isDepthIncrease}
+                    depth={depth}
+                    setDepth={handleDepthChange}
+                    isDepthIncrease={isDepthIncrease}
                     setIsDepthIncrease={setIsDepthIncrease}
-                    depthIncrease={depthIncrease ? Number(depthIncrease) : null}
-                    setDepthIncrease={e => setDepthIncrease(e?.toString() ?? null)}
+                    depthIncrease={depthIncrease}
+                    setDepthIncrease={handleDepthIncreaseChange}
                     depthError={depthError}
                 />
                 <HeightInputSection
-                    category={category ?? ""}
-                    height={height ? Number(height) : null}
-                    setHeight={e => setHeight(e?.toString() ?? null)}
+                    height={height}
+                    setHeight={handleHeightChange}
                     isHeightIncrease={isHeightIncrease}
                     setIsHeightIncrease={setIsHeightIncrease}
-                    heightIncrease={heightIncrease ? Number(heightIncrease) : null}
-                    setHeightIncrease={e => setHeightIncrease(e?.toString() ?? null)}
+                    heightIncrease={heightIncrease}
+                    setHeightIncrease={handleHeightIncreaseChange}
                     heightError={heightError}
                 />
                 <BoxedSelect
@@ -140,13 +163,13 @@ function FinishPageContent() {
                     isOpen={isFinishLocationSheetOpen}
                     onClose={() => setIsFinishLocationSheetOpen(false)}
                     value={finish_location}
-                    onChange={setFinishLocation}
+                    onChange={handleFinishLocationChange}
                 />
                 <EdgeCountSheet
                     isOpen={isEdgeCountSheetOpen}
                     onClose={() => setIsEdgeCountSheetOpen(false)}
                     value={edgeCount}
-                    onChange={setEdgeCount}
+                    onChange={handleEdgeCountChange}
                 />
                 <BoxedInput
                     label="제작 시 요청사항"
@@ -164,19 +187,19 @@ function FinishPageContent() {
                         className="fixed bottom-0 w-full max-w-[460px]"
                         button1Disabled={isFormValid()}
                         onButton1Click={() => {
-                            setCart({
-                                type: "finish",
-                                category: category,
-                                color: color,
-                                edge_count: edgeCount,
-                                depth: depth ? Number(depth) : null,
-                                height: height ? Number(height) : null,
-                                depthIncrease: depthIncrease ? Number(depthIncrease) : null,
-                                heightIncrease: heightIncrease ? Number(heightIncrease) : null,
-                                request: request,
-                                finish_location: finish_location,
-                            });
-                            router.push(`/order/finish/confirm`);
+                            // setCart({
+                            //     type: "finish",
+                            //     category: category,
+                            //     // color: item?.color ?? "",
+                            //     edge_count: edgeCount,
+                            //     depth: depth,
+                            //     height: height,
+                            //     depthIncrease: depthIncrease,
+                            //     heightIncrease: heightIncrease,
+                            //     request: request,
+                            //     finish_location: finish_location,
+                            // });
+                            router.push(`/finish/report`);
                         }}
                     />
                 </div>
@@ -190,6 +213,57 @@ function FinishPage() {
         <Suspense fallback={<div>로딩 중...</div>}>
             <FinishPageContent />
         </Suspense>
+    );
+}
+
+
+// 엣지 면 수 선택 시트 컴포넌트
+function EdgeCountSheet({
+    isOpen,
+    onClose,
+    value,
+    onChange,
+}: {
+    isOpen: boolean;
+    onClose: () => void;
+    value: string | null;
+    onChange: (v: FinishEdgeCount) => void;
+}) {
+
+    return (
+        <BottomSheet
+            isOpen={isOpen}
+            title="엣지 면 수를 선택해주세요"
+            contentPadding="px-1"
+            children={
+                <div>
+                    <div>
+                        <SelectToggleButton
+                            key={FinishEdgeCount.TWO}
+                            label={FinishEdgeCount.TWO}
+                            checked={value === FinishEdgeCount.TWO}
+                            onClick={() => onChange(FinishEdgeCount.TWO)}
+                        />
+                        <SelectToggleButton
+                            key={FinishEdgeCount.FOUR}
+                            label={FinishEdgeCount.FOUR}
+                            checked={value === FinishEdgeCount.FOUR}
+                            onClick={() => onChange(FinishEdgeCount.FOUR)}
+                        />
+                        <div className="p-5">
+                            <Button
+                                type="Brand"
+                                text="다음"
+                                onClick={() => {
+                                    onClose();
+                                }}
+                            />
+                        </div>
+                    </div>
+                </div>
+            }
+            onClose={onClose}
+        />
     );
 }
 
@@ -240,66 +314,5 @@ function FinishLocationSheet({
     );
 }
 
-// 엣지 면 수 선택 시트 컴포넌트
-function EdgeCountSheet({
-    isOpen,
-    onClose,
-    value,
-    onChange,
-}: {
-    isOpen: boolean;
-    onClose: () => void;
-    value: string | null;
-    onChange: (v: FinishEdgeCount) => void;
-}) {
-    const options = [
-        { value: FinishEdgeCount.TWO, label: "2면" },
-        { value: FinishEdgeCount.FOUR, label: "4면" },
-    ];
-
-    return (
-        <BottomSheet
-            isOpen={isOpen}
-            title="엣지 면 수를 선택해주세요"
-            contentPadding="px-1"
-            children={
-                <div>
-                    <div>
-                        <SelectToggleButton
-                            key={FinishEdgeCount.TWO}
-                            label={"2면"}
-                            checked={value === FinishEdgeCount.TWO}
-                            onClick={() => onChange(FinishEdgeCount.TWO)}
-                        />
-                        <SelectToggleButton
-                            key={FinishEdgeCount.FOUR}
-                            label={"4면"}
-                            checked={value === FinishEdgeCount.FOUR}
-                            onClick={() => onChange(FinishEdgeCount.FOUR)}
-                        />
-                        {/* {options.map(option => (
-              <SelectToggleButton
-                key={option.value}
-                label={option.label}
-                checked={value === option.value}
-                onClick={() => onChange(option.value)}
-              />
-            ))} */}
-                        <div className="p-5">
-                            <Button
-                                type="Brand"
-                                text="다음"
-                                onClick={() => {
-                                    onClose();
-                                }}
-                            />
-                        </div>
-                    </div>
-                </div>
-            }
-            onClose={onClose}
-        />
-    );
-}
 
 export default FinishPage;
