@@ -1,7 +1,7 @@
 import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 import { getPricingColorName } from "./colorMapping";
 import { CabinetHandleType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
-
+import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
 /**
  * 부분장 가격 계산
  */
@@ -9,7 +9,7 @@ export function calculateUnitCabinetPrice(
   category: DetailProductType,
   color: string,
   width: number,
-  bodyType: string,
+  bodyType: number,
   handleType: CabinetHandleType,
   depth: number,
 
@@ -184,29 +184,35 @@ function calculateDoorPrice(color: string): number {
 /**
  * 바디 소재별 가격 계산
  */
-function calculateBodyPrice(bodyType: string): number {
-  switch (bodyType) {
-    case "헤링본 PP 15T":
+function calculateBodyPrice(bodyType: number): number {
+  const material = BODY_MATERIAL_LIST.find((m) => m.id === bodyType);
+  if (!material) return 0;
+  switch (material.name) {
+    case "헤링본 PB 15T":
       return 0;
-    case "헤링본 PP 18T":
+    case "헤링본 PB 18T":
       return 45000;
-    case "파타고니아 크림 LPM 18T":
+    case "한솔 파타고니아크림 LPM 18T":
       return 75000;
-    // 직접 입력
+    case "직접입력":
+      return 0;
     default:
       return 0;
   }
 }
 
-function calculateBodyWeight(bodyType: string): number {
-  switch (bodyType) {
-    case "헤링본 PP 15T":
+function calculateBodyWeight(bodyType: number): number {
+  const material = BODY_MATERIAL_LIST.find((m) => m.id === bodyType);
+  if (!material) return 0;
+  switch (material.name) {
+    case "헤링본 PB 15T":
       return 0;
-    case "헤링본 PP 18T":
+    case "헤링본 PB 18T":
       return 0.1;
-    case "파타고니아 크림 LPM 18T":
+    case "한솔 파타고니아크림 LPM 18T":
       return 0.2;
-    // 직접 입력
+    case "직접입력":
+      return 0;
     default:
       return 0;
   }
