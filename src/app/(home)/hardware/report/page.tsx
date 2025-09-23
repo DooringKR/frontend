@@ -1,15 +1,39 @@
 "use client";
 
-import { HardwareMadeBy, HingeThickness, HingeAngle } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import { useRouter } from "next/navigation";
-
 import { Suspense, useState } from "react";
+
 import BottomButton from "@/components/BottomButton/BottomButton";
 import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
 import Header from "@/components/Header/Header";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+
+import { HardwareType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import { Hinge } from "dooring-core-domain/dist/models/InteriorMaterials/Hardware/Hinge";
+import { Rail } from "dooring-core-domain/dist/models/InteriorMaterials/Hardware/Rail";
+import { Piece } from "dooring-core-domain/dist/models/InteriorMaterials/Hardware/Piece";
 import useItemStore from "@/store/Items/itemStore";
+
+function createHardwareInstance(item: any) {
+  switch (item.type) {
+    case HardwareType.HINGE:
+      return new Hinge(
+        undefined, // id
+        undefined, // created_at
+        item.request || undefined, // hardware_request
+        item.madeby || undefined, // hinge_madeby
+        item.thickness || undefined, // hinge_thickness
+        item.angle || undefined // hinge_angle
+      )
+    case HardwareType.RAIL:
+      return new Rail(/* 생성자 인자 */);
+    case HardwareType.PIECE:
+      return new Piece(/* 생성자 인자 */);
+    default:
+      throw new Error("Unknown hardware type");
+  }
+}
 
 function ReportPageContent() {
   const router = useRouter();
@@ -67,6 +91,8 @@ function ReportPageContent() {
           className="fixed bottom-0 w-full max-w-[460px]"
           onButton1Click={async () => {
             // TODO: 하드웨어 객체 생성 및 저장 로직 구현
+            console.log(item!);
+            
             // 예시: Supabase 저장, CartItem 생성 등
             useItemStore.setState({ item: undefined });
             router.replace("/cart");
