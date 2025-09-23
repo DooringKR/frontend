@@ -3,11 +3,12 @@ import React from "react";
 
 import { DOOR_COLOR_LIST } from "../../constants/colorList";
 import BoringInputField from "../Input/BoringInputField";
+import { HingeDirection } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 interface NormalDoorPreviewProps {
   DoorWidth: number | null; // 가로 길이, null 경우 입력 필요
   DoorHeight: number | null; // 세로 길이, null 경우 입력 필요
-  boringDirection: "left" | "right";
+  boringDirection: HingeDirection;
   boringNum: 2 | 3 | 4; // 보어링 개수는 2, 3, 4 중 하나
   boringSize: (number | null)[];
   onChangeBoringSize?: (sizes: (number | null)[]) => void;
@@ -145,7 +146,7 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
         {Array.from({ length: boringNum }).map((_, index) => {
           // boringDirection에 따라 보어링 위치 조정
           const boringOffset = 15; // 보어링이 문짝 가장자리에서 떨어진 거리
-          const centerX = boringDirection === "left" ? boringOffset : doorWidth - boringOffset;
+          const centerX = boringDirection === HingeDirection.LEFT ? boringOffset : doorWidth - boringOffset;
 
           const startY = 30;
           const endY = doorHeight - 30;
@@ -189,7 +190,7 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
                   style={{
                     position: "absolute",
                     left:
-                      boringDirection === "left"
+                      boringDirection === HingeDirection.LEFT
                         ? `${centerX + 12}px` // 좌경: 보어링 오른쪽에 화살표
                         : `${centerX - 12}px`, // 우경: 보어링 왼쪽에 화살표
                     top:
@@ -244,7 +245,7 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
                   style={{
                     position: "absolute",
                     left:
-                      boringDirection === "left"
+                      boringDirection === HingeDirection.LEFT
                         ? `${centerX + 30}px` // 좌경: 화살표 오른쪽에 툴팁
                         : `${centerX - 150}px`, // 우경: 화살표 왼쪽에 툴팁 (더 왼쪽으로)
                     top: `${y - 15}px`,
@@ -268,17 +269,17 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
                     style={{
                       position: "absolute",
                       top: "50%",
-                      left: boringDirection === "left" ? "-4px" : "auto",
-                      right: boringDirection === "left" ? "auto" : "-4px",
+                      left: boringDirection === HingeDirection.LEFT ? "-4px" : "auto",
+                      right: boringDirection === HingeDirection.LEFT ? "auto" : "-4px",
                       transform: "translateY(-50%)",
                       width: "0",
                       height: "0",
                       borderTop: "4px solid transparent",
                       borderBottom: "4px solid transparent",
                       borderLeft:
-                        boringDirection === "left" ? "none" : "4px solid rgba(0, 0, 0, 0.8)",
+                        boringDirection === HingeDirection.LEFT ? "none" : "4px solid rgba(0, 0, 0, 0.8)",
                       borderRight:
-                        boringDirection === "left" ? "4px solid rgba(0, 0, 0, 0.8)" : "none",
+                        boringDirection === HingeDirection.LEFT ? "4px solid rgba(0, 0, 0, 0.8)" : "none",
                     }}
                   />
                 </div>
@@ -309,7 +310,7 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
 
   // 방향에 따라 순서 결정
   const mainRow =
-    boringDirection === "left" ? (
+    boringDirection === HingeDirection.LEFT ? (
       <>
         <div className="flex w-[125px] flex-col pr-[12px]">{boringInputs}</div>
         <div style={{ width: `${doorContainerWidth}px` }}>{DoorImage}</div>

@@ -1,7 +1,7 @@
-import { AccessoryType, FinishType, HardwareType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import { AccessoryType, DoorType, FinishType, HardwareType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 type Category = {
-  type?: FinishType | AccessoryType | HardwareType;
+  type?: FinishType | AccessoryType | HardwareType | DoorType;
   name?: string;
   image: string;
   slug: string;
@@ -18,9 +18,9 @@ export const CATEGORY_LIST: Category[] = [
 
 
 export const DOOR_CATEGORY_LIST: Category[] = [
-  { name: "일반문 (여닫이)", image: "/img/door-category/Door.png", slug: "normal", header: "일반문" },
-  { name: "플랩문 (위로 열림)", image: "/img/door-category/FlapDoor.png", slug: "flap", header: "플랩문" },
-  { name: "서랍 마에다", image: "/img/door-category/Drawer.png", slug: "drawer", header: "서랍문" },
+  { type: DoorType.STANDARD, image: "/img/door-category/Door.png", slug: "standard" },
+  { type: DoorType.FLAP, image: "/img/door-category/FlapDoor.png", slug: "flap" },
+  { type: DoorType.DRAWER, image: "/img/door-category/Drawer.png", slug: "drawer" },
 ];
 
 export const ACCESSORY_CATEGORY_LIST: Category[] = [
@@ -30,7 +30,7 @@ export const ACCESSORY_CATEGORY_LIST: Category[] = [
 ]
 
 export const HARDWARE_CATEGORY_LIST: Category[] = [
-  { type: HardwareType.HINGE,  image: "/img/hardware-category/hinge.png", slug: "hinge" },
+  { type: HardwareType.HINGE, image: "/img/hardware-category/hinge.png", slug: "hinge" },
   { type: HardwareType.RAIL, image: "/img/hardware-category/rail.png", slug: "rail" },
   { type: HardwareType.PIECE, image: "/img/hardware-category/bolt.png", slug: "piece" },
 ]

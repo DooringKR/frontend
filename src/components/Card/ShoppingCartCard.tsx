@@ -7,7 +7,7 @@ import formatSize from "@/utils/formatSize";
 import Button from "../Button/Button";
 import DoorPreviewIcon from "../DoorPreviewIcon/DoorPreviewIcon";
 import QuantitySelector from "../QuantitySelector/QuantitySelector";
-import { FinishEdgeCount } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import { FinishEdgeCount, HingeDirection } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 interface ShoppingCartCardProps {
   type: "door" | "cabinet" | "finish" | "accessory" | "hardware";
@@ -19,7 +19,7 @@ interface ShoppingCartCardProps {
   depth?: number;
   edgeCount?: FinishEdgeCount;
   hingeCount?: number;
-  hingeDirection?: string;
+  hingeDirection?: HingeDirection;
   boring?: string | (number | null)[];
   boringCategory?: string;
   quantity: number;
