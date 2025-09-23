@@ -77,7 +77,8 @@ function createHardwareInstance(item: any) {
 function ReportPageContent() {
   const router = useRouter();
   const { item } = useItemStore();
-  const { cart, setCartItems, cartItems } = useCartStore();
+  const { cart, incrementCartCount } = useCartStore();
+
   const [quantity, setQuantity] = useState(1);
 
   // 빌드 시점에 cart가 비어있을 수 있으므로 안전한 처리
@@ -186,8 +187,8 @@ function ReportPageContent() {
                 new CartSupabaseRepository()
               ).incrementCartCount(cart.id!, quantity);
 
-              // 전역변수에 추가
-              setCartItems([...cartItems, createdCartItem]);
+              // TODO: 전역변수에 추가
+              incrementCartCount(1);
 
               // 장바구니 페이지로 이동
               useItemStore.setState({ item: undefined });
