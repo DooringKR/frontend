@@ -45,74 +45,74 @@ function createCabinetInstance(item: any) {
                 item.cabinet_behind_type,
                 item.body_material_direct_input,
 			);
-		case "lower":
-			return new LowerCabinet(
-				item.category,
-				item.color,
-				item.width,
-				item.height,
-				item.depth,
-				item.bodyMaterial,
-				item.handleType,
-				item.finishType,
-				item.cabinet_location,
-				item.cabinet_color_direct_input,
-				item.request,
-				null // reserved/option
-			);
-		case "open":
-			return new OpenCabinet(
-				item.category,
-				item.color,
-				item.width,
-				item.height,
-				item.depth,
-				item.bodyMaterial,
-				item.finishType,
-				item.cabinet_location,
-				item.cabinet_color_direct_input,
-				item.request,
-				null, // reserved/option
-				null, // reserved/option
-				null  // reserved/option
-			);
-		case "flap":
-			return new FlapCabinet(
-				item.category,
-				item.color,
-				item.width,
-				item.height,
-				item.depth,
-				item.bodyMaterial,
-				item.handleType,
-				item.finishType,
-				item.cabinet_location,
-				item.cabinet_color_direct_input,
-				item.request,
-				null, // reserved/option
-				null, // reserved/option
-				null  // reserved/option
-			);
-		case "drawer":
-			return new DrawerCabinet(
-				item.category,
-				item.color,
-				item.width,
-				item.height,
-				item.depth,
-				item.bodyMaterial,
-				item.handleType,
-				item.finishType,
-				item.cabinet_location,
-				item.cabinet_color_direct_input,
-				item.request,
-				null, // reserved/option
-				null, // reserved/option
-				null, // reserved/option
-				null  // reserved/option
-			);
-		default:
-			throw new Error("Unknown cabinet category");
+		// case "lower":
+		// 	return new LowerCabinet(
+		// 		item.category,
+		// 		item.color,
+		// 		item.width,
+		// 		item.height,
+		// 		item.depth,
+		// 		item.bodyMaterial,
+		// 		item.handleType,
+		// 		item.finishType,
+		// 		item.cabinet_location,
+		// 		item.cabinet_color_direct_input,
+		// 		item.request,
+		// 		null // reserved/option
+		// 	);
+		// case "open":
+		// 	return new OpenCabinet(
+		// 		item.category,
+		// 		item.color,
+		// 		item.width,
+		// 		item.height,
+		// 		item.depth,
+		// 		item.bodyMaterial,
+		// 		item.finishType,
+		// 		item.cabinet_location,
+		// 		item.cabinet_color_direct_input,
+		// 		item.request,
+		// 		null, // reserved/option
+		// 		null, // reserved/option
+		// 		null  // reserved/option
+		// 	);
+		// case "flap":
+		// 	return new FlapCabinet(
+		// 		item.category,
+		// 		item.color,
+		// 		item.width,
+		// 		item.height,
+		// 		item.depth,
+		// 		item.bodyMaterial,
+		// 		item.handleType,
+		// 		item.finishType,
+		// 		item.cabinet_location,
+		// 		item.cabinet_color_direct_input,
+		// 		item.request,
+		// 		null, // reserved/option
+		// 		null, // reserved/option
+		// 		null  // reserved/option
+		// 	);
+		// case "drawer":
+		// 	return new DrawerCabinet(
+		// 		item.category,
+		// 		item.color,
+		// 		item.width,
+		// 		item.height,
+		// 		item.depth,
+		// 		item.bodyMaterial,
+		// 		item.handleType,
+		// 		item.finishType,
+		// 		item.cabinet_location,
+		// 		item.cabinet_color_direct_input,
+		// 		item.request,
+		// 		null, // reserved/option
+		// 		null, // reserved/option
+		// 		null, // reserved/option
+		// 		null  // reserved/option
+		// 	);
+		// default:
+		// 	throw new Error("Unknown cabinet category");
 	}
 }
 
@@ -175,6 +175,9 @@ function ReportPageContent() {
 						try {
 							// 부분장 객체 생성
 							const cabinet = createCabinetInstance(item);
+							if (!cabinet) {
+								throw new Error("Cabinet instance could not be created.");
+							}
 
 							// Supabase에 저장
 							const createdCabinet = await new CrudInteriorMaterialsUsecase(
@@ -187,7 +190,7 @@ function ReportPageContent() {
 
 											// CartItem 생성: detail_product_type을 각 타입별로 할당
 											let detailProductType;
-											switch (item.category) {
+											switch (item.type) {
 												case "upper":
 													detailProductType = DetailProductType.UPPERCABINET;
 													break;
@@ -206,9 +209,12 @@ function ReportPageContent() {
 												default:
 													throw new Error("Unknown cabinet type for cart item");
 											}
+											if (!createdCabinet || !createdCabinet["id"]) {
+												throw new Error("Cabinet creation failed or missing ID.");
+											}
 											const cartItem = new CartItem({
 												cart_id: cart!.id!,
-												item_detail: createdCabinet["id"]!,
+												item_detail: createdCabinet["id"],
 												detail_product_type: detailProductType,
 												item_count: quantity,
 												unit_price: unitPrice,
