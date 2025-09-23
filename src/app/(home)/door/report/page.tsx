@@ -67,7 +67,7 @@ function DoorReportPageContent() {
                     hingeDirection={item?.hinge_direction ?? undefined}
                     hingeCount={item?.hinge ? item.hinge.length : undefined}
                     boring={item?.hinge || []}
-                    boringCategory={item?.category || undefined}
+                    boringCategory={item?.type as DoorType || undefined}
                     quantity={0}
                     trashable={false}
                     showQuantitySelector={false}

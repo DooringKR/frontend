@@ -1,4 +1,6 @@
-function formatBoring(boringSize: (number | null)[], category?: string | null) {
+import { DoorType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+
+function formatBoring(boringSize: (number | null)[], category?: DoorType | null) {
   if (!boringSize || !Array.isArray(boringSize)) return "";
 
   const arr = boringSize;
@@ -8,7 +10,7 @@ function formatBoring(boringSize: (number | null)[], category?: string | null) {
 
   // category에 따라 다른 라벨 사용
   let labelMap: string[][];
-  if (category === "flap") {
+  if (category === DoorType.FLAP) {
     labelMap = [
       ["좌", "우"],
       ["좌", "중", "우"],
