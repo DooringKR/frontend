@@ -28,117 +28,116 @@ import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_r
 
 
 function createCabinetInstance(item: any) {
-	// 각 타입별 생성자 인자 순서에 맞게 전달
-	switch (item.category) {
-		case "upper":
-			return new UpperCabinet(
-				item.color,
-				item.width,
-				item.height,
-				item.depth,
-				item.bodyMaterial,
-				item.handleType,
-				item.finishType,
-				item.cabinet_location,
-				item.cabinet_color_direct_input,
-				item.request,
-                item.cabinet_behind_type,
-                item.body_material_direct_input,
-			);
-		// case "lower":
-		// 	return new LowerCabinet(
-		// 		item.category,
-		// 		item.color,
-		// 		item.width,
-		// 		item.height,
-		// 		item.depth,
-		// 		item.bodyMaterial,
-		// 		item.handleType,
-		// 		item.finishType,
-		// 		item.cabinet_location,
-		// 		item.cabinet_color_direct_input,
-		// 		item.request,
-		// 		null // reserved/option
-		// 	);
-		// case "open":
-		// 	return new OpenCabinet(
-		// 		item.category,
-		// 		item.color,
-		// 		item.width,
-		// 		item.height,
-		// 		item.depth,
-		// 		item.bodyMaterial,
-		// 		item.finishType,
-		// 		item.cabinet_location,
-		// 		item.cabinet_color_direct_input,
-		// 		item.request,
-		// 		null, // reserved/option
-		// 		null, // reserved/option
-		// 		null  // reserved/option
-		// 	);
-		// case "flap":
-		// 	return new FlapCabinet(
-		// 		item.category,
-		// 		item.color,
-		// 		item.width,
-		// 		item.height,
-		// 		item.depth,
-		// 		item.bodyMaterial,
-		// 		item.handleType,
-		// 		item.finishType,
-		// 		item.cabinet_location,
-		// 		item.cabinet_color_direct_input,
-		// 		item.request,
-		// 		null, // reserved/option
-		// 		null, // reserved/option
-		// 		null  // reserved/option
-		// 	);
-		// case "drawer":
-		// 	return new DrawerCabinet(
-		// 		item.category,
-		// 		item.color,
-		// 		item.width,
-		// 		item.height,
-		// 		item.depth,
-		// 		item.bodyMaterial,
-		// 		item.handleType,
-		// 		item.finishType,
-		// 		item.cabinet_location,
-		// 		item.cabinet_color_direct_input,
-		// 		item.request,
-		// 		null, // reserved/option
-		// 		null, // reserved/option
-		// 		null, // reserved/option
-		// 		null  // reserved/option
-		// 	);
-		// default:
-		// 	throw new Error("Unknown cabinet category");
-	}
+  switch (item.category) {
+    case "upper":
+      return new UpperCabinet({
+        cabinet_color: item.color,
+        cabinet_width: item.width,
+        cabinet_height: item.height,
+        cabinet_depth: item.depth,
+        cabinet_location: item.cabinet_location,
+        cabinet_behind_type: item.cabinet_behind_type,
+        cabinet_body_material: item.bodyMaterial,
+        cabinet_body_material_direct_input: item.body_material_direct_input,
+        cabinet_request: item.request,
+        handle_type: item.handleType,
+      });
+    case "lower":
+      return new LowerCabinet({
+        cabinet_color: item.color,
+        cabinet_width: item.width,
+        cabinet_height: item.height,
+        cabinet_depth: item.depth,
+        cabinet_location: item.cabinet_location,
+        cabinet_behind_type: item.cabinet_behind_type,
+        cabinet_body_material: item.bodyMaterial,
+        cabinet_body_material_direct_input: item.body_material_direct_input,
+        cabinet_request: item.request,
+        handle_type: item.handleType,
+      });
+    case "open":
+      return new OpenCabinet({
+        cabinet_color: item.color,
+        cabinet_width: item.width,
+        cabinet_height: item.height,
+        cabinet_depth: item.depth,
+        cabinet_location: item.cabinet_location,
+        cabinet_behind_type: item.cabinet_behind_type,
+        cabinet_body_material: item.bodyMaterial,
+        cabinet_body_material_direct_input: item.body_material_direct_input,
+        cabinet_request: item.request,
+        add_rice_cooker_rail: item.add_rice_cooker_rail,
+        add_bottom_drawer: item.add_bottom_drawer,
+      });
+    case "flap":
+      return new FlapCabinet({
+        cabinet_color: item.color,
+        cabinet_width: item.width,
+        cabinet_height: item.height,
+        cabinet_depth: item.depth,
+        cabinet_location: item.cabinet_location,
+        cabinet_behind_type: item.cabinet_behind_type,
+        cabinet_body_material: item.bodyMaterial,
+        cabinet_body_material_direct_input: item.body_material_direct_input,
+        cabinet_request: item.request,
+        handle_type: item.handleType,
+        absorber_type: item.absorber_type,
+        absorber_type_direct_input: item.absorber_type_direct_input,
+      });
+    case "drawer":
+      return new DrawerCabinet({
+        cabinet_color: item.color,
+        cabinet_width: item.width,
+        cabinet_height: item.height,
+        cabinet_depth: item.depth,
+        cabinet_location: item.cabinet_location,
+        cabinet_behind_type: item.cabinet_behind_type,
+        cabinet_body_material: item.bodyMaterial,
+        cabinet_body_material_direct_input: item.body_material_direct_input,
+        cabinet_request: item.request,
+        handle_type: item.handleType,
+        drawer_type: item.drawer_type,
+        rail_type: item.rail_type,
+        rail_type_direct_input: item.rail_type_direct_input,
+      });
+    default:
+      throw new Error("Unknown cabinet category");
+  }
 }
 
 function ReportPageContent() {
-	const router = useRouter();
-	const { item } = useItemStore();
-	const { cart, incrementCartCount } = useCartStore();
-	const [quantity, setQuantity] = useState(1);
+		const router = useRouter();
+		const { item } = useItemStore();
+		const { cart, incrementCartCount } = useCartStore();
+		const [quantity, setQuantity] = useState(1);
 
-	if (!item || Object.keys(item).length === 0) {
-		return <div>로딩 중...</div>;
-	}
+		if (!item || Object.keys(item).length === 0) {
+			return <div>로딩 중...</div>;
+		}
 
-	const unitPrice = calculateUnitCabinetPrice(
-		item.category,
-		item.color ?? "",
-		item.width ?? 0,
-		item.bodyMaterial ?? "",
-		item.handleType ?? "",
-		item.depth ?? 0,
-	);
+		// 주요 필드 콘솔 출력
+		console.log(
+			'item.type:', item.type,
+			'item.color:', item.color ?? "",
+			'item.width:', item.width ?? 0,
+			'item.bodyMaterial:', item.bodyMaterial ?? "",
+			'item.handleType:', item.handleType ?? "",
+			'item.depth:', item.depth ?? 0
+		);
+
+		const unitPrice = calculateUnitCabinetPrice(
+			item.type,
+			item.color ?? "",
+			item.width ?? 0,
+			item.bodyMaterial ?? "",
+			item.handleType ?? "",
+			item.depth ?? 0,
+		);
 
 	return (
 		<div className="flex flex-col">
 			<TopNavigator />
-			<Header size="Large" title={`장 주문 개수를 선택해주세요`} />
+			<Header size="Large" title={`부분장 주문 개수를 선택해주세요`} />
 			<div className="flex flex-col gap-[20px] px-5 pb-[100px] pt-5">
 				<ShoppingCartCard
 					type="cabinet"
@@ -188,40 +187,40 @@ function ReportPageContent() {
 							if (!cart) throw new Error("장바구니 정보가 없습니다.");
 
 
-											// CartItem 생성: detail_product_type을 각 타입별로 할당
-											let detailProductType;
-											switch (item.type) {
-												case "upper":
-													detailProductType = DetailProductType.UPPERCABINET;
-													break;
-												case "lower":
-													detailProductType = DetailProductType.LOWERCABINET;
-													break;
-												case "flap":
-													detailProductType = DetailProductType.FLAPCABINET;
-													break;
-												case "drawer":
-													detailProductType = DetailProductType.DRAWERCABINET;
-													break;
-												case "open":
-													detailProductType = DetailProductType.OPENCABINET;
-													break;
-												default:
-													throw new Error("Unknown cabinet type for cart item");
-											}
-											if (!createdCabinet || !createdCabinet["id"]) {
-												throw new Error("Cabinet creation failed or missing ID.");
-											}
-											const cartItem = new CartItem({
-												cart_id: cart!.id!,
-												item_detail: createdCabinet["id"],
-												detail_product_type: detailProductType,
-												item_count: quantity,
-												unit_price: unitPrice,
-											});
-											await new CrudCartItemUsecase(
-												new CartItemSupabaseRepository()
-											).create(cartItem);
+																// CartItem 생성: detail_product_type을 각 타입별로 할당
+																let detailProductType;
+																switch (item.type) {
+																	case "upper":
+																		detailProductType = DetailProductType.UPPERCABINET;
+																		break;
+																	case "lower":
+																		detailProductType = DetailProductType.LOWERCABINET;
+																		break;
+																	case "flap":
+																		detailProductType = DetailProductType.FLAPCABINET;
+																		break;
+																	case "drawer":
+																		detailProductType = DetailProductType.DRAWERCABINET;
+																		break;
+																	case "open":
+																		detailProductType = DetailProductType.OPENCABINET;
+																		break;
+																	default:
+																		throw new Error("Unknown cabinet type for cart item");
+																}
+																if (!createdCabinet || !createdCabinet["id"]) {
+																	throw new Error("Cabinet creation failed or missing ID.");
+																}
+																const cartItem = new CartItem({
+																	cart_id: cart!.id!,
+																	item_detail: createdCabinet["id"],
+																	detail_product_type: detailProductType,
+																	item_count: quantity,
+																	unit_price: unitPrice,
+																});
+																await new CrudCartItemUsecase(
+																	new CartItemSupabaseRepository()
+																).create(cartItem);
 
 							// cart_count 증가
 							await new CrudCartUsecase(

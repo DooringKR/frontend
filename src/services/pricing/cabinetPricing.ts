@@ -1,14 +1,16 @@
+import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 import { getPricingColorName } from "./colorMapping";
+import { CabinetHandleType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 /**
  * 부분장 가격 계산
  */
 export function calculateUnitCabinetPrice(
-  category: string,
+  category: DetailProductType,
   color: string,
   width: number,
   bodyType: string,
-  handleType: string,
+  handleType: CabinetHandleType,
   depth: number,
 
 ): number {
@@ -20,7 +22,7 @@ export function calculateUnitCabinetPrice(
 
   let cabinet_depth_price = 0;
   let cabinet_width_price = 0;
-  if (category === "lower") {
+  if (category === DetailProductType.LOWERCABINET) {
     if (1 <= depth && depth <= 400) {
       cabinet_depth_price = 200;
     } else if (400 < depth && depth <= 600) {
@@ -37,7 +39,7 @@ export function calculateUnitCabinetPrice(
     const roundedUnitPrice = Math.ceil(unitPrice / 10000) * 10000;
 
     return roundedUnitPrice
-  } else if (category === "upper") {
+  } else if (category === DetailProductType.UPPERCABINET) {
     if (1 <= depth && depth <= 350) {
       cabinet_depth_price = 200;
     } else if (350 < depth) {
@@ -52,7 +54,7 @@ export function calculateUnitCabinetPrice(
     const roundedUnitPrice = Math.ceil(unitPrice / 10000) * 10000;
 
     return roundedUnitPrice
-  } else if (category === "drawer") {
+  } else if (category === DetailProductType.DRAWERCABINET) {
     const doorColorWeight = caculateDoorColorWeight(color);
     const bodyWeight = calculateBodyWeight(bodyType);
     const margin = 0.2;
@@ -62,7 +64,7 @@ export function calculateUnitCabinetPrice(
     const roundedUnitPrice = Math.ceil(unitPrice / 10000) * 10000;
 
     return roundedUnitPrice
-  } else if (category === "open") {
+  } else if (category === DetailProductType.OPENCABINET) {
     const doorColorPrice = calculateDoorPrice(color);
     const margin = 0.2;
     const unitPrice = (width * doorColorPrice) * (1 + margin);
@@ -71,7 +73,7 @@ export function calculateUnitCabinetPrice(
     const roundedUnitPrice = Math.ceil(unitPrice / 10000) * 10000;
 
     return roundedUnitPrice
-  } else if (category === "flap") {
+  } else if (category === DetailProductType.FLAPCABINET) {
     if (1 <= width && width <= 600) {
       cabinet_width_price = 250000;
     } else if (600 < width && width <= 1000) {
