@@ -33,16 +33,16 @@ function HingePageContent() {
   const [thicknessInput, setThicknessInput] = React.useState("");
   const [angleInput, setAngleInput] = React.useState("");
 
-  // itemStore에 직접입력값 동기화
+  // itemStore에 직접입력값 동기화 (항상 동기화)
   React.useEffect(() => {
-    if (madebyMode === "input") updateItem({ madebyInput });
-  }, [madebyInput, madebyMode]);
+    updateItem({ madebyInput });
+  }, [madebyInput]);
   React.useEffect(() => {
-    if (thicknessMode === "input") updateItem({ thicknessInput });
-  }, [thicknessInput, thicknessMode]);
+    updateItem({ thicknessInput });
+  }, [thicknessInput]);
   React.useEffect(() => {
-    if (angleMode === "input") updateItem({ angleInput });
-  }, [angleInput, angleMode]);
+    updateItem({ angleInput });
+  }, [angleInput]);
   // refs for focusing
   const madebyInputRef = useRef<HTMLInputElement>(null);
   const thicknessInputRef = useRef<HTMLInputElement>(null);
@@ -69,11 +69,13 @@ function HingePageContent() {
         <BoxedSelect
           label="제조사"
           value={(() => {
-            const v = isMadebySheetOpen && madebyMode === "input" ? madebyInput : madeby;
-            if (v === HardwareMadeBy.MOONJOO) return "국산 (문주) + 1,500원";
-            if (v === HardwareMadeBy.HAFFLE) return "헤펠레 (Haffle) + 2,500원";
-            if (v === HardwareMadeBy.BLUM) return "블룸 (Blum) + 10,500원";
-            return v;
+            if (madeby === HardwareMadeBy.DIRECT_INPUT) {
+              return madebyInput || "직접 입력";
+            }
+            if (madeby === HardwareMadeBy.MOONJOO) return "국산 (문주) + 1,500원";
+            if (madeby === HardwareMadeBy.HAFFLE) return "헤펠레 (Haffle) + 2,500원";
+            if (madeby === HardwareMadeBy.BLUM) return "블룸 (Blum) + 10,500원";
+            return madeby;
           })()}
           options={Object.values(HardwareMadeBy).map(v => ({ label: v, value: v }))}
           onClick={() => setIsMadebySheetOpen(true)}
@@ -81,14 +83,24 @@ function HingePageContent() {
         />
         <BoxedSelect
           label="합판 두께"
-          value={isThicknessSheetOpen && thicknessMode === "input" ? thicknessInput : thickness}
+          value={(() => {
+            if (thickness === HingeThickness.DIRECT_INPUT) {
+              return thicknessInput || "직접 입력";
+            }
+            return thickness;
+          })()}
           options={Object.values(HingeThickness).map(v => ({ label: v, value: v }))}
           onClick={() => setIsThicknessSheetOpen(true)}
           onChange={() => {}}
         />
         <BoxedSelect
           label="각도"
-          value={isAngleSheetOpen && angleMode === "input" ? angleInput : angle}
+          value={(() => {
+            if (angle === HingeAngle.DIRECT_INPUT) {
+              return angleInput || "직접 입력";
+            }
+            return angle;
+          })()}
           options={Object.values(HingeAngle).map(v => ({ label: v, value: v }))}
           onClick={() => setIsAngleSheetOpen(true)}
           onChange={() => {}}
@@ -123,9 +135,9 @@ function HingePageContent() {
                     <SelectToggleButton
                       key={option}
                       label={label}
-                      checked={madeby === option && madebyMode !== "input"}
+                      checked={madeby === option}
                       onClick={() => {
-                        updateItem({ madeby: option });
+                        updateItem({ madeby: option, madebyInput: "" });
                         setMadebyMode("option");
                         setMadebyInput("");
                       }}
@@ -135,10 +147,10 @@ function HingePageContent() {
               <div className="flex flex-col">
                 <SelectToggleButton
                   label="직접 입력"
-                  checked={madebyMode === "input"}
+                  checked={madebyMode === "input" || madeby === HardwareMadeBy.DIRECT_INPUT}
                   onClick={() => {
                     setMadebyMode("input");
-                    updateItem({ madeby: HardwareMadeBy.DIRECT_INPUT });
+                    updateItem({ madeby: HardwareMadeBy.DIRECT_INPUT, madebyInput });
                     setTimeout(() => madebyInputRef.current?.focus(), 0);
                   }}
                 />
@@ -150,7 +162,10 @@ function HingePageContent() {
                       placeholder="제조사 직접 입력"
                       className="w-full"
                       value={madebyInput}
-                      onChange={e => setMadebyInput(e.target.value)}
+                      onChange={e => {
+                        setMadebyInput(e.target.value);
+                        updateItem({ madebyInput: e.target.value });
+                      }}
                     />
                   </div>
                 )}
@@ -161,11 +176,11 @@ function HingePageContent() {
                 type="Brand"
                 text="다음"
                 onClick={() => {
-                  if (madebyMode === "input" && madebyInput) {
-                    updateItem({ madeby: madebyInput });
+                  if (madebyMode === "input") {
+                    updateItem({ madeby: HardwareMadeBy.DIRECT_INPUT, madebyInput });
                   }
                   setIsMadebySheetOpen(false);
-                  setMadebyMode("option");
+                  // setMadebyMode("option"); // 유지: 직접입력 모드 유지
                 }}
               />
             </div>
@@ -189,9 +204,9 @@ function HingePageContent() {
                   <SelectToggleButton
                     key={option}
                     label={option}
-                    checked={thickness === option && thicknessMode !== "input"}
+                    checked={thickness === option}
                     onClick={() => {
-                      updateItem({ thickness: option });
+                      updateItem({ thickness: option, thicknessInput: "" });
                       setThicknessMode("option");
                       setThicknessInput("");
                     }}
@@ -200,10 +215,10 @@ function HingePageContent() {
               <div className="flex flex-col">
                 <SelectToggleButton
                   label="직접 입력"
-                  checked={thicknessMode === "input"}
+                  checked={thicknessMode === "input" || thickness === HingeThickness.DIRECT_INPUT}
                   onClick={() => {
                     setThicknessMode("input");
-                    updateItem({ thickness: HingeThickness.DIRECT_INPUT });
+                    updateItem({ thickness: HingeThickness.DIRECT_INPUT, thicknessInput });
                     setTimeout(() => thicknessInputRef.current?.focus(), 0);
                   }}
                 />
@@ -215,7 +230,10 @@ function HingePageContent() {
                       placeholder="합판 두께 직접 입력"
                       className="w-full"
                       value={thicknessInput}
-                      onChange={e => setThicknessInput(e.target.value)}
+                      onChange={e => {
+                        setThicknessInput(e.target.value);
+                        updateItem({ thicknessInput: e.target.value });
+                      }}
                     />
                   </div>
                 )}
@@ -226,11 +244,11 @@ function HingePageContent() {
                 type="Brand"
                 text="다음"
                 onClick={() => {
-                  if (thicknessMode === "input" && thicknessInput) {
-                    updateItem({ thickness: thicknessInput });
+                  if (thicknessMode === "input") {
+                    updateItem({ thickness: HingeThickness.DIRECT_INPUT, thicknessInput });
                   }
                   setIsThicknessSheetOpen(false);
-                  setThicknessMode("option");
+                  // setThicknessMode("option");
                 }}
               />
             </div>
@@ -254,9 +272,9 @@ function HingePageContent() {
                   <SelectToggleButton
                     key={option}
                     label={option}
-                    checked={angle === option && angleMode !== "input"}
+                    checked={angle === option}
                     onClick={() => {
-                      updateItem({ angle: option });
+                      updateItem({ angle: option, angleInput: "" });
                       setAngleMode("option");
                       setAngleInput("");
                     }}
@@ -265,10 +283,10 @@ function HingePageContent() {
               <div className="flex flex-col">
                 <SelectToggleButton
                   label="직접 입력"
-                  checked={angleMode === "input"}
+                  checked={angleMode === "input" || angle === HingeAngle.DIRECT_INPUT}
                   onClick={() => {
                     setAngleMode("input");
-                    updateItem({ angle: HingeAngle.DIRECT_INPUT });
+                    updateItem({ angle: HingeAngle.DIRECT_INPUT, angleInput });
                     setTimeout(() => angleInputRef.current?.focus(), 0);
                   }}
                 />
@@ -280,7 +298,10 @@ function HingePageContent() {
                       placeholder="각도 직접 입력"
                       className="w-full"
                       value={angleInput}
-                      onChange={e => setAngleInput(e.target.value)}
+                      onChange={e => {
+                        setAngleInput(e.target.value);
+                        updateItem({ angleInput: e.target.value });
+                      }}
                     />
                   </div>
                 )}
@@ -291,11 +312,11 @@ function HingePageContent() {
                 type="Brand"
                 text="다음"
                 onClick={() => {
-                  if (angleMode === "input" && angleInput) {
-                    updateItem({ angle: angleInput });
+                  if (angleMode === "input") {
+                    updateItem({ angle: HingeAngle.DIRECT_INPUT, angleInput });
                   }
                   setIsAngleSheetOpen(false);
-                  setAngleMode("option");
+                  // setAngleMode("option");
                 }}
               />
             </div>

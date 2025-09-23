@@ -9,7 +9,9 @@ import Header from "@/components/Header/Header";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
-import { HardwareType, RailType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import { HardwareType, RailType, RailLength } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import { HardwareMadeBy, HingeThickness, HingeAngle } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+
 import { Hinge } from "dooring-core-domain/dist/models/InteriorMaterials/Hardware/Hinge";
 import { Rail } from "dooring-core-domain/dist/models/InteriorMaterials/Hardware/Rail";
 import { Piece } from "dooring-core-domain/dist/models/InteriorMaterials/Hardware/Piece";
@@ -27,25 +29,39 @@ import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_r
 function createHardwareInstance(item: any) {
   switch (item.type) {
     case HardwareType.HINGE:
-      // Hinge 네임드 파라미터(객체 리터럴) 생성 방식
+      // enum의 DIRECT_INPUT일 때는 enum 필드는 DIRECT_INPUT, *_direct_input만 값 전달
+      const isMadebyDirect = item.madeby === HardwareMadeBy.DIRECT_INPUT;
+      const isThicknessDirect = item.thickness === HingeThickness.DIRECT_INPUT;
+      const isAngleDirect = item.angle === HingeAngle.DIRECT_INPUT;
+      // 방어: "직접 입력" 같은 잘못된 값이 enum에 들어가지 않도록
+      // finish 방식처럼: 직접입력이면 enum은 undefined, *_direct_input만 값 전달
+      const isEmptyOrPlaceholder = (val: string | undefined) => !val || val === "직접 입력";
       return new Hinge({
         hardware_request: item.request,
-        hinge_madeby: item.madeby,
-        hinge_thickness: item.thickness,
-        hinge_angle: item.angle,
-        hinge_madeby_direct_input: item.madeby === "직접 입력" ? item.madebyInput : undefined,
-        hinge_thickness_direct_input: item.thickness === "직접 입력" ? item.thicknessInput : undefined,
-        hinge_angle_direct_input: item.angle === "직접 입력" ? item.angleInput : undefined,
+        hinge_madeby: (Object.values(HardwareMadeBy).includes(item.madeby) ? item.madeby : undefined),
+        hinge_thickness: (Object.values(HingeThickness).includes(item.thickness) ? item.thickness : undefined),
+        hinge_angle: (Object.values(HingeAngle).includes(item.angle) ? item.angle : undefined),
+        hinge_madeby_direct_input: isMadebyDirect && !isEmptyOrPlaceholder(item.madebyInput) ? item.madebyInput : undefined,
+        hinge_thickness_direct_input: isThicknessDirect && !isEmptyOrPlaceholder(item.thicknessInput) ? item.thicknessInput : undefined,
+        hinge_angle_direct_input: isAngleDirect && !isEmptyOrPlaceholder(item.angleInput) ? item.angleInput : undefined,
       });
-    case HardwareType.RAIL:
-      // Rail 네임드 파라미터(객체 리터럴) 생성 방식
+    case HardwareType.RAIL: {
+      // enum의 DIRECT_INPUT일 때는 enum 필드는 undefined, *_direct_input만 값 전달
+      const isMadebyDirect = item.madeby === HardwareMadeBy.DIRECT_INPUT;
+      const isTypeDirect = item.railType === RailType.DIRECT_INPUT;
+      const isLengthDirect = item.railLength === RailLength.DIRECT_INPUT;
+      const isEmptyOrPlaceholder = (val: string | undefined) => !val || val === "직접 입력";
       return new Rail({
         hardware_request: item.request,
-        rail_madeby: item.madeby,
-        rail_type: item.railType,
-        rail_length: item.railLength,
+        rail_madeby: (Object.values(HardwareMadeBy).includes(item.madeby) ? item.madeby : undefined),
+        rail_type: (Object.values(RailType).includes(item.railType) ? item.railType : undefined),
+        rail_length: (Object.values(RailLength).includes(item.railLength) ? item.railLength : undefined),
         rail_damping: item.railDamping,
+        rail_madeby_direct_input: isMadebyDirect && !isEmptyOrPlaceholder(item.madebyInput) ? item.madebyInput : undefined,
+        rail_type_direct_input: isTypeDirect && !isEmptyOrPlaceholder(item.railTypeInput) ? item.railTypeInput : undefined,
+        rail_length_direct_input: isLengthDirect && !isEmptyOrPlaceholder(item.railLengthInput) ? item.railLengthInput : undefined,
       });
+    }
     case HardwareType.PIECE:
       // Piece 네임드 파라미터(객체 리터럴) 생성 방식
       return new Piece({
@@ -86,11 +102,20 @@ function ReportPageContent() {
         <ShoppingCartCard
           type="hardware"
           title={item?.type ?? ""}
-          manufacturer={item?.madeby ?? ""}
-          thickness={item?.thickness ?? ""}
-          angle={item?.angle ?? ""}
-          railType={item?.railType ?? ""}
-          railLength={item?.railLength ?? ""}
+          manufacturer={(() => {
+            if (item?.madeby === HardwareMadeBy.DIRECT_INPUT) return item?.madebyInput || "";
+            return item?.madeby ?? "";
+          })()}
+          thickness={(() => {
+            if (item?.thickness === HingeThickness.DIRECT_INPUT) return item?.thicknessInput || "";
+            return item?.thickness ?? "";
+          })()}
+          angle={(() => {
+            if (item?.angle === HingeAngle.DIRECT_INPUT) return item?.angleInput || "";
+            return item?.angle ?? "";
+          })()}
+          railType={item?.railType === RailType.DIRECT_INPUT ? item?.railTypeInput || "" : item?.railType ?? ""}
+          railLength={item?.railLength === RailLength.DIRECT_INPUT ? item?.railLengthInput || "" : item?.railLength ?? ""}
           color={item?.color ?? ""}
           size={item?.size ?? ""}
           railDamping={item?.railType === RailType.BALL ? item?.railDamping ?? "" : undefined}
