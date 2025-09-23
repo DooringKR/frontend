@@ -3,7 +3,7 @@
 
 "use client";
 
-import { CATEGORY_LIST, HARDWARE_CATEGORY_LIST } from "@/constants/category";
+import { HARDWARE_CATEGORY_LIST } from "@/constants/category";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Suspense } from "react";
@@ -52,7 +52,6 @@ function HardwareCategoryPage() {
                 fill
                 style={{
                   objectFit: "contain",
-                  verticalAlign: category.slug === "drawer" ? "top" : "middle",
                 }}
                 className="w-full h-full object-cover rounded-[28px] border-[2px] border-[rgba(3,7,18,0.05)]"
               />

@@ -7,7 +7,6 @@ import formatSize from "@/utils/formatSize";
 import Button from "../Button/Button";
 import DoorPreviewIcon from "../DoorPreviewIcon/DoorPreviewIcon";
 import QuantitySelector from "../QuantitySelector/QuantitySelector";
-import { FinishEdgeCount } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 interface ShoppingCartCardProps {
   type: "door" | "cabinet" | "finish" | "accessory" | "hardware";
@@ -17,7 +16,7 @@ interface ShoppingCartCardProps {
   width?: number;
   height?: number;
   depth?: number;
-  edgeCount?: FinishEdgeCount;
+  edgeCount?: number;
   hingeCount?: number;
   hingeDirection?: string;
   boring?: string | (number | null)[];
@@ -36,6 +35,7 @@ interface ShoppingCartCardProps {
   showBar?: string;
   drawerType?: string;
   railType?: string;
+  railLength?: string;
   riceRail?: string;
   lowerDrawer?: string;
   depthIncrease?: number;
@@ -46,6 +46,9 @@ interface ShoppingCartCardProps {
   addOn_hinge?: boolean;
   addOn_construction?: boolean;
   legType?: string;
+  thickness?: string;
+  angle?: string;
+  railDamping?: boolean;
 }
 
 const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
@@ -85,6 +88,10 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   addOn_hinge,
   addOn_construction,
   legType,
+  thickness,
+  angle,
+  railLength,
+  railDamping,
 }) => {
   return (
     <div className="flex w-full flex-col gap-3 rounded-[16px] border-[1px] border-gray-200 bg-white p-[20px]">
@@ -93,7 +100,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
         <div className="flex flex-col gap-2">
           <div className="text-[17px] font-600 text-gray-800">{title}</div>
           <div className="flex flex-col text-[15px] font-400 text-gray-500">
-            {color && <div>색상 : {color}</div>}
+            {type !== "hardware" && color && <div>색상 : {color}</div>}
             {bodyMaterial && <div>몸통 소재 및 두께 : {bodyMaterial}</div>}
             {width && (
               <div>
@@ -131,7 +138,15 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
                 )}
               </>
             )}
-            {edgeCount && <div>엣지 면 수 : {edgeCount}</div>}
+            {edgeCount && <div>엣지 면 수 : {edgeCount}면</div>}
+            {type === "hardware" && manufacturer && <div>제조사 : {manufacturer}</div>}
+            {type === "hardware" && railType && <div>레일 종류 : {railType}</div>}
+            {type === "hardware" && railLength && <div>레일 길이 : {railLength}</div>}
+            {type === "hardware" && color && <div>색상 : {color}</div>}
+            {type === "hardware" && size && <div>사이즈 : {size}</div>}
+            {type === "hardware" && thickness && <div>합판 두께 : {thickness}</div>}
+            {type === "hardware" && angle && <div>각도 : {angle}</div>}
+            {type === "hardware" && railDamping !== undefined && <div>레일 댐핑 : {railDamping ? "있음" : "없음"}</div>}
             {hingeCount && <div>경첩 개수 : {hingeCount}개</div>}
             {hingeDirection && <div>경첩 방향 : {hingeDirection}</div>}
             {boring && (
@@ -142,13 +157,13 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
             {showBar && <div>쇼바 종류 : {showBar}</div>}
             {handleType && <div>손잡이 종류 : {handleType}</div>}
             {drawerType && <div>서랍 종류 : {drawerType}</div>}
-            {railType && <div>레일 종류 : {railType}</div>}
+            {/* 중복 방지: railType은 위에서만 출력 */}
             {riceRail && <div>밥솥 레일 추가 여부 : {riceRail}</div>}
             {lowerDrawer && <div>하부 서랍장 추가 여부 : {lowerDrawer}</div>}
             {finishType && <div>마감 방식 : {finishType}</div>}
-            {manufacturer && <div>제조사 : {manufacturer}</div>}
+            {/* 중복 방지: manufacturer는 위에서만 출력 */}
             {modelName && <div>모델명 : {modelName}</div>}
-            {size && <div>사이즈 : {size}</div>}
+            {type !== "hardware" && size && <div>사이즈 : {size}</div>}
             {request && <div>제작 시 요청 사항 : {request}</div>}
             {location && <div>용도 ∙ 장소 : {formatLocation(location)}</div>}
             {addOn_hinge !== undefined && addOn_hinge !== null && (
@@ -188,7 +203,8 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
       {/* 총 금액 */}
       {totalPrice && (
         <div className="flex items-end justify-end text-[20px]/[28px] font-600 text-gray-900">
-          {totalPrice}원&nbsp;<span className="text-gray-600">부터~</span>
+          {totalPrice.toLocaleString()}원&nbsp;<span className="text-gray-600">부터~</span>
+bsp;<span className="text-gray-600">부터~</span>
         </div>
       )}
       {/* button section */}
