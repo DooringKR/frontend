@@ -62,16 +62,16 @@ function DoorReportPageContent() {
                     type="door"
                     title={item.type}
                     color={formatColor(item?.color ?? "")}
-                    width={item?.width ?? undefined}
-                    height={item?.height ?? undefined}
+                    width={item?.door_width ?? undefined}
+                    height={item?.door_height ?? undefined}
                     hingeDirection={item?.hinge_direction ?? undefined}
                     hingeCount={item?.hinge ? item.hinge.length : undefined}
-                    boring={item?.hinge || []}
+                    boring={item?.hinge || undefined}
                     boringCategory={item?.type as DoorType || undefined}
                     quantity={0}
                     trashable={false}
                     showQuantitySelector={false}
-                    request={item?.request ?? undefined}
+                    request={item?.door_request ?? undefined}
                     location={item?.door_location ?? undefined}
                     addOn_hinge={item?.addOn_hinge ?? undefined}
                     onOptionClick={() => {
@@ -146,8 +146,8 @@ function DoorReportPageContent() {
                             // console.log(cart);
 
                             // // item 상태 초기화
-                            // useItemStore.setState({ item: undefined });
-                            // router.replace("/cart");
+                            useItemStore.setState({ item: undefined });
+                            router.replace("/cart");
                         } catch (error: any) {
                             console.error("장바구니 담기 실패:", error);
                         }
