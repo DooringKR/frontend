@@ -20,6 +20,8 @@ import { useSingleCartStore } from "@/store/singleCartStore";
 import useUserStore from "@/store/userStore";
 import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 
+import { usePageView } from "@/services/hooks/usePageView";
+
 import Footer from "./_components/Footer";
 import useBizClientStore from "@/store/bizClientStore";
 import { ReadBizClientUsecase } from "@/DDD/usecase/user/read_bizClient_usecase";
@@ -29,6 +31,7 @@ import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_r
 import { BizClient } from "dooring-core-domain/dist/models/User/BizClient";
 
 export default function Page() {
+  usePageView("home");
   const router = useRouter();
   const cart = useSingleCartStore(state => state.cart);
   const bizClient = useBizClientStore(state => state.bizClient);

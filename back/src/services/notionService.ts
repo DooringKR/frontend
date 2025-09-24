@@ -70,6 +70,7 @@ function formatDateToYMDHM(date: Date): string {
 export interface NotionOrderPayload {
   orderedAt: Date; // 주문 생성 시각
   userRoadAddress: string; // 주소(도로명)
+  userDetailAddress: string; // 주소(상세)
   userPhone: string; // 주문한 분 전화번호
   recipientPhone: string; // 받는 분 전화번호
   orderType: string; // PICK_UP / DELIVERY
@@ -441,11 +442,31 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
   // (2) 옵션 번역: delivery/pick_up 구조에서 적절히 해석해 표시
   function interpretOptions(opts: any, orderType: string): string {
     if (!opts) return "-";
+    // orderOptions가 { delivery: {...} } 또는 { pickup: {...} } 형태면 내부로 진입
+    if (opts.delivery) opts = opts.delivery;
+    if (opts.pickup) opts = opts.pickup;
     if (orderType === "DELIVERY") {
-      // recipient_road_address, delivery_type, delivery_request 등 상세 표시
       const lines = [];
-      if (opts.recipient_road_address) lines.push(`배송 주소: ${opts.recipient_road_address}`);
-      if (opts.delivery_type) lines.push(`희망 도착: ${opts.delivery_type === "TOMORROW" ? "내일/지정일" : "오늘중"}`);
+      if (opts.recipient_road_address) lines.push(`배송 주소: ${opts.recipient_road_address}${opts.recipient_detail_address ? ' / ' + opts.recipient_detail_address : ''}`);
+      if (opts.delivery_type) {
+        if (opts.delivery_type === "TODAY") {
+          lines.push("희망 도착: 오늘배송");
+        } else {
+          // detail_delivery_time을 한국 표준시로 변환
+          let kstTime = "-";
+          if (opts.detail_delivery_time) {
+            const date = new Date(opts.detail_delivery_time);
+            const kstDate = new Date(date.getTime() + 9 * 60 * 60 * 1000);
+            const yyyy = kstDate.getUTCFullYear();
+            const mm = String(kstDate.getUTCMonth() + 1).padStart(2, "0");
+            const dd = String(kstDate.getUTCDate()).padStart(2, "0");
+            const h = String(kstDate.getUTCHours()).padStart(2, "0");
+            const m = String(kstDate.getUTCMinutes()).padStart(2, "0");
+            kstTime = `${yyyy}-${mm}-${dd} ${h}:${m}`;
+          }
+          lines.push(`희망 도착: ${kstTime}`);
+        }
+      }
       if (opts.delivery_request) {
         let request = (opts.delivery_request === "CALL")
           ? "도착 시 전화"
@@ -462,15 +483,10 @@ ${interpretOptions(payload.orderOptions, payload.orderType)}
       }
       return lines.join("\n") || "-";
     } else if (orderType === "PICK_UP") {
-      // 차량종류 등 표시
-      if (opts.vehicle_type) {
-        let vehicle = (opts.vehicle_type === "TRUCK") ? "트럭" : (opts.vehicle_type === "CAR") ? "승용차" : opts.vehicle_type;
-        let vehicleLine = `차량종류: ${vehicle}`;
-        if (opts.vehicle_type === "DIRECT_INPUT" && opts.vehicle_type_direct_input)
-          vehicleLine += `(${opts.vehicle_type_direct_input})`;
-        return vehicleLine;
-      }
-      return "-";
+      const lines = [];
+      if (opts.pickup_vehicle_type) lines.push(`차량종류: ${opts.pickup_vehicle_type}`);
+      if (opts.pickup_custom_note) lines.push(`요청사항: ${opts.pickup_custom_note}`);
+      return lines.join("\n") || "-";
     }
     return "-";
   }

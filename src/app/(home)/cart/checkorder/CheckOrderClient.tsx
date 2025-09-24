@@ -22,6 +22,10 @@ import DeliveryRequestSelector from "./_components/DeliveryRequestSelector";
 import DeliveryScheduleSelector from "./_components/DeliveryScheduleSelector";
 import RecipientPhoneNumber from "./_components/RecipientPhoneNumber";
 
+import { usePageView } from "@/services/hooks/usePageView";
+import { useButtonClick } from "@/services/hooks/useButtonClick";
+
+
 const CATEGORY_MAP: Record<string, string> = {
   door: "문짝",
   finish: "마감재",
@@ -31,6 +35,7 @@ const CATEGORY_MAP: Record<string, string> = {
 };
 
 function CheckOrderClientPage() {
+  usePageView("check_delivery");
   const { currentItem } = useCurrentOrderStore();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -161,18 +166,20 @@ function CheckOrderClientPage() {
     }
     delivery.delivery_request = requestMessage;
 
-    if (requestMessage === "OPEN_GATE") {
+    if (requestMessage === "공동현관으로 올라오세요") {
       delivery.gate_password = foyerAccessType.gatePassword;
     }
 
-    if (requestMessage === "DIRECT_INPUT") {
-      delivery.delivery_request_direct_input = customerRequest;
+    if (requestMessage === "직접 입력") {
+      delivery.delivery_request_direct_input = foyerAccessType.customRequest || customerRequest;
     }
 
     return { delivery };
   };
 
+  const buttonClick = useButtonClick("go_to_confirm", "check_delivery");
   const handleOrderSubmit = async () => {
+    buttonClick();
     setIsLoading(true);
     const totalPrice = cartItems.reduce((sum, item) => sum + item.price * (item.count || 1), 0);
 
@@ -191,6 +198,7 @@ function CheckOrderClientPage() {
     };
 
     try {
+      console.log("🚚 order_item 요청 payload:", payload);
       const order = await createOrder(payload);
       const orderId = order.order_id;
       console.log("오더아이디", orderId);
@@ -215,9 +223,10 @@ function CheckOrderClientPage() {
         }),
       );
 
+      await completeOrder(orderId);
+
       */
 
-      // await completeOrder(orderId);
 
       console.log("🚚 order_item 요청 payload:", payload);
       localStorage.setItem("recentOrder", JSON.stringify(order));
