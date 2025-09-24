@@ -4,7 +4,6 @@ import useAddressStore from "@/store/addressStore";
 import useCartStore from "@/store/cartStore";
 import { useOrderStore } from "@/store/orderStore";
 import useUserStore from "@/store/userStore";
-import { toAmplitudeUserId } from "@/utils/amplitudeUserId";
 
 // 전화번호 중복 확인 (GET 방식)
 export async function checkPhoneDuplicate(phoneNumber: string): Promise<boolean> {
@@ -64,11 +63,6 @@ export async function signin(body: SigninUser): Promise<number> {
   // getUserProfile에서 localStorage 저장까지 처리
   const userInfo = await getUserProfile(data.user_id);
 
-  // Amplitude user_id 세팅
-  const amplitudeId = toAmplitudeUserId(data.user_id);
-  if (typeof window !== "undefined" && window.amplitude && amplitudeId) {
-    window.amplitude.setUserId?.(amplitudeId);
-  }
   return data.user_id;
 }
 
@@ -95,12 +89,6 @@ export async function signup(body: SignupUser): Promise<{ user_id: number }> {
 
   // getUserProfile에서 localStorage 저장까지 처리
   await getUserProfile(data.user_id);
-
-  // Amplitude user_id 세팅
-  const amplitudeId = toAmplitudeUserId(data.user_id);
-  if (typeof window !== "undefined" && window.amplitude && amplitudeId) {
-    window.amplitude.setUserId?.(amplitudeId);
-  }
 
   return data;
 }

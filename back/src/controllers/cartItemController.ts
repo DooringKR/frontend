@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '../prismaClient';
 import { ProductType } from '@prisma/client';
-import amplitude from '../amplitudeClient';
+
 const VALID_PRODUCT_TYPES = Object.values(ProductType);
 
 // GET /cart_item/:cart_item_id — 특정 장바구니 아이템 조회
@@ -42,39 +42,6 @@ export async function addCartItem(req: Request, res: Response) {
 
   const newItem = await prisma.cartItem.create({
     data: { cart_id, product_type, unit_price, item_count, item_options },
-  });
-
-  // cart_id로 cart의 user_id를 조회해서 amplitude 전용 user_id 생성
-  let productTypeKey = product_type.toLowerCase() === 'finish'
-    ? 'finish_category'
-    : product_type.toLowerCase() + '_type';
-  let productTypeValue = '';
-  if (
-    item_options &&
-    typeof item_options[productTypeKey] === 'string'
-  ) {
-    productTypeValue = item_options[productTypeKey].toLowerCase();
-  }
-  const product_name = product_type.toLowerCase() + (productTypeValue ? `_${productTypeValue}` : '');
-  const cart = await prisma.cart.findUnique({ where: { id: cart_id } });
-  if (!cart) {
-    return res.status(400).json({ message: '유효하지 않은 cart_id입니다' });
-  }
-  let amplitudeUserId = String(cart.user_id);
-  if (amplitudeUserId.length < 5) {
-    amplitudeUserId = `user_${amplitudeUserId}`;
-    while (amplitudeUserId.length < 5) {
-      amplitudeUserId = amplitudeUserId + "0";
-    }
-  }
-  amplitude.track({
-    event_type: 'Added to Cart',
-    user_id: amplitudeUserId,
-    event_properties: {
-      product_name,
-      quantity: item_count,
-      price_per_unit: unit_price,
-    },
   });
 
   return res.status(201).json({

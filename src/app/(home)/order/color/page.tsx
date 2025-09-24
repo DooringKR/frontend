@@ -20,9 +20,6 @@ import ColorManualInputSheet from "./_components/ColorManualInputSheet";
 import ColorSelectBottomButton from "./_components/ColorSelectBottomButton";
 import ColorSelectList from "./_components/ColorSelectList";
 
-import { usePageView } from "@/services/hooks/usePageView";
-import { useButtonClick } from "@/services/hooks/useButtonClick";
-
 const categoryMap: Record<string, any[]> = {
   door: DOOR_CATEGORY_LIST,
   cabinet: CABINET_CATEGORY_LIST,
@@ -57,11 +54,6 @@ function ColorListPageContent() {
   const filteredColors = colorList.filter(item =>
     item.name.toLowerCase().includes(searchKeyword.toLowerCase()),
   );
-
-  // PV/BC 이벤트 네이밍: button_name은 go_to_type_slug, page_name은 color
-  usePageView("color");
-  const buttonName = `go_to_${type}_${category}`;
-  const handleColorToCategoryClick = useButtonClick(buttonName, "color");
 
   return (
     <div className="flex flex-col">
@@ -112,7 +104,6 @@ function ColorListPageContent() {
               category: category,
               color: selectedColor,
             });
-            handleColorToCategoryClick();
             router.push(`/order/${type}`);
           }
         }}
@@ -127,7 +118,6 @@ function ColorListPageContent() {
               category: category,
               color: selectedColor,
             });
-            handleColorToCategoryClick();
             router.push(`/order/${type}`);
           }}
         />

@@ -6,10 +6,8 @@ import { useState } from "react";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import ContactStatusChip from "./components/contactStatusChip";
-import { usePageView } from "@/services/hooks/usePageView";
 
 function CustomerServicePage() {
-  usePageView("customer_service");
   const [isContactAvailable, setIsContactAvailable] = useState(true);
 
   return (

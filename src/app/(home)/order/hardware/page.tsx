@@ -10,8 +10,6 @@ import BoxedInput from "@/components/Input/BoxedInput";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { HardwareCart, useSingleCartStore } from "@/store/singleCartStore";
-import { usePageView } from "@/services/hooks/usePageView";
-import { useButtonClick } from "@/services/hooks/useButtonClick";
 
 function HardwarePageContent() {
   const router = useRouter();
@@ -28,12 +26,6 @@ function HardwarePageContent() {
     useSingleCartStore(state => (state.cart as HardwareCart).request) ?? "",
   );
   const setCart = useSingleCartStore(state => state.setCart);
-
-  // PV/BC 이벤트 네이밍: 모두 소문자, 언더스코어만 사용
-  const typeSlug = "hardware";
-  const pageName = `${typeSlug}_${category}`;
-  usePageView(pageName);
-  const handleNextClick = useButtonClick("go_to_confirm", pageName);
 
   // const category = searchParams.get("category") ?? "";
   // category(slug)에 맞는 header 값 찾기
@@ -85,7 +77,6 @@ function HardwarePageContent() {
               hardware_size: hardware_size,
               request: request ?? null,
             });
-            handleNextClick();
             router.push(`/order/hardware/confirm`);
           }}
         />

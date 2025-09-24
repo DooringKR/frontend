@@ -24,8 +24,6 @@ import NormalDoorForm from "./_components/NormalDoorForm";
 // Hooks
 import { useDoorValidation } from "./hooks/useDoorValidation";
 import formatColor from "@/utils/formatColor";
-import { usePageView } from "@/services/hooks/usePageView";
-import { useButtonClick } from "@/services/hooks/useButtonClick";
 
 function DoorPageContent() {
   const router = useRouter();
@@ -53,12 +51,6 @@ function DoorPageContent() {
   const color = useSingleCartStore(state => (state.cart as DoorCart).color);
 
   const doorCategory = DOOR_CATEGORY_LIST.find(item => item.slug === category);
-
-  // PV/BC 이벤트 네이밍: 모두 소문자, 언더스코어만 사용
-  const typeSlug = "door";
-  const pageName = `${typeSlug}_${category}`;
-  usePageView(pageName);
-  const handleNextClick = useButtonClick("go_to_confirm", pageName);
 
   // 유효성 검사 훅 사용
   const { widthError, heightError, boringError, isFormValid } = useDoorValidation({
@@ -284,7 +276,6 @@ function DoorPageContent() {
                   addOn_hinge,
                 },
               });
-              handleNextClick();
               router.push("/order/door/confirm");
             }}
           />

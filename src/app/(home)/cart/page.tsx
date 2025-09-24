@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+
 import CartClient from "./CartClient";
 
 export default function ShoppingCartPage() {

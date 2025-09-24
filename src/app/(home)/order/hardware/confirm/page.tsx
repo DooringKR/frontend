@@ -12,8 +12,6 @@ import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { HardwareCart, useSingleCartStore } from "@/store/singleCartStore";
-import { usePageView } from "@/services/hooks/usePageView";
-import { useButtonClick } from "@/services/hooks/useButtonClick";
 
 function HardwareConfirmPageContent() {
   const router = useRouter();
@@ -23,12 +21,6 @@ function HardwareConfirmPageContent() {
   const request = useSingleCartStore(state => (state.cart as HardwareCart).request);
 
   const [quantity, setQuantity] = useState(1);
-
-  // PV/BC 이벤트 네이밍: 모두 소문자, 언더스코어만 사용
-  const typeSlug = "hardware";
-  const pageName = `${typeSlug}_${category}_confirm`;
-  usePageView(pageName); // PV도 소문자, 언더스코어
-  const handleAddToCartClick = useButtonClick("add_to_cart", pageName);
 
   return (
     <div>
@@ -64,9 +56,7 @@ function HardwareConfirmPageContent() {
           button1Text={"장바구니 담기"}
           className="fixed bottom-0 w-full max-w-[460px]"
           onButton1Click={async () => {
-              handleAddToCartClick();
             try {
-              
               const result = await addCartItem({
                 product_type: "HARDWARE",
                 unit_price: 0,

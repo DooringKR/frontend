@@ -10,8 +10,6 @@ import BoxedInput from "@/components/Input/BoxedInput";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { AccessoryCart, useSingleCartStore } from "@/store/singleCartStore";
-import { usePageView } from "@/services/hooks/usePageView";
-import { useButtonClick } from "@/services/hooks/useButtonClick";
 
 function AccessoryPageContent() {
   const router = useRouter();
@@ -30,12 +28,6 @@ function AccessoryPageContent() {
   );
 
   const setCart = useSingleCartStore(state => state.setCart);
-
-  // PV/BC 이벤트 네이밍: 모두 소문자, 언더스코어만 사용
-  const typeSlug = "accessory";
-  const pageName = `${typeSlug}_${category}`;
-  usePageView(pageName);
-  const handleNextClick = useButtonClick("go_to_confirm", pageName);
 
   // const category = searchParams.get("category") ?? "";
   // category(slug)에 맞는 header 값 찾기
@@ -87,7 +79,6 @@ function AccessoryPageContent() {
               accessory_model: accessory_model,
               request: request ?? null,
             });
-            handleNextClick();
             router.push(`/order/accessory/confirm`);
           }}
         />

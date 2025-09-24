@@ -1,13 +1,28 @@
 import type { Metadata, Viewport } from "next";
 
-
 import FloatingButton from "@/components/FloatingButton";
-import AmplitudeUserIdSetter from "@/components/AmplitudeUserIdSetter";
 
 import "./globals.css";
 
-// ...existing code...
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export const metadata: Metadata = {
+  title: "바로가구",
+  description: "가구 문짝 ∙ 가구 마감재 ∙ 부분장 ∙ 가구 부속 ∙ 가구 하드웨어 | 모바일로 쉽고 편리하게 주문하고, 정확한 맞춤 가구를 오늘배송 받으세요.",
+  icons: {
+    icon: "/favicon.svg",
+    apple: "/img/logo-192x192.png",
+  },
+  manifest: "/manifest.json",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#000000",
+};
+
+function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="ko">
       <head>
@@ -23,6 +38,27 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content="바로가구 - 현장에서 필요한 가구, 오늘배송" />
+        <meta property="og:site_name" content="바로가구" />
+        <meta property="og:locale" content="ko_KR" />
+        <meta property="og:locale:alternate" content="en_US" />
+
+        {/* 카카오톡 최적화 태그 */}
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:secure_url" content="https://ltndnqysxsyldvkrbpfq.supabase.co/storage/v1/object/public/meta-tag/metatag.png" />
+
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content="https://baro.dooring.kr/" />
+        <meta property="twitter:title" content="바로가구: 현장에서 필요한 가구, 오늘배송" />
+        <meta property="twitter:description" content="가구 문짝 ∙ 가구 마감재 ∙ 부분장 ∙ 가구 부속 ∙ 가구 하드웨어 | 모바일로 쉽고 편리하게 주문하고, 정확한 맞춤 가구를 오늘배송 받으세요." />
+        <meta property="twitter:image" content="https://ltndnqysxsyldvkrbpfq.supabase.co/storage/v1/object/public/meta-tag/metatag.png" />
+
+
+        {/* Pretendard 폰트 preload */}
+        <link
+          rel="preload"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
+          as="style"
+        />
         <link
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css"
@@ -53,12 +89,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="min-h-screen bg-gray-100">
-        <AmplitudeUserIdSetter />
         <div className="mx-auto min-h-screen max-w-[460px] bg-white shadow-[0_0_20px_0_rgba(3,7,18,0.10)]">{children}</div>
         {/* 우측 하단 고정 버튼 */}
         <FloatingButton />
       </body>
-          </html>
-        );
-      }
+    </html>
+  );
+}
 
+export default RootLayout;

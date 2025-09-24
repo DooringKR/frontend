@@ -18,8 +18,6 @@ import BoxedSelect from "@/components/Select/BoxedSelect";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { CabinetCart, useSingleCartStore } from "@/store/singleCartStore";
-import { usePageView } from "@/services/hooks/usePageView";
-import { useButtonClick } from "@/services/hooks/useButtonClick";
 
 import formatLocation from "@/utils/formatLocation";
 
@@ -116,13 +114,6 @@ function CabinetPageContent() {
   const headerTitle = currentCategory?.header || category;
 
   const router = useRouter();
-
-  // PV/BC 이벤트 네이밍을 위한 헬퍼
-  // PV/BC 이벤트 네이밍: 모두 소문자, 언더스코어만 사용
-  const typeSlug = "cabinet";
-  const pageName = `${typeSlug}_${category}`;
-  usePageView(pageName);
-  const handleNextClick = useButtonClick("go_to_confirm", pageName);
 
   const [DoorWidth, setDoorWidth] = useState<number | null>(
     (useSingleCartStore.getState().cart as CabinetCart).width ?? null,
@@ -394,7 +385,6 @@ function CabinetPageContent() {
                     legType,
                   },
                 }));
-                handleNextClick();
                 router.push(`/order/cabinet/confirm`);
               }}
             />

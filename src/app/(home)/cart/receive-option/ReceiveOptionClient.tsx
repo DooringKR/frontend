@@ -11,27 +11,17 @@ import { useOrderStore } from "@/store/orderStore";
 
 import ReceiveOptionCard from "./_components/ReceiveOptionCard";
 
-import { usePageView } from "@/services/hooks/usePageView";
-import { useButtonClick } from "@/services/hooks/useButtonClick";
-
 export default function ReceiveOptionClientPage() {
-
-  usePageView("receive_option");
   const router = useRouter();
   const setReceiveMethod = useOrderStore(state => state.setReceiveMethod);
 
   const [isPickupAddressModalOpen, setIsPickupAddressModalOpen] = useState(false);
 
-  const handleDeliveryClick = useButtonClick("go_to_delivery", "receive_option");
-  const handlePickUpClick = useButtonClick("go_to_pickup", "receive_option");
-
   const handleSelect = (method: "DELIVERY" | "PICK_UP") => {
     setReceiveMethod(method);
     if (method === "DELIVERY") {
-      handleDeliveryClick();
       router.push("/cart/checkorder");
     } else {
-      handlePickUpClick();
       router.push("/cart/pickup");
     }
   };
