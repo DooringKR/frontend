@@ -1,7 +1,8 @@
 import { AccessoryType, DoorType, FinishType, HardwareType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 
 type Category = {
-  type?: FinishType | AccessoryType | HardwareType | DoorType;
+  type?: FinishType | AccessoryType | HardwareType | DoorType | DetailProductType;
   name?: string;
   image: string;
   slug: string;
@@ -36,11 +37,11 @@ export const HARDWARE_CATEGORY_LIST: Category[] = [
 ]
 
 export const CABINET_CATEGORY_LIST: Category[] = [
-  { name: "상부장", image: "/img/cabinet-category/Upper.png", slug: "upper", header: "상부장" },
-  { name: "하부장", image: "/img/cabinet-category/Lower.png", slug: "lower", header: "하부장" },
-  { name: "플랩장", image: "/img/cabinet-category/Flap.png", slug: "flap", header: "플랩장" },
-  { name: "서랍장", image: "/img/cabinet-category/Drawers.png", slug: "drawer", header: "서랍장" },
-  { name: "오픈장", image: "/img/cabinet-category/Open.png", slug: "open", header: "오픈장" },
+  { type: DetailProductType.UPPERCABINET, image: "/img/cabinet-category/Upper.png", slug: "upper" },
+  { type: DetailProductType.LOWERCABINET, image: "/img/cabinet-category/Lower.png", slug: "lower" },
+  { type: DetailProductType.FLAPCABINET, image: "/img/cabinet-category/Flap.png", slug: "flap" },
+  { type: DetailProductType.DRAWERCABINET, image: "/img/cabinet-category/Drawers.png", slug: "drawer" },
+  { type: DetailProductType.OPENCABINET, image: "/img/cabinet-category/Open.png", slug: "open" },
 ]
 
 export const FINISH_CATEGORY_LIST: Category[] = [
