@@ -7,13 +7,13 @@ import { useCabinetValidation } from "./hooks/useCabinetValidation";
 
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState, useRef } from "react";
+import { CabinetHandleType, CabinetBehindType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import Button from "@/components/Button/Button";
 import Header from "@/components/Header/Header";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
-import UpperCabinetForm from "@/app/(home)/order/cabinet/_components/UpperCabinetForm";
 
 
 import useItemStore from "@/store/Items/itemStore";
@@ -38,9 +38,15 @@ function UpperCabinetPageContent() {
     // bodyMaterial을 id(number) 또는 직접입력 string으로 관리
     const [bodyMaterial, setBodyMaterial] = useState<number | null>(typeof item?.bodyMaterial === "number" ? item.bodyMaterial : null);
     const [bodyMaterialDirectInput, setBodyMaterialDirectInput] = useState(item?.body_material_direct_input ?? "");
-    const [handleType, setHandleType] = useState(item?.handleType ?? "");
-    // 기존 finishType -> behindType으로 변경, null 허용 안함
-    const [behindType, setBehindType] = useState(item?.behindType ?? "우라홈");
+    // robust: enum 기반 상태 관리
+    const [handleType, setHandleType] = useState<CabinetHandleType | "">(
+        item && Object.values(CabinetHandleType).includes(item.handleType) ? item.handleType : ""
+    );
+    // CabinetBehindType의 첫 번째 값(우라홈) 사용
+    const cabinetBehindTypeDefault = Object.values(CabinetBehindType)[0];
+    const [behindType, setBehindType] = useState<CabinetBehindType | "">(
+        item && Object.values(CabinetBehindType).includes(item.behindType) ? item.behindType : cabinetBehindTypeDefault
+    );
     const [request, setRequest] = useState(item?.request ?? "");
     const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
     // 추가 필드: 용도/장소, 시공 필요 여부, 다리발
@@ -245,41 +251,32 @@ function UpperCabinetPageContent() {
                     error={!!depthError}
                     helperText={depthError}
                 />
-                {/* 손잡이 종류 */}
+                {/* 손잡이 robust (enum) */}
                 <div className="flex flex-col gap-2">
                     <div className="text-[14px]/[20px] font-400 text-gray-600">손잡이 종류</div>
                     <div className="flex w-full gap-2">
-                        <Button
-                            type={handleType === "겉손잡이" ? "BrandInverse" : "GrayLarge"}
-                            text={"겉손잡이"}
-                            onClick={() => setHandleType("겉손잡이")}
-                        />
-                        <Button
-                            type={handleType === "내리기" ? "BrandInverse" : "GrayLarge"}
-                            text={"내리기"}
-                            onClick={() => setHandleType("내리기")}
-                        />
-                        <Button
-                            type={handleType === "푸쉬" ? "BrandInverse" : "GrayLarge"}
-                            text={"푸쉬"}
-                            onClick={() => setHandleType("푸쉬")}
-                        />
+                        {Object.values(CabinetHandleType).map(opt => (
+                            <Button
+                                key={opt}
+                                type={handleType === opt ? "BrandInverse" : "GrayLarge"}
+                                text={opt}
+                                onClick={() => setHandleType(opt)}
+                            />
+                        ))}
                     </div>
                 </div>
-                {/* 뒷판 방식 (CabinetBehindType) */}
+                {/* 뒷판 robust (enum) */}
                 <div className="flex flex-col gap-2">
                     <div className="text-[14px]/[20px] font-400 text-gray-600">뒷판 방식</div>
                     <div className="flex w-full gap-2">
-                        <Button
-                            type={behindType === "우라홈" ? "BrandInverse" : "GrayLarge"}
-                            text={"일반 (우라홈)"}
-                            onClick={() => setBehindType("우라홈")}
-                        />
-                        <Button
-                            type={behindType === "막우라" ? "BrandInverse" : "GrayLarge"}
-                            text={"막우라"}
-                            onClick={() => setBehindType("막우라")}
-                        />
+                        {Object.values(CabinetBehindType).map(opt => (
+                            <Button
+                                key={opt}
+                                type={behindType === opt ? "BrandInverse" : "GrayLarge"}
+                                text={opt === cabinetBehindTypeDefault ? "일반 (우라홈)" : opt}
+                                onClick={() => setBehindType(opt)}
+                            />
+                        ))}
                     </div>
                 </div>
                 {/* 요청사항 */}

@@ -21,6 +21,7 @@ import { CrudCartItemUsecase } from "@/DDD/usecase/crud_cart_item_usecase";
 import { CrudInteriorMaterialsUsecase } from "@/DDD/usecase/crud_interior_materials_usecase";
 import useCartStore from "@/store/cartStore";
 import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
+import { CABINET_DRAWER_TYPE_LIST } from "@/constants/cabinetdrawertype";
 import { CartItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/CartItem";
 import { CartItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/cartitem_supabase_repository";
 import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
@@ -77,7 +78,10 @@ function createCabinetInstance(item: any) {
 				cabinet_request: item.request,
 				handle_type: item.handleType,
 			});
-		case "오픈장":
+		case "오픈장": {
+			// robust: map riceRail/lowerDrawer ("추가"/"추가 안 함") to boolean
+			const addRiceCookerRail = item.riceRail === "추가";
+			const addBottomDrawer = item.lowerDrawer === "추가";
 			return new OpenCabinet({
 				cabinet_color: colorId,
 				cabinet_width: item.width,
@@ -88,9 +92,10 @@ function createCabinetInstance(item: any) {
 				cabinet_body_material: cabinetBodyMaterial,
 				cabinet_body_material_direct_input: cabinetBodyMaterialDirectInput,
 				cabinet_request: item.request,
-				add_rice_cooker_rail: item.add_rice_cooker_rail,
-				add_bottom_drawer: item.add_bottom_drawer,
+				add_rice_cooker_rail: addRiceCookerRail,
+				add_bottom_drawer: addBottomDrawer,
 			});
+		}
 		case "플랩장":
 			return new FlapCabinet({
 				cabinet_color: colorId,
@@ -107,6 +112,15 @@ function createCabinetInstance(item: any) {
 				absorber_type_direct_input: item.absorber_type_direct_input,
 			});
 		case "서랍장":
+			let drawerTypeId: number = 0;
+			let drawerTypeDirectInput: string | undefined = undefined;
+			if (item.drawer_type) {
+			const found = CABINET_DRAWER_TYPE_LIST.find(opt => opt.name === item.drawer_type);
+			if (found) drawerTypeId = found.id;
+			}
+			if (!drawerTypeId && item.drawer_type_direct_input) {
+			drawerTypeDirectInput = item.drawer_type_direct_input;
+			}
 			return new DrawerCabinet({
 				cabinet_color: colorId,
 				cabinet_width: item.width,
@@ -118,7 +132,7 @@ function createCabinetInstance(item: any) {
 				cabinet_body_material_direct_input: cabinetBodyMaterialDirectInput,
 				cabinet_request: item.request,
 				handle_type: item.handleType,
-				drawer_type: item.drawer_type,
+				drawer_type: drawerTypeId,
 				rail_type: item.rail_type,
 				rail_type_direct_input: item.rail_type_direct_input,
 			});
