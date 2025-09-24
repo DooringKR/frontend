@@ -16,7 +16,7 @@ import Header from "@/components/Header/Header";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 
-import useItemStore from "@/store/Items/itemStore";
+import useItemStore from "@/store/itemStore";
 import formatLocation from "@/utils/formatLocation";
 import SelectToggleButton from "@/components/Button/SelectToggleButton";
 import GrayVerticalLine from "@/components/GrayVerticalLine/GrayVerticalLine";
@@ -100,7 +100,7 @@ function UpperCabinetPageContent() {
                     options={colorOptions}
                     value={color}
                     onClick={() => router.push("/cabinet/color")}
-                    onChange={() => {}}
+                    onChange={() => { }}
                 />
                 {/* 몸통 소재 및 두께 */}
                 <BoxedSelect
@@ -108,7 +108,7 @@ function UpperCabinetPageContent() {
                     options={BODY_MATERIAL_LIST.filter(opt => opt.name !== "직접입력").map(opt => ({ value: String(opt.id), label: opt.name }))}
                     value={bodyMaterial !== null ? (selectedMaterial ? selectedMaterial.name : "") : bodyMaterialDirectInput}
                     onClick={() => setIsBottomSheetOpen(true)}
-                    onChange={() => {}}
+                    onChange={() => { }}
                 />
                 {/* 용도/장소 */}
                 <BoxedSelect
@@ -122,7 +122,7 @@ function UpperCabinetPageContent() {
                     ]}
                     value={formatLocation(cabinetLocation)}
                     onClick={() => setIsCabinetLocationSheetOpen(true)}
-                    onChange={() => {}}
+                    onChange={() => { }}
                 />
                 <BottomSheet
                     isOpen={isCabinetLocationSheetOpen}
@@ -177,7 +177,7 @@ function UpperCabinetPageContent() {
                     ]}
                     value={legType}
                     onClick={() => setIsLegTypeSheetOpen(true)}
-                    onChange={() => {}}
+                    onChange={() => { }}
                 />
                 <BottomSheet
                     isOpen={isLegTypeSheetOpen}
@@ -210,7 +210,7 @@ function UpperCabinetPageContent() {
                     options={BODY_MATERIAL_LIST.filter(opt => opt.name !== "직접입력").map(opt => ({ value: String(opt.id), label: opt.name }))}
                     value={bodyMaterial !== null ? (selectedMaterial ? selectedMaterial.name : "") : bodyMaterialDirectInput}
                     onClick={() => setIsBottomSheetOpen(true)}
-                    onChange={() => {}}
+                    onChange={() => { }}
                 />
                 {/* 너비 */}
                 <BoxedInput
@@ -288,21 +288,21 @@ function UpperCabinetPageContent() {
                 />
             </div>
             <div className="h-5" />
-                        <BodyMaterialManualInputSheet
-                            isOpen={isBottomSheetOpen}
-                            onClose={() => setIsBottomSheetOpen(false)}
-                            value={bodyMaterial}
-                            directInput={bodyMaterialDirectInput}
-                            onChange={(val) => {
-                                if (typeof val === "number") {
-                                    setBodyMaterial(val);
-                                    setBodyMaterialDirectInput("");
-                                } else {
-                                    setBodyMaterial(null);
-                                    setBodyMaterialDirectInput(val);
-                                }
-                            }}
-                        />
+            <BodyMaterialManualInputSheet
+                isOpen={isBottomSheetOpen}
+                onClose={() => setIsBottomSheetOpen(false)}
+                value={bodyMaterial}
+                directInput={bodyMaterialDirectInput}
+                onChange={(val) => {
+                    if (typeof val === "number") {
+                        setBodyMaterial(val);
+                        setBodyMaterialDirectInput("");
+                    } else {
+                        setBodyMaterial(null);
+                        setBodyMaterialDirectInput(val);
+                    }
+                }}
+            />
             <div className="h-[100px]" />
             {!isBottomSheetOpen && (
                 <div id="cabinet-next-button">

@@ -1,6 +1,6 @@
 import { ProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, devtools } from "zustand/middleware";
 
 // 기본 아이템 타입
 export interface BaseItem {
@@ -21,21 +21,27 @@ interface ItemStore {
 
 // 아이템 스토어 생성
 const useItemStore = create<ItemStore>()(
-    persist(
-        (set) => ({
-            item: null,
+    devtools(
+        persist(
+            (set) => ({
+                item: null,
 
-            setItem: (item: BaseItem) => set({ item }),
+                setItem: (item: BaseItem) => set({ item }),
 
-            updateItem: (updates: Partial<BaseItem>) =>
-                set(state => ({
-                    item: state.item ? { ...state.item, ...updates } : null,
-                })),
+                updateItem: (updates: Partial<BaseItem>) =>
+                    set(state => ({
+                        item: state.item ? { ...state.item, ...updates } : null,
+                    })),
 
-            resetItem: () => set({ item: null }),
-        }),
+                resetItem: () => set({ item: null }),
+            }),
+            {
+                name: "item-storage",
+            }
+        ),
         {
-            name: "item-storage",
+            name: "item-store",
+            enabled: process.env.NODE_ENV === 'development',
         }
     )
 );

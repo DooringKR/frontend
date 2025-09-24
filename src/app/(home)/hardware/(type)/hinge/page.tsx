@@ -12,7 +12,7 @@ import BoxedInput from "@/components/Input/BoxedInput";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import SelectToggleButton from "@/components/Button/SelectToggleButton";
 import Button from "@/components/Button/Button";
-import useItemStore from "@/store/Items/itemStore";
+import useItemStore from "@/store/itemStore";
 
 
 function HingePageContent() {
@@ -79,7 +79,7 @@ function HingePageContent() {
           })()}
           options={Object.values(HardwareMadeBy).map(v => ({ label: v, value: v }))}
           onClick={() => setIsMadebySheetOpen(true)}
-          onChange={() => {}}
+          onChange={() => { }}
         />
         <BoxedSelect
           label="합판 두께"
@@ -91,7 +91,7 @@ function HingePageContent() {
           })()}
           options={Object.values(HingeThickness).map(v => ({ label: v, value: v }))}
           onClick={() => setIsThicknessSheetOpen(true)}
-          onChange={() => {}}
+          onChange={() => { }}
         />
         <BoxedSelect
           label="각도"
@@ -103,7 +103,7 @@ function HingePageContent() {
           })()}
           options={Object.values(HingeAngle).map(v => ({ label: v, value: v }))}
           onClick={() => setIsAngleSheetOpen(true)}
-          onChange={() => {}}
+          onChange={() => { }}
         />
         <BoxedInput
           label="제작 시 요청사항"

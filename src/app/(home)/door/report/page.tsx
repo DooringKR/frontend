@@ -7,7 +7,7 @@ import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { DOOR_CATEGORY_LIST } from "@/constants/category";
-import useItemStore from "@/store/Items/itemStore";
+import useItemStore from "@/store/itemStore";
 import { calculateUnitDoorPrice } from "@/services/pricing/doorPricing";
 import { Suspense, useState } from "react";
 import { useRouter } from "next/navigation";

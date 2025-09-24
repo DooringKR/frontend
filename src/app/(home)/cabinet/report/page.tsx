@@ -10,7 +10,7 @@ import { CABINET_COLOR_LIST } from "@/constants/colorList";
 import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
 import { InteriorMaterialsSupabaseRepository } from "@/DDD/data/db/interior_materials_supabase_repository";
 import { CABINET_CATEGORY_LIST } from "@/constants/category";
-import useItemStore from "@/store/Items/itemStore";
+import useItemStore from "@/store/itemStore";
 import { calculateUnitCabinetPrice } from "@/services/pricing/cabinetPricing";
 import { Cabinet, UpperCabinet, LowerCabinet, OpenCabinet, FlapCabinet, DrawerCabinet } from "dooring-core-domain/dist/models/InteriorMaterials/Cabinet";
 import { Suspense, useState } from "react";
@@ -115,11 +115,11 @@ function createCabinetInstance(item: any) {
 			let drawerTypeId: number = 0;
 			let drawerTypeDirectInput: string | undefined = undefined;
 			if (item.drawer_type) {
-			const found = CABINET_DRAWER_TYPE_LIST.find(opt => opt.name === item.drawer_type);
-			if (found) drawerTypeId = found.id;
+				const found = CABINET_DRAWER_TYPE_LIST.find(opt => opt.name === item.drawer_type);
+				if (found) drawerTypeId = found.id;
 			}
 			if (!drawerTypeId && item.drawer_type_direct_input) {
-			drawerTypeDirectInput = item.drawer_type_direct_input;
+				drawerTypeDirectInput = item.drawer_type_direct_input;
 			}
 			return new DrawerCabinet({
 				cabinet_color: colorId,
@@ -142,85 +142,85 @@ function createCabinetInstance(item: any) {
 }
 
 function ReportPageContent() {
-		const router = useRouter();
-		const { item } = useItemStore();
-		const { cart, incrementCartCount } = useCartStore();
-		const [quantity, setQuantity] = useState(1);
+	const router = useRouter();
+	const { item } = useItemStore();
+	const { cart, incrementCartCount } = useCartStore();
+	const [quantity, setQuantity] = useState(1);
 
-		if (!item || Object.keys(item).length === 0) {
-			return <div>로딩 중...</div>;
-		}
+	if (!item || Object.keys(item).length === 0) {
+		return <div>로딩 중...</div>;
+	}
 
 
-			   // 주요 필드 콘솔 출력
-			   console.log(
-				   'item.type:', item.type,
-				   'item.color:', item.color ?? "",
-				   'item.width:', item.width ?? 0,
-				   'item.bodyMaterial:', item.bodyMaterial ?? "",
-				   'item.handleType:', item.handleType ?? "",
-				   'item.depth:', item.depth ?? 0,
-				   'item.behindType:', item.behindType ?? "",
-				   'item.cabinet_behind_type:', item.cabinet_behind_type ?? ""
-			   );
+	// 주요 필드 콘솔 출력
+	console.log(
+		'item.type:', item.type,
+		'item.color:', item.color ?? "",
+		'item.width:', item.width ?? 0,
+		'item.bodyMaterial:', item.bodyMaterial ?? "",
+		'item.handleType:', item.handleType ?? "",
+		'item.depth:', item.depth ?? 0,
+		'item.behindType:', item.behindType ?? "",
+		'item.cabinet_behind_type:', item.cabinet_behind_type ?? ""
+	);
 
-			   // Map behindType (form value) to enum value for DB
-			   let cabinetBehindType = "URAHOME"; // default
-			   if (item.behindType === "막우라") cabinetBehindType = "MAK_URA";
-			   else if (item.behindType === "우라홈") cabinetBehindType = "URAHOME";
-			   // Patch item with correct enum value for DB
-			   if (item.cabinet_behind_type !== cabinetBehindType) {
-				   useItemStore.getState().updateItem({ cabinet_behind_type: cabinetBehindType });
-				   item.cabinet_behind_type = cabinetBehindType;
-			   }
+	// Map behindType (form value) to enum value for DB
+	let cabinetBehindType = "URAHOME"; // default
+	if (item.behindType === "막우라") cabinetBehindType = "MAK_URA";
+	else if (item.behindType === "우라홈") cabinetBehindType = "URAHOME";
+	// Patch item with correct enum value for DB
+	if (item.cabinet_behind_type !== cabinetBehindType) {
+		useItemStore.getState().updateItem({ cabinet_behind_type: cabinetBehindType });
+		item.cabinet_behind_type = cabinetBehindType;
+	}
 
-			   // 색상 id/name 변환
-			   const colorObj = CABINET_COLOR_LIST.find(c => c.id === Number(item.color))
-				   || CABINET_COLOR_LIST.find(c => c.name === item.color);
-			   const colorId = colorObj ? String(colorObj.id) : "";
-			   const colorName = colorObj ? colorObj.name : (item.color ?? "");
+	// 색상 id/name 변환
+	const colorObj = CABINET_COLOR_LIST.find(c => c.id === Number(item.color))
+		|| CABINET_COLOR_LIST.find(c => c.name === item.color);
+	const colorId = colorObj ? String(colorObj.id) : "";
+	const colorName = colorObj ? colorObj.name : (item.color ?? "");
 
-			   // 몸통 소재 id/name 변환
-			   const bodyMaterialObj = typeof item.bodyMaterial === "number"
-				   ? BODY_MATERIAL_LIST.find(b => b.id === item.bodyMaterial)
-				   : undefined;
-			   const bodyMaterialName = bodyMaterialObj ? bodyMaterialObj.name : (item.body_material_direct_input ?? "");
+	// 몸통 소재 id/name 변환
+	const bodyMaterialObj = typeof item.bodyMaterial === "number"
+		? BODY_MATERIAL_LIST.find(b => b.id === item.bodyMaterial)
+		: undefined;
+	const bodyMaterialName = bodyMaterialObj ? bodyMaterialObj.name : (item.body_material_direct_input ?? "");
 
-			   const unitPrice = calculateUnitCabinetPrice(
-				   item.type,
-				   colorId,
-				   item.width ?? 0,
-				   typeof item.bodyMaterial === "number" ? item.bodyMaterial : 0,
-				   item.handleType ?? "",
-				   item.depth ?? 0,
-			   );
+	const unitPrice = calculateUnitCabinetPrice(
+		item.type,
+		colorId,
+		item.width ?? 0,
+		typeof item.bodyMaterial === "number" ? item.bodyMaterial : 0,
+		item.handleType ?? "",
+		item.depth ?? 0,
+	);
 
 	return (
 		<div className="flex flex-col">
 			<TopNavigator />
 			<Header size="Large" title={`부분장 주문 개수를 선택해주세요`} />
 			<div className="flex flex-col gap-[20px] px-5 pb-[100px] pt-5">
-				   <ShoppingCartCard
-					   type="cabinet"
-					   title={item?.category ?? ""}
-					   color={colorName}
-					   depth={item?.depth ? Number(item.depth) : undefined}
-					   height={item?.height ? Number(item.height) : undefined}
-					   width={item?.width ? Number(item.width) : undefined}
-					   bodyMaterial={bodyMaterialName}
-					   handleType={item?.handleType ?? undefined}
-					   finishType={item?.finishType ?? undefined}
-					   location={item.cabinet_location ?? undefined}
-					   addOn_construction={item.addOn_construction ?? undefined}
-					   legType={item.legType ?? undefined}
-					   quantity={0}
-					   trashable={false}
-					   showQuantitySelector={false}
-					   request={item.request ?? undefined}
-					   onOptionClick={() => {
-						   router.push(`/cabinet/${item.category}`);
-					   }}
-				   />
+				<ShoppingCartCard
+					type="cabinet"
+					title={item?.category ?? ""}
+					color={colorName}
+					depth={item?.depth ? Number(item.depth) : undefined}
+					height={item?.height ? Number(item.height) : undefined}
+					width={item?.width ? Number(item.width) : undefined}
+					bodyMaterial={bodyMaterialName}
+					handleType={item?.handleType ?? undefined}
+					finishType={item?.finishType ?? undefined}
+					location={item.cabinet_location ?? undefined}
+					addOn_construction={item.addOn_construction ?? undefined}
+					legType={item.legType ?? undefined}
+					quantity={0}
+					trashable={false}
+					showQuantitySelector={false}
+					request={item.request ?? undefined}
+					onOptionClick={() => {
+						router.push(`/cabinet/${item.category}`);
+					}}
+				/>
 				<OrderSummaryCard
 					quantity={quantity}
 					unitPrice={unitPrice}

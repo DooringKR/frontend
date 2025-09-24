@@ -14,7 +14,7 @@ import GrayVerticalLine from "@/components/GrayVerticalLine/GrayVerticalLine";
 import formatColor from "@/utils/formatColor";
 import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
 import { CABINET_COLOR_LIST } from "@/constants/colorList";
-import useItemStore from "@/store/Items/itemStore";
+import useItemStore from "@/store/itemStore";
 import { useCabinetValidation } from "../upper/hooks/useCabinetValidation";
 import { CabinetBehindType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
@@ -79,7 +79,7 @@ function OpenCabinetPageContent() {
 					options={colorOptions}
 					value={color}
 					onClick={() => setIsColorSheetOpen(true)}
-					onChange={() => {}}
+					onChange={() => { }}
 				/>
 				{/* 몸통 소재 및 두께 */}
 				<BoxedSelect
@@ -87,7 +87,7 @@ function OpenCabinetPageContent() {
 					options={BODY_MATERIAL_LIST.filter(opt => opt.name !== "직접입력").map(opt => ({ value: String(opt.id), label: opt.name }))}
 					value={bodyMaterial !== null ? (selectedMaterial ? selectedMaterial.name : "") : bodyMaterialDirectInput}
 					onClick={() => setIsBottomSheetOpen(true)}
-					onChange={() => {}}
+					onChange={() => { }}
 				/>
 				{/* 너비 */}
 				<BoxedInput

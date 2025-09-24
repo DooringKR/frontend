@@ -17,7 +17,7 @@ import SegmentedControl from "@/components/SegmentedControl/SegmentedControl";
 import formatLocation from "@/utils/formatLocation";
 import formatColor from "@/utils/formatColor";
 
-import useItemStore from "@/store/Items/itemStore";
+import useItemStore from "@/store/itemStore";
 
 // Hooks
 import { useDoorValidation } from "./hooks/useDoorValidation";

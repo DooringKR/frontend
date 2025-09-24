@@ -9,7 +9,7 @@ import Header from "@/components/Header/Header";
 import BoxedInput from "@/components/Input/BoxedInput";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
-import useItemStore from "@/store/Items/itemStore";
+import useItemStore from "@/store/itemStore";
 
 // 유효성 검사 훅
 function useAccessoryValidation({

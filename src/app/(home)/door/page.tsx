@@ -8,7 +8,7 @@ import { Suspense } from "react";
 import Header from "@/components/Header/Header";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import { DoorType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
-import useItemStore from "@/store/Items/itemStore";
+import useItemStore from "@/store/itemStore";
 import { ProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 
 function DoorCategoryPage() {

@@ -7,13 +7,13 @@ import Header from "@/components/Header/Header";
 import Image from "next/image";
 import { CABINET_CATEGORY_LIST } from "@/constants/category";
 
-import useItemStore from "@/store/Items/itemStore";
+import useItemStore from "@/store/itemStore";
 import { ProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 
 function CabinetCategoryPage() {
 	const router = useRouter();
 	const cabinetCategories = CABINET_CATEGORY_LIST;
-  const setItem = useItemStore(state => state.setItem);
+	const setItem = useItemStore(state => state.setItem);
 
 	return (
 		<div className="flex flex-col">
@@ -25,10 +25,10 @@ function CabinetCategoryPage() {
 						key={category.slug}
 						className="flex flex-1 cursor-pointer flex-col items-center gap-2"
 						onClick={() => {
-              setItem({
-                  category: ProductType.CABINET,
-                  type: category.type,
-              })
+							setItem({
+								category: ProductType.CABINET,
+								type: category.type,
+							})
 							router.push(`/cabinet/color`);
 						}}
 					>

@@ -13,7 +13,7 @@ import ColorManualInputGuide from "./_components/ColorManualInputGuide";
 import ColorManualInputSheet from "./_components/ColorManualInputSheet";
 import ColorSelectBottomButton from "./_components/ColorSelectBottomButton";
 import ColorSelectList from "./_components/ColorSelectList";
-import useItemStore from "@/store/Items/itemStore";
+import useItemStore from "@/store/itemStore";
 
 function ColorListPageContent() {
     const router = useRouter();

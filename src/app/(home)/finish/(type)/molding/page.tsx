@@ -20,7 +20,7 @@ import HeightInputSection from "./_components/HeightInputSection";
 // Hooks
 import { useFinishValidation } from "./hooks/useFinishValidation";
 import { FinishEdgeCount, Location } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
-import useItemStore from "@/store/Items/itemStore";
+import useItemStore from "@/store/itemStore";
 
 // Location enum을 사용하여 options 생성
 const getLocationOptions = () => {

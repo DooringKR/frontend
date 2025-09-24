@@ -1,9 +1,9 @@
 import { SigninUser, SignupUser, User } from "@/types/apiType";
 
 import useAddressStore from "@/store/addressStore";
-import useCartStore from "@/store/cartStore";
-import { useOrderStore } from "@/store/orderStore";
-import useUserStore from "@/store/userStore";
+// import useCartStore from "@/store/cartStore";
+// import { useOrderStore } from "@/store/orderStore";
+// import useUserStore from "@/store/userStore";
 
 // 전화번호 중복 확인 (GET 방식)
 export async function checkPhoneDuplicate(phoneNumber: string): Promise<boolean> {
@@ -130,8 +130,8 @@ export async function getUserProfile(userId: number): Promise<User> {
 
       // cart_id가 있으면 설정
       if (cartData.cart_id) {
-        const userStore = useUserStore.getState();
-        userStore.setCartId(cartData.cart_id);
+        // const userStore = useUserStore.getState();
+        // userStore.setCartId(cartData.cart_id);
         console.log("장바구니 ID 설정:", cartData.cart_id);
       }
     } else {
@@ -143,12 +143,12 @@ export async function getUserProfile(userId: number): Promise<User> {
   }
 
   // localStorage 저장 통합 관리
-  const userStore = useUserStore.getState();
-  userStore.setUserId(userInfo.user_id);
-  userStore.setUserType(userInfo.user_type);
-  userStore.setUserPhoneNumber(userInfo.user_phone);
+  // const userStore = useUserStore.getState();
+  // userStore.setUserId(userInfo.user_id);
+  // userStore.setUserType(userInfo.user_type);
+  // userStore.setUserPhoneNumber(userInfo.user_phone);
   if (userInfo.user_road_address && userInfo.user_detail_address) {
-    userStore.setUserAddress(userInfo.user_road_address, userInfo.user_detail_address);
+    // userStore.setUserAddress(userInfo.user_road_address, userInfo.user_detail_address);
   }
 
   return userInfo;
@@ -156,36 +156,36 @@ export async function getUserProfile(userId: number): Promise<User> {
 
 // 앱 시작시 자동 로그인 체크
 export async function checkAutoLogin(): Promise<User | null> {
-  const userStore = useUserStore.getState();
-  const userId = userStore.id;
+  // const userStore = useUserStore.getState();
+  // const userId = userStore.id;
 
-  if (userId) {
-    try {
-      return await getUserProfile(userId);
-    } catch (error) {
-      console.error("자동 로그인 실패:", error);
-      userStore.resetUser();
-      return null;
-    }
+  // if (userId) {
+  try {
+    // return await getUserProfile(userId);
+  } catch (error) {
+    console.error("자동 로그인 실패:", error);
+    // userStore.resetUser();
+    return null;
   }
+  // }
 
   return null;
 }
 
 // 로그아웃 - localStorage 초기화
 export function logout(): void {
-  const userStore = useUserStore.getState();
-  userStore.resetUser();
+  // const userStore = useUserStore.getState();
+  // userStore.resetUser();
   useAddressStore.getState().clearAddress();
   useAddressStore.persist.clearStorage();
   console.log("로그아웃 완료 - localStorage 초기화");
   // 주문 관련 상태 초기화
-  useOrderStore.getState().clearOrder();
-  useOrderStore.persist?.clearStorage?.();
+  // useOrderStore.getState().clearOrder();
+  // useOrderStore.persist?.clearStorage?.();
 
   // 장바구니 초기화
-  useCartStore.getState().clearCartItems();
-  useCartStore.persist?.clearStorage?.();
+  // useCartStore.getState().clearCartItems();
+  // useCartStore.persist?.clearStorage?.();
 
   localStorage.removeItem("recentOrder");
 }

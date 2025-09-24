@@ -19,7 +19,7 @@ import formatLocation from "@/utils/formatLocation";
 import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
 import { CABINET_COLOR_LIST } from "@/constants/colorList";
 import { CABINET_DRAWER_TYPE_LIST } from "@/constants/cabinetdrawertype";
-import useItemStore from "@/store/Items/itemStore";
+import useItemStore from "@/store/itemStore";
 import { useCabinetValidation } from "../upper/hooks/useCabinetValidation";
 
 // 도어링 core domain 타입 사용 (upper/lower/flap과 동일하게 적용)
@@ -100,20 +100,20 @@ function DrawerCabinetPageContent() {
 			<div className="h-5" />
 			<div className="flex flex-col gap-5 px-5">
 				{/* 도어 색상 */}
-				   <BoxedSelect
-					   label="도어 색상"
-					   options={colorOptions}
-					   value={color}
-					   onClick={() => router.push("/cabinet/color")}
-					   onChange={() => {}}
-				   />
+				<BoxedSelect
+					label="도어 색상"
+					options={colorOptions}
+					value={color}
+					onClick={() => router.push("/cabinet/color")}
+					onChange={() => { }}
+				/>
 				{/* 몸통 소재 및 두께 */}
 				<BoxedSelect
 					label="몸통 소재 및 두께"
 					options={BODY_MATERIAL_LIST.filter(opt => opt.name !== "직접입력").map(opt => ({ value: String(opt.id), label: opt.name }))}
 					value={bodyMaterial !== null ? (selectedMaterial ? selectedMaterial.name : "") : bodyMaterialDirectInput}
 					onClick={() => setIsBottomSheetOpen(true)}
-					onChange={() => {}}
+					onChange={() => { }}
 				/>
 				{/* 용도/장소 */}
 				<BoxedSelect
@@ -127,7 +127,7 @@ function DrawerCabinetPageContent() {
 					]}
 					value={formatLocation(cabinetLocation)}
 					onClick={() => setIsCabinetLocationSheetOpen(true)}
-					onChange={() => {}}
+					onChange={() => { }}
 				/>
 				<BottomSheet
 					isOpen={isCabinetLocationSheetOpen}
@@ -182,7 +182,7 @@ function DrawerCabinetPageContent() {
 					]}
 					value={legType}
 					onClick={() => setIsLegTypeSheetOpen(true)}
-					onChange={() => {}}
+					onChange={() => { }}
 				/>
 				<BottomSheet
 					isOpen={isLegTypeSheetOpen}
@@ -209,133 +209,133 @@ function DrawerCabinetPageContent() {
 						</div>
 					}
 				/>
-				   {/* 서랍 종류 robust (enum/direct input, CABINET_DRAWER_TYPE_LIST) */}
-				   <BoxedSelect
-					   label="서랍 종류"
-					   options={[
-						   ...CABINET_DRAWER_TYPE_LIST.map(opt => ({ value: opt.name, label: opt.name })),
-						   { value: "직접입력", label: "직접입력" }
-					   ]}
-					   value={drawerType !== "" ? drawerType : drawerTypeDirectInput}
-					   onClick={() => setIsDrawerTypeSheetOpen(true)}
-					   onChange={() => {}}
-				   />
-				   <BottomSheet
-					   isOpen={isDrawerTypeSheetOpen}
-					   title="서랍 종류를 선택해주세요"
-					   contentPadding="px-1"
-					   onClose={() => setIsDrawerTypeSheetOpen(false)}
-					   children={
-						   <div>
-							   {CABINET_DRAWER_TYPE_LIST.map(opt => (
-								   <SelectToggleButton
-									   key={opt.id}
-									   label={opt.name}
-									   checked={drawerType === opt.name}
-									   onClick={() => {
-										   setDrawerType(opt.name);
-										   setDrawerTypeDirectInput("");
-										   setIsDrawerTypeSheetOpen(false);
-									   }}
-								   />
-							   ))}
-							   <SelectToggleButton
-								   label="직접입력"
-								   checked={drawerType === ""}
-								   onClick={() => {
-									   setDrawerType("");
-									   setDrawerTypeDirectInput("");
-									   setTimeout(() => {
-										   const el = document.getElementById("drawer-type-direct-input");
-										   if (el) (el as HTMLInputElement).focus();
-									   }, 0);
-								   }}
-							   />
-							   {drawerType === "" && (
-								   <div className="flex items-center gap-2 px-4 pb-3">
-									   <GrayVerticalLine />
-									   <BoxedInput
-										   type="text"
-										   placeholder="서랍 종류를 입력해주세요"
-										   className="w-full"
-										   value={drawerTypeDirectInput}
-										   onChange={e => setDrawerTypeDirectInput(e.target.value)}
-									   />
-								   </div>
-							   )}
-						   </div>
-					   }
-					   buttonArea={
-						   <div className="p-5">
-							   <Button type="Brand" text="다음" onClick={() => setIsDrawerTypeSheetOpen(false)} />
-						   </div>
-					   }
-				   />
-				   {/* 레일 종류 robust (enum/direct input, CabinetRailType) */}
-				   <BoxedSelect
-					   label="레일 종류"
-					   options={[
-						   ...Object.values(CabinetRailType)
-							   .filter(opt => opt !== CabinetRailType.DIRECT_INPUT)
-							   .map(opt => ({ value: String(opt), label: String(opt) })),
-						   { value: "직접입력", label: "직접입력" }
-					   ]}
-					   value={railType !== "" ? railType : railTypeDirectInput}
-					   onClick={() => setIsRailTypeSheetOpen(true)}
-					   onChange={() => {}}
-				   />
-				   <BottomSheet
-					   isOpen={isRailTypeSheetOpen}
-					   title="레일 종류를 선택해주세요"
-					   contentPadding="px-1"
-					   onClose={() => setIsRailTypeSheetOpen(false)}
-					   children={
-						   <div>
-							   {Object.values(CabinetRailType)
-								   .filter(opt => opt !== CabinetRailType.DIRECT_INPUT)
-								   .map(opt => (
-									   <SelectToggleButton
-										   key={opt}
-										   label={String(opt)}
-										   checked={railType === String(opt)}
-										   onClick={() => {
-											   setRailType(String(opt));
-											   setRailTypeDirectInput("");
-											   setIsRailTypeSheetOpen(false);
-										   }}
-									   />
-								   ))}
-							   <SelectToggleButton
-								   label="직접입력"
-								   checked={railType === ""}
-								   onClick={() => {
-									   setRailType("");
-									   setTimeout(() => {
-										   const el = document.getElementById("rail-type-direct-input");
-										   if (el) (el as HTMLInputElement).focus();
-									   }, 0);
-								   }}
-							   />
-							   {railType === "" && (
-								   <div className="flex items-center gap-2 px-4 pb-3">
-									   <GrayVerticalLine />
-									   <BoxedInput
-										   type="text"
-										   placeholder="레일 종류를 입력해주세요"
-										   className="w-full"
-										   value={railTypeDirectInput}
-										   onChange={e => setRailTypeDirectInput(e.target.value)}
-									   />
-								   </div>
-							   )}
-						   </div>
-					   }
-					   buttonArea={
-						   <div className="p-5">
-							   <Button type="Brand" text="다음" onClick={() => setIsRailTypeSheetOpen(false)} />
-						   </div>
-					   }
-				   />
+				{/* 서랍 종류 robust (enum/direct input, CABINET_DRAWER_TYPE_LIST) */}
+				<BoxedSelect
+					label="서랍 종류"
+					options={[
+						...CABINET_DRAWER_TYPE_LIST.map(opt => ({ value: opt.name, label: opt.name })),
+						{ value: "직접입력", label: "직접입력" }
+					]}
+					value={drawerType !== "" ? drawerType : drawerTypeDirectInput}
+					onClick={() => setIsDrawerTypeSheetOpen(true)}
+					onChange={() => { }}
+				/>
+				<BottomSheet
+					isOpen={isDrawerTypeSheetOpen}
+					title="서랍 종류를 선택해주세요"
+					contentPadding="px-1"
+					onClose={() => setIsDrawerTypeSheetOpen(false)}
+					children={
+						<div>
+							{CABINET_DRAWER_TYPE_LIST.map(opt => (
+								<SelectToggleButton
+									key={opt.id}
+									label={opt.name}
+									checked={drawerType === opt.name}
+									onClick={() => {
+										setDrawerType(opt.name);
+										setDrawerTypeDirectInput("");
+										setIsDrawerTypeSheetOpen(false);
+									}}
+								/>
+							))}
+							<SelectToggleButton
+								label="직접입력"
+								checked={drawerType === ""}
+								onClick={() => {
+									setDrawerType("");
+									setDrawerTypeDirectInput("");
+									setTimeout(() => {
+										const el = document.getElementById("drawer-type-direct-input");
+										if (el) (el as HTMLInputElement).focus();
+									}, 0);
+								}}
+							/>
+							{drawerType === "" && (
+								<div className="flex items-center gap-2 px-4 pb-3">
+									<GrayVerticalLine />
+									<BoxedInput
+										type="text"
+										placeholder="서랍 종류를 입력해주세요"
+										className="w-full"
+										value={drawerTypeDirectInput}
+										onChange={e => setDrawerTypeDirectInput(e.target.value)}
+									/>
+								</div>
+							)}
+						</div>
+					}
+					buttonArea={
+						<div className="p-5">
+							<Button type="Brand" text="다음" onClick={() => setIsDrawerTypeSheetOpen(false)} />
+						</div>
+					}
+				/>
+				{/* 레일 종류 robust (enum/direct input, CabinetRailType) */}
+				<BoxedSelect
+					label="레일 종류"
+					options={[
+						...Object.values(CabinetRailType)
+							.filter(opt => opt !== CabinetRailType.DIRECT_INPUT)
+							.map(opt => ({ value: String(opt), label: String(opt) })),
+						{ value: "직접입력", label: "직접입력" }
+					]}
+					value={railType !== "" ? railType : railTypeDirectInput}
+					onClick={() => setIsRailTypeSheetOpen(true)}
+					onChange={() => { }}
+				/>
+				<BottomSheet
+					isOpen={isRailTypeSheetOpen}
+					title="레일 종류를 선택해주세요"
+					contentPadding="px-1"
+					onClose={() => setIsRailTypeSheetOpen(false)}
+					children={
+						<div>
+							{Object.values(CabinetRailType)
+								.filter(opt => opt !== CabinetRailType.DIRECT_INPUT)
+								.map(opt => (
+									<SelectToggleButton
+										key={opt}
+										label={String(opt)}
+										checked={railType === String(opt)}
+										onClick={() => {
+											setRailType(String(opt));
+											setRailTypeDirectInput("");
+											setIsRailTypeSheetOpen(false);
+										}}
+									/>
+								))}
+							<SelectToggleButton
+								label="직접입력"
+								checked={railType === ""}
+								onClick={() => {
+									setRailType("");
+									setTimeout(() => {
+										const el = document.getElementById("rail-type-direct-input");
+										if (el) (el as HTMLInputElement).focus();
+									}, 0);
+								}}
+							/>
+							{railType === "" && (
+								<div className="flex items-center gap-2 px-4 pb-3">
+									<GrayVerticalLine />
+									<BoxedInput
+										type="text"
+										placeholder="레일 종류를 입력해주세요"
+										className="w-full"
+										value={railTypeDirectInput}
+										onChange={e => setRailTypeDirectInput(e.target.value)}
+									/>
+								</div>
+							)}
+						</div>
+					}
+					buttonArea={
+						<div className="p-5">
+							<Button type="Brand" text="다음" onClick={() => setIsRailTypeSheetOpen(false)} />
+						</div>
+					}
+				/>
 				{/* 너비 */}
 				<BoxedInput
 					type="number"

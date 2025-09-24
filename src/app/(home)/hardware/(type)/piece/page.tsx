@@ -7,7 +7,7 @@ import BottomButton from "@/components/BottomButton/BottomButton";
 import Header from "@/components/Header/Header";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import BoxedInput from "@/components/Input/BoxedInput";
-import useItemStore from "@/store/Items/itemStore";
+import useItemStore from "@/store/itemStore";
 
 function PiecePageContent() {
 	const router = useRouter();

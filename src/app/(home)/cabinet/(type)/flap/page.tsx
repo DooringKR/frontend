@@ -12,7 +12,7 @@ import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import Button from "@/components/Button/Button";
 import Header from "@/components/Header/Header";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
-import useItemStore from "@/store/Items/itemStore";
+import useItemStore from "@/store/itemStore";
 import formatLocation from "@/utils/formatLocation";
 import SelectToggleButton from "@/components/Button/SelectToggleButton";
 import GrayVerticalLine from "@/components/GrayVerticalLine/GrayVerticalLine";
@@ -102,7 +102,7 @@ function FlapCabinetPageContent() {
 					options={colorOptions}
 					value={color}
 					onClick={() => router.push("/cabinet/color")}
-					onChange={() => {}}
+					onChange={() => { }}
 				/>
 				{/* 몸통 소재 및 두께 */}
 				<BoxedSelect
@@ -110,7 +110,7 @@ function FlapCabinetPageContent() {
 					options={BODY_MATERIAL_LIST.filter(opt => opt.name !== "직접입력").map(opt => ({ value: String(opt.id), label: opt.name }))}
 					value={bodyMaterial !== null ? (selectedMaterial ? selectedMaterial.name : "") : bodyMaterialDirectInput}
 					onClick={() => setIsBottomSheetOpen(true)}
-					onChange={() => {}}
+					onChange={() => { }}
 				/>
 				{/* 용도/장소 */}
 				<BoxedSelect
@@ -124,7 +124,7 @@ function FlapCabinetPageContent() {
 					]}
 					value={formatLocation(cabinetLocation)}
 					onClick={() => setIsCabinetLocationSheetOpen(true)}
-					onChange={() => {}}
+					onChange={() => { }}
 				/>
 				<BottomSheet
 					isOpen={isCabinetLocationSheetOpen}
@@ -179,7 +179,7 @@ function FlapCabinetPageContent() {
 					]}
 					value={legType}
 					onClick={() => setIsLegTypeSheetOpen(true)}
-					onChange={() => {}}
+					onChange={() => { }}
 				/>
 				<BottomSheet
 					isOpen={isLegTypeSheetOpen}
@@ -212,7 +212,7 @@ function FlapCabinetPageContent() {
 					options={BODY_MATERIAL_LIST.filter(opt => opt.name !== "직접입력").map(opt => ({ value: String(opt.id), label: opt.name }))}
 					value={bodyMaterial !== null ? (selectedMaterial ? selectedMaterial.name : "") : bodyMaterialDirectInput}
 					onClick={() => setIsBottomSheetOpen(true)}
-					onChange={() => {}}
+					onChange={() => { }}
 				/>
 				{/* 쇼바 종류 (absorber_type) */}
 				<BoxedSelect
@@ -220,7 +220,7 @@ function FlapCabinetPageContent() {
 					options={ABSORBER_TYPE_LIST.filter(opt => opt.name !== "직접입력").map(opt => ({ value: String(opt.id), label: opt.name }))}
 					value={absorberType !== null ? (selectedAbsorber ? selectedAbsorber.name : "") : absorberTypeDirectInput}
 					onClick={() => setIsAbsorberSheetOpen(true)}
-					onChange={() => {}}
+					onChange={() => { }}
 				/>
 				<BottomSheet
 					isOpen={isAbsorberSheetOpen}

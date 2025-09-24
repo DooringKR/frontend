@@ -15,7 +15,7 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import formatLocation from "@/utils/formatLocation";
 import formatColor from "@/utils/formatColor";
 
-import useItemStore from "@/store/Items/itemStore";
+import useItemStore from "@/store/itemStore";
 import { Location } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import { useDrawerDoorValidation } from "./hooks/useDrawerDoorValidation";
 

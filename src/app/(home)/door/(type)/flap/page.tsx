@@ -16,7 +16,7 @@ import FlapDoorPreview from "@/components/DoorPreview/FlapDoorPreview";
 import formatLocation from "@/utils/formatLocation";
 import formatColor from "@/utils/formatColor";
 
-import useItemStore from "@/store/Items/itemStore";
+import useItemStore from "@/store/itemStore";
 import { useFlapDoorValidation } from "./hooks/useFlapDoorValidation";
 import { Location } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 

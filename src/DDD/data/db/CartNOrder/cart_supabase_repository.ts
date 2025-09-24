@@ -18,7 +18,7 @@ export class CartSupabaseRepository extends CartRepository {
         if (error) {
             return { success: false, data: null, message: error.message };
         }
-        console.log('data', data);
+        // console.log('data', data);
         return { success: true, data: data[0] };
     }
 

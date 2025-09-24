@@ -9,7 +9,7 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import { FINISH_COLOR_LIST } from "@/constants/colorList";
 import { InteriorMaterialsSupabaseRepository } from "@/DDD/data/db/interior_materials_supabase_repository";
 import { FINISH_CATEGORY_LIST } from "@/constants/category";
-import useItemStore from "@/store/Items/itemStore";
+import useItemStore from "@/store/itemStore";
 import { calculateUnitFinishPrice } from "@/services/pricing/finishPricing";
 import { Finish } from "dooring-core-domain/dist/models/InteriorMaterials/Finish";
 import { Suspense, useState } from "react";

@@ -11,14 +11,14 @@ import { Suspense } from "react";
 import Header from "@/components/Header/Header";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import { HardwareType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
-import useItemStore from "@/store/Items/itemStore";
+import useItemStore from "@/store/itemStore";
 import { DetailProductType, ProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 
 function HardwareCategoryPage() {
   const router = useRouter();
   const hardwarecategory = HARDWARE_CATEGORY_LIST;
   const setItem = useItemStore(state => state.setItem);
-  
+
   // const category = CATEGORY_LIST.find(item => item.slug === type);
   // let header;
   // if (category) header = category.name;

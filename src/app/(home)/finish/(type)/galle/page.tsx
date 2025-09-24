@@ -15,7 +15,7 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import formatColor from "@/utils/formatColor";
 import formatLocation from "@/utils/formatLocation";
 import { FinishEdgeCount, Location } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
-import useItemStore from "@/store/Items/itemStore";
+import useItemStore from "@/store/itemStore";
 import { useFinishValidation } from "./hooks/useFinishValidation";
 import DepthInputSection from "./_components/DepthInputSection";
 import HeightInputSection from "./_components/HeightInputSection";

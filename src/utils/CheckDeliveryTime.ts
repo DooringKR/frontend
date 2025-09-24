@@ -11,7 +11,7 @@ export const getCoordinatesFromAddress = async (address: string) => {
   });
 
   if (!response.ok) throw new Error("주소 변환 실패");
-  return await response.json(); 
+  return await response.json();
 };
 
 export const getTravelTimeInMinutes = async (
@@ -30,8 +30,11 @@ export const getTravelTimeInMinutes = async (
 };
 
 export const DeliverTime = async (address: string): Promise<{ expectedArrivalMinutes: number }> => {
+  console.log('address', address);
   const goal = await getCoordinatesFromAddress(address);
+  console.log('goal', goal);
   const travelTime = await getTravelTimeInMinutes(warehouseLocation, goal);
+  console.log('travelTime', travelTime);
 
   const now = new Date();
   const nowMinutes = now.getHours() * 60 + now.getMinutes();

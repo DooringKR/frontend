@@ -1,6 +1,6 @@
 // src/store/signupStore.ts
 import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
+import { createJSONStorage, persist, devtools } from "zustand/middleware";
 import { BusinessType } from "dooring-core-domain/dist/enums/UserEnums";
 
 interface SignupStore {
@@ -13,18 +13,24 @@ interface SignupStore {
 }
 
 const useSignupStore = create<SignupStore>()(
-    persist(
-        (set) => ({
-            businessType: null,
-            phoneNumber: null,
-            setBusinessType: (businessType) => set({ businessType }),
-            resetBusinessType: () => set({ businessType: null }),
-            setPhoneNumber: (phoneNumber) => set({ phoneNumber }),
-            resetPhoneNumber: () => set({ phoneNumber: null }),
-        }),
+    devtools(
+        persist(
+            (set) => ({
+                businessType: null,
+                phoneNumber: null,
+                setBusinessType: (businessType) => set({ businessType }),
+                resetBusinessType: () => set({ businessType: null }),
+                setPhoneNumber: (phoneNumber) => set({ phoneNumber }),
+                resetPhoneNumber: () => set({ phoneNumber: null }),
+            }),
+            {
+                name: "signupData",
+                storage: createJSONStorage(() => localStorage),
+            }
+        ),
         {
-            name: "signupData",
-            storage: createJSONStorage(() => localStorage),
+            name: "signup-store",
+            enabled: process.env.NODE_ENV === 'development',
         }
     )
 );
