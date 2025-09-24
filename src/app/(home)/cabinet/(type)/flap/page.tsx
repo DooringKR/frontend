@@ -2,8 +2,8 @@
 
 import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
 import { CABINET_COLOR_LIST } from "@/constants/colorList";
-import { CABINET_FLAPSTAY_LIST, CABINET_ABSORBER_TYPE_NAME } from "@/constants/modelList";
 import { useCabinetValidation } from "../upper/hooks/useCabinetValidation";
+import { ABSORBER_TYPE_LIST } from "@/constants/absorbertype";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState, useRef } from "react";
 import BottomButton from "@/components/BottomButton/BottomButton";
@@ -41,8 +41,8 @@ function FlapCabinetPageContent() {
 	const [addOnConstruction, setAddOnConstruction] = useState(item?.addOn_construction ?? false);
 	const [legType, setLegType] = useState(item?.legType ?? "");
 	const [isLegTypeSheetOpen, setIsLegTypeSheetOpen] = useState(false);
-	// 플랩장 absorber_type(쇼바종류) 및 직접입력
-	const [absorberType, setAbsorberType] = useState(item?.absorber_type ?? "");
+	// 플랩장 absorber_type(쇼바종류) robust: id(number) or 직접입력 string
+	const [absorberType, setAbsorberType] = useState<number | null>(typeof item?.absorber_type === "number" ? item.absorber_type : null);
 	const [absorberTypeDirectInput, setAbsorberTypeDirectInput] = useState(item?.absorber_type_direct_input ?? "");
 	const [isAbsorberSheetOpen, setIsAbsorberSheetOpen] = useState(false);
 
@@ -68,7 +68,7 @@ function FlapCabinetPageContent() {
 		DoorHeight,
 		DoorDepth,
 	});
-	const button1Disabled = isFormValid() || (bodyMaterial === null && !bodyMaterialDirectInput) || !handleType || !behindType;
+	const button1Disabled = isFormValid() || (bodyMaterial === null && !bodyMaterialDirectInput) || (absorberType === null && !absorberTypeDirectInput) || !handleType || !behindType;
 
 	const selectedMaterial = bodyMaterial !== null ? BODY_MATERIAL_LIST.find(option => option.id === bodyMaterial) : null;
 	const bodyMaterialLabel = bodyMaterial !== null
@@ -76,6 +76,12 @@ function FlapCabinetPageContent() {
 		: (bodyMaterialDirectInput || "");
 
 	const colorOptions = CABINET_COLOR_LIST.map(opt => ({ value: opt.name, label: formatColor(opt.name) }));
+
+	// 쇼바 종류 label
+	const selectedAbsorber = absorberType !== null ? ABSORBER_TYPE_LIST.find(option => option.id === absorberType) : null;
+	const absorberTypeLabel = absorberType !== null
+		? (selectedAbsorber ? selectedAbsorber.name : "")
+		: (absorberTypeDirectInput || "");
 
 	return (
 		<div className="flex flex-col">
@@ -204,11 +210,8 @@ function FlapCabinetPageContent() {
 				{/* 쇼바 종류 (absorber_type) */}
 				<BoxedSelect
 					label="쇼바 종류"
-					options={[
-						...CABINET_FLAPSTAY_LIST.map(opt => ({ value: opt, label: opt })),
-						{ value: "직접 입력", label: "직접 입력" },
-					]}
-					value={absorberType ? absorberType : absorberTypeDirectInput}
+					options={ABSORBER_TYPE_LIST.filter(opt => opt.name !== "직접입력").map(opt => ({ value: String(opt.id), label: opt.name }))}
+					value={absorberType !== null ? (selectedAbsorber ? selectedAbsorber.name : "") : absorberTypeDirectInput}
 					onClick={() => setIsAbsorberSheetOpen(true)}
 					onChange={() => {}}
 				/>
@@ -219,13 +222,13 @@ function FlapCabinetPageContent() {
 					onClose={() => setIsAbsorberSheetOpen(false)}
 					children={
 						<div>
-							{CABINET_FLAPSTAY_LIST.map(opt => (
+							{ABSORBER_TYPE_LIST.filter(opt => opt.name !== "직접입력").map(option => (
 								<SelectToggleButton
-									key={opt}
-									label={opt}
-									checked={absorberType === opt}
+									key={option.id}
+									label={option.name}
+									checked={absorberType === option.id}
 									onClick={() => {
-										setAbsorberType(opt);
+										setAbsorberType(option.id);
 										setAbsorberTypeDirectInput("");
 										setIsAbsorberSheetOpen(false);
 									}}
@@ -233,9 +236,9 @@ function FlapCabinetPageContent() {
 							))}
 							<SelectToggleButton
 								label="직접 입력"
-								checked={absorberType === "" && absorberTypeDirectInput !== ""}
+								checked={absorberType === null}
 								onClick={() => {
-									setAbsorberType("");
+									setAbsorberType(null);
 									setAbsorberTypeDirectInput("");
 									setTimeout(() => {
 										const el = document.getElementById("absorber-type-direct-input");
@@ -243,7 +246,7 @@ function FlapCabinetPageContent() {
 									}, 0);
 								}}
 							/>
-							{absorberType === "" && (
+							{absorberType === null && (
 								<div className="flex items-center gap-2 px-4 pb-3">
 									<GrayVerticalLine />
 									<BoxedInput
