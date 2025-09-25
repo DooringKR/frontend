@@ -4,7 +4,7 @@ import { getCartItems } from "@/api/cartApi";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 import AddressIndicator, {
   AddressIndicatorProps,
@@ -29,8 +29,6 @@ import { BizClient } from "dooring-core-domain/dist/models/User/BizClient";
 export default function Page() {
   const router = useRouter();
   const bizClient = useBizClientStore(state => state.bizClient);
-  // const resetCart = useSingleCartStore(state => state.reset);
-  const { address1, address2, setAddress } = useAddressStore();
 
   // 모든 Hook을 먼저 호출
   const [deliverySchedule, setDeliverySchedule] = useState<"today" | "tomorrow" | "other" | "">("");
@@ -39,43 +37,9 @@ export default function Page() {
   const cartItemCount = useCartStore(state => state.cart?.cart_count);
   const [isCheckingDelivery, setIsCheckingDelivery] = useState(false);
 
-  // 로그인 상태 체크
-  useEffect(() => {
-    // localStorage에서 데이터를 복원하는 동안 잠시 대기
-    const timer = setTimeout(async () => {
-      if (!bizClient) {
-        // router.replace("https://landing.baro.dooring.kr/");
-        // router.replace("/kako-login");
-        router.replace("/login");
-      } else {
-        try {
-          // console.log('11112222211');
-          // console.log(bizClient);
-          // console.log('12312312312312312');
-          // const readBizClientUsecase = new ReadBizClientUsecase(new BizClientSupabaseRepository());
-          // BizClient의 id를 올바르게 가져와야 합니다. 예시로 localStorage에서 가져오는 방식 사용
-          // const bizClientId = localStorage.getItem('bizClientId');
-          // if (!bizClientId) {
-          //   throw new Error('bizClientId가 존재하지 않습니다.');
-          // }
-          // const bizClient = await readBizClientUsecase.execute(bizClient.id);
-          const readCartUsecase = new CrudCartUsecase(new CartSupabaseRepository());
-          const cart = await readCartUsecase.findById(bizClient.id!);
 
-          useBizClientStore.setState({ bizClient: bizClient });
-          useCartStore.setState({ cart: cart! });
-          await checkDelivery();
-          return;
-        } catch (err) {
-          console.error("Error checking user:", err);
-        }
-      }
-    }, 100); // 100ms 대기
 
-    return () => clearTimeout(timer);
-  }, [router, bizClient]);
-
-  const checkDelivery = async () => {
+  const checkDelivery = useCallback(async () => {
     if (bizClient && bizClient.road_address) {
       setIsCheckingDelivery(true);
       try {
@@ -91,10 +55,8 @@ export default function Page() {
             remainingMinutes <= 0
               ? "주문 마감"
               : `${hours > 0 ? `${hours}시간 ` : ""}${minutes}분 내 주문 시`;
-          // const timeLimitMessage = calculateOrderDeadline(info.expectedArrivalMinutes);
           setDeliverySchedule("today");
           setTimeLimit(timeLimitMessage);
-          // setTimeLimit(`${formatOrderDeadline(info.remainingMinutes)}`);
           setArrivalDate(undefined);
         } else {
           const tomorrow = new Date();
@@ -130,7 +92,34 @@ export default function Page() {
       setTimeLimit(undefined);
       setArrivalDate(undefined);
     }
-  };
+  }, [bizClient]);
+
+
+
+  // 로그인 상태 체크 (checkDelivery 제거)
+  useEffect(() => {
+    // localStorage에서 데이터를 복원하는 동안 잠시 대기
+    const timer = setTimeout(async () => {
+      if (!bizClient) {
+        router.replace("/login");
+      } else {
+        try {
+          const readCartUsecase = new CrudCartUsecase(new CartSupabaseRepository());
+          const cart = await readCartUsecase.findById(bizClient.id!);
+
+          useBizClientStore.setState({ bizClient: bizClient });
+          useCartStore.setState({ cart: cart! });
+          await checkDelivery();
+
+          return;
+        } catch (err) {
+          console.error("Error checking user:", err);
+        }
+      }
+    }, 100); // 100ms 대기
+
+    return () => clearTimeout(timer);
+  }, [router, bizClient]);
 
   // 로그인되지 않은 경우 로딩 화면 표시
   if (!bizClient) {

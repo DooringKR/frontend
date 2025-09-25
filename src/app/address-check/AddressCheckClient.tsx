@@ -1,7 +1,6 @@
 "use client";
 
-import { updateUserAddress } from "@/api/authApi";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
 
@@ -11,18 +10,16 @@ import Header from "@/components/Header/Header";
 import BoxedInput from "@/components/Input/BoxedInput";
 import DaumPostcodePopup from "@/components/SearchAddress/DaumPostcode";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
-
-import useAddressStore from "@/store/addressStore";
-import useUserStore from "@/store/userStore";
 import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 import useBizClientStore from "@/store/bizClientStore";
 import { UpdateBizClientUsecase } from "@/DDD/usecase/user/update_BizClient_usecase";
 import { BizClientSupabaseRepository } from "@/DDD/data/db/User/bizclient_supabase_repository";
 
 function AddressCheckClientPage() {
-  const searchParams = useSearchParams();
   const router = useRouter();
   const { bizClient } = useBizClientStore();
+  const road_address = bizClient?.road_address || "";
+  const detail_address = bizClient?.detail_address || "";
   const updateBizClientUsecase = new UpdateBizClientUsecase(new BizClientSupabaseRepository());
 
 
@@ -34,8 +31,13 @@ function AddressCheckClientPage() {
 
   const scriptLoadedRef = useRef(false);
 
-  const { address1, address2, setAddress } = useAddressStore();
-  const userId = useUserStore.getState().id;
+  // const { address1, address2, setAddress } = useAddressStore();
+  // const userId = useUserStore.getState().id;
+
+
+
+  const [temp_road_address, setTempRoadAddress] = useState(road_address);
+  const [temp_detail_address, setTempDetailAddress] = useState(detail_address);
 
   const handleScriptLoad = () => {
     scriptLoadedRef.current = true;
@@ -48,15 +50,14 @@ function AddressCheckClientPage() {
   }, []);
 
   // 상태에 따라 주소 입력 완료 여부 판단
-  const isAddressEntered = address1.trim() !== "";
-  // const isAddressEntered = address1.trim() !== "" && address2.trim() !== "";
+  const isAddressEntered = road_address.trim() !== "";
 
   useEffect(() => {
     const checkTodayDelivery = async () => {
       if (isAddressEntered) {
         setIsCheckingDelivery(true);
         try {
-          const { isToday } = await calculateDeliveryInfo(address1);
+          const { isToday } = await calculateDeliveryInfo(road_address);
           setIsDeliveryPossible(isToday);
         } catch (error) {
           console.error("배송 가능 여부 확인 실패:", error);
@@ -68,12 +69,12 @@ function AddressCheckClientPage() {
     };
 
     checkTodayDelivery();
-  }, [address1]);
+  }, [road_address]);
 
   const handleSubmit = async () => {
     if (isCheckingDelivery) return;
 
-    if (!address1 || !address2) {
+    if (!road_address || !detail_address) {
       alert("주소와 상세주소를 모두 입력해주세요.");
       return;
     }
@@ -81,16 +82,16 @@ function AddressCheckClientPage() {
     try {
       await updateBizClientUsecase.execute({
         id: bizClient?.id,
-        road_address: address1,
-        detail_address: address2,
+        road_address: temp_road_address,
+        detail_address: temp_detail_address,
       });
 
       // await updateUserAddress(userId, address1, address2);
       console.log("📦 주소 업데이트 완료 후 후처리 시작");
 
       useBizClientStore.getState().updateBizClient({
-        road_address: address1,
-        detail_address: address2,
+        road_address: temp_road_address,
+        detail_address: temp_detail_address,
       });
 
       // setAddress(address1, address2);
@@ -121,16 +122,18 @@ function AddressCheckClientPage() {
         <h1 className="text-sm font-400 text-gray-600">주소</h1>
 
         <DaumPostcodePopup
-          address1={address1}
+          address1={temp_road_address || ""}
           onComplete={selected => {
-            setAddress(selected, address2);
+            setTempRoadAddress(selected);
           }}
         />
 
         <BoxedInput
           placeholder="상세주소 (예: 101동 501호 / 단독주택)"
-          value={address2}
-          onChange={e => setAddress(address1, e.target.value)}
+          value={temp_detail_address}
+          onChange={e => {
+            setTempDetailAddress(e.target.value);
+          }}
         />
       </div>
       <div className="mx-5 mt-3">

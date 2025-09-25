@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import useUserStore from "@/store/userStore";
+// import useUserStore from "@/store/userStore";
 
 interface OrderItem {
     cart_item_id: number;
@@ -34,7 +34,8 @@ export const useOrderHistory = () => {
     useEffect(() => {
         const fetchOrderHistory = async () => {
             try {
-                const userId = useUserStore.getState().id;
+                // const userId = useUserStore.getState().id;
+                const userId = "1";
 
                 if (!userId) {
                     setError("사용자 정보를 찾을 수 없습니다.");
