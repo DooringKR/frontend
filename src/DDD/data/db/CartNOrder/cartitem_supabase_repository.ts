@@ -132,4 +132,15 @@ export class CartItemSupabaseRepository extends CartItemRepository {
             };
         }
     }
+
+    async readByCartId(cartId: number | string): Promise<CartItem[]> {
+        const { data, error } = await supabase
+            .from(this.tableName)
+            .select('*')
+            .eq('cart_id', cartId);
+        if (error) {
+            throw new Error(`Failed to fetch cart items by cartId: ${error.message}`);
+        }
+        return (data ?? []) as CartItem[];
+    }
 }
