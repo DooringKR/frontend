@@ -1,3 +1,5 @@
+
+import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
 import React from "react";
 
 
@@ -48,6 +50,7 @@ interface ShoppingCartCardProps {
   thickness?: string;
   angle?: string;
   railDamping?: boolean;
+  behindType?: string;
 }
 
 const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
@@ -74,6 +77,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   bodyMaterial,
   handleType,
   finishType,
+  behindType,
   showBar,
   drawerType,
   railType,
@@ -92,6 +96,12 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   railLength,
   railDamping,
 }) => {
+  // bodyMaterial이 숫자(id)라면 name으로 변환
+  let bodyMaterialLabel = bodyMaterial;
+  if (bodyMaterial && !isNaN(Number(bodyMaterial))) {
+    const found = BODY_MATERIAL_LIST.find(opt => String(opt.id) === String(bodyMaterial));
+    if (found) bodyMaterialLabel = found.name;
+  }
   return (
     <div className="flex w-full flex-col gap-3 rounded-[16px] border-[1px] border-gray-200 bg-white p-[20px]">
       {/* 상품 정보 */}
@@ -100,7 +110,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
           <div className="text-[17px] font-600 text-gray-800">{title}</div>
           <div className="flex flex-col text-[15px] font-400 text-gray-500">
             {type !== "hardware" && color && <div>색상 : {color}</div>}
-            {bodyMaterial && <div>몸통 소재 및 두께 : {bodyMaterial}</div>}
+            {bodyMaterial && <div>몸통 소재 및 두께 : {bodyMaterialLabel}</div>}
             {width && <div>너비 : {width}mm</div>}
             {height && <div>높이 : {height}mm</div>}
             {heightIncrease !== undefined && heightIncrease !== null && heightIncrease > 0 && (
@@ -138,7 +148,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
             {/* 중복 방지: railType은 위에서만 출력 */}
             {riceRail && <div>밥솥 레일 추가 여부 : {riceRail}</div>}
             {lowerDrawer && <div>하부 서랍장 추가 여부 : {lowerDrawer}</div>}
-            {finishType && <div>마감 방식 : {finishType}</div>}
+            {behindType && <div>마감 방식 : {behindType}</div>}
             {/* 중복 방지: manufacturer는 위에서만 출력 */}
             {modelName && <div>모델명 : {modelName}</div>}
             {type !== "hardware" && size && <div>사이즈 : {size}</div>}

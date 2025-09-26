@@ -340,7 +340,7 @@ export default function CartClient() {
                     depth={Number(detail.cabinet_depth ?? 0)}
                     bodyMaterial={detail.cabinet_body_material ?? ""}
                     handleType={detail.handle_type ?? ""}
-                    finishType={detail.finish_type ?? ""}
+                    behindType={detail.behind_type ?? ""}
                     showBar={detail.absorber_type ?? ""}
                     drawerType={detail.drawer_type ?? ""}
                     railType={detail.rail_type ?? ""}

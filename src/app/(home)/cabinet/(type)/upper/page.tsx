@@ -43,7 +43,7 @@ function UpperCabinetPageContent() {
         item && Object.values(CabinetHandleType).includes(item.handleType) ? item.handleType : ""
     );
     // CabinetBehindType의 첫 번째 값(우라홈) 사용
-    const cabinetBehindTypeDefault = Object.values(CabinetBehindType)[0];
+    const cabinetBehindTypeDefault = Object.values(CabinetBehindType)[1];
     const [behindType, setBehindType] = useState<CabinetBehindType | "">(
         item && Object.values(CabinetBehindType).includes(item.behindType) ? item.behindType : cabinetBehindTypeDefault
     );
@@ -85,12 +85,10 @@ function UpperCabinetPageContent() {
         ? (selectedMaterial ? selectedMaterial.name : "")
         : (bodyMaterialDirectInput || "");
 
-    // 용도/장소 직접입력 (바텀시트용)
-    const [cabinetLocationDirectInput, setCabinetLocationDirectInput] = useState("");
     const locationEnumValues = Object.values(Location);
     const cabinetLocationLabel = locationEnumValues.includes(cabinetLocation)
         ? formatLocation(cabinetLocation)
-        : (cabinetLocationDirectInput || "");
+        : "";
     // 다리발 직접입력 (바텀시트용)
     // const [legTypeDirectInput, setLegTypeDirectInput] = useState("");
     // const legTypeLabel = ["150 다리 (걸레받이)","120 다리 (걸레받이)","다리발 없음 (60 속걸레받이)"].includes(legType)
@@ -178,21 +176,23 @@ function UpperCabinetPageContent() {
                 <div className="flex flex-col gap-2">
                     <div className="text-[14px]/[20px] font-400 text-gray-600">손잡이 종류</div>
                     <div className="flex w-full gap-2">
-                        {Object.values(CabinetHandleType).map(opt => (
-                            <Button
-                                key={opt}
-                                type={handleType === opt ? "BrandInverse" : "GrayLarge"}
-                                text={opt}
-                                onClick={() => setHandleType(opt)}
-                            />
-                        ))}
+                        {Object.values(CabinetHandleType)
+                            .filter(opt => opt !== "찬넬")
+                            .map(opt => (
+                                <Button
+                                    key={opt}
+                                    type={handleType === opt ? "BrandInverse" : "GrayLarge"}
+                                    text={opt}
+                                    onClick={() => setHandleType(opt)}
+                                />
+                            ))}
                     </div>
                 </div>
                 {/* 뒷판 robust (enum) */}
                 <div className="flex flex-col gap-2">
-                    <div className="text-[14px]/[20px] font-400 text-gray-600">뒷판 방식</div>
+                    <div className="text-[14px]/[20px] font-400 text-gray-600">마감 방식</div>
                     <div className="flex w-full gap-2">
-                        {Object.values(CabinetBehindType).map(opt => (
+                        {Object.values(CabinetBehindType).reverse().map(opt => (
                             <Button
                                 key={opt}
                                 type={behindType === opt ? "BrandInverse" : "GrayLarge"}
@@ -213,14 +213,9 @@ function UpperCabinetPageContent() {
                     isOpen={isCabinetLocationSheetOpen}
                     onClose={() => setIsCabinetLocationSheetOpen(false)}
                     value={cabinetLocation}
-                    directInput={cabinetLocationDirectInput}
                     onChange={(val) => {
                         if (locationEnumValues.includes(val as Location)) {
                             setCabinetLocation(val);
-                            setCabinetLocationDirectInput("");
-                        } else {
-                            setCabinetLocation(val);
-                            setCabinetLocationDirectInput(val);
                         }
                     }}
                 />
@@ -515,8 +510,7 @@ function BodyMaterialManualInputSheet({ isOpen, onClose, value, directInput, onC
 // }
 
 
-function CabinetLocationInputSheet({ isOpen, onClose, value, directInput, onChange }: { isOpen: boolean; onClose: () => void; value: string; directInput: string; onChange: (v: string) => void; }) {
-    const inputRef = useRef<HTMLInputElement>(null);
+function CabinetLocationInputSheet({ isOpen, onClose, value, onChange }: { isOpen: boolean; onClose: () => void; value: string; onChange: (v: string) => void; }) {
     const locationEnumValues = Object.values(Location);
     return (
         <BottomSheet
@@ -533,29 +527,6 @@ function CabinetLocationInputSheet({ isOpen, onClose, value, directInput, onChan
                             onClick={() => onChange(option)}
                         />
                     ))}
-                    <div className="flex flex-col">
-                        <SelectToggleButton
-                            label="직접 입력"
-                            checked={locationEnumValues.every(opt => value !== opt)}
-                            onClick={() => {
-                                onChange("");
-                                setTimeout(() => inputRef.current?.focus(), 0);
-                            }}
-                        />
-                        {locationEnumValues.every(opt => value !== opt) && (
-                            <div className="flex items-center gap-2 px-4 pb-3">
-                                <GrayVerticalLine />
-                                <BoxedInput
-                                    ref={inputRef}
-                                    type="text"
-                                    placeholder="용도/장소를 입력해주세요"
-                                    className="w-full"
-                                    value={directInput}
-                                    onChange={e => onChange(e.target.value)}
-                                />
-                            </div>
-                        )}
-                    </div>
                 </div>
             }
             onClose={onClose}

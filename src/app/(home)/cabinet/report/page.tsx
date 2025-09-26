@@ -209,7 +209,7 @@ function ReportPageContent() {
 					width={item?.width ? Number(item.width) : undefined}
 					bodyMaterial={bodyMaterialName}
 					handleType={item?.handleType ?? undefined}
-					finishType={item?.finishType ?? undefined}
+					behindType={item?.behindType ?? undefined}
 					location={item.cabinet_location ?? undefined}
 					addOn_construction={item.addOn_construction ?? undefined}
 					legType={item.legType ?? undefined}
