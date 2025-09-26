@@ -41,6 +41,7 @@ import formatColor from "@/utils/formatColor";
 import { getCategoryLabel } from "@/utils/getCategoryLabel";
 import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 import { CartItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/CartItem";
+import { ReadCartItemsUsecase } from "@/DDD/usecase/read_cart_items_usecase";
 import { UpdateCartItemCountUsecase } from "@/DDD/usecase/update_cart_item_count_usecase";
 import { CartItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/cartitem_supabase_repository";
 
@@ -90,9 +91,6 @@ export default function CartClient() {
   const removeCartItem = useCartItemStore(state => state.removeCartItem);
   const clearCartItems = useCartItemStore(state => state.clearCartItems);
 
-
-
-
   const handleGoToReceiveOption = async () => {
     try {
       router.push("/cart/receive-option");
@@ -130,6 +128,7 @@ export default function CartClient() {
     let ignore = false;
     async function fetchDetails() {
       setIsLoading(true);
+      console.log("cartItems in fetchDetails", cartItems); // 추가
       const details: CartItemDetail[] = await Promise.all(
         cartItems.map(async (cartItem) => {
           let detail: any = null;
@@ -178,17 +177,31 @@ export default function CartClient() {
                 detail = null;
             }
           } catch (e) {
+            console.error("fetch detail error", e); // 추가
             detail = null;
           }
           return { cartItem, detail };
         })
       );
+      console.log("details after fetch", details); // 추가
       if (!ignore) setCartItemDetails(details);
       setIsLoading(false);
     }
     fetchDetails();
     return () => { ignore = true; };
   }, [cartItems]);
+
+  // 장바구니 아이템 서버에서 fetch하여 zustand에 동기화
+  useEffect(() => {
+    async function fetchCartItemsFromServer() {
+      const cartId = useCartStore.getState().cart?.id;
+      if (!cartId) return;
+      const usecase = new ReadCartItemsUsecase();
+      const response = await usecase.readCartItemsByCartId(cartId);
+      setCartItems(response.data || []);
+    }
+    fetchCartItemsFromServer();
+  }, []);
 
   // 로딩 중 표시
   if (isLoading) {
