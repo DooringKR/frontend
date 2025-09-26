@@ -210,7 +210,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
       )}
       {/* button section */}
       <div className="ml-auto flex w-fit items-center gap-3">
-        <Button type={"OutlinedMedium"} text={"옵션 변경"} onClick={onOptionClick} />
+        {/* <Button type={"OutlinedMedium"} text={"옵션 변경"} onClick={onOptionClick} /> */}
         {showQuantitySelector !== false && (
           <QuantitySelector
             quantity={quantity}
