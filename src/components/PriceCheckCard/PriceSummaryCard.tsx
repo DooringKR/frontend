@@ -1,36 +1,43 @@
 import { CHECK_ORDER_PAGE } from "@/constants/pageName";
 import React from "react";
 
-import useCartStore from "@/store/cartStore";
+import useCartItemStore from "@/store/cartItemStore";
+import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 
-type OrderItem = {
-  price?: number | null;
-  count?: number | null;
-};
 
-interface PriceSummaryCardProps {
+
+type PriceSummaryCardProps = {
   getTotalPrice: () => number;
-  categoryMap: Record<string, string>;
   page?: string;
-}
+};
 
 const PriceSummaryCard: React.FC<PriceSummaryCardProps> = ({
   getTotalPrice,
-  categoryMap,
   page,
 }) => {
-  const cartItems = useCartStore(state => state.cartItems);
+  // DDD: cartItems come from cartItemStore, not cartStore
+  const cartItems = useCartItemStore(state => state.cartItems) ?? [];
 
-  const groupedItems = (cartItems ?? []).reduce<Record<string, OrderItem[]>>((acc, item) => {
-    const category = (item.category ?? "기타").toLowerCase();
+  // DDD: group by detail_product_type (enum value, which is already a user-friendly string)
+  const groupedItems = cartItems.reduce<Record<string, typeof cartItems>>((acc, item) => {
+    const category = item.detail_product_type ?? "기타";
     if (!acc[category]) acc[category] = [];
     acc[category].push(item);
     return acc;
   }, {});
 
+  // DDD: check if all items are accessory or hardware by detail_product_type (enum value)
   const onlyExtraPriceItems =
     cartItems.length > 0 &&
-    cartItems.every(item => item.category === "accessory" || item.category === "hardware");
+    cartItems.every(item => {
+      const type = item.detail_product_type;
+      return [
+        DetailProductType.ACCESSORY,
+        DetailProductType.HINGE,
+        DetailProductType.RAIL,
+        DetailProductType.PIECE
+      ].includes(type);
+    });
 
   return (
     <div className="flex flex-col gap-3 py-5">
@@ -60,15 +67,18 @@ const PriceSummaryCard: React.FC<PriceSummaryCardProps> = ({
         <div className="flex flex-col gap-1 text-[15px] font-400 text-gray-500">
           {Object.entries(groupedItems).flatMap(([category, items]) =>
             items.map((item, index) => {
-              const label =
-                items.length > 1
-                  ? `${categoryMap[category] ?? category}`
-                  : (categoryMap[category] ?? category);
-
-              const isExtraPriceCategory = category === "accessory" || category === "hardware";
+              // label: just use the enum value (already 한글)
+              const label = category;
+              // extra price for accessory/hardware types (by enum)
+              const isExtraPriceCategory = [
+                DetailProductType.ACCESSORY,
+                DetailProductType.HINGE,
+                DetailProductType.RAIL,
+                DetailProductType.PIECE
+              ].includes(item.detail_product_type);
               const displayPrice = isExtraPriceCategory
                 ? "별도 견적"
-                : `${((item.price ?? 0) * (item.count ?? 1)).toLocaleString()}원 부터~`;
+                : `${((item.unit_price ?? 0) * (item.item_count ?? 1)).toLocaleString()}원 부터~`;
 
               return (
                 <div
@@ -79,7 +89,7 @@ const PriceSummaryCard: React.FC<PriceSummaryCardProps> = ({
                   <span>{displayPrice}</span>
                 </div>
               );
-            }),
+            })
           )}
         </div>
       </div>

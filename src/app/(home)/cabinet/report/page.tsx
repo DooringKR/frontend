@@ -276,7 +276,7 @@ function ReportPageContent() {
 							}
 							const cartItem = new CartItem({
 								cart_id: cart!.id!,
-								item_detail: createdCabinet["id"],
+								item_detail: createdCabinet.id,
 								detail_product_type: detailProductType,
 								item_count: quantity,
 								unit_price: unitPrice,

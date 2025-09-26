@@ -1,14 +1,14 @@
 "use client";
 
-import { deleteCartItem, getCartItems, updateCartItem } from "@/api/cartApi";
-import {
-  ACCESSORY_CATEGORY_LIST,
-  CABINET_CATEGORY_LIST,
-  DOOR_CATEGORY_LIST,
-  FINISH_CATEGORY_LIST,
-  HARDWARE_CATEGORY_LIST,
-} from "@/constants/category";
-import { CART_PAGE } from "@/constants/pageName";
+// import {
+//   ACCESSORY_CATEGORY_LIST,
+//   CABINET_CATEGORY_LIST,
+//   DOOR_CATEGORY_LIST,
+//   FINISH_CATEGORY_LIST,
+//   HARDWARE_CATEGORY_LIST,
+// } from "@/constants/category";
+
+// import { CART_PAGE } from "@/constants/pageName";
 // import {
 //   AccessoryItem,
 //   CabinetItem,
@@ -16,6 +16,8 @@ import { CART_PAGE } from "@/constants/pageName";
 //   FinishItem,
 //   HardwareItem,
 // } from "@/types/newItemTypes";
+
+import { DOOR_COLOR_LIST, CABINET_COLOR_LIST, FINISH_COLOR_LIST } from "@/constants/colorList";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { CrudInteriorMaterialsUsecase } from "@/DDD/usecase/crud_interior_materials_usecase";
@@ -36,36 +38,36 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import useCartStore from "@/store/cartStore";
 import useCartItemStore from "@/store/cartItemStore";
-import { formatBoringDirection } from "@/utils/formatBoring";
-import formatColor from "@/utils/formatColor";
-import { getCategoryLabel } from "@/utils/getCategoryLabel";
+// import { formatBoringDirection } from "@/utils/formatBoring";
+// import formatColor from "@/utils/formatColor";
+// import { getCategoryLabel } from "@/utils/getCategoryLabel";
 import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 import { CartItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/CartItem";
 import { ReadCartItemsUsecase } from "@/DDD/usecase/read_cart_items_usecase";
 import { UpdateCartItemCountUsecase } from "@/DDD/usecase/update_cart_item_count_usecase";
 import { CartItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/cartitem_supabase_repository";
 
-const DOOR_TYPE_SLUG_MAP: Record<string, string> = {
-  standard: "STANDARD",
-  flap: "FLAP",
-  drawer: "DRAWER",
-};
+// const DOOR_TYPE_SLUG_MAP: Record<string, string> = {
+//   standard: "STANDARD",
+//   flap: "FLAP",
+//   drawer: "DRAWER",
+// };
 
-const CATEGORY_MAP: Record<string, string> = {
-  door: "문짝",
-  finish: "마감재",
-  cabinet: "부분장",
-  hardware: "하드웨어",
-  accessory: "부속",
-};
+// const CATEGORY_MAP: Record<string, string> = {
+//   door: "문짝",
+//   finish: "마감재",
+//   cabinet: "부분장",
+//   hardware: "하드웨어",
+//   accessory: "부속",
+// };
 
-export const PRODUCT_TYPE_KR_MAP: Record<string, string> = {
-  DOOR: "일반문",
-  FINISH: "마감재",
-  CABINET: "부분장",
-  HARDWARE: "하드웨어",
-  ACCESSORY: "부속",
-};
+// export const PRODUCT_TYPE_KR_MAP: Record<string, string> = {
+//   DOOR: "일반문",
+//   FINISH: "마감재",
+//   CABINET: "부분장",
+//   HARDWARE: "하드웨어",
+//   ACCESSORY: "부속",
+// };
 
 // type OrderItem = DoorItem | FinishItem | CabinetItem | AccessoryItem | HardwareItem | null;
 export type AnyCartItem = CartItem;
@@ -103,18 +105,22 @@ export default function CartClient() {
   // 수량 변경 핸들러 (서버 동기화)
   const handleCountChange = async (category: string, index: number, newCount: number) => {
     const item = cartItems[index];
-    if (!item || !item.id || newCount < 0) return;
+    console.log('[handleCountChange] category:', category, 'index:', index, 'newCount:', newCount, 'item:', item);
+    if (!item || !item.id || newCount < 0) {
+      console.warn('[handleCountChange] Invalid item or id or newCount < 0', { item, newCount });
+      return;
+    }
     const usecase = new UpdateCartItemCountUsecase(new CartItemSupabaseRepository());
     try {
       const result = await usecase.updateCount(item.id, newCount);
+      console.log('[handleCountChange] updateCount result:', result);
       if (result) {
-        // zustand store도 동기화
         updateCartItem(item.id, { item_count: newCount });
       } else {
-        // 삭제된 경우 zustand에서도 제거
         removeCartItem(item.id);
       }
     } catch (e: any) {
+      console.error('[handleCountChange] Error:', e);
       alert("서버와 동기화 중 오류 발생: " + (e?.message || e));
     }
   };
@@ -145,12 +151,28 @@ export default function CartClient() {
                 ).findById(cartItem.item_detail);
                 break;
               case DetailProductType.UPPERCABINET:
+                detail = await new CrudInteriorMaterialsUsecase(
+                  new InteriorMaterialsSupabaseRepository<Cabinet>("UpperCabinet")
+                ).findById(cartItem.item_detail);
+                break;
               case DetailProductType.LOWERCABINET:
+                detail = await new CrudInteriorMaterialsUsecase(
+                  new InteriorMaterialsSupabaseRepository<Cabinet>("LowerCabinet")
+                ).findById(cartItem.item_detail);
+                break;
               case DetailProductType.FLAPCABINET:
+                detail = await new CrudInteriorMaterialsUsecase(
+                  new InteriorMaterialsSupabaseRepository<Cabinet>("FlapCabinet")
+                ).findById(cartItem.item_detail);
+                break;
               case DetailProductType.DRAWERCABINET:
+                detail = await new CrudInteriorMaterialsUsecase(
+                  new InteriorMaterialsSupabaseRepository<Cabinet>("DrawerCabinet")
+                ).findById(cartItem.item_detail);
+                break;
               case DetailProductType.OPENCABINET:
                 detail = await new CrudInteriorMaterialsUsecase(
-                  new InteriorMaterialsSupabaseRepository<Cabinet>("Cabinet")
+                  new InteriorMaterialsSupabaseRepository<Cabinet>("OpenCabinet")
                 ).findById(cartItem.item_detail);
                 break;
               case DetailProductType.ACCESSORY:
@@ -207,7 +229,7 @@ export default function CartClient() {
   if (isLoading) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center text-gray-500">
-        <TopNavigator title="장바구니" page={CART_PAGE} />
+        <TopNavigator title="장바구니" page={"/cart"} />
         <div className="flex flex-1 flex-col items-center justify-center px-5">
           <p className="text-[17px] font-500">장바구니 불러오는 중...</p>
         </div>
@@ -219,7 +241,7 @@ export default function CartClient() {
   if (!cartItemDetails || cartItemDetails.length === 0) {
     return (
       <div className="flex min-h-screen flex-col">
-        <TopNavigator title="장바구니" page={CART_PAGE} />
+        <TopNavigator title="장바구니" page={"/cart"} />
         <div className="flex flex-1 flex-col items-center justify-center px-5">
           <img src="/icons/paper.svg" alt="빈 용지 아이콘" className="mb-3" />
           <p className="mb-5 text-center text-[17px] font-500 text-gray-500">장바구니가 비었어요</p>
@@ -230,7 +252,7 @@ export default function CartClient() {
   }
 
   const getTotalItemCount = () => {
-    return cartItemDetails.reduce((sum, { cartItem }) => sum + (cartItem.item_count ?? 0), 0);
+    return cartItemDetails.length;
   };
 
   const getTotalPrice = () => {
@@ -239,7 +261,7 @@ export default function CartClient() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <TopNavigator title="장바구니" page={CART_PAGE} />
+      <TopNavigator title="장바구니" page={"/cart"} />
       <div className="flex-1 overflow-y-auto pb-[150px]">
         <div className="p-5">
           <div className="pb-3 text-xl font-600">상품 {getTotalItemCount()}개</div>
@@ -253,18 +275,19 @@ export default function CartClient() {
                 trashable: true,
                 onIncrease: () => handleCountChange(category, i, (cartItem.item_count ?? 0) + 1),
                 onDecrease: () => handleCountChange(category, i, (cartItem.item_count ?? 0) - 1),
-                onRemove: () => { if (cartItem.id) removeCartItem(cartItem.id); },
+                onRemove: () => { if (cartItem.id) handleCountChange(category, i, 0); },
               };
 
               // DOOR
               if (category === DetailProductType.DOOR && detail) {
+                const colorName = DOOR_COLOR_LIST.find(c => c.id === detail.door_color)?.name || detail.door_color;
                 return (
                   <ShoppingCartCard
                     key={key}
                     type="door"
                     totalPrice={cartItem.unit_price * cartItem.item_count}
-                    title={getCategoryLabel(detail.door_type, DOOR_CATEGORY_LIST, "문짝")}
-                    color={formatColor(detail.door_color)}
+                    title={detail.door_type || "일반문"}
+                    color={colorName}
                     width={Number(detail.door_width)}
                     height={Number(detail.door_height)}
                     hingeCount={detail.hinge?.length > 0 ? detail.hinge.length : undefined}
@@ -274,19 +297,21 @@ export default function CartClient() {
                     quantity={cartItem.item_count}
                     showQuantitySelector={true}
                     addOn_hinge={detail.addOn_hinge ?? undefined}
+                    request={detail.door_request ?? undefined}
                     {...commonProps}
                   />
                 );
               }
               // FINISH
               if (category === DetailProductType.FINISH && detail) {
+                const colorName = FINISH_COLOR_LIST.find(c => c.id === detail.finish_color)?.name || detail.finish_color || detail.finish_color_direct_input || "";
                 return (
                   <ShoppingCartCard
                     key={key}
                     type="finish"
                     totalPrice={cartItem.unit_price * cartItem.item_count}
-                    title={FINISH_CATEGORY_LIST.find(item => item.slug === (detail.finish_type || "").toLowerCase())?.header ?? ""}
-                    color={formatColor(detail.finish_color) || detail.finish_color_direct_input || ""}
+                    title={detail.finish_type || "마감재"}
+                    color={colorName}
                     edgeCount={detail.finish_edge_count ?? undefined}
                     depth={detail.finish_base_depth}
                     depthIncrease={detail.finish_additional_depth ?? undefined}
@@ -302,13 +327,14 @@ export default function CartClient() {
               }
               // CABINET
               if ((category === DetailProductType.UPPERCABINET || category === DetailProductType.LOWERCABINET || category === DetailProductType.FLAPCABINET || category === DetailProductType.DRAWERCABINET || category === DetailProductType.OPENCABINET) && detail) {
+                const colorName = CABINET_COLOR_LIST.find(c => c.id === detail.cabinet_color)?.name || detail.cabinet_color;
                 return (
                   <ShoppingCartCard
                     key={key}
                     type="cabinet"
                     totalPrice={cartItem.unit_price * cartItem.item_count}
-                    title={getCategoryLabel(detail.cabinet_type || detail.type, CABINET_CATEGORY_LIST, "부분장")}
-                    color={detail.cabinet_color}
+                    title={detail.cabinet_type || "부분장"}
+                    color={colorName}
                     width={Number(detail.cabinet_width ?? 0)}
                     height={Number(detail.cabinet_height ?? 0)}
                     depth={Number(detail.cabinet_depth ?? 0)}
@@ -334,7 +360,7 @@ export default function CartClient() {
                   <ShoppingCartCard
                     key={key}
                     type="accessory"
-                    title={getCategoryLabel(detail.accessory_type, ACCESSORY_CATEGORY_LIST, "부속")}
+                    title={detail.accessory_type || "부속"}
                     manufacturer={detail.accessory_madeby}
                     modelName={detail.accessory_model}
                     quantity={cartItem.item_count}
@@ -373,7 +399,7 @@ export default function CartClient() {
           />
         </div>
         <div className="px-5">
-          <PriceSummaryCard getTotalPrice={getTotalPrice} categoryMap={CATEGORY_MAP} />
+          <PriceSummaryCard getTotalPrice={getTotalPrice} />
         </div>
       </div>
       <div className="h-[100px]"></div>

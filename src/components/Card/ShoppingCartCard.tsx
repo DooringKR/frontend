@@ -1,13 +1,11 @@
 import React from "react";
 
-import formatBoring from "@/utils/formatBoring";
-import formatLocation from "@/utils/formatLocation";
-import formatSize from "@/utils/formatSize";
+
+import { DoorType, FinishEdgeCount, HingeDirection } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 import Button from "../Button/Button";
 import DoorPreviewIcon from "../DoorPreviewIcon/DoorPreviewIcon";
 import QuantitySelector from "../QuantitySelector/QuantitySelector";
-import { DoorType, FinishEdgeCount, HingeDirection } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 interface ShoppingCartCardProps {
   type: "door" | "cabinet" | "finish" | "accessory" | "hardware";
@@ -103,43 +101,22 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
           <div className="flex flex-col text-[15px] font-400 text-gray-500">
             {type !== "hardware" && color && <div>색상 : {color}</div>}
             {bodyMaterial && <div>몸통 소재 및 두께 : {bodyMaterial}</div>}
-            {width && (
-              <div>
-                {type === "cabinet"
-                  ? `너비 : ${formatSize(width.toString())}`
-                  : `가로 길이 : ${formatSize(width.toString())}`}
-              </div>
-            )}
-            {height && (
-              <div>
-                {type === "cabinet" || type === "finish"
-                  ? `높이 : ${formatSize(height.toString())}`
-                  : `세로 길이 : ${formatSize(height.toString())}`}
-              </div>
-            )}
+            {width && <div>너비 : {width}mm</div>}
+            {height && <div>높이 : {height}mm</div>}
             {heightIncrease !== undefined && heightIncrease !== null && heightIncrease > 0 && (
               <>
-                <div>⤷ 높이 키우기 : {formatSize(heightIncrease.toString())}</div>
-                {height && (
-                  <div>
-                    ⤷ 합산 높이 : {formatSize((Number(height) + Number(heightIncrease)).toString())}
-                  </div>
-                )}
+                <div>⤷ 높이 키우기 : {heightIncrease}mm</div>
+                {height && <div>⤷ 합산 높이 : {Number(height) + Number(heightIncrease)}mm</div>}
               </>
             )}
-
-            {depth && <div>깊이 : {formatSize(depth.toString())}</div>}
+            {depth && <div>깊이 : {depth}mm</div>}
             {depthIncrease !== undefined && depthIncrease !== null && depthIncrease > 0 && (
               <>
-                <div>⤷ 깊이 키우기 : {formatSize(depthIncrease.toString())}</div>
-                {depth && (
-                  <div>
-                    ⤷ 합산 깊이 : {formatSize((Number(depth) + Number(depthIncrease)).toString())}
-                  </div>
-                )}
+                <div>⤷ 깊이 키우기 : {depthIncrease}mm</div>
+                {depth && <div>⤷ 합산 깊이 : {Number(depth) + Number(depthIncrease)}mm</div>}
               </>
             )}
-            {edgeCount && <div>엣지 면 수 : {edgeCount}면</div>}
+            {edgeCount && <div>엣지 면 수 : {edgeCount}</div>}
             {type === "hardware" && manufacturer && <div>제조사 : {manufacturer}</div>}
             {type === "hardware" && railType && <div>레일 종류 : {railType}</div>}
             {type === "hardware" && railLength && <div>레일 길이 : {railLength}</div>}
@@ -152,7 +129,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
             {hingeDirection && <div>경첩 방향 : {hingeDirection}</div>}
             {boring && (
               <div>
-                보링 치수 : {Array.isArray(boring) ? formatBoring(boring, boringCategory) : boring}
+                보링 치수 : {Array.isArray(boring) ? boring.filter(Boolean).join(", ") : boring}
               </div>
             )}
             {showBar && <div>쇼바 종류 : {showBar}</div>}
@@ -166,7 +143,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
             {modelName && <div>모델명 : {modelName}</div>}
             {type !== "hardware" && size && <div>사이즈 : {size}</div>}
             {request && <div>제작 시 요청 사항 : {request}</div>}
-            {location && <div>용도 ∙ 장소 : {formatLocation(location)}</div>}
+            {location && <div>용도 ∙ 장소 : {location}</div>}
             {addOn_hinge !== undefined && addOn_hinge !== null && (
               <div>경첩 추가 선택 : {addOn_hinge ? "경첩도 받기" : "필요 없어요"}</div>
             )}
@@ -205,7 +182,6 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
       {totalPrice && (
         <div className="flex items-end justify-end text-[20px]/[28px] font-600 text-gray-900">
           {totalPrice.toLocaleString()}원&nbsp;<span className="text-gray-600">부터~</span>
-          bsp;<span className="text-gray-600">부터~</span>
         </div>
       )}
       {/* button section */}

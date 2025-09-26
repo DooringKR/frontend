@@ -7,7 +7,7 @@ import { useCabinetValidation } from "./hooks/useCabinetValidation";
 
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState, useRef } from "react";
-import { CabinetHandleType, CabinetBehindType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import { CabinetHandleType, CabinetBehindType, Location } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
@@ -85,6 +85,18 @@ function UpperCabinetPageContent() {
         ? (selectedMaterial ? selectedMaterial.name : "")
         : (bodyMaterialDirectInput || "");
 
+    // 용도/장소 직접입력 (바텀시트용)
+    const [cabinetLocationDirectInput, setCabinetLocationDirectInput] = useState("");
+    const locationEnumValues = Object.values(Location);
+    const cabinetLocationLabel = locationEnumValues.includes(cabinetLocation)
+        ? formatLocation(cabinetLocation)
+        : (cabinetLocationDirectInput || "");
+    // 다리발 직접입력 (바텀시트용)
+    // const [legTypeDirectInput, setLegTypeDirectInput] = useState("");
+    // const legTypeLabel = ["150 다리 (걸레받이)","120 다리 (걸레받이)","다리발 없음 (60 속걸레받이)"].includes(legType)
+    //     ? legType
+    //     : (legTypeDirectInput || "");
+
     // 색상 옵션 변환
     const colorOptions = CABINET_COLOR_LIST.map(opt => ({ value: opt.name, label: formatColor(opt.name) }));
 
@@ -102,115 +114,26 @@ function UpperCabinetPageContent() {
                     onClick={() => router.push("/cabinet/color")}
                     onChange={() => { }}
                 />
-                {/* 몸통 소재 및 두께 */}
+                {/* 몸통 소재 및 두께 (BoxedSelect 1개만, 바텀시트만 사용) */}
                 <BoxedSelect
                     label="몸통 소재 및 두께"
-                    options={BODY_MATERIAL_LIST.filter(opt => opt.name !== "직접입력").map(opt => ({ value: String(opt.id), label: opt.name }))}
-                    value={bodyMaterial !== null ? (selectedMaterial ? selectedMaterial.name : "") : bodyMaterialDirectInput}
+                    value={bodyMaterialLabel}
                     onClick={() => setIsBottomSheetOpen(true)}
-                    onChange={() => { }}
                 />
-                {/* 용도/장소 */}
-                <BoxedSelect
-                    label="용도 ∙ 장소"
-                    options={[
-                        { value: "KITCHEN", label: "주방" },
-                        { value: "SHOES", label: "신발장" },
-                        { value: "BUILT_IN", label: "붙박이장" },
-                        { value: "BALCONY", label: "발코니 창고문" },
-                        { value: "ETC", label: "기타 수납장" },
-                    ]}
-                    value={formatLocation(cabinetLocation)}
-                    onClick={() => setIsCabinetLocationSheetOpen(true)}
-                    onChange={() => { }}
-                />
-                <BottomSheet
-                    isOpen={isCabinetLocationSheetOpen}
-                    title="용도 및 장소를 선택해주세요"
-                    contentPadding="px-1"
-                    onClose={() => setIsCabinetLocationSheetOpen(false)}
-                    children={
-                        <div>
-                            {[
-                                { value: "KITCHEN", label: "주방" },
-                                { value: "SHOES", label: "신발장" },
-                                { value: "BUILT_IN", label: "붙박이장" },
-                                { value: "BALCONY", label: "발코니 창고문" },
-                                { value: "ETC", label: "기타 수납장" },
-                            ].map(opt => (
-                                <SelectToggleButton
-                                    key={opt.value}
-                                    label={opt.label}
-                                    checked={cabinetLocation === opt.value}
-                                    onClick={() => {
-                                        setCabinetLocation(opt.value);
-                                        setIsCabinetLocationSheetOpen(false);
-                                    }}
-                                />
-                            ))}
-                        </div>
-                    }
-                />
-                {/* 시공 필요 여부 */}
-                <div className="flex flex-col gap-2">
-                    <div className="w-full text-[14px] font-400 text-gray-600">시공 필요 여부</div>
-                    <div className="flex flex-row gap-2">
-                        <Button
-                            type={addOnConstruction ? "BrandInverse" : "GrayLarge"}
-                            text={"시공도 필요해요"}
-                            onClick={() => setAddOnConstruction(true)}
-                        />
-                        <Button
-                            type={!addOnConstruction ? "BrandInverse" : "GrayLarge"}
-                            text={"필요 없어요"}
-                            onClick={() => setAddOnConstruction(false)}
-                        />
-                    </div>
-                </div>
-                {/* 다리발 */}
-                <BoxedSelect
-                    label="다리발"
-                    options={[
-                        { value: "150 다리 (걸레받이)", label: "150 다리 (걸레받이)" },
-                        { value: "120 다리 (걸레받이)", label: "120 다리 (걸레받이)" },
-                        { value: "다리발 없음 (60 속걸레받이)", label: "다리발 없음 (60 속걸레받이)" },
-                    ]}
-                    value={legType}
-                    onClick={() => setIsLegTypeSheetOpen(true)}
-                    onChange={() => { }}
-                />
-                <BottomSheet
-                    isOpen={isLegTypeSheetOpen}
-                    title="다리발 종류를 선택해주세요"
-                    contentPadding="px-1"
-                    onClose={() => setIsLegTypeSheetOpen(false)}
-                    children={
-                        <div>
-                            {[
-                                "150 다리 (걸레받이)",
-                                "120 다리 (걸레받이)",
-                                "다리발 없음 (60 속걸레받이)",
-                            ].map(opt => (
-                                <SelectToggleButton
-                                    key={opt}
-                                    label={opt}
-                                    checked={legType === opt}
-                                    onClick={() => {
-                                        setLegType(opt);
-                                        setIsLegTypeSheetOpen(false);
-                                    }}
-                                />
-                            ))}
-                        </div>
-                    }
-                />
-                {/* 몸통 소재 및 두께 */}
-                <BoxedSelect
-                    label="몸통 소재 및 두께"
-                    options={BODY_MATERIAL_LIST.filter(opt => opt.name !== "직접입력").map(opt => ({ value: String(opt.id), label: opt.name }))}
-                    value={bodyMaterial !== null ? (selectedMaterial ? selectedMaterial.name : "") : bodyMaterialDirectInput}
-                    onClick={() => setIsBottomSheetOpen(true)}
-                    onChange={() => { }}
+                <BodyMaterialManualInputSheet
+                    isOpen={isBottomSheetOpen}
+                    onClose={() => setIsBottomSheetOpen(false)}
+                    value={bodyMaterial}
+                    directInput={bodyMaterialDirectInput}
+                    onChange={(val) => {
+                        if (typeof val === "number") {
+                            setBodyMaterial(val);
+                            setBodyMaterialDirectInput("");
+                        } else {
+                            setBodyMaterial(null);
+                            setBodyMaterialDirectInput(val);
+                        }
+                    }}
                 />
                 {/* 너비 */}
                 <BoxedInput
@@ -279,6 +202,115 @@ function UpperCabinetPageContent() {
                         ))}
                     </div>
                 </div>
+
+                {/* 용도/장소 (BoxedSelect 1개, 바텀시트+직접입력) */}
+                <BoxedSelect
+                    label="용도 ∙ 장소"
+                    value={cabinetLocationLabel}
+                    onClick={() => setIsCabinetLocationSheetOpen(true)}
+                />
+                <CabinetLocationInputSheet
+                    isOpen={isCabinetLocationSheetOpen}
+                    onClose={() => setIsCabinetLocationSheetOpen(false)}
+                    value={cabinetLocation}
+                    directInput={cabinetLocationDirectInput}
+                    onChange={(val) => {
+                        if (locationEnumValues.includes(val as Location)) {
+                            setCabinetLocation(val);
+                            setCabinetLocationDirectInput("");
+                        } else {
+                            setCabinetLocation(val);
+                            setCabinetLocationDirectInput(val);
+                        }
+                    }}
+                />
+                {/* 시공 필요 여부 */}
+                <div className="flex flex-col gap-2">
+                    <div className="w-full text-[14px] font-400 text-gray-600">시공 필요 여부</div>
+                    <div className="flex flex-row gap-2">
+                        <Button
+                            type={addOnConstruction ? "BrandInverse" : "GrayLarge"}
+                            text={"시공도 필요해요"}
+                            onClick={() => setAddOnConstruction(true)}
+                        />
+                        <Button
+                            type={!addOnConstruction ? "BrandInverse" : "GrayLarge"}
+                            text={"필요 없어요"}
+                            onClick={() => setAddOnConstruction(false)}
+                        />
+                    </div>
+                </div>
+                {/* 다리발 (BoxedSelect 1개, 바텀시트+직접입력) */}
+                {/**
+                <BoxedSelect
+                    label="다리발"
+                    value={legTypeLabel}
+                    onClick={() => setIsLegTypeSheetOpen(true)}
+                />
+                <LegTypeInputSheet
+                    isOpen={isLegTypeSheetOpen}
+                    onClose={() => setIsLegTypeSheetOpen(false)}
+                    value={legType}
+                    directInput={legTypeDirectInput}
+                    onChange={(val) => {
+                        if (["150 다리 (걸레받이)","120 다리 (걸레받이)","다리발 없음 (60 속걸레받이)"].includes(val)) {
+                            setLegType(val);
+                            setLegTypeDirectInput("");
+                        } else {
+                            setLegType(val);
+                            setLegTypeDirectInput(val);
+                        }
+                    }}
+                />
+                <BottomSheet
+                    isOpen={isLegTypeSheetOpen}
+                    title="다리발 종류를 선택해주세요"
+                    contentPadding="px-1"
+                    onClose={() => setIsLegTypeSheetOpen(false)}
+                    children={
+                        <div>
+                            {["150 다리 (걸레받이)", "120 다리 (걸레받이)", "다리발 없음 (60 속걸레받이)"].map(opt => (
+                                <SelectToggleButton
+                                    key={opt}
+                                    label={opt}
+                                    checked={legType === opt}
+                                    onClick={() => {
+                                        setLegType(opt);
+                                        setLegTypeDirectInput("");
+                                        setIsLegTypeSheetOpen(false);
+                                    }}
+                                />
+                            ))}
+                            <div className="flex flex-col">
+                                <SelectToggleButton
+                                    label="직접 입력"
+                                    checked={!["150 다리 (걸레받이)","120 다리 (걸레받이)","다리발 없음 (60 속걸레받이)"].includes(legType)}
+                                    onClick={() => {
+                                        setLegType("");
+                                        setTimeout(() => document.getElementById('legTypeDirectInput')?.focus(), 0);
+                                    }}
+                                />
+                                {!["150 다리 (걸레받이)","120 다리 (걸레받이)","다리발 없음 (60 속걸레받이)"].includes(legType) && (
+                                    <div className="flex items-center gap-2 px-4 pb-3">
+                                        <GrayVerticalLine />
+                                        <BoxedInput
+                                            // id="legTypeDirectInput"
+                                            type="text"
+                                            placeholder="다리발 종류를 입력해주세요"
+                                            className="w-full"
+                                            value={legTypeDirectInput}
+                                            onChange={e => {
+                                                setLegTypeDirectInput(e.target.value);
+                                                setLegType(e.target.value);
+                                            }}
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    }
+                />
+                */}
                 {/* 요청사항 */}
                 <BoxedInput
                     label="제작 시 요청사항"
@@ -376,20 +408,127 @@ function BodyMaterialManualInputSheet({ isOpen, onClose, value, directInput, onC
     );
 }
 
-function HandleTypeInputSheet({ isOpen, onClose, value, onChange }: { isOpen: boolean; onClose: () => void; value: string; onChange: (v: string) => void; }) {
+// function HandleTypeInputSheet({ isOpen, onClose, value, onChange }: { isOpen: boolean; onClose: () => void; value: string; onChange: (v: string) => void; }) {
+//     const inputRef = useRef<HTMLInputElement>(null);
+//     const options: string[] = [];
+//     return (
+//         <BottomSheet
+//             isOpen={isOpen}
+//             title="손잡이 종류를 선택해주세요"
+//             contentPadding="px-1"
+//             children={
+//                 <div>
+//                     {options.map(option => (
+//                         <SelectToggleButton
+//                             key={option}
+//                             label={option}
+//                             checked={value === option}
+//                             onClick={() => onChange(option)}
+//                         />
+//                     ))}
+//                     <div className="flex flex-col">
+//                         <SelectToggleButton
+//                             label="직접 입력"
+//                             checked={options.every(opt => value !== opt)}
+//                             onClick={() => {
+//                                 onChange("");
+//                                 setTimeout(() => inputRef.current?.focus(), 0);
+//                             }}
+//                         />
+//                         {options.every(opt => value !== opt) && (
+//                             <div className="flex items-center gap-2 px-4 pb-3">
+//                                 <GrayVerticalLine />
+//                                 <BoxedInput
+//                                     ref={inputRef}
+//                                     type="text"
+//                                     placeholder="손잡이 종류를 입력해주세요"
+//                                     className="w-full"
+//                                     value={value}
+//                                     onChange={e => onChange(e.target.value)}
+//                                 />
+//                             </div>
+//                         )}
+//                     </div>
+//                 </div>
+//             }
+//             onClose={onClose}
+//             buttonArea={
+//                 <div className="p-5">
+//                     <Button type="Brand" text="다음" onClick={onClose} />
+//                 </div>
+//             }
+//         />
+//     );
+// }
+
+// function FinishTypeInputSheet({ isOpen, onClose, value, onChange }: { isOpen: boolean; onClose: () => void; value: string; onChange: (v: string) => void; }) {
+//     const inputRef = useRef<HTMLInputElement>(null);
+//     const options: string[] = [];
+//     return (
+//         <BottomSheet
+//             isOpen={isOpen}
+//             title="마감재를 선택해주세요"
+//             contentPadding="px-1"
+//             children={
+//                 <div>
+//                     {options.map(option => (
+//                         <SelectToggleButton
+//                             key={option}
+//                             label={option}
+//                             checked={value === option}
+//                             onClick={() => onChange(option)}
+//                         />
+//                     ))}
+//                     <div className="flex flex-col">
+//                         <SelectToggleButton
+//                             label="직접 입력"
+//                             checked={options.every(opt => value !== opt)}
+//                             onClick={() => {
+//                                 onChange("");
+//                                 setTimeout(() => inputRef.current?.focus(), 0);
+//                             }}
+//                         />
+//                         {options.every(opt => value !== opt) && (
+//                             <div className="flex items-center gap-2 px-4 pb-3">
+//                                 <GrayVerticalLine />
+//                                 <BoxedInput
+//                                     ref={inputRef}
+//                                     type="text"
+//                                     placeholder="마감재를 입력해주세요"
+//                                     className="w-full"
+//                                     value={value}
+//                                     onChange={e => onChange(e.target.value)}
+//                                 />
+//                             </div>
+//                         )}
+//                     </div>
+//                 </div>
+//             }
+//             onClose={onClose}
+//             buttonArea={
+//                 <div className="p-5">
+//                     <Button type="Brand" text="다음" onClick={onClose} />
+//                 </div>
+//             }
+//         />
+//     );
+// }
+
+
+function CabinetLocationInputSheet({ isOpen, onClose, value, directInput, onChange }: { isOpen: boolean; onClose: () => void; value: string; directInput: string; onChange: (v: string) => void; }) {
     const inputRef = useRef<HTMLInputElement>(null);
-    const options: string[] = [];
+    const locationEnumValues = Object.values(Location);
     return (
         <BottomSheet
             isOpen={isOpen}
-            title="손잡이 종류를 선택해주세요"
+            title="용도 및 장소를 선택해주세요"
             contentPadding="px-1"
             children={
                 <div>
-                    {options.map(option => (
+                    {locationEnumValues.map(option => (
                         <SelectToggleButton
                             key={option}
-                            label={option}
+                            label={formatLocation(option)}
                             checked={value === option}
                             onClick={() => onChange(option)}
                         />
@@ -397,21 +536,21 @@ function HandleTypeInputSheet({ isOpen, onClose, value, onChange }: { isOpen: bo
                     <div className="flex flex-col">
                         <SelectToggleButton
                             label="직접 입력"
-                            checked={options.every(opt => value !== opt)}
+                            checked={locationEnumValues.every(opt => value !== opt)}
                             onClick={() => {
                                 onChange("");
                                 setTimeout(() => inputRef.current?.focus(), 0);
                             }}
                         />
-                        {options.every(opt => value !== opt) && (
+                        {locationEnumValues.every(opt => value !== opt) && (
                             <div className="flex items-center gap-2 px-4 pb-3">
                                 <GrayVerticalLine />
                                 <BoxedInput
                                     ref={inputRef}
                                     type="text"
-                                    placeholder="손잡이 종류를 입력해주세요"
+                                    placeholder="용도/장소를 입력해주세요"
                                     className="w-full"
-                                    value={value}
+                                    value={directInput}
                                     onChange={e => onChange(e.target.value)}
                                 />
                             </div>
@@ -421,7 +560,7 @@ function HandleTypeInputSheet({ isOpen, onClose, value, onChange }: { isOpen: bo
             }
             onClose={onClose}
             buttonArea={
-                <div className="p-5">
+                <div className="p-5" style={{ position: "relative", zIndex: 1000 }}>
                     <Button type="Brand" text="다음" onClick={onClose} />
                 </div>
             }
@@ -429,60 +568,7 @@ function HandleTypeInputSheet({ isOpen, onClose, value, onChange }: { isOpen: bo
     );
 }
 
-function FinishTypeInputSheet({ isOpen, onClose, value, onChange }: { isOpen: boolean; onClose: () => void; value: string; onChange: (v: string) => void; }) {
-    const inputRef = useRef<HTMLInputElement>(null);
-    const options: string[] = [];
-    return (
-        <BottomSheet
-            isOpen={isOpen}
-            title="마감재를 선택해주세요"
-            contentPadding="px-1"
-            children={
-                <div>
-                    {options.map(option => (
-                        <SelectToggleButton
-                            key={option}
-                            label={option}
-                            checked={value === option}
-                            onClick={() => onChange(option)}
-                        />
-                    ))}
-                    <div className="flex flex-col">
-                        <SelectToggleButton
-                            label="직접 입력"
-                            checked={options.every(opt => value !== opt)}
-                            onClick={() => {
-                                onChange("");
-                                setTimeout(() => inputRef.current?.focus(), 0);
-                            }}
-                        />
-                        {options.every(opt => value !== opt) && (
-                            <div className="flex items-center gap-2 px-4 pb-3">
-                                <GrayVerticalLine />
-                                <BoxedInput
-                                    ref={inputRef}
-                                    type="text"
-                                    placeholder="마감재를 입력해주세요"
-                                    className="w-full"
-                                    value={value}
-                                    onChange={e => onChange(e.target.value)}
-                                />
-                            </div>
-                        )}
-                    </div>
-                </div>
-            }
-            onClose={onClose}
-            buttonArea={
-                <div className="p-5">
-                    <Button type="Brand" text="다음" onClick={onClose} />
-                </div>
-            }
-        />
-    );
-}
-
-function LegTypeInputSheet({ isOpen, onClose, value, onChange }: { isOpen: boolean; onClose: () => void; value: string; onChange: (v: string) => void; }) {
+function LegTypeInputSheet({ isOpen, onClose, value, directInput, onChange }: { isOpen: boolean; onClose: () => void; value: string; directInput: string; onChange: (v: string) => void; }) {
     const inputRef = useRef<HTMLInputElement>(null);
     const options = [
         "150 다리 (걸레받이)",
@@ -521,7 +607,7 @@ function LegTypeInputSheet({ isOpen, onClose, value, onChange }: { isOpen: boole
                                     type="text"
                                     placeholder="다리발 종류를 입력해주세요"
                                     className="w-full"
-                                    value={value}
+                                    value={directInput}
                                     onChange={e => onChange(e.target.value)}
                                 />
                             </div>
