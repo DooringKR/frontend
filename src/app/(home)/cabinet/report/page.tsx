@@ -215,6 +215,10 @@ function ReportPageContent() {
 		item.depth ?? 0,
 	);
 
+	// 오픈장: 밥솥 레일/하부장 robust 표시
+	const addRiceCookerRail = item.riceRail === "추가";
+	const addBottomDrawer = item.lowerDrawer === "추가";
+
 	return (
 		<div className="flex flex-col">
 			<TopNavigator />
@@ -240,6 +244,9 @@ function ReportPageContent() {
 					location={item.cabinet_location ?? undefined}
 					addOn_construction={item.addOn_construction ?? undefined}
 					legType={item.legType ?? undefined}
+					// 오픈장만 표시
+					addRiceCookerRail={item.type === "오픈장" ? addRiceCookerRail : undefined}
+					addBottomDrawer={item.type === "오픈장" ? addBottomDrawer : undefined}
 					quantity={0}
 					trashable={false}
 					showQuantitySelector={false}

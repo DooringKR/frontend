@@ -12,6 +12,8 @@ import DoorPreviewIcon from "../DoorPreviewIcon/DoorPreviewIcon";
 import QuantitySelector from "../QuantitySelector/QuantitySelector";
 
 interface ShoppingCartCardProps {
+  addRiceCookerRail?: boolean;
+  addBottomDrawer?: boolean;
   type: "door" | "cabinet" | "finish" | "accessory" | "hardware";
   title: string;
   totalPrice?: number;
@@ -105,6 +107,8 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   absorberType,
   body_material_direct_input,
   absorber_type_direct_input,
+  addRiceCookerRail,
+  addBottomDrawer,
 }) => {
   // bodyMaterial이 '직접입력' id면 직접입력값, 아니면 name 변환
   let bodyMaterialLabel = bodyMaterial;
@@ -179,8 +183,11 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
               </>
             )}
             {edgeCount && <div>엣지 면 수 : {edgeCount}</div>}
-            {type === "hardware" && manufacturer && <div>제조사 : {manufacturer}</div>}
-            {type === "hardware" && railType && <div>레일 종류 : {railType}</div>}
+            {(type === "hardware" || type === "accessory") && manufacturer && <div>제조사 : {manufacturer}</div>}
+            {/* robust: 레일 종류 값 있을 때만 출력 (중복 제거)
+            {typeof railTypeLabel !== "undefined" && railTypeLabel !== null && railTypeLabel !== "" && (
+              <div>레일 종류 : {railTypeLabel}</div>
+            )} */}
             {type === "hardware" && railLength && <div>레일 길이 : {railLength}</div>}
             {type === "hardware" && color && <div>색상 : {color}</div>}
             {type === "hardware" && size && <div>사이즈 : {size}</div>}
@@ -206,6 +213,13 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
             {/* robust: 레일 종류 값 있을 때만 출력 */}
             {typeof railTypeLabel !== "undefined" && railTypeLabel !== null && railTypeLabel !== "" && (
               <div>레일 종류 : {railTypeLabel}</div>
+            )}
+            {/* robust: 오픈장 밥솥 레일/하부장 추가 여부 */}
+            {typeof addRiceCookerRail !== "undefined" && (
+              <div>밥솥 레일 추가 여부 : {addRiceCookerRail ? "추가" : "추가 안 함"}</div>
+            )}
+            {typeof addBottomDrawer !== "undefined" && (
+              <div>하부 서랍장 추가 여부 : {addBottomDrawer ? "추가" : "추가 안 함"}</div>
             )}
             {riceRail && <div>밥솥 레일 추가 여부 : {riceRail}</div>}
             {lowerDrawer && <div>하부 서랍장 추가 여부 : {lowerDrawer}</div>}

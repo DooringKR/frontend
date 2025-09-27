@@ -346,6 +346,9 @@ export default function CartClient() {
                 } else {
                   drawerTypeLabel = detail.drawer_type ?? "";
                 }
+                // 오픈장: robust 밥솥 레일/하부장 추가 여부
+                const addRiceCookerRail = category === DetailProductType.OPENCABINET ? detail.add_rice_cooker_rail : undefined;
+                const addBottomDrawer = category === DetailProductType.OPENCABINET ? detail.add_bottom_drawer : undefined;
                 return (
                   <ShoppingCartCard
                     key={key}
@@ -370,6 +373,8 @@ export default function CartClient() {
                     showQuantitySelector={true}
                     addOn_construction={detail.addOn_construction ?? undefined}
                     legType={detail.leg_type ?? undefined}
+                    addRiceCookerRail={addRiceCookerRail}
+                    addBottomDrawer={addBottomDrawer}
                     {...commonProps}
                   />
                 );
@@ -392,16 +397,53 @@ export default function CartClient() {
               }
               // HARDWARE (HINGE, RAIL, PIECE)
               if ((category === DetailProductType.HINGE || category === DetailProductType.RAIL || category === DetailProductType.PIECE) && detail) {
+                // HINGE: manufacturer, thickness, angle (직접입력 robust, report page 방식)
+                let manufacturer = "";
+                let thickness = "";
+                let angle = "";
+                let color = "";
+                if (category === DetailProductType.HINGE) {
+                  manufacturer = detail.hinge_madeby_direct_input ? detail.hinge_madeby_direct_input : (detail.hinge_madeby ?? "");
+                  thickness = detail.hinge_thickness_direct_input ? detail.hinge_thickness_direct_input : (detail.hinge_thickness ?? "");
+                  angle = detail.hinge_angle_direct_input ? detail.hinge_angle_direct_input : (detail.hinge_angle ?? "");
+                  color = detail.hinge_color ?? "";
+                }
+                // RAIL: manufacturer, railType, railLength, railDamping (직접입력 robust, report page 방식)
+                let railManufacturer = "";
+                let railType = "";
+                let railLength = "";
+                let railDamping = undefined;
+                if (category === DetailProductType.RAIL) {
+                  railManufacturer = detail.rail_madeby_direct_input ? detail.rail_madeby_direct_input : (detail.rail_madeby ?? "");
+                  railType = detail.rail_type_direct_input ? detail.rail_type_direct_input : (detail.rail_type ?? "");
+                  railLength = detail.rail_length_direct_input ? detail.rail_length_direct_input : (detail.rail_length ?? "");
+                  railDamping = detail.rail_damping ?? undefined;
+                  color = detail.rail_color ?? "";
+                }
+                // PIECE: manufacturer, size, color (직접입력 robust, report page 방식)
+                let pieceManufacturer = "";
+                let pieceSize = "";
+                if (category === DetailProductType.PIECE) {
+                  pieceManufacturer = detail.piece_madeby_direct_input ? detail.piece_madeby_direct_input : (detail.piece_madeby ?? "");
+                  pieceSize = detail.piece_size_direct_input ? detail.piece_size_direct_input : (detail.piece_size ?? "");
+                  color = detail.piece_color ?? "";
+                }
                 return (
                   <ShoppingCartCard
                     key={key}
                     type="hardware"
                     title={category || "하드웨어"}
-                    manufacturer={detail.hinge_madeby || detail.rail_madeby || detail.piece_madeby || ""}
-                    size={detail.piece_size || detail.rail_length || ""}
                     request={detail.hardware_request ?? ""}
                     quantity={cartItem.item_count}
                     showQuantitySelector={true}
+                    manufacturer={manufacturer || railManufacturer || pieceManufacturer}
+                    thickness={thickness}
+                    angle={angle}
+                    railType={railType}
+                    railLength={railLength}
+                    railDamping={railDamping}
+                    size={pieceSize}
+                    color={color}
                     {...commonProps}
                   />
                 );
