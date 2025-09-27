@@ -46,6 +46,7 @@ import { CartItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/
 import { ReadCartItemsUsecase } from "@/DDD/usecase/read_cart_items_usecase";
 import { UpdateCartItemCountUsecase } from "@/DDD/usecase/update_cart_item_count_usecase";
 import { CartItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/cartitem_supabase_repository";
+import { CABINET_DRAWER_TYPE_LIST } from "@/constants/cabinetdrawertype";
 
 // const DOOR_TYPE_SLUG_MAP: Record<string, string> = {
 //   standard: "STANDARD",
@@ -286,7 +287,7 @@ export default function CartClient() {
                     key={key}
                     type="door"
                     totalPrice={cartItem.unit_price * cartItem.item_count}
-                    title={detail.door_type || "일반문"}
+                    title={category || "일반문"}
                     color={colorName}
                     width={Number(detail.door_width)}
                     height={Number(detail.door_height)}
@@ -310,7 +311,7 @@ export default function CartClient() {
                     key={key}
                     type="finish"
                     totalPrice={cartItem.unit_price * cartItem.item_count}
-                    title={detail.finish_type || "마감재"}
+                    title={category || "마감재"}
                     color={colorName}
                     edgeCount={detail.finish_edge_count ?? undefined}
                     depth={detail.finish_base_depth}
@@ -328,21 +329,40 @@ export default function CartClient() {
               // CABINET
               if ((category === DetailProductType.UPPERCABINET || category === DetailProductType.LOWERCABINET || category === DetailProductType.FLAPCABINET || category === DetailProductType.DRAWERCABINET || category === DetailProductType.OPENCABINET) && detail) {
                 const colorName = CABINET_COLOR_LIST.find(c => c.id === detail.cabinet_color)?.name || detail.cabinet_color;
+                const behindTypeEnum = detail.behind_type ?? detail.cabinet_behind_type ?? "";
+                const behindTypeLabel =
+                  behindTypeEnum === "URAHOME" ? "우라홈" :
+                  behindTypeEnum === "MAK_URA" ? "막우라" :
+                  behindTypeEnum;
+                // robust: 서랍장 직접입력 지원
+                let drawerTypeLabel = "";
+                if (category === DetailProductType.DRAWERCABINET) {
+                  if (detail.drawer_type === 4 && detail.drawer_type_direct_input) {
+                    drawerTypeLabel = detail.drawer_type_direct_input;
+                  } else {
+                    const found = CABINET_DRAWER_TYPE_LIST.find(opt => opt.id === detail.drawer_type);
+                    drawerTypeLabel = found ? found.name : (detail.drawer_type ?? "");
+                  }
+                } else {
+                  drawerTypeLabel = detail.drawer_type ?? "";
+                }
                 return (
                   <ShoppingCartCard
                     key={key}
                     type="cabinet"
                     totalPrice={cartItem.unit_price * cartItem.item_count}
-                    title={detail.cabinet_type || "부분장"}
+                    title={category || "부분장"}
                     color={colorName}
                     width={Number(detail.cabinet_width ?? 0)}
                     height={Number(detail.cabinet_height ?? 0)}
                     depth={Number(detail.cabinet_depth ?? 0)}
                     bodyMaterial={detail.cabinet_body_material ?? ""}
+                    body_material_direct_input={detail.cabinet_body_material_direct_input ?? ""}
+                    absorberType={detail.absorber_type ?? ""}
+                    absorber_type_direct_input={detail.absorber_type_direct_input ?? ""}
                     handleType={detail.handle_type ?? ""}
-                    behindType={detail.behind_type ?? ""}
-                    showBar={detail.absorber_type ?? ""}
-                    drawerType={detail.drawer_type ?? ""}
+                    behindType={behindTypeLabel}
+                    drawerType={drawerTypeLabel}
                     railType={detail.rail_type ?? ""}
                     request={detail.cabinet_request ?? ""}
                     location={detail.cabinet_location ?? ""}
@@ -360,7 +380,7 @@ export default function CartClient() {
                   <ShoppingCartCard
                     key={key}
                     type="accessory"
-                    title={detail.accessory_type || "부속"}
+                    title={category || "부속"}
                     manufacturer={detail.accessory_madeby}
                     modelName={detail.accessory_model}
                     quantity={cartItem.item_count}
@@ -376,7 +396,7 @@ export default function CartClient() {
                   <ShoppingCartCard
                     key={key}
                     type="hardware"
-                    title={detail.type || "하드웨어"}
+                    title={category || "하드웨어"}
                     manufacturer={detail.hinge_madeby || detail.rail_madeby || detail.piece_madeby || ""}
                     size={detail.piece_size || detail.rail_length || ""}
                     request={detail.hardware_request ?? ""}

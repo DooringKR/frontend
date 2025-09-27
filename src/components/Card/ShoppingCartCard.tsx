@@ -1,6 +1,8 @@
 
 import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
+import { CABINET_DRAWER_TYPE_LIST } from "@/constants/cabinetdrawertype";
 import React from "react";
+import { ABSORBER_TYPE_LIST } from "@/constants/absorbertype";
 
 
 import { DoorType, FinishEdgeCount, HingeDirection } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
@@ -33,9 +35,10 @@ interface ShoppingCartCardProps {
   bodyMaterial?: string;
   handleType?: string;
   finishType?: string;
-  showBar?: string;
   drawerType?: string;
+  drawer_type_direct_input?: string;
   railType?: string;
+  rail_type_direct_input?: string;
   railLength?: string;
   riceRail?: string;
   lowerDrawer?: string;
@@ -51,6 +54,9 @@ interface ShoppingCartCardProps {
   angle?: string;
   railDamping?: boolean;
   behindType?: string;
+  absorberType?: string;
+  body_material_direct_input?: string;
+  absorber_type_direct_input?: string;
 }
 
 const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
@@ -78,9 +84,10 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   handleType,
   finishType,
   behindType,
-  showBar,
   drawerType,
+  drawer_type_direct_input,
   railType,
+  rail_type_direct_input,
   riceRail,
   lowerDrawer,
   depthIncrease,
@@ -95,12 +102,57 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   angle,
   railLength,
   railDamping,
+  absorberType,
+  body_material_direct_input,
+  absorber_type_direct_input,
 }) => {
-  // bodyMaterial이 숫자(id)라면 name으로 변환
+  // bodyMaterial이 '직접입력' id면 직접입력값, 아니면 name 변환
   let bodyMaterialLabel = bodyMaterial;
+  const directBodyMaterialOption = BODY_MATERIAL_LIST.find(opt => opt.name === "직접입력");
   if (bodyMaterial && !isNaN(Number(bodyMaterial))) {
     const found = BODY_MATERIAL_LIST.find(opt => String(opt.id) === String(bodyMaterial));
-    if (found) bodyMaterialLabel = found.name;
+    if (found) {
+      if (found.name === "직접입력" && body_material_direct_input) {
+        bodyMaterialLabel = body_material_direct_input;
+      } else {
+        bodyMaterialLabel = found.name;
+      }
+    }
+  }
+
+  // absorberType robust 변환: 값 없으면 undefined
+  let absorberTypeLabel: string | undefined = undefined;
+  if (absorberType && absorberType !== "null" && absorberType !== null && absorberType !== "undefined" && absorberType !== "") {
+    const found = ABSORBER_TYPE_LIST.find(opt => String(opt.id) === String(absorberType));
+    if (found) {
+      absorberTypeLabel = found.name === "직접입력" && absorber_type_direct_input ? absorber_type_direct_input : found.name;
+    } else {
+      absorberTypeLabel = absorberType;
+    }
+  } else if (absorber_type_direct_input) {
+    absorberTypeLabel = absorber_type_direct_input;
+  }
+
+  // robust: 서랍 종류 변환 (id→name, name→name, 직접입력 우선, 값 없으면 undefined)
+  let drawerTypeLabel: string | undefined = undefined;
+  if (drawer_type_direct_input) {
+    drawerTypeLabel = drawer_type_direct_input;
+  } else if (drawerType) {
+    const found = CABINET_DRAWER_TYPE_LIST.find(opt => String(opt.id) === String(drawerType) || opt.name === drawerType);
+    if (found) drawerTypeLabel = found.name;
+    else drawerTypeLabel = drawerType;
+  }
+
+  // robust: 레일 종류 변환 (enum→한글, name→name, 직접입력 우선, 값 없으면 undefined)
+  let railTypeLabel: string | undefined = undefined;
+  if (rail_type_direct_input) {
+    railTypeLabel = rail_type_direct_input;
+  } else if (railType) {
+    if (railType === "BALL_BEARING") railTypeLabel = "볼베어링";
+    else if (railType === "SOFT_CLOSE") railTypeLabel = "소프트클로즈";
+    else if (railType === "UNDER_MOUNT") railTypeLabel = "언더마운트";
+    else if (railType === "SIDE_MOUNT") railTypeLabel = "사이드마운트";
+    else railTypeLabel = railType;
   }
   return (
     <div className="flex w-full flex-col gap-3 rounded-[16px] border-[1px] border-gray-200 bg-white p-[20px]">
@@ -110,7 +162,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
           <div className="text-[17px] font-600 text-gray-800">{title}</div>
           <div className="flex flex-col text-[15px] font-400 text-gray-500">
             {type !== "hardware" && color && <div>색상 : {color}</div>}
-            {bodyMaterial && <div>몸통 소재 및 두께 : {bodyMaterialLabel}</div>}
+            {bodyMaterialLabel && <div>몸통 소재 및 두께 : {bodyMaterialLabel}</div>}
             {width && <div>너비 : {width}mm</div>}
             {height && <div>높이 : {height}mm</div>}
             {heightIncrease !== undefined && heightIncrease !== null && heightIncrease > 0 && (
@@ -142,13 +194,24 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
                 보링 치수 : {Array.isArray(boring) ? boring.filter(Boolean).join(", ") : boring}
               </div>
             )}
-            {showBar && <div>쇼바 종류 : {showBar}</div>}
+            {/* robust: 쇼바 종류 값 있을 때만 출력 */}
+            {typeof absorberTypeLabel !== "undefined" && absorberTypeLabel !== null && absorberTypeLabel !== "" && (
+              <div>쇼바 종류 : {absorberTypeLabel}</div>
+            )}
             {handleType && <div>손잡이 종류 : {handleType}</div>}
-            {drawerType && <div>서랍 종류 : {drawerType}</div>}
-            {/* 중복 방지: railType은 위에서만 출력 */}
+            {/* robust: 서랍 종류 값 있을 때만 출력 */}
+            {typeof drawerTypeLabel !== "undefined" && drawerTypeLabel !== null && drawerTypeLabel !== "" && (
+              <div>서랍 종류 : {drawerTypeLabel}</div>
+            )}
+            {/* robust: 레일 종류 값 있을 때만 출력 */}
+            {typeof railTypeLabel !== "undefined" && railTypeLabel !== null && railTypeLabel !== "" && (
+              <div>레일 종류 : {railTypeLabel}</div>
+            )}
             {riceRail && <div>밥솥 레일 추가 여부 : {riceRail}</div>}
             {lowerDrawer && <div>하부 서랍장 추가 여부 : {lowerDrawer}</div>}
-            {behindType && <div>마감 방식 : {behindType}</div>}
+            {typeof behindType !== "undefined" && behindType !== null && behindType !== "" && (
+              <div>마감 방식 : {behindType}</div>
+            )}
             {/* 중복 방지: manufacturer는 위에서만 출력 */}
             {modelName && <div>모델명 : {modelName}</div>}
             {type !== "hardware" && size && <div>사이즈 : {size}</div>}
@@ -157,7 +220,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
             {addOn_hinge !== undefined && addOn_hinge !== null && (
               <div>경첩 추가 선택 : {addOn_hinge ? "경첩도 받기" : "필요 없어요"}</div>
             )}
-            {addOn_construction !== undefined && addOn_construction !== null && (
+            {typeof addOn_construction !== "undefined" && addOn_construction !== null && (
               <div>시공 필요 여부 : {addOn_construction ? "시공도 필요해요" : "필요 없어요"}</div>
             )}
             {legType && <div>다리발 : {legType}</div>}
