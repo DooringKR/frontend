@@ -24,9 +24,9 @@ import GrayVerticalLine from "@/components/GrayVerticalLine/GrayVerticalLine";
 import BoxedInput from "@/components/Input/BoxedInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";
 import formatColor from "@/utils/formatColor";
-import CabinetIcon1 from "@/app/(home)/order/cabinet/_components/cabinetIcon1";
-import CabinetIcon2 from "@/app/(home)/order/cabinet/_components/cabinetIcon2";
-import CabinetIcon3 from "@/app/(home)/order/cabinet/_components/cabinetIcon3";
+import CabinetIcon1 from "@/app/(home)/order-not-used/cabinet/_components/cabinetIcon1";
+import CabinetIcon2 from "@/app/(home)/order-not-used/cabinet/_components/cabinetIcon2";
+import CabinetIcon3 from "@/app/(home)/order-not-used/cabinet/_components/cabinetIcon3";
 import React from "react";
 import ToastIcon from "public/icons/toast";
 
@@ -206,18 +206,18 @@ function DrawerCabinetPageContent() {
                     helperText={depthError}
                 />
                 <BoxedSelect
-					label="서랍 종류"
-					options={[]}
-					value={drawerType}
-					onClick={() => setIsDrawerTypeSheetOpen(true)}
-					onChange={() => { }}
-				/>
-				<DrawerTypeInputSheet
-					isOpen={isDrawerTypeSheetOpen}
-					onClose={() => setIsDrawerTypeSheetOpen(false)}
-					value={drawerType}
-					onChange={setDrawerType}
-				/>
+                    label="서랍 종류"
+                    options={[]}
+                    value={drawerType}
+                    onClick={() => setIsDrawerTypeSheetOpen(true)}
+                    onChange={() => { }}
+                />
+                <DrawerTypeInputSheet
+                    isOpen={isDrawerTypeSheetOpen}
+                    onClose={() => setIsDrawerTypeSheetOpen(false)}
+                    value={drawerType}
+                    onChange={setDrawerType}
+                />
                 {/* 손잡이 robust (enum) */}
                 <div className="flex flex-col gap-2">
                     <div className="text-[14px]/[20px] font-400 text-gray-600">손잡이 종류</div>
@@ -236,70 +236,70 @@ function DrawerCabinetPageContent() {
                 </div>
 
                 {/* 레일 종류 robust (enum/direct input, CabinetRailType) */}
-				<BoxedSelect
-					label="레일 종류"
-					options={[
-						...Object.values(CabinetRailType)
-							.filter(opt => opt !== CabinetRailType.DIRECT_INPUT)
-							.map(opt => ({ value: String(opt), label: String(opt) })),
-						{ value: "직접입력", label: "직접입력" }
-					]}
-					value={railType !== "" ? railType : railTypeDirectInput}
-					onClick={() => setIsRailTypeSheetOpen(true)}
-					onChange={() => { }}
-				/>
-				<BottomSheet
-					isOpen={isRailTypeSheetOpen}
-					title="레일 종류를 선택해주세요"
-					contentPadding="px-1"
-					onClose={() => setIsRailTypeSheetOpen(false)}
-					children={
-						<div>
-							{Object.values(CabinetRailType)
-								.filter(opt => opt !== CabinetRailType.DIRECT_INPUT)
-								.map(opt => (
-									<SelectToggleButton
-										key={opt}
-										label={String(opt)}
-										checked={railType === String(opt)}
-										onClick={() => {
-											setRailType(String(opt));
-											setRailTypeDirectInput("");
-											setIsRailTypeSheetOpen(false);
-										}}
-									/>
-								))}
-							<SelectToggleButton
-								label="직접입력"
-								checked={railType === ""}
-								onClick={() => {
-									setRailType("");
-									setTimeout(() => {
-										const el = document.getElementById("rail-type-direct-input");
-										if (el) (el as HTMLInputElement).focus();
-									}, 0);
-								}}
-							/>
-							{railType === "" && (
-								<div className="flex items-center gap-2 px-4 pb-3">
-									<GrayVerticalLine />
-									<BoxedInput
-										type="text"
-										placeholder="레일 종류를 입력해주세요"
-										className="w-full"
-										value={railTypeDirectInput}
-										onChange={e => setRailTypeDirectInput(e.target.value)}
-									/>
-								</div>
-							)}
-						</div>
-					}
-					buttonArea={
-						<div className="p-5">
-							<Button type="Brand" text="다음" onClick={() => setIsRailTypeSheetOpen(false)} />
-						</div>
-					}
-				/>
+                <BoxedSelect
+                    label="레일 종류"
+                    options={[
+                        ...Object.values(CabinetRailType)
+                            .filter(opt => opt !== CabinetRailType.DIRECT_INPUT)
+                            .map(opt => ({ value: String(opt), label: String(opt) })),
+                        { value: "직접입력", label: "직접입력" }
+                    ]}
+                    value={railType !== "" ? railType : railTypeDirectInput}
+                    onClick={() => setIsRailTypeSheetOpen(true)}
+                    onChange={() => { }}
+                />
+                <BottomSheet
+                    isOpen={isRailTypeSheetOpen}
+                    title="레일 종류를 선택해주세요"
+                    contentPadding="px-1"
+                    onClose={() => setIsRailTypeSheetOpen(false)}
+                    children={
+                        <div>
+                            {Object.values(CabinetRailType)
+                                .filter(opt => opt !== CabinetRailType.DIRECT_INPUT)
+                                .map(opt => (
+                                    <SelectToggleButton
+                                        key={opt}
+                                        label={String(opt)}
+                                        checked={railType === String(opt)}
+                                        onClick={() => {
+                                            setRailType(String(opt));
+                                            setRailTypeDirectInput("");
+                                            setIsRailTypeSheetOpen(false);
+                                        }}
+                                    />
+                                ))}
+                            <SelectToggleButton
+                                label="직접입력"
+                                checked={railType === ""}
+                                onClick={() => {
+                                    setRailType("");
+                                    setTimeout(() => {
+                                        const el = document.getElementById("rail-type-direct-input");
+                                        if (el) (el as HTMLInputElement).focus();
+                                    }, 0);
+                                }}
+                            />
+                            {railType === "" && (
+                                <div className="flex items-center gap-2 px-4 pb-3">
+                                    <GrayVerticalLine />
+                                    <BoxedInput
+                                        type="text"
+                                        placeholder="레일 종류를 입력해주세요"
+                                        className="w-full"
+                                        value={railTypeDirectInput}
+                                        onChange={e => setRailTypeDirectInput(e.target.value)}
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    }
+                    buttonArea={
+                        <div className="p-5">
+                            <Button type="Brand" text="다음" onClick={() => setIsRailTypeSheetOpen(false)} />
+                        </div>
+                    }
+                />
                 {/* 뒷판 robust (enum) */}
                 <div className="flex flex-col gap-2">
                     <div className="text-[14px]/[20px] font-400 text-gray-600">마감 방식</div>
@@ -710,107 +710,107 @@ function LegTypeInputSheet({ isOpen, onClose, value, directInput, onChange }: { 
 // 불필요한 CabinetLocationSheet, UpperCabinetPageContent 중복 선언 제거
 
 function DrawerTypeInputSheet({
-  isOpen,
-  onClose,
-  value,
-  onChange,
+    isOpen,
+    onClose,
+    value,
+    onChange,
 }: {
-  isOpen: boolean;
-  onClose: () => void;
-  value: string;
-  onChange: (v: string) => void;
+    isOpen: boolean;
+    onClose: () => void;
+    value: string;
+    onChange: (v: string) => void;
 }) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const options = [
-    { main: "2단 서랍", sub: "", icon: <CabinetIcon1 /> },
-    { main: "3단 서랍", sub: "(1 : 1 : 2)", icon: <CabinetIcon2 /> },
-    { main: "3단 서랍", sub: "(겉2 ∙ 속1)", icon: <CabinetIcon3 /> },
-  ];
-  // 옵션/직접입력 모드 상태
-  const [mode, setMode] = useState<"option" | "input">("option");
+    const inputRef = useRef<HTMLInputElement>(null);
+    const options = [
+        { main: "2단 서랍", sub: "", icon: <CabinetIcon1 /> },
+        { main: "3단 서랍", sub: "(1 : 1 : 2)", icon: <CabinetIcon2 /> },
+        { main: "3단 서랍", sub: "(겉2 ∙ 속1)", icon: <CabinetIcon3 /> },
+    ];
+    // 옵션/직접입력 모드 상태
+    const [mode, setMode] = useState<"option" | "input">("option");
 
-  useEffect(() => {
-    if (isOpen) {
-      if (options.some(opt => (opt.sub ? `${opt.main} ${opt.sub}` : opt.main) === value)) {
-        setMode("option");
-      } else if (value) {
-        setMode("input");
-      } else {
-        setMode("option");
-      }
-    }
-  }, [isOpen]);
-
-  return (
-    <BottomSheet
-      isOpen={isOpen}
-      title="서랍 종류를 선택해주세요"
-      headerButtonText={mode === "option" ? "직접 입력" : "이전"}
-      onHeaderButtonClick={() => {
-        if (mode === "option") {
-          setMode("input");
-          onChange("");
-          setTimeout(() => inputRef.current?.focus(), 0);
-        } else {
-          setMode("option");
+    useEffect(() => {
+        if (isOpen) {
+            if (options.some(opt => (opt.sub ? `${opt.main} ${opt.sub}` : opt.main) === value)) {
+                setMode("option");
+            } else if (value) {
+                setMode("input");
+            } else {
+                setMode("option");
+            }
         }
-      }}
-      children={
-        <div>
-          {mode === "option" ? (
-            <div className="flex justify-between pt-5">
-              {options.map(option => {
-                const label = option.sub ? `${option.main} ${option.sub}` : option.main;
-                const selected = value === label;
-                return (
-                  <div
-                    key={label}
-                    className="flex w-full cursor-pointer flex-col items-center gap-2"
-                    onClick={() => onChange(label)}
-                  >
-                    <span className="flex w-full items-center justify-center">
-                      {React.cloneElement(option.icon, { color: selected ? "#44BE83" : "#D1D5DC" })}
-                    </span>
-                    <div className="flex h-[42px] flex-col items-center justify-center">
-                      <span className={`text-[16px]/[22px] font-400 text-gray-600`}>
-                        {option.main}
-                      </span>
-                      {option.sub && (
-                        <span className={`text-[14px]/[20px] font-500 text-gray-400`}>
-                          {option.sub}
-                        </span>
-                      )}
+    }, [isOpen]);
+
+    return (
+        <BottomSheet
+            isOpen={isOpen}
+            title="서랍 종류를 선택해주세요"
+            headerButtonText={mode === "option" ? "직접 입력" : "이전"}
+            onHeaderButtonClick={() => {
+                if (mode === "option") {
+                    setMode("input");
+                    onChange("");
+                    setTimeout(() => inputRef.current?.focus(), 0);
+                } else {
+                    setMode("option");
+                }
+            }}
+            children={
+                <div>
+                    {mode === "option" ? (
+                        <div className="flex justify-between pt-5">
+                            {options.map(option => {
+                                const label = option.sub ? `${option.main} ${option.sub}` : option.main;
+                                const selected = value === label;
+                                return (
+                                    <div
+                                        key={label}
+                                        className="flex w-full cursor-pointer flex-col items-center gap-2"
+                                        onClick={() => onChange(label)}
+                                    >
+                                        <span className="flex w-full items-center justify-center">
+                                            {React.cloneElement(option.icon, { color: selected ? "#44BE83" : "#D1D5DC" })}
+                                        </span>
+                                        <div className="flex h-[42px] flex-col items-center justify-center">
+                                            <span className={`text-[16px]/[22px] font-400 text-gray-600`}>
+                                                {option.main}
+                                            </span>
+                                            {option.sub && (
+                                                <span className={`text-[14px]/[20px] font-500 text-gray-400`}>
+                                                    {option.sub}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <ToastIcon active={selected} />
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <BoxedInput
+                            label="서랍 종류"
+                            ref={inputRef}
+                            type="text"
+                            placeholder="구체적으로 꼼꼼히 입력해주세요"
+                            className="w-full pt-5"
+                            value={value}
+                            onChange={e => onChange(e.target.value)}
+                        />
+                    )}
+                    <div className="py-5">
+                        <Button
+                            type="Brand"
+                            text="다음"
+                            onClick={() => {
+                                onClose();
+                            }}
+                        />
                     </div>
-                    <ToastIcon active={selected} />
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <BoxedInput
-              label="서랍 종류"
-              ref={inputRef}
-              type="text"
-              placeholder="구체적으로 꼼꼼히 입력해주세요"
-              className="w-full pt-5"
-              value={value}
-              onChange={e => onChange(e.target.value)}
-            />
-          )}
-          <div className="py-5">
-            <Button
-              type="Brand"
-              text="다음"
-              onClick={() => {
-                onClose();
-              }}
-            />
-          </div>
-        </div>
-      }
-      onClose={onClose}
-    />
-  );
+                </div>
+            }
+            onClose={onClose}
+        />
+    );
 }
 
 function DrawerCabinetPage() {

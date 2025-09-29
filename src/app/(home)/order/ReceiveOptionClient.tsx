@@ -7,22 +7,18 @@ import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
-import { useOrderStore } from "@/store/orderStore";
-
 import ReceiveOptionCard from "./_components/ReceiveOptionCard";
 
 export default function ReceiveOptionClientPage() {
   const router = useRouter();
-  const setReceiveMethod = useOrderStore(state => state.setReceiveMethod);
-
   const [isPickupAddressModalOpen, setIsPickupAddressModalOpen] = useState(false);
 
   const handleSelect = (method: "DELIVERY" | "PICK_UP") => {
-    setReceiveMethod(method);
+
     if (method === "DELIVERY") {
-      router.push("/cart/checkorder");
+      router.push("/order/delivery");
     } else {
-      router.push("/cart/pickup");
+      router.push("/order/pickup");
     }
   };
 
@@ -78,7 +74,6 @@ export default function ReceiveOptionClientPage() {
                 <h2 className="text-sm font-400 text-gray-400">
                   경기도 남양주시 오남읍 양지로139번길 11-14
                 </h2>
-
                 <BottomButton
                   type={"2buttons"}
                   button1Text="닫기"

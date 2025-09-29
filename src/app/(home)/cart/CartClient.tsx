@@ -1,22 +1,5 @@
 "use client";
 
-// import {
-//   ACCESSORY_CATEGORY_LIST,
-//   CABINET_CATEGORY_LIST,
-//   DOOR_CATEGORY_LIST,
-//   FINISH_CATEGORY_LIST,
-//   HARDWARE_CATEGORY_LIST,
-// } from "@/constants/category";
-
-// import { CART_PAGE } from "@/constants/pageName";
-// import {
-//   AccessoryItem,
-//   CabinetItem,
-//   DoorItem,
-//   FinishItem,
-//   HardwareItem,
-// } from "@/types/newItemTypes";
-
 import { DOOR_COLOR_LIST, CABINET_COLOR_LIST, FINISH_COLOR_LIST } from "@/constants/colorList";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -48,27 +31,6 @@ import { UpdateCartItemCountUsecase } from "@/DDD/usecase/update_cart_item_count
 import { CartItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/cartitem_supabase_repository";
 import { CABINET_DRAWER_TYPE_LIST } from "@/constants/cabinetdrawertype";
 
-// const DOOR_TYPE_SLUG_MAP: Record<string, string> = {
-//   standard: "STANDARD",
-//   flap: "FLAP",
-//   drawer: "DRAWER",
-// };
-
-// const CATEGORY_MAP: Record<string, string> = {
-//   door: "문짝",
-//   finish: "마감재",
-//   cabinet: "부분장",
-//   hardware: "하드웨어",
-//   accessory: "부속",
-// };
-
-// export const PRODUCT_TYPE_KR_MAP: Record<string, string> = {
-//   DOOR: "일반문",
-//   FINISH: "마감재",
-//   CABINET: "부분장",
-//   HARDWARE: "하드웨어",
-//   ACCESSORY: "부속",
-// };
 
 // type OrderItem = DoorItem | FinishItem | CabinetItem | AccessoryItem | HardwareItem | null;
 export type AnyCartItem = CartItem;
@@ -96,7 +58,7 @@ export default function CartClient() {
 
   const handleGoToReceiveOption = async () => {
     try {
-      router.push("/cart/receive-option");
+      router.push("/order");
     } catch (err) {
       console.error("❌ 수량 반영 실패:", err);
       alert("수량 반영 중 문제가 발생했어요.");
@@ -332,8 +294,8 @@ export default function CartClient() {
                 const behindTypeEnum = detail.behind_type ?? detail.cabinet_behind_type ?? "";
                 const behindTypeLabel =
                   behindTypeEnum === "URAHOME" ? "우라홈" :
-                  behindTypeEnum === "MAK_URA" ? "막우라" :
-                  behindTypeEnum;
+                    behindTypeEnum === "MAK_URA" ? "막우라" :
+                      behindTypeEnum;
                 // robust: 서랍장 직접입력 지원
                 let drawerTypeLabel = "";
                 if (category === DetailProductType.DRAWERCABINET) {
