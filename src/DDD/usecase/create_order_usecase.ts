@@ -5,64 +5,50 @@ import { Order } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Ord
 import { OrderItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/OrderItem";
 import { CartItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/CartItem";
 import { Response } from "@/DDD/data/response";
-
-// 주문 생성 요청 DTO
-export interface CreateOrderRequest {
-    user_id: number;
-    cart_id: number;
-    order_type: "DELIVERY" | "PICK_UP";
-    recipient_phone: string;
-    order_price: number;
-    order_options?: Record<string, any>;
-}
-
-// 주문 생성 응답 DTO
-export interface CreateOrderResponse {
-    order_id: string;
-    success: boolean;
-    message?: string;
-}
+import { DeliveryOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/DeliveryOrder";
+import { PickUpOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/PickUpOrder";
 
 export class CreateOrderUsecase {
     constructor(
         private readonly orderRepository: OrderRepository,
         private readonly orderItemRepository: OrderItemRepository,
         private readonly cartItemRepository: CartItemRepository
-    ) {}
+    ) { }
 
     /**
      * 주문을 생성하고 관련 OrderItem들을 생성합니다.
      * @param request 주문 생성 요청 데이터
+     * @param cartId 장바구니 ID
      * @returns 주문 생성 결과
      */
-    async execute(request: CreateOrderRequest): Promise<CreateOrderResponse> {
+    async execute(request: DeliveryOrder | PickUpOrder, cartId: number): Promise<Response<Order>> {
         try {
             // 1. 입력 검증
-            this.validateRequest(request);
+            this.validateRequest(request, cartId);
 
             // 2. 장바구니 아이템 조회
-            const cartItems = await this.cartItemRepository.readByCartId(request.cart_id);
+            const cartItems = await this.cartItemRepository.readByCartId(cartId);
             if (!cartItems || cartItems.length === 0) {
                 throw new Error("장바구니가 비어있습니다.");
             }
 
             // 3. 주문 생성
             const order = await this.createOrder(request);
-            
+
             // 4. 주문 아이템들 생성
-            await this.createOrderItems(order.order_id, cartItems);
+            await this.createOrderItems(order.id!, cartItems);
 
             return {
-                order_id: order.order_id,
                 success: true,
+                data: order,
                 message: "주문이 성공적으로 생성되었습니다."
             };
 
         } catch (error) {
             console.error('[CreateOrderUsecase] 주문 생성 실패:', error);
             return {
-                order_id: "",
                 success: false,
+                data: undefined as any,
                 message: error instanceof Error ? error.message : "주문 생성 중 알 수 없는 오류가 발생했습니다."
             };
         }
@@ -71,55 +57,23 @@ export class CreateOrderUsecase {
     /**
      * 요청 데이터 유효성 검증
      */
-    private validateRequest(request: CreateOrderRequest): void {
-        if (!request.user_id || request.user_id <= 0) {
-            throw new Error("유효한 사용자 ID가 필요합니다.");
-        }
-
-        if (!request.cart_id || request.cart_id <= 0) {
-            throw new Error("유효한 장바구니 ID가 필요합니다.");
-        }
-
-        if (!request.order_type || !["DELIVERY", "PICK_UP"].includes(request.order_type)) {
-            throw new Error("유효한 주문 타입이 필요합니다. (DELIVERY 또는 PICK_UP)");
-        }
-
-        if (!request.recipient_phone || request.recipient_phone.trim() === "") {
-            throw new Error("수령인 전화번호가 필요합니다.");
-        }
-
-        if (!request.order_price || request.order_price <= 0) {
-            throw new Error("유효한 주문 금액이 필요합니다.");
-        }
-
-        // 전화번호 형식 검증 (숫자만 11자리)
-        const phoneRegex = /^[0-9]{11}$/;
-        if (!phoneRegex.test(request.recipient_phone.replace(/[^0-9]/g, ""))) {
-            throw new Error("올바른 전화번호 형식이 아닙니다. (11자리 숫자)");
-        }
+    private validateRequest(request: DeliveryOrder | PickUpOrder, cartId: number): void {
+        console.log(request);
+        //필요하면 추가
     }
 
     /**
      * 주문 생성
      */
-    private async createOrder(request: CreateOrderRequest): Promise<Order> {
-        const orderData: Partial<Order> = {
-            user_id: request.user_id,
-            cart_id: request.cart_id,
-            order_type: request.order_type,
-            recipient_phone: request.recipient_phone.replace(/[^0-9]/g, ""),
-            order_price: request.order_price,
-            order_options: request.order_options || {},
-            created_at: new Date()
-        };
+    private async createOrder(request: DeliveryOrder | PickUpOrder): Promise<Order> {
 
-        const response = await this.orderRepository.createOrder(orderData as Order);
-        
+        const response = await this.orderRepository.createOrder(request as Order);
+
         if (!response.success) {
             throw new Error(response.message || "주문 생성에 실패했습니다.");
         }
 
-        return response.data!;
+        return response.data! as Order;
     }
 
     /**
@@ -127,16 +81,16 @@ export class CreateOrderUsecase {
      */
     private async createOrderItems(orderId: string, cartItems: CartItem[]): Promise<void> {
         const orderItemPromises = cartItems.map(async (cartItem) => {
-            const orderItemData: Partial<OrderItem> = {
+            const orderItemData: OrderItem = new OrderItem({
                 order_id: orderId,
-                product_type: cartItem.product_type,
-                unit_price: cartItem.unit_price || 0,
+                unit_price: cartItem.unit_price,
                 item_count: cartItem.item_count,
-                item_options: cartItem.item_options
-            };
-
+                image_url: 'image_url',
+                detail_product_type: cartItem.detail_product_type,
+                item_detail: cartItem.item_detail,
+            });
             const response = await this.orderItemRepository.createOrderItem(orderItemData as OrderItem);
-            
+
             if (!response.success) {
                 throw new Error(`주문 아이템 생성 실패: ${response.message}`);
             }
