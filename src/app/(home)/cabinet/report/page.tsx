@@ -7,6 +7,7 @@ import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { CABINET_COLOR_LIST } from "@/constants/colorList";
+import { ABSORBER_TYPE_LIST } from "@/constants/absorbertype";
 import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
 import { InteriorMaterialsSupabaseRepository } from "@/DDD/data/db/interior_materials_supabase_repository";
 import { CABINET_CATEGORY_LIST } from "@/constants/category";
@@ -38,17 +39,17 @@ function createCabinetInstance(item: any) {
 
 	// robust body material logic
 	// If bodyMaterial is a number, use it. If direct input, set enum and string.
-	let cabinetBodyMaterial: number = 0;
-	let cabinetBodyMaterialDirectInput: string = "";
+	let cabinet_body_material: number = 0;
+	let cabinet_body_material_direct_input: string = "";
 	// Find the '직접입력' option in BODY_MATERIAL_LIST
 	const directInputOption = BODY_MATERIAL_LIST.find(opt => opt.name.includes("직접입력"));
 	const isDirectInput = item.bodyMaterial === null && item.body_material_direct_input && item.body_material_direct_input !== "";
 	if (isDirectInput && directInputOption) {
-		cabinetBodyMaterial = directInputOption.id;
-		cabinetBodyMaterialDirectInput = item.body_material_direct_input;
+		cabinet_body_material = directInputOption.id;
+		cabinet_body_material_direct_input = item.body_material_direct_input;
 	} else if (typeof item.bodyMaterial === "number") {
-		cabinetBodyMaterial = item.bodyMaterial;
-		cabinetBodyMaterialDirectInput = "";
+		cabinet_body_material = item.bodyMaterial;
+		cabinet_body_material_direct_input = "";
 	}
 
 	switch (item.type) {
@@ -60,8 +61,8 @@ function createCabinetInstance(item: any) {
 				cabinet_depth: item.depth,
 				cabinet_location: item.cabinet_location,
 				cabinet_behind_type: item.cabinet_behind_type,
-				cabinet_body_material: cabinetBodyMaterial,
-				cabinet_body_material_direct_input: cabinetBodyMaterialDirectInput,
+				cabinet_body_material: cabinet_body_material,
+				cabinet_body_material_direct_input: cabinet_body_material_direct_input,
 				cabinet_request: item.request,
 				handle_type: item.handleType,
 			});
@@ -73,8 +74,8 @@ function createCabinetInstance(item: any) {
 				cabinet_depth: item.depth,
 				cabinet_location: item.cabinet_location,
 				cabinet_behind_type: item.cabinet_behind_type,
-				cabinet_body_material: cabinetBodyMaterial,
-				cabinet_body_material_direct_input: cabinetBodyMaterialDirectInput,
+				cabinet_body_material: cabinet_body_material,
+				cabinet_body_material_direct_input: cabinet_body_material_direct_input,
 				cabinet_request: item.request,
 				handle_type: item.handleType,
 			});
@@ -89,14 +90,21 @@ function createCabinetInstance(item: any) {
 				cabinet_depth: item.depth,
 				cabinet_location: item.cabinet_location,
 				cabinet_behind_type: item.cabinet_behind_type,
-				cabinet_body_material: cabinetBodyMaterial,
-				cabinet_body_material_direct_input: cabinetBodyMaterialDirectInput,
+				cabinet_body_material: cabinet_body_material,
+				cabinet_body_material_direct_input: cabinet_body_material_direct_input,
 				cabinet_request: item.request,
 				add_rice_cooker_rail: addRiceCookerRail,
 				add_bottom_drawer: addBottomDrawer,
 			});
 		}
 		case "플랩장":
+			// robust: absorber_type must not be null
+			let absorber_type = item.absorber_type;
+			let absorber_type_direct_input = item.absorber_type_direct_input;
+			if (absorber_type == null && absorber_type_direct_input) {
+				const directInputOption = ABSORBER_TYPE_LIST.find(opt => opt.name === "직접입력");
+				absorber_type = directInputOption ? directInputOption.id : 0;
+			}
 			return new FlapCabinet({
 				cabinet_color: colorId,
 				cabinet_width: item.width,
@@ -104,22 +112,33 @@ function createCabinetInstance(item: any) {
 				cabinet_depth: item.depth,
 				cabinet_location: item.cabinet_location,
 				cabinet_behind_type: item.cabinet_behind_type,
-				cabinet_body_material: cabinetBodyMaterial,
-				cabinet_body_material_direct_input: cabinetBodyMaterialDirectInput,
+				cabinet_body_material: cabinet_body_material,
+				cabinet_body_material_direct_input: cabinet_body_material_direct_input,
 				cabinet_request: item.request,
 				handle_type: item.handleType,
-				absorber_type: item.absorber_type,
-				absorber_type_direct_input: item.absorber_type_direct_input,
+				absorber_type,
+				absorber_type_direct_input,
 			});
-		case "서랍장":
-			let drawerTypeId: number = 0;
-			let drawerTypeDirectInput: string | undefined = undefined;
-			if (item.drawer_type) {
+		case "서랍장": {
+			let drawer_type: number;
+			let drawer_type_direct_input: string | undefined = undefined;
+			if (item.drawer_type_direct_input) {
+				drawer_type = 4; // 직접입력 id
+				drawer_type_direct_input = item.drawer_type_direct_input;
+			} else if (item.drawer_type) {
 				const found = CABINET_DRAWER_TYPE_LIST.find(opt => opt.name === item.drawer_type);
-				if (found) drawerTypeId = found.id;
+				if (found) {
+					drawer_type = found.id;
+				} else {
+					drawer_type = CABINET_DRAWER_TYPE_LIST[0].id;
+				}
+			} else {
+				drawer_type = CABINET_DRAWER_TYPE_LIST[0].id;
 			}
-			if (!drawerTypeId && item.drawer_type_direct_input) {
-				drawerTypeDirectInput = item.drawer_type_direct_input;
+			// robust: rail_type must not be empty string for enum
+			let rail_type = item.rail_type;
+			if ((!rail_type || rail_type === "") && item.rail_type_direct_input) {
+				rail_type = "직접 입력";
 			}
 			return new DrawerCabinet({
 				cabinet_color: colorId,
@@ -128,14 +147,15 @@ function createCabinetInstance(item: any) {
 				cabinet_depth: item.depth,
 				cabinet_location: item.cabinet_location,
 				cabinet_behind_type: item.cabinet_behind_type,
-				cabinet_body_material: cabinetBodyMaterial,
-				cabinet_body_material_direct_input: cabinetBodyMaterialDirectInput,
+				cabinet_body_material: cabinet_body_material,
+				cabinet_body_material_direct_input: cabinet_body_material_direct_input,
 				cabinet_request: item.request,
 				handle_type: item.handleType,
-				drawer_type: drawerTypeId,
-				rail_type: item.rail_type,
+				drawer_type,
+				rail_type,
 				rail_type_direct_input: item.rail_type_direct_input,
 			});
+		}
 		default:
 			throw new Error("Unknown cabinet category");
 	}
@@ -195,24 +215,38 @@ function ReportPageContent() {
 		item.depth ?? 0,
 	);
 
+	// 오픈장: 밥솥 레일/하부장 robust 표시
+	const addRiceCookerRail = item.riceRail === "추가";
+	const addBottomDrawer = item.lowerDrawer === "추가";
+
 	return (
 		<div className="flex flex-col">
 			<TopNavigator />
-			<Header size="Large" title={`부분장 주문 개수를 선택해주세요`} />
+			<Header size="Large" title={`${item?.type ?? ""} 주문 개수를 선택해주세요`} />
 			<div className="flex flex-col gap-[20px] px-5 pb-[100px] pt-5">
 				<ShoppingCartCard
 					type="cabinet"
-					title={item?.category ?? ""}
+					title={item?.type ?? ""}
 					color={colorName}
 					depth={item?.depth ? Number(item.depth) : undefined}
 					height={item?.height ? Number(item.height) : undefined}
 					width={item?.width ? Number(item.width) : undefined}
 					bodyMaterial={bodyMaterialName}
+					body_material_direct_input={item.body_material_direct_input}
+					absorberType={item.absorber_type !== undefined ? String(item.absorber_type) : undefined}
+					absorber_type_direct_input={item.absorber_type_direct_input}
 					handleType={item?.handleType ?? undefined}
-					finishType={item?.finishType ?? undefined}
+					behindType={item?.finishType ?? undefined}
+					drawerType={item?.drawer_type ?? undefined}
+					drawer_type_direct_input={item?.drawer_type_direct_input ?? undefined}
+					railType={item?.rail_type ?? undefined}
+					rail_type_direct_input={item?.rail_type_direct_input ?? undefined}
 					location={item.cabinet_location ?? undefined}
 					addOn_construction={item.addOn_construction ?? undefined}
 					legType={item.legType ?? undefined}
+					// 오픈장만 표시
+					addRiceCookerRail={item.type === "오픈장" ? addRiceCookerRail : undefined}
+					addBottomDrawer={item.type === "오픈장" ? addBottomDrawer : undefined}
 					quantity={0}
 					trashable={false}
 					showQuantitySelector={false}
@@ -276,7 +310,7 @@ function ReportPageContent() {
 							}
 							const cartItem = new CartItem({
 								cart_id: cart!.id!,
-								item_detail: createdCabinet["id"],
+								item_detail: createdCabinet.id,
 								detail_product_type: detailProductType,
 								item_count: quantity,
 								unit_price: unitPrice,

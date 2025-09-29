@@ -36,13 +36,14 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
 
   if (!isOpen) return null;
   return (
-    <div>
-      <div className="fixed inset-0 flex items-center justify-center">
+    <div style={{ zIndex: 50, position: 'fixed', inset: 0 }}>
+      <div className="fixed inset-0 flex items-center justify-center z-50">
         {/* 오버레이 배경: 가운데 500px만 적용 */}
         <div className="h-full w-full max-w-[460px] bg-black bg-opacity-20" onClick={onClose}></div>
       </div>
       <div
-        className="fixed bottom-[10px] left-1/2 flex w-[calc(100%-20px)] max-w-[460px] -translate-x-1/2 flex-col rounded-[24px] bg-white"
+        className="fixed bottom-[10px] left-1/2 flex w-[calc(100%-20px)] max-w-[460px] -translate-x-1/2 flex-col rounded-[24px] bg-white z-60"
+        style={{ zIndex: 60 }}
         onClick={e => e.stopPropagation()} // Prevent closing when clicking inside the container
       >
         <div className="flex justify-center px-5 py-3">
@@ -72,7 +73,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
           <p className="text-[16px]/[22px] font-400 text-gray-500">{description}</p>
         </div>
         {children && <div className={contentPadding}>{children}</div>}
-        {buttonArea && <div>{buttonArea}</div>}
+  {buttonArea && <div style={{ zIndex: 60, position: 'relative' }}>{buttonArea}</div>}
       </div>
     </div>
   );

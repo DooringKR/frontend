@@ -31,13 +31,19 @@ function OpenCabinetPageContent() {
 	const [isColorSheetOpen, setIsColorSheetOpen] = useState(false);
 	const [bodyMaterial, setBodyMaterial] = useState<number | null>(typeof item?.bodyMaterial === "number" ? item.bodyMaterial : null);
 	const [bodyMaterialDirectInput, setBodyMaterialDirectInput] = useState(item?.body_material_direct_input ?? "");
+	// 쇼바 위치에 밥솥 레일 추가 여부
 	const [riceRail, setRiceRail] = useState(item?.riceRail ?? "");
+	const [isRiceRailSheetOpen, setIsRiceRailSheetOpen] = useState(false);
+	// 손잡이 위치에 하부장 추가 여부
 	const [lowerDrawer, setLowerDrawer] = useState(item?.lowerDrawer ?? "");
+	const [isLowerDrawerSheetOpen, setIsLowerDrawerSheetOpen] = useState(false);
 	// robust: enum 기반 상태 관리
 	const cabinetBehindTypeDefault = Object.values(CabinetBehindType)[0];
 	const [finishType, setFinishType] = useState<CabinetBehindType | "">(
 		item && Object.values(CabinetBehindType).includes(item.finishType) ? item.finishType : cabinetBehindTypeDefault
 	);
+	// 시공 필요 여부
+	const [addOnConstruction, setAddOnConstruction] = useState(item?.addOn_construction ?? false);
 	const [request, setRequest] = useState(item?.request ?? "");
 	const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
 
@@ -51,6 +57,7 @@ function OpenCabinetPageContent() {
 	React.useEffect(() => { updateItem({ riceRail }); }, [riceRail]);
 	React.useEffect(() => { updateItem({ lowerDrawer }); }, [lowerDrawer]);
 	React.useEffect(() => { updateItem({ finishType }); }, [finishType]);
+	React.useEffect(() => { updateItem({ addOn_construction: addOnConstruction }); }, [addOnConstruction]);
 	React.useEffect(() => { updateItem({ request }); }, [request]);
 
 	// validation
@@ -128,7 +135,7 @@ function OpenCabinetPageContent() {
 					error={!!depthError}
 					helperText={depthError}
 				/>
-				{/* 밥솥 레일 robust (enum) */}
+				{/* 쇼바 위치에 밥솥 레일 추가 여부 */}
 				<div className="flex flex-col gap-2">
 					<div className="text-[14px]/[20px] font-400 text-gray-600">밥솥 레일 추가 여부</div>
 					<div className="flex w-full gap-2">
@@ -144,7 +151,7 @@ function OpenCabinetPageContent() {
 						/>
 					</div>
 				</div>
-				{/* 하부 서랍 robust (enum) */}
+				{/* 손잡이 위치에 하부장 추가 여부 */}
 				<div className="flex flex-col gap-2">
 					<div className="text-[14px]/[20px] font-400 text-gray-600">하부 서랍장 추가 여부</div>
 					<div className="flex w-full gap-2">
@@ -160,6 +167,7 @@ function OpenCabinetPageContent() {
 						/>
 					</div>
 				</div>
+				
 				{/* 마감 robust (enum) */}
 				<div className="flex flex-col gap-2">
 					<div className="text-[14px]/[20px] font-400 text-gray-600">마감 방식</div>
@@ -172,6 +180,22 @@ function OpenCabinetPageContent() {
 								onClick={() => setFinishType(opt)}
 							/>
 						))}
+					</div>
+				</div>
+				{/* 시공 필요 여부 */}
+				<div className="flex flex-col gap-2">
+					<div className="w-full text-[14px] font-400 text-gray-600">시공 필요 여부</div>
+					<div className="flex flex-row gap-2">
+						<Button
+							type={addOnConstruction ? "BrandInverse" : "GrayLarge"}
+							text={"시공도 필요해요"}
+							onClick={() => setAddOnConstruction(true)}
+						/>
+						<Button
+							type={!addOnConstruction ? "BrandInverse" : "GrayLarge"}
+							text={"필요 없어요"}
+							onClick={() => setAddOnConstruction(false)}
+						/>
 					</div>
 				</div>
 				{/* 요청사항 */}
