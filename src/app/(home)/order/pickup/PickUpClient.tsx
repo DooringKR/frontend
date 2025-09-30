@@ -96,19 +96,21 @@ export default function PickUpClientPage() {
         console.warn("⚠ 일부 장바구니 항목 삭제에 실패했습니다.");
       }
 
-      // 3. 전역 상태 초기화
-      clearCartItems(); // CartItemStore 초기화
 
-      // Cart count 초기화 (cartItems 수만큼 감소시켜 0으로 만듦)
+      // 3. 주문 정보 로컬스토리지에 저장 -> 직후 confirm 페이지에서 사용
+      localStorage.setItem("recentOrder", JSON.stringify({ order, cartItems })); // 자동 덮어쓰기
+
+
+
+      // 4 Cart count 초기화 (cartItems 수만큼 감소시켜 0으로 만듦)
       if (cart && cart.cart_count > 0) {
         decrementCartCount(cart.cart_count);
       }
 
-      // 4. 주문 정보 로컬스토리지에 저장 -> 직후 confirm 페이지에서 사용
-      localStorage.setItem("recentOrder", JSON.stringify({ order, cartItems })); // 자동 덮어쓰기
+      // 5. 전역 상태 초기화
+      clearCartItems(); // CartItemStore 초기화
+      useOrderStore.getState().clearOrder(); // OrderStore 초기화
 
-      // 5. OrderStore 초기화
-      useOrderStore.setState({ order: null });
 
       // 6. 성공 페이지로 이동
       router.push("/order/pickup/confirm");

@@ -68,10 +68,9 @@ export default function OrderConfirmPage() {
     };
 
     const handleGoHome = async () => {
-        // 장바구니 삭제는 이미 PickUpClient에서 처리했으므로
-        // localStorage와 OrderStore만 초기화
+        // 장바구니의 아이템 삭제와 주문 정보 초기화는 이미 PickUpClient에서 처리했으므로
+        // localStorage만 초기화
         localStorage.removeItem("recentOrder");
-        useOrderStore.getState().clearOrder();
         router.push("/");
     };
 
