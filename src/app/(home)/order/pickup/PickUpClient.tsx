@@ -1,14 +1,4 @@
 "use client";
-
-import { createOrder, createOrderItem, completeOrder } from "@/api/orderApi";
-import { CHECK_ORDER_PAGE } from "@/constants/pageName";
-import {
-  AccessoryItem,
-  CabinetItem,
-  DoorItem,
-  FinishItem,
-  HardwareItem,
-} from "@/types/newItemTypes";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -17,146 +7,60 @@ import PriceSummaryCard from "@/components/PriceCheckCard/PriceSummaryCard";
 import ReceiveOptionBar from "@/components/ReceiveOptionBar/ReceiveOptionBar";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
-import { useCurrentOrderStore } from "@/store/Items/currentOrderStore";
-import useCartStore from "@/store/cartStore";
-import { useOrderStore } from "@/store/orderStore";
-import useUserStore from "@/store/userStore";
-
-import RecipientPhoneNumber from "../checkorder/_components/RecipientPhoneNumber";
-import PickUpAddressCard from "./_components/PickUpAddressCard";
 import PickUpVehicleSelector from "./_components/PickUpVehicleSelector";
+import RecipientPhoneNumber from "./_components/RecipientPhoneNumber";
+import PickUpAddressCard from "./_components/PickUpAddressCard";
 
-type AnyCartItem = DoorItem | CabinetItem | AccessoryItem | FinishItem | HardwareItem;
+import { useOrderStore } from "@/store/orderStore";
+import { PickUpOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/PickUpOrder";
+import useBizClientStore from "@/store/bizClientStore";
+import useCartItemStore from "@/store/cartItemStore";
+import { CreateOrderUsecase } from "@/DDD/usecase/create_order_usecase";
+import { CartItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/cartitem_supabase_repository";
 
-const CATEGORY_MAP: Record<string, string> = {
-  door: "문짝",
-  finish: "마감재",
-  accessory: "부속품",
-  hardware: "하드웨어",
-  cabinet: "부분장",
-};
 
 export default function PickUpClientPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [cartItems, setCartItems] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { cartItems: globalCartItems } = useCartStore();
-  const [groupedCartItems, setGroupedCartItems] = useState<Record<string, AnyCartItem[]>>({});
-  const { cartId } = useCartStore.getState();
-  const { currentItem } = useCurrentOrderStore();
-  const { user_phoneNumber } = useUserStore();
-  const { recipientPhoneNumber, setRecipientPhoneNumber } = useOrderStore();
-  const { pickupInfo } = useOrderStore.getState();
 
-  const { id: userId } = useUserStore.getState();
+  // Store에서 필요한 데이터 가져오기
+  const updateOrder = useOrderStore(state => state.updateOrder);
+  const user = useBizClientStore(state => state.bizClient!);
+  const order = useOrderStore(state => state.order);
+  const cartItems = useCartItemStore(state => state.cartItems);
+  // 화면 진입 시 초기 PickUpOrder 구성, 나머지 속성은 각 컴포넌트에서 업데이트
+  useEffect(() => {
+    const pickupOrderData: Partial<PickUpOrder> = {
+      user_id: user.id!,
+      recipient_phone: useOrderStore.getState().order?.recipient_phone || user.phone_number!,
+      order_price: 0, // 실제 가격으로 교체 필요
+    };
+    //setOrder 대신 updateOrder 사용(Order는 초기화 되면 안되기 때문)
+    updateOrder(pickupOrderData);
+  }, [user, updateOrder]);
 
-  useEffect(() => {
-    useOrderStore.getState().setReceiveMethod("PICK_UP");
-  }, []);
-
-  useEffect(() => {
-    if (!recipientPhoneNumber && user_phoneNumber) {
-      setRecipientPhoneNumber(user_phoneNumber);
-    }
-  }, [recipientPhoneNumber, user_phoneNumber]);
-  useEffect(() => {
-    if (searchParams.get("current") === "now") {
-      setCartItems([currentItem]);
-    } else {
-      setCartItems(globalCartItems);
-    }
-  }, [searchParams, globalCartItems]);
-
-  useEffect(() => {
-    const grouped: Record<string, AnyCartItem[]> = {};
-    cartItems.forEach(item => {
-      if (!item || !item.category) return;
-      if (!grouped[item.category]) grouped[item.category] = [];
-      grouped[item.category].push(item);
-    });
-    setGroupedCartItems(grouped);
-  }, [cartItems]);
+  const getTotalPrice = () => {
+    return cartItems.reduce((sum, cartItem) => sum + (cartItem.unit_price ?? 0) * (cartItem.item_count ?? 0), 0);
+  };
+  const isDisabled = !order?.recipient_phone || !order?.vehicle_type;
 
   const handleSubmit = async () => {
     setIsLoading(true);
-    const totalPrice = cartItems.reduce((sum, item) => sum + item.price * (item.count || 1), 0);
-
-    const {
-      recipientPhoneNumber,
-      address,
-      requestMessage,
-      foyerAccessType,
-      customerRequest,
-      pickupInfo,
-    } = useOrderStore.getState();
-
-    if (!userId || !cartId) {
-      alert("주문에 필요한 정보가 부족합니다.");
-      setIsLoading(false);
-      return;
+    const createOrderUsecase = new CreateOrderUsecase(
+      new OrderSupabaseRepository(),
+      new OrderItemSupabaseRepository(),
+      new CartItemSupabaseRepository()
+    );
+    const response = await createOrderUsecase.execute(order);
+    if (response.isSuccess) {
+      // router.push("/order/pickup/success");
+    } else {
+      alert(response.errorMessage);
     }
-    if (!pickupInfo.vehicleType) {
-      alert("픽업 차량 종류를 선택해주세요.");
-      setIsLoading(false);
-      return;
-    }
-
-    const payload = {
-      user_id: userId,
-      cart_id: cartId,
-      order_type: "PICK_UP" as const,
-      recipient_phone: recipientPhoneNumber.replace(/[^0-9]/g, ""),
-      order_price: totalPrice,
-      order_options: {
-        pickup: {
-          pickup_address1: address.address1,
-          pickup_address2: address.address2,
-          pickup_vehicle_type: pickupInfo.vehicleType,
-          pickup_custom_note: pickupInfo.customVehicleNote,
-        },
-        foyer_access_type: foyerAccessType,
-        other_requests: customerRequest,
-      },
-    };
-
-    try {
-      const order = await createOrder(payload);
-      const orderId = order.order_id;
-
-      /*
-      await Promise.all(
-        cartItems.map(item => {
-          const itemPayload = {
-            order_id: orderId,
-            product_type: item.category?.toUpperCase(),
-            unit_price: item.price,
-            item_count: item.count ?? 1,
-            item_options: item,
-          };
-          console.log("🧾 픽업용 order_item payload:", itemPayload);
-          return createOrderItem(itemPayload);
-        }),
-      );
-      
-      await completeOrder(orderId);
-      */
-
-      localStorage.setItem("recentOrder", JSON.stringify(order));
-      router.push("/cart/confirm");
-    } catch (error) {
-      console.error("❌ 주문 생성 실패:", error);
-      alert("주문 생성에 실패했습니다.");
-    } finally {
-      setIsLoading(false);
-    }
+    useOrderStore.setState({ order: null });
+    setIsLoading(false);
   };
 
-  const getTotalPrice = () =>
-    cartItems.reduce((sum, item) => sum + (item?.price ?? 0) * (item?.count ?? 1), 0);
-
-  const isVehicleNotSelected = !pickupInfo.vehicleType || pickupInfo.vehicleType === "선택해주세요";
-  const isDisabled = isVehicleNotSelected || isLoading;
   return (
     <div>
       <TopNavigator title="주문하기" />
@@ -176,8 +80,6 @@ export default function PickUpClientPage() {
         <div className="px-5">
           <PriceSummaryCard
             getTotalPrice={getTotalPrice}
-            categoryMap={CATEGORY_MAP}
-            page={CHECK_ORDER_PAGE}
           />
         </div>
       </div>

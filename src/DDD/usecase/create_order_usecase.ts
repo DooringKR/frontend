@@ -10,9 +10,9 @@ import { PickUpOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrd
 
 export class CreateOrderUsecase {
     constructor(
-        private readonly orderRepository: OrderRepository,
-        private readonly orderItemRepository: OrderItemRepository,
-        private readonly cartItemRepository: CartItemRepository
+        public readonly orderRepository: OrderRepository,
+        public readonly orderItemRepository: OrderItemRepository,
+        public readonly cartItemRepository: CartItemRepository
     ) { }
 
     /**

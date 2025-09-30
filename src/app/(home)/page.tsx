@@ -25,6 +25,7 @@ import { BizClientSupabaseRepository } from "@/DDD/data/db/User/bizclient_supaba
 import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
 import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_repository";
 import { BizClient } from "dooring-core-domain/dist/models/User/BizClient";
+import { useOrderStore } from "@/store/orderStore";
 
 export default function Page() {
   const router = useRouter();
@@ -109,6 +110,7 @@ export default function Page() {
 
           useBizClientStore.setState({ bizClient: bizClient });
           useCartStore.setState({ cart: cart! });
+          useOrderStore.setState({ order: null });
           await checkDelivery();
 
           return;

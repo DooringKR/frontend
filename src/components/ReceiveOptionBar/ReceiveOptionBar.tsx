@@ -27,7 +27,7 @@ export default function ReceiveOptionBar({
         </div>
         <button
           type="button"
-          onClick={() => router.push("/cart/receive-option")}
+          onClick={() => router.back()}
           className="text-[15px] font-500 text-blue-500"
         >
           변경

@@ -23,9 +23,9 @@ const useCartItemStore = create<CartItemStore>()(
             cartItems: state.cartItems.map(item =>
               item.id == id
                 ? new CartItem({
-                    ...item,
-                    ...newItem,
-                  })
+                  ...item,
+                  ...newItem,
+                })
                 : item
             ),
           })),

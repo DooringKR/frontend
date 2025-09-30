@@ -30,6 +30,7 @@ import { ReadCartItemsUsecase } from "@/DDD/usecase/read_cart_items_usecase";
 import { UpdateCartItemCountUsecase } from "@/DDD/usecase/update_cart_item_count_usecase";
 import { CartItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/cartitem_supabase_repository";
 import { CABINET_DRAWER_TYPE_LIST } from "@/constants/cabinetdrawertype";
+import { useOrderStore } from "@/store/orderStore";
 
 
 // type OrderItem = DoorItem | FinishItem | CabinetItem | AccessoryItem | HardwareItem | null;
@@ -91,6 +92,10 @@ export default function CartClient() {
   const handleAddProduct = () => {
     router.push("/");
   };
+
+  useEffect(() => {
+    useOrderStore.setState({ order: null });
+  }, []);
 
   // 카트 아이템 상세정보 비동기 fetch
   useEffect(() => {
