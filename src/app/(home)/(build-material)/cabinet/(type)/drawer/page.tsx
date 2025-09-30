@@ -56,7 +56,7 @@ function DrawerCabinetPageContent() {
     const [request, setRequest] = useState(item?.request ?? "");
     const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
     // 추가 필드: 용도/장소, 시공 필요 여부, 다리발
-    const [cabinetLocation, setCabinetLocation] = useState(item?.cabinet_location ?? "");
+    const [cabinetLocation, setCabinetLocation] = useState(item?.cabinet_location ?? null);
     const [isCabinetLocationSheetOpen, setIsCabinetLocationSheetOpen] = useState(false);
     const [addOnConstruction, setAddOnConstruction] = useState(item?.addOn_construction ?? false);
     const [legType, setLegType] = useState(item?.legType ?? "");
@@ -119,7 +119,7 @@ function DrawerCabinetPageContent() {
         : (bodyMaterialDirectInput || "");
 
     const locationEnumValues = Object.values(Location);
-    const cabinetLocationLabel = locationEnumValues.includes(cabinetLocation)
+    const cabinetLocationLabel = cabinetLocation && locationEnumValues.includes(cabinetLocation)
         ? formatLocation(cabinetLocation)
         : "";
     // 다리발 직접입력 (바텀시트용)
@@ -328,6 +328,8 @@ function DrawerCabinetPageContent() {
                     onChange={(val) => {
                         if (locationEnumValues.includes(val as Location)) {
                             setCabinetLocation(val);
+                        } else {
+                            setCabinetLocation(null);
                         }
                     }}
                 />
@@ -622,7 +624,7 @@ function BodyMaterialManualInputSheet({ isOpen, onClose, value, directInput, onC
 // }
 
 
-function CabinetLocationInputSheet({ isOpen, onClose, value, onChange }: { isOpen: boolean; onClose: () => void; value: string; onChange: (v: string) => void; }) {
+function CabinetLocationInputSheet({ isOpen, onClose, value, onChange }: { isOpen: boolean; onClose: () => void; value: string | null; onChange: (v: string | null) => void; }) {
     const locationEnumValues = Object.values(Location);
     return (
         <BottomSheet
