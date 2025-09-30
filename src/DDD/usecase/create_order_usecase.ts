@@ -21,7 +21,7 @@ export class CreateOrderUsecase {
      * @param cartId 장바구니 ID
      * @returns 주문 생성 결과
      */
-    async execute(request: DeliveryOrder | PickUpOrder, cartId: number): Promise<Response<Order>> {
+    async execute(request: DeliveryOrder | PickUpOrder, cartId: string): Promise<Response<Order>> {
         try {
             // 1. 입력 검증
             this.validateRequest(request, cartId);
@@ -36,6 +36,7 @@ export class CreateOrderUsecase {
             const order = await this.createOrder(request);
 
             // 4. 주문 아이템들 생성
+            console.log(order.id);
             await this.createOrderItems(order.id!, cartItems);
 
             return {
@@ -57,8 +58,8 @@ export class CreateOrderUsecase {
     /**
      * 요청 데이터 유효성 검증
      */
-    private validateRequest(request: DeliveryOrder | PickUpOrder, cartId: number): void {
-        console.log(request);
+    private validateRequest(request: DeliveryOrder | PickUpOrder, cartId: string): void {
+        // console.log(request, cartId);
         //필요하면 추가
     }
 
@@ -66,14 +67,12 @@ export class CreateOrderUsecase {
      * 주문 생성
      */
     private async createOrder(request: DeliveryOrder | PickUpOrder): Promise<Order> {
-
-        const response = await this.orderRepository.createOrder(request as Order);
-
+        const response = await this.orderRepository.createOrder(request);
         if (!response.success) {
             throw new Error(response.message || "주문 생성에 실패했습니다.");
         }
 
-        return response.data! as Order;
+        return response.data!;
     }
 
     /**

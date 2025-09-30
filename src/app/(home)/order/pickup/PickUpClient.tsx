@@ -17,6 +17,10 @@ import useBizClientStore from "@/store/bizClientStore";
 import useCartItemStore from "@/store/cartItemStore";
 import { CreateOrderUsecase } from "@/DDD/usecase/create_order_usecase";
 import { CartItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/cartitem_supabase_repository";
+import { OrderSupabaseRepository } from "@/DDD/data/db/CartNOrder/order_supabase_repository";
+import { OrderItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/orderitem_supabase_repository";
+import useCartStore from "@/store/cartStore";
+import { CrudCartItemUsecase } from "@/DDD/usecase/crud_cart_item_usecase";
 
 
 export default function PickUpClientPage() {
@@ -28,37 +32,95 @@ export default function PickUpClientPage() {
   const user = useBizClientStore(state => state.bizClient!);
   const order = useOrderStore(state => state.order);
   const cartItems = useCartItemStore(state => state.cartItems);
+  const cart = useCartStore(state => state.cart);
+  const clearCartItems = useCartItemStore(state => state.clearCartItems);
+  const decrementCartCount = useCartStore(state => state.decrementCartCount);
+  const getTotalPrice = useCartItemStore(state => state.getTotalPrice);
+
   // 화면 진입 시 초기 PickUpOrder 구성, 나머지 속성은 각 컴포넌트에서 업데이트
   useEffect(() => {
+    // 새로운 주문 시작 시 이전 주문 정보 삭제
+    localStorage.removeItem("recentOrder");
+
+    const totalPrice = getTotalPrice();
     const pickupOrderData: Partial<PickUpOrder> = {
       user_id: user.id!,
       recipient_phone: useOrderStore.getState().order?.recipient_phone || user.phone_number!,
-      order_price: 0, // 실제 가격으로 교체 필요
+      order_price: totalPrice,
     };
     //setOrder 대신 updateOrder 사용(Order는 초기화 되면 안되기 때문)
     updateOrder(pickupOrderData);
-  }, [user, updateOrder]);
+  }, []);
 
-  const getTotalPrice = () => {
-    return cartItems.reduce((sum, cartItem) => sum + (cartItem.unit_price ?? 0) * (cartItem.item_count ?? 0), 0);
-  };
   const isDisabled = !order?.recipient_phone || !order?.vehicle_type;
 
   const handleSubmit = async () => {
     setIsLoading(true);
-    const createOrderUsecase = new CreateOrderUsecase(
-      new OrderSupabaseRepository(),
-      new OrderItemSupabaseRepository(),
-      new CartItemSupabaseRepository()
-    );
-    const response = await createOrderUsecase.execute(order);
-    if (response.isSuccess) {
-      // router.push("/order/pickup/success");
-    } else {
-      alert(response.errorMessage);
+
+    try {
+      // 1. 주문 생성
+      const createOrderUsecase = new CreateOrderUsecase(
+        new OrderSupabaseRepository(),
+        new OrderItemSupabaseRepository(),
+        new CartItemSupabaseRepository()
+      );
+      const response = await createOrderUsecase.execute(order, cart!.id!);
+
+      if (!response.success) {
+        alert(response.message);
+        setIsLoading(false);
+        return;
+      }
+
+      // 2. DB에서 장바구니 아이템 삭제
+      const deleteResults = await Promise.all(
+        cartItems.map(async (item) => {
+          if (!item.id) return true;
+
+          try {
+            await new CrudCartItemUsecase(
+              new CartItemSupabaseRepository()
+            ).delete(item.id);
+            return true;
+          } catch (err) {
+            console.error(`❌ CartItem 삭제 실패: ${item.id}`, err);
+            return false;
+          }
+        })
+      );
+
+      const allDeleted = deleteResults.every(result => result === true);
+      if (allDeleted) {
+        console.log("✅ 모든 장바구니 항목이 성공적으로 삭제되었습니다.");
+      } else {
+        console.warn("⚠ 일부 장바구니 항목 삭제에 실패했습니다.");
+      }
+
+      // 3. 전역 상태 초기화
+      clearCartItems(); // CartItemStore 초기화
+
+      // Cart count 초기화 (cartItems 수만큼 감소시켜 0으로 만듦)
+      if (cart && cart.cart_count > 0) {
+        decrementCartCount(cart.cart_count);
+      }
+
+      // 4. 주문 정보 로컬스토리지에 저장 -> 직후 confirm 페이지에서 사용
+      localStorage.setItem("recentOrder", JSON.stringify({ order, cartItems })); // 자동 덮어쓰기
+
+      // 5. OrderStore 초기화
+      useOrderStore.setState({ order: null });
+
+      // 6. 성공 페이지로 이동
+      router.push("/order/pickup/confirm");
+      // router.replace("/");
+
+
+    } catch (error) {
+      console.error("주문 처리 중 오류 발생:", error);
+      alert("주문 처리 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
     }
-    useOrderStore.setState({ order: null });
-    setIsLoading(false);
   };
 
   return (

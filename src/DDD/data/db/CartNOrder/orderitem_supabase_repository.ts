@@ -1,16 +1,16 @@
-import { CartItemRepository } from "@/DDD/repository/db/CartNOrder/cartitem_repository";
-import { CartItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/CartItem";
+import { OrderItemRepository } from "@/DDD/repository/db/CartNOrder/orderitem_repository";
+import { OrderItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/OrderItem";
 import { Response } from "@/DDD/data/response";
 import { supabase } from "@/lib/supabase";
 
-export class CartItemSupabaseRepository extends CartItemRepository {
-    private readonly tableName = "CartItem";
+export class OrderItemSupabaseRepository implements OrderItemRepository {
+    private readonly tableName = "OrderItem";
 
-    async createCartItem(cartItem: CartItem): Promise<Response<CartItem>> {
+    async createOrderItem(orderItem: OrderItem): Promise<Response<OrderItem>> {
         try {
             const { data, error } = await supabase
                 .from(this.tableName)
-                .insert(cartItem)
+                .insert(orderItem)
                 .select()
                 .single();
 
@@ -18,7 +18,7 @@ export class CartItemSupabaseRepository extends CartItemRepository {
                 return {
                     success: false,
                     data: undefined as any,
-                    message: `Failed to create cart item: ${error.message}`
+                    message: `주문 항목 생성에 실패했습니다: ${error.message}`
                 };
             }
 
@@ -26,17 +26,17 @@ export class CartItemSupabaseRepository extends CartItemRepository {
                 success: true,
                 data: data,
                 message: undefined
-            } as Response<CartItem>;
+            } as Response<OrderItem>;
         } catch (error) {
             return {
                 success: false,
                 data: undefined as any,
-                message: `Error creating cart item: ${error instanceof Error ? error.message : 'Unknown error'}`
+                message: `주문 항목 생성 중 오류가 발생했습니다: ${error instanceof Error ? error.message : 'Unknown error'}`
             };
         }
     }
 
-    async findCartItemById(id: string): Promise<Response<CartItem | null>> {
+    async findOrderItemById(id: string): Promise<Response<OrderItem | null>> {
         try {
             const { data, error } = await supabase
                 .from(this.tableName)
@@ -56,7 +56,7 @@ export class CartItemSupabaseRepository extends CartItemRepository {
                 return {
                     success: false,
                     data: undefined as any,
-                    message: `Failed to find cart item: ${error.message}`
+                    message: `주문 항목을 찾을 수 없습니다: ${error.message}`
                 };
             }
 
@@ -69,24 +69,24 @@ export class CartItemSupabaseRepository extends CartItemRepository {
             return {
                 success: false,
                 data: undefined as any,
-                message: `Error finding cart item: ${error instanceof Error ? error.message : 'Unknown error'}`
+                message: `주문 항목 조회 중 오류가 발생했습니다: ${error instanceof Error ? error.message : 'Unknown error'}`
             };
         }
     }
 
-    async updateCartItem(cartItem: CartItem): Promise<Response<boolean>> {
+    async updateOrderItem(orderItem: OrderItem): Promise<Response<boolean>> {
         try {
-            const cartItemId = (cartItem as any).getId ? (cartItem as any).getId() : (cartItem as any).id;
+            const orderItemId = (orderItem as any).getId ? (orderItem as any).getId() : (orderItem as any).id;
             const { error } = await supabase
                 .from(this.tableName)
-                .update(cartItem)
-                .eq('id', cartItemId);
+                .update(orderItem)
+                .eq('id', orderItemId);
 
             if (error) {
                 return {
                     success: false,
                     data: false,
-                    message: `Failed to update cart item: ${error.message}`
+                    message: `주문 항목 업데이트에 실패했습니다: ${error.message}`
                 };
             }
 
@@ -99,12 +99,12 @@ export class CartItemSupabaseRepository extends CartItemRepository {
             return {
                 success: false,
                 data: false,
-                message: `Error updating cart item: ${error instanceof Error ? error.message : 'Unknown error'}`
+                message: `주문 항목 업데이트 중 오류가 발생했습니다: ${error instanceof Error ? error.message : 'Unknown error'}`
             };
         }
     }
 
-    async deleteCartItem(id: string): Promise<Response<boolean>> {
+    async deleteOrderItem(id: string): Promise<Response<boolean>> {
         try {
             const { error } = await supabase
                 .from(this.tableName)
@@ -115,7 +115,7 @@ export class CartItemSupabaseRepository extends CartItemRepository {
                 return {
                     success: false,
                     data: false,
-                    message: `Failed to delete cart item: ${error.message}`
+                    message: `주문 항목 삭제에 실패했습니다: ${error.message}`
                 };
             }
 
@@ -128,19 +128,8 @@ export class CartItemSupabaseRepository extends CartItemRepository {
             return {
                 success: false,
                 data: false,
-                message: `Error deleting cart item: ${error instanceof Error ? error.message : 'Unknown error'}`
+                message: `주문 항목 삭제 중 오류가 발생했습니다: ${error instanceof Error ? error.message : 'Unknown error'}`
             };
         }
-    }
-
-    async readByCartId(cartId: string): Promise<CartItem[]> {
-        const { data, error } = await supabase
-            .from(this.tableName)
-            .select('*')
-            .eq('cart_id', cartId);
-        if (error) {
-            throw new Error(`Failed to fetch cart items by cartId: ${error.message}`);
-        }
-        return (data ?? []) as CartItem[];
     }
 }

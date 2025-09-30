@@ -45,19 +45,11 @@ const HomeProductContainer: React.FC = () => {
     } else if (slug === "finish") {
       router.push(`/finish`);
     } else if (slug === "hardware") {
-      const initialHardwareCart: HardwareCart = {
-        type: "hardware",
-      };
-      setCart(initialHardwareCart);
-      router.push(`/order`);
+      router.push(`/hardware`);
     } else if (slug === "accessory") {
       router.push(`/accessory`);
     } else if (slug === "cabinet") {
-      const initialAccessoryCart: CabinetCart = {
-        type: "cabinet",
-      };
-      setCart(initialAccessoryCart);
-      router.push(`/order`);
+      router.push(`/cabinet`);
     } else if (slug === "door") {
       router.push(`/door`);
     }

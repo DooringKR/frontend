@@ -7,5 +7,5 @@ export abstract class CartItemRepository {
     abstract updateCartItem(cartItem: CartItem): Promise<Response<boolean>>;
     abstract deleteCartItem(id: string): Promise<Response<boolean>>;
 
-    abstract readByCartId(cartId: number | string): Promise<CartItem[]>;
+    abstract readByCartId(cartId: string): Promise<CartItem[]>;
 }

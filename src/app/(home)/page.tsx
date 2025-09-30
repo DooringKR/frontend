@@ -26,16 +26,18 @@ import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
 import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_repository";
 import { BizClient } from "dooring-core-domain/dist/models/User/BizClient";
 import { useOrderStore } from "@/store/orderStore";
+import useCartItemStore from "@/store/cartItemStore";
 
 export default function Page() {
   const router = useRouter();
   const bizClient = useBizClientStore(state => state.bizClient);
 
+
   // 모든 Hook을 먼저 호출
   const [deliverySchedule, setDeliverySchedule] = useState<"today" | "tomorrow" | "other" | "">("");
   const [timeLimit, setTimeLimit] = useState<string | undefined>(undefined);
   const [arrivalDate, setArrivalDate] = useState<string | undefined>(undefined);
-  const cartItemCount = useCartStore(state => state.cart?.cart_count);
+  const cartItemCount = useCartItemStore(state => state.cartItems.length);
   const [isCheckingDelivery, setIsCheckingDelivery] = useState(false);
 
 

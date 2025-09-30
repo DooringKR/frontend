@@ -9,12 +9,13 @@ interface CartItemStore {
   updateCartItem: (id: string, newItem: Partial<CartItem>) => void;
   removeCartItem: (id: string) => void;
   clearCartItems: () => void;
+  getTotalPrice: () => number;
 }
 
 const useCartItemStore = create<CartItemStore>()(
   devtools(
     persist(
-      set => ({
+      (set, get) => ({
         cartItems: [],
         setCartItems: (items) => set({ cartItems: items }),
         addCartItem: (item) => set(state => ({ cartItems: [...state.cartItems, item] })),
@@ -34,6 +35,14 @@ const useCartItemStore = create<CartItemStore>()(
             cartItems: state.cartItems.filter(item => item.id != id),
           })),
         clearCartItems: () => set({ cartItems: [] }),
+        getTotalPrice: () => {
+          const { cartItems } = get();
+          return cartItems.reduce((sum, cartItem) => {
+            const unitPrice = cartItem.unit_price ?? 0;
+            const itemCount = cartItem.item_count ?? 0;
+            return sum + (unitPrice * itemCount);
+          }, 0);
+        },
       }),
       {
         name: "cartitem-storage", // localStorage 키 이름
