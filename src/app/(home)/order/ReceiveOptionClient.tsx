@@ -1,17 +1,22 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import ReceiveOptionCard from "./_components/ReceiveOptionCard";
+import { useOrderStore } from "@/store/orderStore";
 
 export default function ReceiveOptionClientPage() {
   const router = useRouter();
   const [isPickupAddressModalOpen, setIsPickupAddressModalOpen] = useState(false);
+
+  useEffect(() => {
+    useOrderStore.getState().clearOrder();
+  }, []);
 
   const handleSelect = (method: "DELIVERY" | "PICK_UP") => {
 

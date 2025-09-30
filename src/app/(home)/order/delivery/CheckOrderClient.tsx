@@ -1,0 +1,233 @@
+"use client";
+
+import { completeOrder, createOrder, createOrderItem } from "@/api/orderApi";
+import { CHECK_ORDER_PAGE } from "@/constants/pageName";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+import Button from "@/components/BeforeEditByKi/Button/Button";
+import PriceSummaryCard from "@/components/PriceCheckCard/PriceSummaryCard";
+import ReceiveOptionBar from "@/components/ReceiveOptionBar/ReceiveOptionBar";
+import TopNavigator from "@/components/TopNavigator/TopNavigator";
+
+import useAddressStore from "@/store/addressStore";
+import useCartStore from "@/store/cartStore";
+import useCartItemStore from "@/store/cartItemStore";
+import useBizClientStore from "@/store/bizClientStore";
+import { useOrderStore } from "@/store/orderStore";
+import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
+import { CreateOrderUsecase } from "@/DDD/usecase/create_order_usecase";
+import { OrderSupabaseRepository } from "@/DDD/data/db/CartNOrder/order_supabase_repository";
+import { OrderItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/orderitem_supabase_repository";
+import { CartItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/cartitem_supabase_repository";
+import { CrudCartItemUsecase } from "@/DDD/usecase/crud_cart_item_usecase";
+import { DeliveryOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/DeliveryOrder";
+import DeliveryAddressCard from "./_components/DeliveryAddressCard";
+import DeliveryScheduleSelector from "./_components/DeliveryScheduleSelector";
+import RecipientPhoneNumber from "./_components/RecipientPhoneNumber";
+import DeliveryRequestSelector from "./_components/DeliveryRequestSelector";
+import { DeliveryMethod } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
+
+const CATEGORY_MAP: Record<string, string> = {
+  door: "문짝",
+  finish: "마감재",
+  accessory: "부속품",
+  hardware: "하드웨어",
+  cabinet: "부분장",
+};
+
+function CheckOrderClientPage() {
+
+  const router = useRouter();
+
+
+
+  const [expectedArrivalMinutes, setExpectedArrivalMinutes] = useState<number | null>(null);
+  const [deliveryMessage, setDeliveryMessage] = useState("");
+  const [deliveryMessageColor, setDeliveryMessageColor] = useState("text-black");
+  const [isTodayAvailable, setIsTodayAvailable] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Cart 관련 상태
+  const cartId = useCartStore(state => state.cartId);
+  const cart = useCartStore(state => state.cart);
+  const cartItems = useCartItemStore(state => state.cartItems);
+  const clearCartItems = useCartItemStore(state => state.clearCartItems);
+  const decrementCartCount = useCartStore(state => state.decrementCartCount);
+  const getTotalPrice = useCartItemStore(state => state.getTotalPrice);
+
+  // Store에서 필요한 데이터 가져오기
+  const updateOrder = useOrderStore(state => state.updateOrder);
+  const user = useBizClientStore(state => state.bizClient!);
+  const order = useOrderStore(state => state.order);
+
+
+  // 화면 진입 시 초기 DeliveryOrder 구성
+  useEffect(() => {
+    const fetchDeliveryInfo = async () => {
+      // 새로운 주문 시작 시 이전 주문 정보 삭제
+      localStorage.removeItem("recentOrder");
+
+      const totalPrice = getTotalPrice();
+      const deliveryOrderData: Partial<DeliveryOrder> = {
+        user_id: user.id!,
+        recipient_phone: useOrderStore.getState().order?.recipient_phone || user.phone_number!,
+        order_price: totalPrice,
+        road_address: useOrderStore.getState().order?.road_address || user?.road_address || "",
+        detail_address: useOrderStore.getState().order?.detail_address || user.detail_address,
+      };
+
+      // setOrder 대신 updateOrder 사용 (Order는 초기화되면 안되기 때문)
+      updateOrder(deliveryOrderData);
+
+      const { remainingMinutes, isToday, arrivalTimeFormatted } = await calculateDeliveryInfo(
+        order.road_address!,
+      );
+
+      setExpectedArrivalMinutes(remainingMinutes);
+      setIsTodayAvailable(isToday);
+
+      if (isToday) {
+        setDeliveryMessage(`당일배송 가능 ${arrivalTimeFormatted}`);
+        setDeliveryMessageColor("bg-[#cbdcfb] text-[#215cff]");
+      } else {
+        setDeliveryMessage(`내일 배송되는 주소에요`);
+        setDeliveryMessageColor("bg-gray-500 text-[#bf6a02]");
+      }
+    }
+    fetchDeliveryInfo();
+  }, [user, getTotalPrice, updateOrder]);
+
+
+};
+
+const handleOrderSubmit = async () => {
+  setIsLoading(true);
+
+  try {
+    // 1. 주문 생성 (CreateOrderUsecase 사용)
+    const createOrderUsecase = new CreateOrderUsecase(
+      new OrderSupabaseRepository(),
+      new OrderItemSupabaseRepository(),
+      new CartItemSupabaseRepository()
+    );
+
+
+    const response = await createOrderUsecase.execute(orderData, cart!.id!);
+
+    if (!response.success) {
+      alert(response.message);
+      setIsLoading(false);
+      return;
+    }
+
+    // 2. DB에서 장바구니 아이템 삭제
+    const deleteResults = await Promise.all(
+      cartItems.map(async (item) => {
+        if (!item.id) return true;
+
+        try {
+          await new CrudCartItemUsecase(
+            new CartItemSupabaseRepository()
+          ).delete(item.id);
+          return true;
+        } catch (err) {
+          console.error(`❌ CartItem 삭제 실패: ${item.id}`, err);
+          return false;
+        }
+      })
+    );
+
+    const allDeleted = deleteResults.every(result => result === true);
+    if (allDeleted) {
+      console.log("✅ 모든 장바구니 항목이 성공적으로 삭제되었습니다.");
+    } else {
+      console.warn("⚠ 일부 장바구니 항목 삭제에 실패했습니다.");
+    }
+
+    // 3. 전역 상태 초기화
+    clearCartItems(); // CartItemStore 초기화
+
+    // Cart count 초기화 (cartItems 수만큼 감소시켜 0으로 만듦)
+    if (cart && cart.cart_count > 0) {
+      decrementCartCount(cart.cart_count);
+    }
+
+    // 4. 주문 정보 로컬스토리지에 저장 -> 직후 confirm 페이지에서 사용
+    localStorage.setItem("recentOrder", JSON.stringify({ order: response.data, cartItems }));
+
+    // 5. OrderStore 초기화
+    useOrderStore.setState({ order: null });
+
+    // 6. 성공 페이지로 이동
+    router.push("/order/delivery/confirm");
+
+  } catch (error) {
+    console.error("주문 처리 중 오류 발생:", error);
+    alert("주문 처리 중 오류가 발생했습니다.");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+// const selectedDeliveryDate = useOrderStore(state => state.selectedDeliveryDate);
+
+// const isRequestInvalid =
+//   !order?.delivery_method ||
+//   (order?.delivery_method === DeliveryMethod.OPEN_GATE && !order?.gate_password?.trim()) ||
+//   (order?.delivery_method === DeliveryMethod.DIRECT_INPUT && !order?.delivery_method_direct_input?.trim()) ||
+//   (order?.delivery_method === DeliveryMethod.CUSTOM && (hour === "--" || minute === "--" || !selectedDeliveryDate));
+return (
+  <div className="flex min-h-screen flex-col justify-between">
+    <TopNavigator title="주문하기" />
+    <ReceiveOptionBar
+      icon={"/icons/truck.svg"}
+      alt={"트럭 아이콘"}
+      title={"배송"}
+      bottomBarClassName="mt-4 mb-8"
+    />
+    <div className="flex-grow px-5">
+      <div className="flex flex-col gap-3 py-5">
+        <h2 className="text-xl font-600 text-gray-800">주소 확인</h2>
+        <DeliveryAddressCard
+          address={{ address1: order?.road_address!, address2: order?.detail_address! }}
+          setAddress={
+            (address: { address1: string; address2: string }) => {
+              updateOrder({
+                road_address: address.address1,
+                detail_address: address.address2,
+              });
+            }
+          }
+        />
+      </div>
+
+      <DeliveryScheduleSelector expectedArrivalMinutes={expectedArrivalMinutes} />
+
+      <section className="flex flex-col gap-3 py-5">
+        <h2 className="text-xl font-600 text-gray-800">배송정보 확인</h2>
+        <RecipientPhoneNumber />
+        <DeliveryRequestSelector />
+      </section>
+
+      <PriceSummaryCard
+        getTotalPrice={getTotalPrice}
+      />
+    </div>
+    <div className="h-[100px]"></div>
+    <div id="delivery-order-button" className="fixed bottom-0 w-full max-w-[460px] p-5">
+      <Button
+        selected={true}
+        onClick={handleOrderSubmit}
+        className="w-full"
+        // disabled={isRequestInvalid || isLoading}
+        disabled={isLoading}
+      >
+        {isLoading ? "주문 요청 중..." : "주문 접수하기"}
+      </Button>
+    </div>
+  </div>
+);
+}
+
+export default CheckOrderClientPage;
