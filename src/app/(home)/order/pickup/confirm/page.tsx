@@ -158,7 +158,7 @@ export default function OrderConfirmPage() {
                             <div className="mt-2 flex">
                                 <div className="mx-[14.5px] w-[3px] rounded-full bg-gray-200"></div>
                                 <p className="pb-7 font-400 text-gray-500">
-                                    알림톡 보내드리고 곧바로 배송 시작해요
+                                    알림톡 보내드리고 곧바로 제작 시작해요
                                 </p>
                             </div>
                         </div>
