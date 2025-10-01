@@ -1,12 +1,11 @@
 import { formatDate, formatPrice, getOrderTypeText } from "../utils/formatters";
-import { Order } from "../hooks/useOrderHistory";
+import { OrderWithItems } from "../hooks/useOrderHistory";
 import { Chip } from "@/components/Chip/Chip";
 import { useRouter } from "next/navigation";
-// import { getCategoryLabel } from "@/utils/getCategoryLabel";
-// import { DOOR_CATEGORY_LIST, CABINET_CATEGORY_LIST, ACCESSORY_CATEGORY_LIST } from "@/constants/category";
+import { PickUpOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/PickUpOrder";
 
 interface OrderCardProps {
-    order: Order;
+    orderWithItems: OrderWithItems;
 }
 
 // // 상품 표시명을 생성하는 함수
@@ -33,11 +32,12 @@ interface OrderCardProps {
 //     }
 // }
 
-export const OrderCard = ({ order }: OrderCardProps) => {
+export const OrderCard = ({ orderWithItems }: OrderCardProps) => {
     const router = useRouter();
+    const { order, orderItems } = orderWithItems;
 
     const handleCardClick = () => {
-        router.push(`/order-history/${order.order_id}`);
+        router.push(`/order-history/${order.id}`);
     };
 
     return (
@@ -46,36 +46,40 @@ export const OrderCard = ({ order }: OrderCardProps) => {
             onClick={handleCardClick}
         >
             <div className="flex flex-col gap-2">
-                {/* 날짜, 주소, 대표 주문 상품 1개 */}
+                {/* 날짜와 픽업 타입 */}
                 <div className="flex justify-between items-center">
-                    <div className="text-[17px]/[24px] font-500 text-gray-500">{formatDate(order.created_at)}</div>
-                    <Chip text={order.order_type === "DELIVERY" ? "배송" : "직접 픽업"} color={order.order_type === "DELIVERY" ? "blue" : "green"} />
+                    <div className="text-[17px]/[24px] font-500 text-gray-500">
+                        {order.created_at ? formatDate(order.created_at.toString()) : "날짜 정보 없음"}
+                    </div>
+                    <Chip text="직접 픽업" color="green" />
                 </div>
-                {order.order_type === "DELIVERY" && order.order_options?.delivery && (
-                    <div className="text-[20px]/[28px] font-700 text-gray-800">
-                        {order.order_options.delivery.recipient_road_address}, {order.order_options.delivery.recipient_detail_address}
+                
+                {/* 픽업 정보 (차량 타입) */}
+                {order instanceof PickUpOrder && (
+                    <div className="text-[16px]/[24px] font-500 text-gray-700">
+                        차량: {order.vehicle_type_direct_input || order.vehicle_type || "미지정"}
                     </div>
                 )}
             </div>
+            
             <div>
-
                 {/* 첫 번째 상품 정보 */}
-                {/* {order.firstItem && (
+                {orderItems.length > 0 && (
                     <div className="flex flex-col gap-1 mb-2">
                         <div className="text-[15px]/[22px] font-400 text-gray-500">
-                            {getProductDisplayName(order.firstItem)} | {order.firstItem.item_count}개
+                            주문 아이템 {orderItems.length}개
                         </div>
-                        {order.itemCount > 1 && (
+                        {orderItems.length > 1 && (
                             <div className="text-[13px] text-gray-500">
-                                외 {order.itemCount - 1}개 상품
+                                총 {orderItems.reduce((sum, item) => sum + (item.item_count || 0), 0)}개 상품
                             </div>
                         )}
                     </div>
-                )} */}
+                )}
 
                 {/* 총 금액 */}
                 <div className="flex justify-between items-center">
-                    <Chip text={`총 상품 수 | ${order.order_items.length}개`} color="gray" />
+                    <Chip text={`총 상품 수 | ${orderItems.length}개`} color="gray" />
                     <div className="text-[20px]/[28px] font-600 text-blue-500">{formatPrice(order.order_price)}원</div>
                 </div>
             </div>

@@ -10,14 +10,14 @@ import { Pagination } from "./components/Pagination";
 const ITEMS_PER_PAGE = 5; // 한 페이지당 표시할 주문 수
 
 function OrderHistoryPage() {
-    const { orders, loading, error } = useOrderHistory();
+    const { ordersWithItems, loading, error } = useOrderHistory();
     const { currentPage, totalPages, startIndex, endIndex, handlePageChange } = usePagination(
-        orders.length,
+        ordersWithItems.length,
         ITEMS_PER_PAGE
     );
 
     // 현재 페이지 주문들
-    const currentOrders = orders.slice(startIndex, endIndex);
+    const currentOrdersWithItems = ordersWithItems.slice(startIndex, endIndex);
 
     if (loading) {
         return (
@@ -50,7 +50,7 @@ function OrderHistoryPage() {
         <div className="flex min-h-screen flex-col">
             <Header title="주문내역" size="Medium" />
             <div className="flex-1 overflow-y-auto pb-[100px] px-5 pt-5 gap-5">
-                {orders.length === 0 ? (
+                {ordersWithItems.length === 0 ? (
                     <div className="flex items-center justify-center h-full">
                         <div className="text-center text-gray-500">
                             <div className="mb-2">주문 내역이 없습니다</div>
@@ -61,13 +61,13 @@ function OrderHistoryPage() {
                     <>
                         {/* 주문 개수 표시 */}
                         <div className="text-sm text-gray-600 mb-4">
-                            총 {orders.length}개의 주문 내역
+                            총 {ordersWithItems.length}개의 주문 내역
                         </div>
 
                         {/* 현재 페이지 주문들 */}
                         <div className="space-y-4">
-                            {currentOrders.map((order) => (
-                                <OrderCard key={order.order_id} order={order} />
+                            {currentOrdersWithItems.map((orderWithItems) => (
+                                <OrderCard key={orderWithItems.order.id} orderWithItems={orderWithItems} />
                             ))}
                         </div>
 

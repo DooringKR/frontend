@@ -11,7 +11,7 @@ export class OrderSupabaseRepository implements OrderRepository {
      * Order 타입에 따라 적절한 테이블 이름을 반환합니다.
      */
     private getTableName(order: DeliveryOrder | PickUpOrder): string {
-        if ((order as DeliveryOrder).delivery_arrival_date !== undefined) {
+        if ((order as DeliveryOrder).delivery_arrival_time !== undefined) {
             return "DeliveryOrder";
         } else if ((order as PickUpOrder).vehicle_type !== undefined) {
             return "PickUpOrder";
@@ -179,6 +179,58 @@ export class OrderSupabaseRepository implements OrderRepository {
                 success: false,
                 data: false,
                 message: `주문 삭제 중 오류가 발생했습니다: ${error instanceof Error ? error.message : 'Unknown error'}`
+            };
+        }
+    }
+
+    async findOrdersByUserId(userId: string): Promise<Response<Order[]>> {
+        try {
+            // PickUp 주문들 조회
+            const { data: pickupData, error: pickupError } = await supabase
+                .from('PickUpOrder')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+
+            // Delivery 주문들 조회
+            const { data: deliveryData, error: deliveryError } = await supabase
+                .from('DeliveryOrder')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+
+            const orders: Order[] = [];
+
+            // PickUp 주문들 변환
+            if (!pickupError && pickupData) {
+                const pickupOrders = pickupData.map(row => PickUpOrder.fromDB(row));
+                orders.push(...pickupOrders);
+            }
+
+            // Delivery 주문들 변환 (현재는 구현 중이므로 주석 처리)
+            // if (!deliveryError && deliveryData) {
+            //     const deliveryOrders = deliveryData.map(row => DeliveryOrder.fromDB(row));
+            //     orders.push(...deliveryOrders);
+            // }
+
+            // 생성일시 기준 내림차순 정렬
+            orders.sort((a, b) => {
+                const dateA = new Date(a.created_at || 0);
+                const dateB = new Date(b.created_at || 0);
+                return dateB.getTime() - dateA.getTime();
+            });
+
+            return {
+                success: true,
+                data: orders,
+                message: "주문 목록을 성공적으로 조회했습니다."
+            };
+        } catch (error) {
+            console.error('[OrderSupabaseRepository] findOrdersByUserId 실패:', error);
+            return {
+                success: false,
+                data: [],
+                message: error instanceof Error ? error.message : "주문 목록 조회 중 오류가 발생했습니다."
             };
         }
     }
