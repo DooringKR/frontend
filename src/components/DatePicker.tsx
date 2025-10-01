@@ -3,14 +3,18 @@
 import { useState } from "react";
 
 interface DatePickerProps {
-  initialDate: string | null;
+  initialDate: Date | null;
   onConfirm: (date: string) => void;
   onClose: () => void;
 }
 
 export default function DatePicker({ initialDate, onConfirm, onClose }: DatePickerProps) {
-  const [selectedDate, setSelectedDate] = useState(initialDate || "");
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(
+    initialDate
+      ? `${initialDate.getFullYear()}-${(initialDate.getMonth() + 1).toString().padStart(2, "0")}-${initialDate.getDate().toString().padStart(2, "0")}`
+      : ""
+  );
+  const [currentMonth, setCurrentMonth] = useState(initialDate || new Date());
 
   // 달력 데이터 생성
   const generateCalendarData = (date: Date) => {
@@ -212,17 +216,16 @@ export default function DatePicker({ initialDate, onConfirm, onClose }: DatePick
                 key={index}
                 onClick={() => day.isSelectable && handleDateSelect(day.date)}
                 disabled={!day.isSelectable}
-                className={`h-10 w-10 rounded-lg text-sm font-500 transition-colors ${
-                  !day.isSelectable
-                    ? "cursor-not-allowed text-gray-300"
-                    : isSelected
-                      ? "bg-brand-500 text-white"
-                      : day.isTomorrow
-                        ? "text-green-600 hover:bg-green-50"
-                        : isToday
-                          ? "text-blue-600 hover:bg-blue-50"
-                          : "text-gray-800 hover:bg-gray-100"
-                } ${!day.isCurrentMonth ? "opacity-30" : ""} `}
+                className={`h-10 w-10 rounded-lg text-sm font-500 transition-colors ${!day.isSelectable
+                  ? "cursor-not-allowed text-gray-300"
+                  : isSelected
+                    ? "bg-brand-500 text-white"
+                    : day.isTomorrow
+                      ? "text-green-600 hover:bg-green-50"
+                      : isToday
+                        ? "text-blue-600 hover:bg-blue-50"
+                        : "text-gray-800 hover:bg-gray-100"
+                  } ${!day.isCurrentMonth ? "opacity-30" : ""} `}
               >
                 {formatDate(day.date)}
               </button>

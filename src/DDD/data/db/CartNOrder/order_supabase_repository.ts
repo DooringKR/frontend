@@ -11,7 +11,7 @@ export class OrderSupabaseRepository implements OrderRepository {
      * Order 타입에 따라 적절한 테이블 이름을 반환합니다.
      */
     private getTableName(order: DeliveryOrder | PickUpOrder): string {
-        if ((order as DeliveryOrder).delivery_arrival_date !== undefined) {
+        if ((order as DeliveryOrder).delivery_arrival_time !== undefined) {
             return "DeliveryOrder";
         } else if ((order as PickUpOrder).vehicle_type !== undefined) {
             return "PickUpOrder";

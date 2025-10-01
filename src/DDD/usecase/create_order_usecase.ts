@@ -59,7 +59,7 @@ export class CreateOrderUsecase {
      * 요청 데이터 유효성 검증
      */
     private validateRequest(request: DeliveryOrder | PickUpOrder, cartId: string): void {
-        // console.log(request, cartId);
+        console.log(request, cartId);
         //필요하면 추가
     }
 
