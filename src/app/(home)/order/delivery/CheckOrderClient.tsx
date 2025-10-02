@@ -136,9 +136,15 @@ function CheckOrderClientPage() {
       }
 
       // 3. 주문 정보 로컬스토리지에 저장 -> 직후 confirm 페이지에서 사용
-      localStorage.setItem("recentOrder", JSON.stringify({ order, cartItems })); // 자동 덮어쓰기
-
-
+      // response.data.order_id, order, cartItems를 올바르게 객체로 저장
+      localStorage.setItem(
+        "recentOrder",
+        JSON.stringify({
+          order_id: response.data?.id,
+          order,
+          cartItems,
+        })
+      ); // 자동 덮어쓰기
 
       // 4 Cart count 초기화 (cartItems 수만큼 감소시켜 0으로 만듦)
       if (cart && cart.cart_count > 0) {

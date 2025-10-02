@@ -98,7 +98,7 @@ export default function PickUpClientPage() {
 
 
       // 3. 주문 정보 로컬스토리지에 저장 -> 직후 confirm 페이지에서 사용
-      localStorage.setItem("recentOrder", JSON.stringify({ order, cartItems })); // 자동 덮어쓰기
+      localStorage.setItem("recentOrder", JSON.stringify({ order_id: response.data?.id, order, cartItems })); // 자동 덮어쓰기
 
 
 

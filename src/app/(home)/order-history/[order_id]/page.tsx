@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useOrderDetail } from "./_hooks/useOrderDetail";
 import { DeliveryOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/DeliveryOrder";
 import { PickUpOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/PickUpOrder";
@@ -13,10 +14,37 @@ import OrderItemsList from "./_components/OrderItemsList";
 
 export default function OrderDetailPage() {
   const params = useParams();
-  const orderId = params.order_id as string;
+  const [orderId, setOrderId] = useState<string | null>(null);
 
-  // DDD 스타일의 커스텀 훅 사용
+  console.log("🔍 OrderDetailPage - params:", params);
+  console.log("🔍 OrderDetailPage - order_id from params:", params?.order_id);
+  console.log("🔍 OrderDetailPage - current orderId state:", orderId);
+
+  useEffect(() => {
+    if (params?.order_id) {
+      const newOrderId = params.order_id as string;
+      console.log("🔍 OrderDetailPage - setting orderId:", newOrderId);
+      setOrderId(newOrderId);
+    }
+  }, [params]);
+
+  // 훅은 항상 실행되지만, 내부에서 orderId가 null이면 아무것도 하지 않음
   const { orderWithItems, loading, error } = useOrderDetail(orderId);
+
+  console.log("🔍 OrderDetailPage - hook result:", { orderWithItems, loading, error });
+
+  // orderId가 없으면 로딩 상태 표시
+  if (!orderId) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header title="주문 상세" size="Medium" />
+        <div className="flex flex-1 items-center justify-center">
+          <div className="text-gray-500">주문 ID를 불러오는 중...</div>
+        </div>
+        <BottomNavigation />
+      </div>
+    );
+  }
 
   if (loading) {
     return (

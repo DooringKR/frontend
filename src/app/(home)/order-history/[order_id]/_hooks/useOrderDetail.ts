@@ -32,8 +32,11 @@ export const useOrderDetail = (orderId: string | null) => {
 
     useEffect(() => {
         const fetchOrderDetail = async () => {
+            console.log("🔍 useOrderDetail - orderId:", orderId);
+
+            // orderId가 null이면 아무것도 하지 않음
             if (!orderId) {
-                setError("주문 ID가 유효하지 않습니다.");
+                console.log("🔍 useOrderDetail - orderId가 null이므로 조회하지 않음");
                 setLoading(false);
                 return;
             }
@@ -54,7 +57,7 @@ export const useOrderDetail = (orderId: string | null) => {
                 }
 
                 const orderData = response.data;
-                // console.log("✅ 주문 상세 데이터:", orderData);
+                console.log("✅ 주문 상세 데이터:", orderData);
 
                 // 2. 각 OrderItem의 자재 정보 조회 (CartClient.tsx 방식 참고)
                 const orderItemsWithMaterials: OrderItemWithMaterial[] = await Promise.all(
@@ -190,17 +193,19 @@ export const useOrderDetail = (orderId: string | null) => {
 
                 // console.log("✅ 자재 정보 포함 주문 상세 데이터:", finalData);
                 setOrderWithItems(finalData);
+                setError(null);
 
             } catch (err) {
                 console.error("💥 주문 상세 조회 에러:", err);
                 setError(err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.");
+                setOrderWithItems(null);
             } finally {
                 setLoading(false);
             }
         };
 
         fetchOrderDetail();
-    }, [orderId]);
+    }, [orderId]); // orderId가 변경될 때마다 실행
 
     return { orderWithItems, loading, error };
 };

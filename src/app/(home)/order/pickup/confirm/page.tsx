@@ -42,13 +42,21 @@ export default function OrderConfirmPage() {
         const recentOrderRaw = localStorage.getItem("recentOrder");
         if (recentOrderRaw) {
             const orderData = JSON.parse(recentOrderRaw);
-            console.log("📦 전체 orderData:", orderData);
-            console.log("📦 orderData.order:", orderData.order);
-            console.log("📦 orderData.cartItems:", orderData.cartItems);
+            // console.log("📦 orderData.order:", orderData.order);
+            // console.log("📦 orderData.cartItems:", orderData.cartItems);
+            // console.log("📦 orderData.order_id:", orderData.order_id); // 이게 실제 order_id
 
             setRecentOrder(orderData.order);
             setOrderItems(orderData.cartItems || []);
-            // setState는 비동기이므로 여기서 orderItems를 로깅하면 이전 상태값이 나옴
+
+            // order_id를 recentOrder에 추가
+            if (orderData.order_id) {
+                setRecentOrder((prev: any) => ({
+                    ...prev,
+                    order_id: orderData.order_id
+                }));
+            }
+            console.log("📦 orderData id:", orderData.order_id);
         }
     }, []);
 
@@ -64,7 +72,15 @@ export default function OrderConfirmPage() {
         alert("계좌번호가 복사되었습니다!");
     };
     const goToOrderHistory = () => {
-        router.push("/order-history");
+        // console.log("🔍 goToOrderHistory - recentOrder:", recentOrder);
+        console.log("🔍 goToOrderHistory - order_id:", recentOrder?.order_id);
+
+        if (!recentOrder?.order_id || recentOrder.order_id === "undefined") {
+            alert("주문 ID가 없습니다. 주문 정보를 다시 확인해주세요.");
+            return;
+        }
+
+        router.replace(`/order-history/${recentOrder.order_id}`);
     };
 
     const handleGoHome = async () => {
