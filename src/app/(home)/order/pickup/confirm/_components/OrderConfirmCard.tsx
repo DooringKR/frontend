@@ -5,6 +5,7 @@ import DoorPreviewIcon from "@/components/DoorPreviewIcon/DoorPreviewIcon";
 import formatBoring from "@/utils/formatBoring";
 import formatSize from "@/utils/formatSize";
 import formatLocation from "@/utils/formatLocation";
+import { DoorType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 interface OrderConfirmCardProps {
   type: "door" | "cabinet" | "finish" | "accessory" | "hardware";
@@ -104,7 +105,7 @@ const OrderConfirmCard: React.FC<OrderConfirmCardProps> = ({
         {edgeCount && <p>엣지 면 수: {edgeCount}면</p>}
         {hingeCount && <p>경첩 개수: {hingeCount}개</p>}
         {hingeDirection && <p>경첩 방향: {hingeDirection}</p>}
-        {boring && <p>보링 치수: {formatBoring(boring, boringCategory)}</p>}
+        {boring && <p>보링 치수: {formatBoring(boring, boringCategory as DoorType | null | undefined)}</p>}
         {bodyMaterial && <p>몸통 소재 및 두께: {bodyMaterial}</p>}
         {handleType && <p>손잡이 종류: {handleType}</p>}
         {finishType && <p>마감 방식: {finishType}</p>}
