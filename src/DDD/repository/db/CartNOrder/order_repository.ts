@@ -4,6 +4,7 @@ import { Response } from "@/DDD/data/response";
 export interface OrderRepository {
     createOrder(order: Order): Promise<Response<Order>>;
     findOrderById(id: string): Promise<Response<Order | null>>;
+    findOrdersByUserId(userId: string): Promise<Response<Order[]>>;
     updateOrder(order: Order): Promise<Response<boolean>>;
     deleteOrder(id: string): Promise<Response<boolean>>;
 }

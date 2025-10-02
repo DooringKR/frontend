@@ -132,4 +132,34 @@ export class OrderItemSupabaseRepository implements OrderItemRepository {
             };
         }
     }
+
+    async findOrderItemsByOrderId(orderId: string): Promise<Response<OrderItem[]>> {
+        try {
+            const { data, error } = await supabase
+                .from(this.tableName)
+                .select('*')
+                .eq('order_id', orderId)
+                .order('created_at', { ascending: true });
+
+            if (error) {
+                return {
+                    success: false,
+                    data: [],
+                    message: `주문 항목 조회에 실패했습니다: ${error.message}`
+                };
+            }
+
+            return {
+                success: true,
+                data: data || [],
+                message: undefined
+            };
+        } catch (error) {
+            return {
+                success: false,
+                data: [],
+                message: `주문 항목 조회 중 오류가 발생했습니다: ${error instanceof Error ? error.message : 'Unknown error'}`
+            };
+        }
+    }
 }
