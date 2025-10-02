@@ -184,11 +184,9 @@ function ReportPageContent() {
 		'item.cabinet_behind_type:', item.cabinet_behind_type ?? ""
 	);
 
-	// Map behindType (form value) to enum value for DB
-	let cabinetBehindType = "URAHOME"; // default
-	if (item.behindType === "막우라") cabinetBehindType = "MAK_URA";
-	else if (item.behindType === "우라홈") cabinetBehindType = "URAHOME";
-	// Patch item with correct enum value for DB
+	// Use behindType value as-is for DB (no mapping)
+	const cabinetBehindType = item.behindType || "우라홈"; // default
+	// Update item with the same Korean value for DB
 	if (item.cabinet_behind_type !== cabinetBehindType) {
 		useItemStore.getState().updateItem({ cabinet_behind_type: cabinetBehindType });
 		item.cabinet_behind_type = cabinetBehindType;
