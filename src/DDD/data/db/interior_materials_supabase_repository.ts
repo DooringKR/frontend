@@ -1,4 +1,4 @@
-import { InteriorMaterialsRepository } from "@/DDD/repository/db/InteriorMaterials/repository";
+import { InteriorMaterialsRepository } from "@/DDD/repository/db/InteriorMaterials/interior_materials_repository";
 import { supabase } from "@/lib/supabase";
 
 export class InteriorMaterialsSupabaseRepository<T> extends InteriorMaterialsRepository<T> {
