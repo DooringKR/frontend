@@ -32,18 +32,13 @@ export const useOrderDetail = (orderId: string | null) => {
 
     useEffect(() => {
         const fetchOrderDetail = async () => {
-            console.log("🔍 useOrderDetail - orderId:", orderId);
-
             // orderId가 null이면 아무것도 하지 않음
             if (!orderId) {
-                console.log("🔍 useOrderDetail - orderId가 null이므로 조회하지 않음");
                 setLoading(false);
                 return;
             }
 
             try {
-                console.log("🔍 주문 ID로 상세 정보 조회 시도:", orderId);
-
                 // 1. 기본 주문 정보 조회
                 const usecase = new ReadOrderHistoryUsecase(
                     new OrderSupabaseRepository(),
@@ -57,7 +52,6 @@ export const useOrderDetail = (orderId: string | null) => {
                 }
 
                 const orderData = response.data;
-                console.log("✅ 주문 상세 데이터:", orderData);
 
                 // 2. 각 OrderItem의 자재 정보 조회 (CartClient.tsx 방식 참고)
                 const orderItemsWithMaterials: OrderItemWithMaterial[] = await Promise.all(
