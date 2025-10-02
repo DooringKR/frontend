@@ -94,14 +94,14 @@ export class KakaoSignupUsecase {
             console.log('BizClient 생성 결과:', bizClientResponse);
 
             // 4단계: Cart 생성
-            // Cart 생성자에 필요한 인자가 4~5개임을 반영하여 수정
-            const cart = new Cart(
-                undefined, // id
-                new Date(), // created_at
-                userInfo.data.user.id, // user_id
-                0 // cart_count
-                // 필요하다면 5번째 인자 추가
-            );
+            // Cart 생성자에 필요한 인자가 1개임을 반영하여 수정
+            const cart = new Cart({
+                id: undefined,
+                created_at: new Date(),
+                user_id: userInfo.data.user.id,
+                cart_count: 0
+                // 필요하다면 추가 필드 작성
+            });
 
             const cartResponse = await this.cartRepository.createCart(cart);
             console.log('Cart 생성 결과:', cartResponse);

@@ -11,7 +11,7 @@ import PaintBruchVertical from "public/icons/paintbrush_vertical";
 import Factory from "public/icons/factory";
 import { BusinessType } from "dooring-core-domain/dist/enums/UserEnums";
 import useSignupStore from "@/store/signupStore";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import useCartStore from "@/store/cartStore";
@@ -19,7 +19,7 @@ import useBizClientStore from "@/store/bizClientStore";
 import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
 import { ReadBizClientUsecase } from "@/DDD/usecase/user/read_bizClient_usecase";
 
-function LoginPage() {
+function LoginPageContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const loginError = searchParams.get('error');
@@ -201,6 +201,27 @@ function LoginPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+function LoginPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex h-screen w-full flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white">
+                <div className="text-center">
+                    <Image
+                        src="/img/logo-192x192.png"
+                        alt="로고"
+                        width={80}
+                        height={80}
+                        className="mx-auto mb-4"
+                    />
+                    <p className="text-gray-600">로딩 중...</p>
+                </div>
+            </div>
+        }>
+            <LoginPageContent />
+        </Suspense>
     );
 }
 

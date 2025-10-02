@@ -1,6 +1,5 @@
 "use client";
 
-import { logout } from "@/api/authApi";
 import { MY_PAGE } from "@/constants/pageName";
 import { useRouter } from "next/navigation";
 import HeadphonesIcon from "public/icons/Headphones";
@@ -79,7 +78,6 @@ function MyPageClient() {
           type={"GrayMedium"}
           onClick={() => {
             console.log("로그아웃");
-            logout();
             supabase.auth.signOut();
             useBizClientStore.setState({ bizClient: null });
             router.replace("/login");

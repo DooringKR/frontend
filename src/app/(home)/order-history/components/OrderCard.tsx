@@ -4,34 +4,57 @@ import { Chip } from "@/components/Chip/Chip";
 import { useRouter } from "next/navigation";
 import { PickUpOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/PickUpOrder";
 import { DeliveryOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/DeliveryOrder";
+import { 
+    DOOR_CATEGORY_LIST, 
+    CABINET_CATEGORY_LIST, 
+    ACCESSORY_CATEGORY_LIST, 
+    HARDWARE_CATEGORY_LIST,
+    FINISH_CATEGORY_LIST 
+} from "@/constants/category";
+import { getCategoryLabel } from "@/utils/getCategoryLabel";
+import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 
 interface OrderCardProps {
     orderWithItems: OrderWithItems;
 }
 
-// // 상품 표시명을 생성하는 함수
-// function getProductDisplayName(item: any): string {
-//     const productType = item.product_type?.toLowerCase();
-//     const itemOptions = item.item_options || {};
+// 상품 표시명을 생성하는 함수
+function getProductDisplayName(item: any): string {
+    const productType = item.product_type?.toLowerCase();
+    const itemOptions = item.item_options || {};
 
-//     switch (productType) {
-//         case "door":
-//             const doorType = itemOptions.door_type?.toLowerCase();
-//             return getCategoryLabel(doorType, DOOR_CATEGORY_LIST, "문짝");
-//         case "cabinet":
-//             const cabinetType = itemOptions.cabinet_type?.toLowerCase();
-//             return getCategoryLabel(cabinetType, CABINET_CATEGORY_LIST, "부분장");
-//         case "accessory":
-//             const accessoryType = itemOptions.accessory_type?.toLowerCase();
-//             return getCategoryLabel(accessoryType, ACCESSORY_CATEGORY_LIST, "부속");
-//         case "finish":
-//             return "마감재";
-//         case "hardware":
-//             return "하드웨어";
-//         default:
-//             return "상품";
-//     }
-// }
+    switch (productType) {
+        case "door":
+            const doorType = itemOptions.door_type?.toLowerCase() || itemOptions.door_category?.toLowerCase();
+            return getCategoryLabel(doorType, DOOR_CATEGORY_LIST, "문짝");
+        case "cabinet":
+            // DetailProductType enum 값들을 체크
+            if (item.detail_product_type === DetailProductType.UPPERCABINET) return "상부장";
+            if (item.detail_product_type === DetailProductType.LOWERCABINET) return "하부장";
+            if (item.detail_product_type === DetailProductType.FLAPCABINET) return "플랩장";
+            if (item.detail_product_type === DetailProductType.DRAWERCABINET) return "서랍장";
+            if (item.detail_product_type === DetailProductType.OPENCABINET) return "오픈장";
+            
+            const cabinetType = itemOptions.cabinet_type?.toLowerCase();
+            return getCategoryLabel(cabinetType, CABINET_CATEGORY_LIST, "부분장");
+        case "accessory":
+            const accessoryType = itemOptions.accessory_type?.toLowerCase() || itemOptions.accessory_category?.toLowerCase();
+            return getCategoryLabel(accessoryType, ACCESSORY_CATEGORY_LIST, "부속");
+        case "finish":
+            const finishType = itemOptions.finish_category?.toLowerCase() || itemOptions.finish_type?.toLowerCase();
+            return getCategoryLabel(finishType, FINISH_CATEGORY_LIST, "마감재");
+        case "hardware":
+            // DetailProductType enum 값들을 체크
+            if (item.detail_product_type === DetailProductType.HINGE) return "경첩";
+            if (item.detail_product_type === DetailProductType.RAIL) return "레일";
+            if (item.detail_product_type === DetailProductType.PIECE) return "부속품";
+            
+            const hardwareType = itemOptions.hardware_type?.toLowerCase();
+            return getCategoryLabel(hardwareType, HARDWARE_CATEGORY_LIST, "하드웨어");
+        default:
+            return "상품";
+    }
+}
 
 export const OrderCard = ({ orderWithItems }: OrderCardProps) => {
     const router = useRouter();

@@ -3,6 +3,7 @@
 import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
 import { CABINET_COLOR_LIST } from "@/constants/colorList";
 import { ABSORBER_TYPE_LIST } from "@/constants/absorbertype";
+import { CABINET_DRAWER_TYPE_LIST } from "@/constants/cabinetdrawertype";
 import { useCabinetValidation } from "./hooks/useCabinetValidation";
 
 
@@ -24,9 +25,9 @@ import GrayVerticalLine from "@/components/GrayVerticalLine/GrayVerticalLine";
 import BoxedInput from "@/components/Input/BoxedInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";
 import formatColor from "@/utils/formatColor";
-import CabinetIcon1 from "@/app/(home)/order-not-used/cabinet/_components/cabinetIcon1";
-import CabinetIcon2 from "@/app/(home)/order-not-used/cabinet/_components/cabinetIcon2";
-import CabinetIcon3 from "@/app/(home)/order-not-used/cabinet/_components/cabinetIcon3";
+import CabinetIcon1 from "@/app/(home)/(build-material)/cabinet/(type)/drawer/_components/cabinetIcon1";
+import CabinetIcon2 from "@/app/(home)/(build-material)/cabinet/(type)/drawer/_components/cabinetIcon2";
+import CabinetIcon3 from "@/app/(home)/(build-material)/cabinet/(type)/drawer/_components/cabinetIcon3";
 import React from "react";
 import ToastIcon from "public/icons/toast";
 
@@ -62,7 +63,9 @@ function DrawerCabinetPageContent() {
     const [legType, setLegType] = useState(item?.legType ?? "");
     const [isLegTypeSheetOpen, setIsLegTypeSheetOpen] = useState(false);
 
-    const [drawerType, setDrawerType] = useState<string>(item?.drawer_type ?? "");
+    const [drawerType, setDrawerType] = useState<number | null>(
+        typeof item?.drawer_type === "number" ? item.drawer_type : null
+    );
     const [drawerTypeDirectInput, setDrawerTypeDirectInput] = useState(item?.drawer_type_direct_input ?? "");
     const [isDrawerTypeSheetOpen, setIsDrawerTypeSheetOpen] = useState(false);
     const [railType, setRailType] = useState<string>(item?.rail_type ?? "");
@@ -109,7 +112,7 @@ function DrawerCabinetPageContent() {
         (bodyMaterial === null && !bodyMaterialDirectInput) ||
         !handleType ||
         !behindType ||
-        !drawerType ||
+        (drawerType === null && !drawerTypeDirectInput) ||
         (railType === "" && !railTypeDirectInput);
 
     // BODY_MATERIAL_LIST에서 선택된 소재명 또는 직접입력값 표시
@@ -122,6 +125,11 @@ function DrawerCabinetPageContent() {
     const cabinetLocationLabel = cabinetLocation && locationEnumValues.includes(cabinetLocation)
         ? formatLocation(cabinetLocation)
         : "";
+    
+    // 서랍 종류 라벨 계산
+    const drawerTypeLabel = drawerType !== null 
+        ? CABINET_DRAWER_TYPE_LIST.find(option => option.id === drawerType)?.name || ""
+        : drawerTypeDirectInput || "";
     // 다리발 직접입력 (바텀시트용)
     // const [legTypeDirectInput, setLegTypeDirectInput] = useState("");
     // const legTypeLabel = ["150 다리 (걸레받이)","120 다리 (걸레받이)","다리발 없음 (60 속걸레받이)"].includes(legType)
@@ -208,15 +216,36 @@ function DrawerCabinetPageContent() {
                 <BoxedSelect
                     label="서랍 종류"
                     options={[]}
-                    value={drawerType}
+                    value={drawerTypeLabel}
                     onClick={() => setIsDrawerTypeSheetOpen(true)}
                     onChange={() => { }}
                 />
                 <DrawerTypeInputSheet
                     isOpen={isDrawerTypeSheetOpen}
                     onClose={() => setIsDrawerTypeSheetOpen(false)}
-                    value={drawerType}
-                    onChange={setDrawerType}
+                    value={drawerTypeLabel}
+                    onChange={(value) => {
+                        console.log("🔄 DrawerType changed:", value);
+                        
+                        // CABINET_DRAWER_TYPE_LIST에서 매칭되는 옵션 찾기
+                        const matchedOption = CABINET_DRAWER_TYPE_LIST.find(option => option.name === value);
+                        
+                        if (matchedOption && matchedOption.id !== 4) {
+                            // 미리 정의된 옵션인 경우 (직접입력 제외)
+                            setDrawerType(matchedOption.id);
+                            setDrawerTypeDirectInput("");
+                            console.log("✅ Set as predefined option:", matchedOption.id, value);
+                        } else if (value.trim() !== "" && (!matchedOption || matchedOption.id === 4)) {
+                            // 직접입력인 경우
+                            setDrawerType(4); // 직접입력은 id가 4
+                            setDrawerTypeDirectInput(value);
+                            console.log("✅ Set as direct input:", value);
+                        } else {
+                            // 빈 값인 경우
+                            setDrawerType(null);
+                            setDrawerTypeDirectInput("");
+                        }
+                    }}
                 />
                 {/* 손잡이 robust (enum) */}
                 <div className="flex flex-col gap-2">
