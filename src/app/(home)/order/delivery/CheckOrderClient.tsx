@@ -1,6 +1,5 @@
 "use client";
 
-import { completeOrder, createOrder, createOrderItem } from "@/api/orderApi";
 import { CHECK_ORDER_PAGE } from "@/constants/pageName";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";

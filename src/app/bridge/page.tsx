@@ -1,6 +1,6 @@
 "use client";
 
-import useUserStore from "@/store/userStore";
+import useBizClientStore from "@/store/bizClientStore";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -8,7 +8,7 @@ import { useEffect } from "react";
 function BridgePage() {
 
     const router = useRouter();  
-    const userId = useUserStore(state => state.id);
+    const userId = useBizClientStore(state => state.getBizClientId());
 
     // 로그인 상태 체크
     useEffect(() => {

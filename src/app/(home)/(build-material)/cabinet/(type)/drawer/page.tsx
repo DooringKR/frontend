@@ -24,9 +24,9 @@ import GrayVerticalLine from "@/components/GrayVerticalLine/GrayVerticalLine";
 import BoxedInput from "@/components/Input/BoxedInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";
 import formatColor from "@/utils/formatColor";
-import CabinetIcon1 from "@/app/(home)/order-not-used/cabinet/_components/cabinetIcon1";
-import CabinetIcon2 from "@/app/(home)/order-not-used/cabinet/_components/cabinetIcon2";
-import CabinetIcon3 from "@/app/(home)/order-not-used/cabinet/_components/cabinetIcon3";
+import CabinetIcon1 from "@/app/(home)/(build-material)/cabinet/(type)/drawer/_components/cabinetIcon1";
+import CabinetIcon2 from "@/app/(home)/(build-material)/cabinet/(type)/drawer/_components/cabinetIcon2";
+import CabinetIcon3 from "@/app/(home)/(build-material)/cabinet/(type)/drawer/_components/cabinetIcon3";
 import React from "react";
 import ToastIcon from "public/icons/toast";
 

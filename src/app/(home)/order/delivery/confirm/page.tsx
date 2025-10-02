@@ -1,31 +1,11 @@
 "use client";
 
-import { deleteCartItem } from "@/api/cartApi";
-import {
-    ACCESSORY_CATEGORY_LIST,
-    CABINET_CATEGORY_LIST,
-    DOOR_CATEGORY_LIST,
-    FINISH_CATEGORY_LIST,
-    HARDWARE_CATEGORY_LIST,
-} from "@/constants/category";
-import {
-    AccessoryItem,
-    CabinetItem,
-    DoorItem,
-    FinishItem,
-    HardwareItem,
-} from "@/types/newItemTypes";
+
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import Button from "@/components/BeforeEditByKi/Button/Button";
-
-import { useOrderStore } from "@/store/orderStore";
-import { formatBoringDirection } from "@/utils/formatBoring";
-import formatColor from "@/utils/formatColor";
-import formatLocation from "@/utils/formatLocation";
-import { getCategoryLabel } from "@/utils/getCategoryLabel";
 
 import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 import { DeliveryMethod } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
