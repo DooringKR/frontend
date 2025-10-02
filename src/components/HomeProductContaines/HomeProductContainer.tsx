@@ -39,10 +39,7 @@ const HomeProductContainer: React.FC = () => {
       return;
     }
 
-    const addressStorage = localStorage.getItem("address-storage");
-    if (!addressStorage) {
-      router.push(`/address-check?category=${slug}`);
-    } else if (slug === "finish") {
+    if (slug === "finish") {
       router.push(`/finish`);
     } else if (slug === "hardware") {
       router.push(`/hardware`);
