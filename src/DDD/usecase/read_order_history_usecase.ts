@@ -37,12 +37,12 @@ export class ReadOrderHistoryUsecase {
 
             const allOrders = ordersResponse.data || [];
             
-            // 2. PICKUP 주문만 필터링 (PickUpOrder 인스턴스인지 확인)
-            const pickupOrders = allOrders.filter((order: Order) => order instanceof PickUpOrder);
+            // 2. 모든 주문 처리 (PICKUP + DELIVERY)
+            const allOrdersList = allOrders;
 
             // 3. 각 주문의 OrderItem들 조회
             const ordersWithItems: OrderWithItems[] = await Promise.all(
-                pickupOrders.map(async (order: Order) => {
+                allOrdersList.map(async (order: Order) => {
                     const orderItemsResponse = await this.orderItemRepository.findOrderItemsByOrderId(order.id!);
                     
                     return {

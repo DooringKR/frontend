@@ -3,6 +3,7 @@ import { OrderWithItems } from "../hooks/useOrderHistory";
 import { Chip } from "@/components/Chip/Chip";
 import { useRouter } from "next/navigation";
 import { PickUpOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/PickUpOrder";
+import { DeliveryOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/DeliveryOrder";
 
 interface OrderCardProps {
     orderWithItems: OrderWithItems;
@@ -46,18 +47,28 @@ export const OrderCard = ({ orderWithItems }: OrderCardProps) => {
             onClick={handleCardClick}
         >
             <div className="flex flex-col gap-2">
-                {/* 날짜와 픽업 타입 */}
+                {/* 날짜와 주문 타입 */}
                 <div className="flex justify-between items-center">
                     <div className="text-[17px]/[24px] font-500 text-gray-500">
                         {order.created_at ? formatDate(order.created_at.toString()) : "날짜 정보 없음"}
                     </div>
-                    <Chip text="직접 픽업" color="green" />
+                    <Chip 
+                        text={order instanceof PickUpOrder ? "직접 픽업" : "배송"} 
+                        color={order instanceof PickUpOrder ? "green" : "blue"} 
+                    />
                 </div>
                 
                 {/* 픽업 정보 (차량 타입) */}
                 {order instanceof PickUpOrder && (
                     <div className="text-[16px]/[24px] font-500 text-gray-700">
                         차량: {order.vehicle_type_direct_input || order.vehicle_type || "미지정"}
+                    </div>
+                )}
+                
+                {/* 배송 정보 (주소) */}
+                {order instanceof DeliveryOrder && (
+                    <div className="text-[16px]/[24px] font-500 text-gray-700">
+                        배송지: {order.road_address} {order.detail_address}
                     </div>
                 )}
             </div>

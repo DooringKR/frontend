@@ -207,11 +207,11 @@ export class OrderSupabaseRepository implements OrderRepository {
                 orders.push(...pickupOrders);
             }
 
-            // Delivery 주문들 변환 (현재는 구현 중이므로 주석 처리)
-            // if (!deliveryError && deliveryData) {
-            //     const deliveryOrders = deliveryData.map(row => DeliveryOrder.fromDB(row));
-            //     orders.push(...deliveryOrders);
-            // }
+            // Delivery 주문들 변환
+            if (!deliveryError && deliveryData) {
+                const deliveryOrders = deliveryData.map(row => DeliveryOrder.fromDB(row));
+                orders.push(...deliveryOrders);
+            }
 
             // 생성일시 기준 내림차순 정렬
             orders.sort((a, b) => {
