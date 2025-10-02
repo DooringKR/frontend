@@ -1,4 +1,4 @@
-import { InteriorMaterialsRepository } from "@/DDD/repository/db/InteriorMaterials/repository";
+import { InteriorMaterialsRepository } from "../repository/db/InteriorMaterials/interior_materials_repository";
 
 export class CrudInteriorMaterialsUsecase<T> {
     constructor(public readonly repository: InteriorMaterialsRepository<T>) { }
