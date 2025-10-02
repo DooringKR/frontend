@@ -122,18 +122,25 @@ function createCabinetInstance(item: any) {
 		case "서랍장": {
 			let drawer_type: number;
 			let drawer_type_direct_input: string | undefined = undefined;
-			if (item.drawer_type_direct_input) {
-				drawer_type = 4; // 직접입력 id
-				drawer_type_direct_input = item.drawer_type_direct_input;
-			} else if (item.drawer_type) {
-				const found = CABINET_DRAWER_TYPE_LIST.find(opt => opt.name === item.drawer_type);
-				if (found) {
-					drawer_type = found.id;
+			
+			console.log("🔍 Drawer type debugging:", {
+				drawer_type: item.drawer_type,
+				drawer_type_direct_input: item.drawer_type_direct_input
+			});
+			
+			// drawer_type이 이미 number인 경우 처리
+			if (typeof item.drawer_type === "number") {
+				drawer_type = item.drawer_type;
+				if (drawer_type === 4 && item.drawer_type_direct_input) {
+					drawer_type_direct_input = item.drawer_type_direct_input;
+					console.log("✅ Using direct input with number id:", { drawer_type, drawer_type_direct_input });
 				} else {
-					drawer_type = CABINET_DRAWER_TYPE_LIST[0].id;
+					console.log("✅ Using predefined option with number id:", { drawer_type });
 				}
 			} else {
+				// 기존 string 기반 로직 (하위 호환성)
 				drawer_type = CABINET_DRAWER_TYPE_LIST[0].id;
+				console.log("⚠️ No valid drawer_type, using default:", { drawer_type });
 			}
 			// robust: rail_type must not be empty string for enum
 			let rail_type = item.rail_type;
@@ -152,6 +159,7 @@ function createCabinetInstance(item: any) {
 				cabinet_request: item.request,
 				handle_type: item.handleType,
 				drawer_type,
+				drawer_type_direct_input,
 				rail_type,
 				rail_type_direct_input: item.rail_type_direct_input,
 			});
