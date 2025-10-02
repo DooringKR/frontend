@@ -11,7 +11,7 @@ export class ReadCartItemsUsecase {
   }
 
 
-  async readCartItemsByCartId(cartId: number | string): Promise<Response<CartItem[]>> {
+  async readCartItemsByCartId(cartId: string): Promise<Response<CartItem[]>> {
     try {
       if (!cartId) {
         throw new Error("cartId is required");
