@@ -22,6 +22,11 @@ export class EstimateExportEdgeFunctionAdapter implements EstimateExportPort {
   const debugMode = !!(envDebug || lsDebug)
   const echoMode = !!(envEcho || lsEcho)
 
+  // Client-side dev log: show what we're sending (orderId + flags)
+  if (typeof window !== 'undefined') {
+    // eslint-disable-next-line no-console
+    console.log('[orders-google][REQ]', { orderId, debug: debugMode, returnPayload: echoMode || debugMode })
+  }
   const { data, error } = await this.supabase.functions.invoke('orders-google', { body: { orderId, debug: debugMode, returnPayload: echoMode || debugMode } })
       if (error) {
         return { success: false, message: error.message, data: { sheetId: undefined } }
@@ -39,6 +44,22 @@ export class EstimateExportEdgeFunctionAdapter implements EstimateExportPort {
             // Save a copy for manual inspection/copying
             window.localStorage.setItem('ORDERS_GOOGLE_LAST_PAYLOAD', JSON.stringify(payload, null, 2))
             ;(window as any)._ORDERS_GOOGLE_LAST_PAYLOAD = payload
+            // Print cabinet-related body fields loudly to DevTools
+            const items = Array.isArray(payload?.order_items) ? payload.order_items : []
+            const focus = items.map((it: any, i: number) => ({
+              i,
+              product_type: it?.product_type,
+              item_count: it?.item_count,
+              unit_price: it?.unit_price,
+              body_material_id: it?.item_options?.body_material_id,
+              body_material_name: it?.item_options?.body_material_name,
+              body_color: it?.item_options?.body_color,
+              body_color_name: it?.item_options?.body_color_name,
+              cabinet_color: it?.item_options?.cabinet_color,
+              cabinet_color_name: it?.item_options?.cabinet_color_name,
+            }))
+            // eslint-disable-next-line no-console
+            console.log('[orders-google][REQ][CABINET-BODY-FOCUS]', focus)
           }
           // Also log to console (trim large arrays if needed by the browser)
           // eslint-disable-next-line no-console

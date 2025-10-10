@@ -3,6 +3,8 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { buildAppsScriptPayload } from "../_shared/buildAppsScriptPayload.ts";
+import { getDoorColorName, getFinishColorName, getCabinetColorName } from "../_shared/colorLookup.ts";
+import { getBodyMaterialName } from "../_shared/bodyMaterialLookup.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*", // 필요 시 특정 도메인으로 제한
@@ -84,6 +86,8 @@ Deno.serve(async (req) => {
   if (APPS_SCRIPT_URL.endsWith('/dev')) {
     console.warn('orders-google: Using /dev Apps Script endpoint (requires auth in some cases). Consider deploying and using the /exec URL for production stability.');
   }
+  // Debug log endpoint (safe)
+  console.log('orders-google: Apps Script URL:', APPS_SCRIPT_URL);
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
       auth: { persistSession: false },
@@ -181,7 +185,10 @@ Deno.serve(async (req) => {
         return cleanOptions({
           door_type: material.door_type ?? material.slug ?? material.type ?? undefined,
           door_type_direct_input: material.door_type_direct_input ?? undefined,
-          door_color: material.door_color ?? material.color ?? undefined,
+          // Prefer human-readable color name/label if present
+          door_color: material.door_color_name ?? material.door_color_label ?? material.color_name ?? material.color_label ?? material.color?.name ?? material.door_color ?? material.color ?? undefined,
+          // Explicit color name slot if we resolve via FK
+          door_color_name: material.door_color_name ?? material.color_name ?? material.color?.name ?? undefined,
           door_width: material.door_width ?? material.width ?? undefined,
           door_height: material.door_height ?? material.height ?? undefined,
           hinge_count: material.hinge_count ?? material.hinge?.hingeCount ?? undefined,
@@ -191,7 +198,9 @@ Deno.serve(async (req) => {
       }
       if (t === 'FINISH') {
         return cleanOptions({
-          finish_color: material.finish_color ?? material.color ?? undefined,
+          // Prefer display name first
+          finish_color: material.finish_color_name ?? material.finish_color_label ?? material.color_name ?? material.color_label ?? material.color?.name ?? material.finish_color ?? material.color ?? undefined,
+          finish_color_name: material.finish_color_name ?? material.color_name ?? material.color?.name ?? undefined,
           finish_base_depth: material.finish_base_depth ?? material.baseDepth ?? material.depth ?? undefined,
           finish_base_height: material.finish_base_height ?? material.baseHeight ?? material.height ?? undefined,
           finish_additional_depth: material.finish_additional_depth ?? material.additionalDepth ?? undefined,
@@ -209,7 +218,14 @@ Deno.serve(async (req) => {
           t === 'OPENCABINET' ? 'OPEN' : undefined;
         return cleanOptions({
           cabinet_type,
-          cabinet_color: material.cabinet_color ?? material.color ?? undefined,
+          cabinet_color: material.cabinet_color_name ?? material.cabinet_color_label ?? material.color_name ?? material.color_label ?? material.color?.name ?? material.cabinet_color ?? material.color ?? undefined,
+          cabinet_color_name: material.cabinet_color_name ?? material.color_name ?? material.color?.name ?? undefined,
+          // Body color (separate from door color). Try common field names; will also resolve via list below.
+          body_color: material.body_color_name ?? material.body_color_label ?? material.body_color ?? material.bodyColor ?? material.body_finish_color ?? material.body_finish_color_id ?? material.finish_color ?? undefined,
+          body_color_name: material.body_color_name ?? undefined,
+            // Body material: explicit ID/name fields
+            body_material_id: material.cabinet_body_material ?? material.cabinet_body_material_id ?? material.body_material_id ?? material.body_material ?? undefined,
+            body_material_name: material.body_material_name ?? undefined,
           cabinet_width: material.cabinet_width ?? material.width ?? undefined,
           cabinet_height: material.cabinet_height ?? material.height ?? undefined,
           cabinet_depth: material.cabinet_depth ?? material.depth ?? undefined,
@@ -272,7 +288,91 @@ Deno.serve(async (req) => {
               return;
             }
             dbg('material-fetched', { ...itemInfo, table, materialKeys: Object.keys(material || {}) });
-            const item_options = mapItemOptions(it.detail_product_type, material);
+            let item_options = mapItemOptions(it.detail_product_type, material);
+            // If color fields are numeric IDs, attach name via local lists
+            if (item_options) {
+              const tNorm = normalizeDetail(it.detail_product_type);
+              if (tNorm === 'DOOR') {
+                const id = item_options.door_color ?? material.door_color ?? material.color;
+                const name = item_options.door_color_name ?? getDoorColorName(id);
+                if (name) item_options.door_color_name = name;
+              } else if (tNorm === 'FINISH') {
+                const id = item_options.finish_color ?? material.finish_color ?? material.color;
+                const name = item_options.finish_color_name ?? getFinishColorName(id);
+                if (name) item_options.finish_color_name = name;
+              } else if (tNorm.includes('CABINET')) {
+                const id = item_options.cabinet_color ?? material.cabinet_color ?? material.color ?? material.door_color;
+                const name = item_options.cabinet_color_name ?? getCabinetColorName(id);
+                if (name) item_options.cabinet_color_name = name;
+                // Resolve body material first (authoritative for body)
+                const bodyMatIdCandidates = [
+                  item_options.body_material_id,
+                  material.cabinet_body_material,
+                  material.cabinet_body_material_id,
+                  material.body_material_id,
+                  material.body_material,
+                ];
+                const bodyMatNameCandidates = [
+                  item_options.body_material_name,
+                  material.body_material_name,
+                ];
+                let bodyMatId = bodyMatIdCandidates.find((v) => v !== undefined && v !== null && v !== '');
+                let bodyMatName = bodyMatNameCandidates.find((v) => v !== undefined && v !== null && v !== '');
+                if (!bodyMatName && bodyMatId !== undefined && bodyMatId !== null && bodyMatId !== '') {
+                  const matName = getBodyMaterialName(bodyMatId as any);
+                  if (matName) bodyMatName = matName;
+                }
+                if (bodyMatName) item_options.body_material_name = String(bodyMatName);
+                if (bodyMatId && !item_options.body_material_id) item_options.body_material_id = bodyMatId;
+
+                // Resolve body color with broader candidates (fallback when color ID is used)
+                const bodyIdCandidates = [
+                  item_options.body_color,
+                  material.body_color,
+                  material.bodyColor,
+                  material.body_finish_color,
+                  material.body_finish_color_id,
+                  material.finish_color,
+                  material.body_material_id,
+                  material.body_color_id,
+                ];
+                const bodyNameCandidates = [
+                  item_options.body_color_name,
+                  material.body_color_name,
+                  material.body_color_label,
+                  material.body_material_name,
+                  material.body_name,
+                  material.body_label,
+                ];
+                let bodyId = bodyIdCandidates.find((v) => v !== undefined && v !== null && v !== '');
+                let bodyName = bodyNameCandidates.find((v) => v !== undefined && v !== null && v !== '');
+                // First, try body material lookup (most authoritative for body)
+                if (!bodyName && bodyId !== undefined && bodyId !== null && bodyId !== '') {
+                  const materialName = getBodyMaterialName(bodyId as any);
+                  if (materialName) bodyName = materialName;
+                }
+                // Fallback to finish color list when bodyId maps to finish color ID
+                if (!bodyName && bodyId !== undefined && bodyId !== null && bodyId !== '') {
+                  const inferred = getFinishColorName(bodyId as any);
+                  if (inferred) bodyName = inferred;
+                }
+                if (bodyName) item_options.body_color_name = String(bodyName);
+                // Also populate body_material_name when coming from body material list
+                const bodyMaterialName = getBodyMaterialName(bodyId as any);
+                if (!bodyMatName && bodyMaterialName) item_options.body_material_name = bodyMaterialName;
+                if (bodyId && !item_options.body_color) item_options.body_color = bodyId;
+                // Debug assist
+                dbg('cabinet-body-debug', {
+                  idx,
+                  order_id: it.order_id,
+                  item_detail: it.item_detail,
+                  bodyMatId,
+                  bodyMatName,
+                  chosenBodyId: bodyId,
+                  chosenBodyName: bodyName,
+                });
+              }
+            }
             const hasOptions = !!item_options && Object.keys(item_options).length > 0;
             results[idx] = { ...it, item_options: hasOptions ? item_options : null };
             const mappedKeys = hasOptions ? Object.keys(item_options!) : [];
