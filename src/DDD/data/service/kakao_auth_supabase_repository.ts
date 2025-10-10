@@ -115,4 +115,13 @@ export class KakaoAuthSupabaseRepository implements KakaoAuthRepository {
             };
         }
     }
+
+    async logout(): Promise<Response> {
+        const { error } = await supabase.auth.signOut();
+        console.log('logout error:', error);
+        if (error) {
+            return { success: false, data: undefined as any, message: error.message };
+        }
+        return { success: true, data: null, message: "로그아웃 성공" };
+    }
 }

@@ -26,6 +26,7 @@ import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_r
 import { BizClient } from "dooring-core-domain/dist/models/User/BizClient";
 import { useOrderStore } from "@/store/orderStore";
 import useCartItemStore from "@/store/cartItemStore";
+import { KakaoAuthSupabaseRepository } from "@/DDD/data/service/kakao_auth_supabase_repository";
 
 export default function Page() {
   const router = useRouter();
@@ -103,6 +104,11 @@ export default function Page() {
     // localStorage에서 데이터를 복원하는 동안 잠시 대기
     const timer = setTimeout(async () => {
       if (!bizClient) {
+        const kakaoAuthSupabaseRepository = new KakaoAuthSupabaseRepository();
+        const logoutResponse = await kakaoAuthSupabaseRepository.logout();
+        console.log('logoutResponse:', logoutResponse);
+        useCartStore.setState({ cart: null });
+        useBizClientStore.setState({ bizClient: null });
         router.replace("/login");
       } else {
         try {
