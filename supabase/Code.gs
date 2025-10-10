@@ -478,6 +478,9 @@ function addDoorItem(sheet, startRow, startCol, orderItem) {
 
   // color normalization (string or array): prefer name if present
   var colorStrRaw = ensureColorString(opts.door_color_name || opts.door_color || opts.color || '');
+  if ((!colorStrRaw || colorStrRaw === 'DIRECT_INPUT' || colorStrRaw === '직접입력') && opts.door_color_direct_input) {
+    colorStrRaw = String(opts.door_color_direct_input);
+  }
   sheet.getRange(startRow + 1, startCol, 1, 3).merge();
   sheet.getRange(startRow + 1, startCol).setValue('↳ ' + getLastColor(colorStrRaw));
 
@@ -501,7 +504,11 @@ function addDoorItem(sheet, startRow, startCol, orderItem) {
 function addFinishItem(sheet, row, col, orderItem) {
   // 1. 마감재 색상/사이즈 (3셀 병합)
   var fopts = orderItem.item_options || {};
-  var finishStr = '↳ ' + getLastColor(fopts.finish_color_name || fopts.finish_color || '') +
+  var finishColor = ensureColorString(fopts.finish_color_name || fopts.finish_color || '');
+  if ((!finishColor || finishColor === 'DIRECT_INPUT' || finishColor === '직접입력') && fopts.finish_color_direct_input) {
+    finishColor = String(fopts.finish_color_direct_input);
+  }
+  var finishStr = '↳ ' + getLastColor(finishColor) +
     ' (W ' + (fopts.finish_base_depth || '') +
     ' x H ' + (fopts.finish_base_height || '') + ')';
   sheet.getRange(row, col, 1, 3).merge();
@@ -533,15 +540,23 @@ function addCabinetItem(sheet, row, col, orderItem) {
   sheet.getRange(row, col).setValue(cabinetTypeStr);
 
   var doorColorRaw = ensureColorString(opts.cabinet_color_name || opts.cabinet_color || opts.door_color_name || opts.door_color || '');
+  if ((!doorColorRaw || doorColorRaw === 'DIRECT_INPUT' || doorColorRaw === '직접입력') && (opts.cabinet_color_direct_input || opts.door_color_direct_input)) {
+    doorColorRaw = String(opts.cabinet_color_direct_input || opts.door_color_direct_input);
+  }
   var bodyType = opts.body_type;
   var bodyTypeDirectInput = opts.body_type_direct_input;
   var bodyColorRaw = ensureColorString(opts.body_color_name || opts.body_color || '');
+  if ((!bodyColorRaw || bodyColorRaw === 'DIRECT_INPUT' || bodyColorRaw === '직접입력') && opts.body_color_direct_input) {
+    bodyColorRaw = String(opts.body_color_direct_input);
+  }
   var bodyText = '';
   if (bodyColorRaw) {
     bodyText = getLastColor(bodyColorRaw);
   } else if (opts.body_material_name) {
     // If body material name provided (from ID->name), prefer it
     bodyText = String(opts.body_material_name);
+  } else if (opts.body_material_direct_input) {
+    bodyText = '(직접 입력) ' + String(opts.body_material_direct_input);
   } else if (bodyType || bodyTypeDirectInput) {
     bodyText = getBodyType(bodyType, bodyTypeDirectInput);
   } else {

@@ -189,6 +189,8 @@ Deno.serve(async (req) => {
           door_color: material.door_color_name ?? material.door_color_label ?? material.color_name ?? material.color_label ?? material.color?.name ?? material.door_color ?? material.color ?? undefined,
           // Explicit color name slot if we resolve via FK
           door_color_name: material.door_color_name ?? material.color_name ?? material.color?.name ?? undefined,
+          // Direct input for color
+          door_color_direct_input: material.door_color_direct_input ?? material.color_direct_input ?? undefined,
           door_width: material.door_width ?? material.width ?? undefined,
           door_height: material.door_height ?? material.height ?? undefined,
           hinge_count: material.hinge_count ?? material.hinge?.hingeCount ?? undefined,
@@ -201,6 +203,8 @@ Deno.serve(async (req) => {
           // Prefer display name first
           finish_color: material.finish_color_name ?? material.finish_color_label ?? material.color_name ?? material.color_label ?? material.color?.name ?? material.finish_color ?? material.color ?? undefined,
           finish_color_name: material.finish_color_name ?? material.color_name ?? material.color?.name ?? undefined,
+          // Direct input for color
+          finish_color_direct_input: material.finish_color_direct_input ?? material.color_direct_input ?? undefined,
           finish_base_depth: material.finish_base_depth ?? material.baseDepth ?? material.depth ?? undefined,
           finish_base_height: material.finish_base_height ?? material.baseHeight ?? material.height ?? undefined,
           finish_additional_depth: material.finish_additional_depth ?? material.additionalDepth ?? undefined,
@@ -220,12 +224,15 @@ Deno.serve(async (req) => {
           cabinet_type,
           cabinet_color: material.cabinet_color_name ?? material.cabinet_color_label ?? material.color_name ?? material.color_label ?? material.color?.name ?? material.cabinet_color ?? material.color ?? undefined,
           cabinet_color_name: material.cabinet_color_name ?? material.color_name ?? material.color?.name ?? undefined,
+          cabinet_color_direct_input: material.cabinet_color_direct_input ?? material.door_color_direct_input ?? material.color_direct_input ?? undefined,
           // Body color (separate from door color). Try common field names; will also resolve via list below.
           body_color: material.body_color_name ?? material.body_color_label ?? material.body_color ?? material.bodyColor ?? material.body_finish_color ?? material.body_finish_color_id ?? material.finish_color ?? undefined,
           body_color_name: material.body_color_name ?? undefined,
+          body_color_direct_input: material.body_color_direct_input ?? material.color_direct_input ?? undefined,
             // Body material: explicit ID/name fields
             body_material_id: material.cabinet_body_material ?? material.cabinet_body_material_id ?? material.body_material_id ?? material.body_material ?? undefined,
             body_material_name: material.body_material_name ?? undefined,
+          body_material_direct_input: material.body_material_direct_input ?? material.cabinet_body_material_direct_input ?? material.body_direct_input ?? undefined,
           cabinet_width: material.cabinet_width ?? material.width ?? undefined,
           cabinet_height: material.cabinet_height ?? material.height ?? undefined,
           cabinet_depth: material.cabinet_depth ?? material.depth ?? undefined,
