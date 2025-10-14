@@ -26,15 +26,15 @@ function LoginPageContent() {
 
     const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            if (session) {
-                router.push('/');
-            } else {
-                router.push('/login');
-            }
-        });
-    }, [router]);
+    // useEffect(() => {
+    //     supabase.auth.getSession().then(({ data: { session } }) => {
+    //         if (session) {
+    //             router.push('/');
+    //         } else {
+    //             router.push('/login');
+    //         }
+    //     });
+    // }, [router]);
 
     const kakaoSignupUsecase = new KakaoSignupUsecase(
         new KakaoAuthSupabaseRepository(),
@@ -42,55 +42,55 @@ function LoginPageContent() {
         new CartSupabaseRepository()
     );
 
-    useEffect(() => {
-        // 유저 정보 확인 및 리다이렉트 처리
-        const checkUserAndRedirect = async () => {
-            try {
-                if (loginError === 'user_not_found') {
-                    return;
-                }
-                const { data: { user }, error } = await supabase.auth.getUser();
+    // useEffect(() => {
+    //     // 유저 정보 확인 및 리다이렉트 처리
+    //     const checkUserAndRedirect = async () => {
+    //         try {
+    //             if (loginError === 'user_not_found') {
+    //                 return;
+    //             }
+    //             const { data: { user }, error } = await supabase.auth.getUser();
 
-                console.log("User check result:", { user, error });
-                console.log("login page");
+    //             console.log("User check result:", { user, error });
+    //             console.log("login page");
 
-                console.log('✅ 세션 확인됨, 사용자 정보 조회 시작');
+    //             console.log('✅ 세션 확인됨, 사용자 정보 조회 시작');
 
 
-                // 유저가 로그인되어 있으면 홈으로 리다이렉트
-                if (user && !error) {
-                    console.log('12312312312312312');
-                    const readBizClientUsecase = new ReadBizClientUsecase(new BizClientSupabaseRepository());
-                    const bizClient = await readBizClientUsecase.execute(user!.id);
-                    const readCartUsecase = new CrudCartUsecase(new CartSupabaseRepository());
-                    const cart = await readCartUsecase.findById(user!.id)!;
-                    console.log('📡 API 응답:', bizClient);
-                    console.log('456456456456456456');
-                    console.log('📡 API 응답cart:', cart);
+    //             // 유저가 로그인되어 있으면 홈으로 리다이렉트
+    //             if (user && !error) {
+    //                 console.log('12312312312312312');
+    //                 const readBizClientUsecase = new ReadBizClientUsecase(new BizClientSupabaseRepository());
+    //                 const bizClient = await readBizClientUsecase.execute(user!.id);
+    //                 const readCartUsecase = new CrudCartUsecase(new CartSupabaseRepository());
+    //                 const cart = await readCartUsecase.findById(user!.id)!;
+    //                 console.log('📡 API 응답:', bizClient);
+    //                 console.log('456456456456456456');
+    //                 console.log('📡 API 응답cart:', cart);
 
-                    if (bizClient.success && bizClient.data) {
-                        useBizClientStore.setState({ bizClient: bizClient.data });
-                        useCartStore.setState({ cart: cart! });
-                        router.push(`/`);
-                    } else {
-                        router.push('/login?error=user_not_found');
-                    }
-                    console.log("User is already logged in, redirecting to home");
-                    router.push('/');
-                    return;
-                }
+    //                 if (bizClient.success && bizClient.data) {
+    //                     useBizClientStore.setState({ bizClient: bizClient.data });
+    //                     useCartStore.setState({ cart: cart! });
+    //                     router.push(`/`);
+    //                 } else {
+    //                     router.push('/login?error=user_not_found');
+    //                 }
+    //                 console.log("User is already logged in, redirecting to home");
+    //                 router.push('/');
+    //                 return;
+    //             }
 
-                // 에러가 있거나 유저가 없으면 로그인 페이지 유지
-                console.log("User not logged in, staying on login page");
-            } catch (err) {
-                console.error("Error checking user:", err);
-            } finally {
-                setIsLoading(false);
-            }
-        };
+    //             // 에러가 있거나 유저가 없으면 로그인 페이지 유지
+    //             console.log("User not logged in, staying on login page");
+    //         } catch (err) {
+    //             console.error("Error checking user:", err);
+    //         } finally {
+    //             setIsLoading(false);
+    //         }
+    //     };
 
-        checkUserAndRedirect();
-    }, [router]);
+    //     checkUserAndRedirect();
+    // }, [router]);
 
     // 로딩 중일 때는 로딩 화면 표시
     if (isLoading) {
@@ -142,7 +142,8 @@ function LoginPageContent() {
                         height={50}
                         className="cursor-pointer mx-auto"
                         onClick={() => {
-                            kakaoSignupUsecase.execute();
+                            alert('중단되었습니다.');
+                            // kakaoSignupUsecase.execute();
                         }}
                     />
 
@@ -162,7 +163,8 @@ function LoginPageContent() {
                 <div className="w-full max-w-sm">
                     <button
                         onClick={() => {
-                            router.push('/kakao-login');
+                            alert('중단되었습니다.');
+                            // router.push('/kakao-login');
                         }}
                         className="w-full py-4 px-6 text-blue-600 font-medium"
                     >
