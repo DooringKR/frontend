@@ -11,6 +11,7 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 import useBizClientStore from "@/store/bizClientStore";
 import { supabase } from "@/lib/supabase";
+import useCartStore from "@/store/cartStore";
 
 function MyPageClient() {
   const router = useRouter();
@@ -80,7 +81,8 @@ function MyPageClient() {
             console.log("로그아웃");
             supabase.auth.signOut();
             useBizClientStore.setState({ bizClient: null });
-            router.replace("/login");
+            useCartStore.setState({ cart: null });
+            router.replace("/start");
           }}
         />
         <Button
@@ -90,7 +92,8 @@ function MyPageClient() {
           onClick={() => {
             console.log("로그아웃");
             useBizClientStore.setState({ bizClient: null });
-            router.replace("/login");
+            useCartStore.setState({ cart: null });
+            router.replace("/start");
           }}
         />
       </div>
