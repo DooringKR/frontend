@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { Response } from "../response";
 
 // 환경에 따른 redirect URL 생성 함수
-const getRedirectUrl = (type: 'signup' | 'login'): string => {
+const getRedirectUrl = (type: 'signup' | 'login' | 'check'): string => {
     // 환경 변수에서 기본 URL 가져오기
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ||
         process.env.NEXT_PUBLIC_VERCEL_URL ||
@@ -123,5 +123,40 @@ export class KakaoAuthSupabaseRepository implements KakaoAuthRepository {
             return { success: false, data: undefined as any, message: error.message };
         }
         return { success: true, data: null, message: "로그아웃 성공" };
+    }
+
+    // uid로 bizClient 확인 후 분기처리를 위한 OAuth 시작
+    async checkAndLogin(): Promise<Response> {
+        try {
+            const redirectUrl = getRedirectUrl('check');
+
+            const supabaseResponse = await supabase.auth.signInWithOAuth({
+                provider: 'kakao',
+                options: {
+                    redirectTo: redirectUrl
+                }
+            });
+
+            if (supabaseResponse.error) {
+                return {
+                    success: false,
+                    data: undefined as any,
+                    message: supabaseResponse.error.message,
+                };
+            }
+
+            return {
+                success: true,
+                message: "카카오 로그인 페이지로 리다이렉트됩니다",
+                data: null,
+            };
+
+        } catch (error) {
+            return {
+                success: false,
+                data: undefined as any,
+                message: "예상치 못한 오류가 발생했습니다",
+            };
+        }
     }
 }

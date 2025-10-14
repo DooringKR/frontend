@@ -29,11 +29,10 @@ function AuthCallbackContent() {
                 try {
                     console.log('🔄 OAuth 콜백 처리 시작 (회원가입)');
 
-                    // localStorage에서 직접 확인
-                    const storedData = localStorage.getItem('signupData');
-                    const parsed = JSON.parse(storedData!);
-                    console.log('📝 localStorage 전체 데이터:', parsed);
-                    console.log('📝 실제 businessType:', parsed.state.businessType);
+                    // useSignupStore에서 직접 확인
+                    const businessType = useSignupStore.getState().businessType;
+                    const phoneNumber = useSignupStore.getState().phoneNumber;
+                    console.log('📝 useSignupStore 데이터:', businessType, phoneNumber);
 
                     // OAuth 콜백 후 세션 확인
                     const { data, error } = await supabase.auth.getSession();
@@ -42,7 +41,12 @@ function AuthCallbackContent() {
 
                     if (error) {
                         console.error('Auth callback error:', error);
-                        router.push('/login?error=auth_failed');
+                        router.push('/start');
+                        useSignupStore.setState({ businessType: null, phoneNumber: null });
+                        supabase.auth.signOut();
+                        useBizClientStore.setState({ bizClient: null });
+                        useCartStore.setState({ cart: null });
+                        alert('일시적인 네트워크 오류입니다. 처음부터 다시 시도해주세요.');
                         return;
                     }
 
@@ -53,7 +57,7 @@ function AuthCallbackContent() {
                             new BizClientSupabaseRepository(),
                             new CartSupabaseRepository()
                         );
-                        const result = await kakaoSignupUsecase.handleAuthCallback(parsed.state.businessType as BusinessType, parsed.state.phoneNumber as string);
+                        const result = await kakaoSignupUsecase.handleAuthCallback(businessType as BusinessType, phoneNumber as string);
                         console.log('📡 API 응답 상태:', result);
                         console.log('📡 API 응답:', result);
 
@@ -61,16 +65,30 @@ function AuthCallbackContent() {
                             useBizClientStore.setState({ bizClient: result.data.bizClient });
                             useCartStore.setState({ cart: result.data.cart });
                             router.push('/');
+                            useSignupStore.setState({ businessType: null, phoneNumber: null });
                         } else {
-                            router.push('/login?error=signup_failed');
+                            useBizClientStore.setState({ bizClient: null });
+                            useCartStore.setState({ cart: null });
+                            useSignupStore.setState({ businessType: null, phoneNumber: null });
+                            router.push('/start');
                         }
                     } else {
                         console.log('❌ 세션이 없음, 로그인 페이지로 이동');
-                        router.push('/login');
+                        useSignupStore.setState({ businessType: null, phoneNumber: null });
+                        supabase.auth.signOut();
+                        useBizClientStore.setState({ bizClient: null });
+                        useCartStore.setState({ cart: null });
+                        router.push('/start');
+                        alert('회원가입에 실패했습니다. 다시 시도해주세요.');
                     }
                 } catch (error) {
                     console.error('💥 Unexpected error:', error);
-                    router.push('/login?error=unexpected');
+                    useSignupStore.setState({ businessType: null, phoneNumber: null });
+                    supabase.auth.signOut();
+                    useBizClientStore.setState({ bizClient: null });
+                    useCartStore.setState({ cart: null });
+                    router.push('/start');
+                    alert('회원가입에 실패했습니다. 다시 시도해주세요.');
                 }
             } else if (type === 'login') {
                 try {
@@ -108,10 +126,54 @@ function AuthCallbackContent() {
                     console.error('💥 Unexpected error:', error);
                     router.push('/login?error=unexpected');
                 }
+            } else if (type === 'check') {
+                try {
+                    console.log('🔄 OAuth 콜백 처리 시작 (bizClient 확인)');
+
+                    // OAuth 콜백 후 세션 확인
+                    const { data, error } = await supabase.auth.getSession();
+                    console.log('📝 세션 데이터:', data);
+                    console.log('❌ 세션 에러:', error);
+
+                    if (error) {
+                        console.error('Auth callback error:', error);
+                        router.push('/start?error=auth_failed');
+                        return;
+                    }
+
+                    if (data.session) {
+                        console.log('✅ 세션 확인됨, uid로 bizClient 존재 여부 확인 시작');
+                        const readBizClientUsecase = new ReadBizClientUsecase(new BizClientSupabaseRepository());
+                        const bizClientResponse = await readBizClientUsecase.execute(data.session.user.id);
+                        console.log('📡 bizClient 조회 결과:', bizClientResponse);
+
+                        if (bizClientResponse.success && bizClientResponse.data) {
+                            // bizClient가 존재하면 로그인 처리
+                            console.log('✅ bizClient 존재함 - 로그인 처리');
+                            const readCartUsecase = new CrudCartUsecase(new CartSupabaseRepository());
+                            const cart = await readCartUsecase.findById(data.session.user.id);
+                            console.log('📡 Cart 조회 결과:', cart);
+
+                            useBizClientStore.setState({ bizClient: bizClientResponse.data });
+                            useCartStore.setState({ cart: cart! });
+                            router.push('/');
+                        } else {
+                            // bizClient가 존재하지 않으면 회원가입 페이지로
+                            console.log('❌ bizClient 존재하지 않음 - 회원가입 필요');
+                            router.push('/signup');
+                        }
+                    } else {
+                        console.log('❌ 세션이 없음, 시작 페이지로 이동');
+                        router.push('/start');
+                    }
+                } catch (error) {
+                    console.error('💥 Unexpected error:', error);
+                    router.push('/start?error=unexpected');
+                }
             } else {
                 // type 파라미터가 없는 경우 기본 처리
-                console.log('❌ type 파라미터가 없음, 로그인 페이지로 이동');
-                router.push('/login');
+                console.log('❌ type 파라미터가 없음, 시작 페이지로 이동');
+                router.push('/start');
             }
         };
 

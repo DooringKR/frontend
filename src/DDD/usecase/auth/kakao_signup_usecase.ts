@@ -62,23 +62,12 @@ export class KakaoSignupUsecase {
                 };
             }
 
-            //TODO: 3단계: 중복 체크
-            const duplicateCheckResponse = await this.bizClientRepository.findUserById(userInfo.data.user.id);
-            console.log('중복 체크 결과:', duplicateCheckResponse);
 
-            if (duplicateCheckResponse.success) {
-                //TODO: 중복이면 로그인 처리 해주기
-                const kakaoLoginUsecase = new KakaoLoginUsecase(this.kakaoAuthRepository);
-                const loginResponse = await kakaoLoginUsecase.execute();
-                console.log('로그인 결과:', loginResponse);
-                useSignupStore.getState().resetBusinessType();
-                useSignupStore.getState().resetPhoneNumber();
-                return {
-                    success: true,
-                    data: duplicateCheckResponse.data,
-                    message: "이미 존재하는 사용자입니다",
-                };
-            }
+            const kakaoLoginUsecase = new KakaoLoginUsecase(this.kakaoAuthRepository);
+            const loginResponse = await kakaoLoginUsecase.execute();
+            console.log('로그인 결과:', loginResponse);
+            useSignupStore.getState().resetBusinessType();
+            useSignupStore.getState().resetPhoneNumber();
 
             // 3단계: BizClient 생성
             const bizClient = new BizClient({
