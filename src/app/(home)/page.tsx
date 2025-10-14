@@ -109,7 +109,7 @@ export default function Page() {
         console.log('logoutResponse:', logoutResponse);
         useCartStore.setState({ cart: null });
         useBizClientStore.setState({ bizClient: null });
-        router.replace("/login");
+        router.replace("/start");
       } else {
         try {
           const readCartUsecase = new CrudCartUsecase(new CartSupabaseRepository());
