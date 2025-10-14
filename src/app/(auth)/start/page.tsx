@@ -165,21 +165,6 @@ function LoginPageContent() {
                     전화주문
                 </div>
 
-                {/* 회원가입 버튼 */}
-                {/* <div className="w-full max-w-sm">
-                    <button
-                        onClick={() => {
-                            router.push('/kakao-login');
-                        }}
-                        className="w-full py-4 px-6 text-blue-600 font-medium"
-                    >
-                        새 계정으로 회원가입
-                    </button>
-
-                    <p className="mt-4 text-center text-sm text-gray-500">
-                        아직 계정이 없으신가요?
-                    </p>
-                </div> */}
             </div>
 
             {/* 하단 안내 텍스트 */}
