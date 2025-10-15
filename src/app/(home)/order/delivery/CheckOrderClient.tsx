@@ -16,9 +16,11 @@ import useBizClientStore from "@/store/bizClientStore";
 import { useOrderStore } from "@/store/orderStore";
 import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 import { CreateOrderUsecase } from "@/DDD/usecase/create_order_usecase";
+import { GenerateOrderEstimateUseCase } from "@/DDD/usecase/generate_order_estimate_usecase";
 import { OrderSupabaseRepository } from "@/DDD/data/db/CartNOrder/order_supabase_repository";
 import { OrderItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/orderitem_supabase_repository";
 import { CartItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/cartitem_supabase_repository";
+import { EstimateExportEdgeFunctionAdapter } from "@/DDD/data/service/estimate_export_edge_function_adapter";
 import { CrudCartItemUsecase } from "@/DDD/usecase/crud_cart_item_usecase";
 import { DeliveryOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/DeliveryOrder";
 import DeliveryAddressCard from "./_components/DeliveryAddressCard";
@@ -95,11 +97,17 @@ function CheckOrderClientPage() {
 
     try {
       // 1. 주문 생성 (CreateOrderUsecase 사용)
+      // Reuse a single repo instance for order so export usecase uses same implementation
+      const orderRepo = new OrderSupabaseRepository();
+      const exportAdapter = new EstimateExportEdgeFunctionAdapter();
+      const generateEstimateUC = new GenerateOrderEstimateUseCase(orderRepo, exportAdapter);
       const createOrderUsecase = new CreateOrderUsecase(
-        new OrderSupabaseRepository(),
+        orderRepo,
         new OrderItemSupabaseRepository(),
-        new CartItemSupabaseRepository()
+        new CartItemSupabaseRepository(),
+        generateEstimateUC
       );
+      console.log('[OrderSubmit] Export usecase injected');
 
 
       const response = await createOrderUsecase.execute(order!, cart!.id!);

@@ -21,6 +21,8 @@ import { OrderSupabaseRepository } from "@/DDD/data/db/CartNOrder/order_supabase
 import { OrderItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/orderitem_supabase_repository";
 import useCartStore from "@/store/cartStore";
 import { CrudCartItemUsecase } from "@/DDD/usecase/crud_cart_item_usecase";
+import { GenerateOrderEstimateUseCase } from "@/DDD/usecase/generate_order_estimate_usecase";
+import { EstimateExportEdgeFunctionAdapter } from "@/DDD/data/service/estimate_export_edge_function_adapter";
 
 
 export default function PickUpClientPage() {
@@ -59,11 +61,16 @@ export default function PickUpClientPage() {
 
     try {
       // 1. 주문 생성
+      const orderRepo = new OrderSupabaseRepository();
+      const exportAdapter = new EstimateExportEdgeFunctionAdapter();
+      const generateEstimateUC = new GenerateOrderEstimateUseCase(orderRepo, exportAdapter);
       const createOrderUsecase = new CreateOrderUsecase(
-        new OrderSupabaseRepository(),
+        orderRepo,
         new OrderItemSupabaseRepository(),
-        new CartItemSupabaseRepository()
+        new CartItemSupabaseRepository(),
+        generateEstimateUC
       );
+      console.log('[PickUpOrderSubmit] Export usecase injected');
       const response = await createOrderUsecase.execute(order, cart!.id!);
 
       if (!response.success) {

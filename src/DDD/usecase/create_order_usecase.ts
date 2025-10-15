@@ -5,6 +5,7 @@ import { Order } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Ord
 import { OrderItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/OrderItem";
 import { CartItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/CartItem";
 import { Response } from "@/DDD/data/response";
+import { GenerateOrderEstimateUseCase } from "@/DDD/usecase/generate_order_estimate_usecase";
 import { DeliveryOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/DeliveryOrder";
 import { PickUpOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/PickUpOrder";
 
@@ -12,8 +13,15 @@ export class CreateOrderUsecase {
     constructor(
         public readonly orderRepository: OrderRepository,
         public readonly orderItemRepository: OrderItemRepository,
-        public readonly cartItemRepository: CartItemRepository
-    ) { }
+        public readonly cartItemRepository: CartItemRepository,
+        private readonly generateOrderEstimateUseCase?: GenerateOrderEstimateUseCase
+    ) {
+        if (this.generateOrderEstimateUseCase) {
+            console.log('[CreateOrderUsecase:ctor] estimate usecase wired');
+        } else {
+            console.log('[CreateOrderUsecase:ctor] estimate usecase NOT wired');
+        }
+    }
 
     /**
      * 주문을 생성하고 관련 OrderItem들을 생성합니다.
@@ -39,10 +47,20 @@ export class CreateOrderUsecase {
             console.log(order.id);
             await this.createOrderItems(order.id!, cartItems);
 
+            // 5. 견적서(스프레드시트) 생성 트리거 (비동기 - 실패해도 주문 생성은 유지)
+            if (this.generateOrderEstimateUseCase) {
+                console.log('[CreateOrderUsecase] triggering estimate export for order', order.id);
+                this.generateOrderEstimateUseCase.execute(order.id!)
+                    .then(r => console.log('[EstimateExport] result', r.success, r.message, 'sheetId:', r.data?.sheetId))
+                    .catch(err => console.error('[EstimateExport] invoke error', err));
+            } else {
+                console.warn('[CreateOrderUsecase] generateOrderEstimateUseCase not provided (order id=', order.id, ')');
+            }
+
             return {
                 success: true,
                 data: order,
-                message: "주문이 성공적으로 생성되었습니다."
+                message: "주문이 성공적으로 생성되었습니다." + (this.generateOrderEstimateUseCase ? ' (견적서 생성 요청됨)' : '')
             };
 
         } catch (error) {
