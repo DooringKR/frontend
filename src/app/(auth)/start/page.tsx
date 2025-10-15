@@ -18,6 +18,7 @@ import useCartStore from "@/store/cartStore";
 import useBizClientStore from "@/store/bizClientStore";
 import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
 import { ReadBizClientUsecase } from "@/DDD/usecase/user/read_bizClient_usecase";
+import Button from "@/components/Button/Button";
 
 function LoginPageContent() {
     const router = useRouter();
@@ -86,30 +87,45 @@ function LoginPageContent() {
     }
 
     return (
-        <div className="flex h-screen w-full flex-col bg-gradient-to-b from-blue-50 to-white">
-            {/* 메인 콘텐츠 */}
-            <div className="flex flex-1 flex-col items-center justify-center px-8 gap-8">
+        <div className="flex h-screen w-full flex-col">
+            {/* 메인 콘텐츠: 로고, 버튼, 구분선, 전화주문 */}
+            <div className="flex flex-col items-center justify-center px-8 pt-8 gap-[40px]">
                 {/* 로고 영역 */}
-                <div className="text-center mb-8">
+                <div className="text-center gap-5">
                     <div className="mb-6">
                         <Image
-                            src="/img/logo-192x192.png"
+                            src="/img/start-page-image.png"
                             alt="로고"
-                            width={80}
-                            height={80}
+                            width={window.innerWidth}
+                            height={window.innerHeight}
                             className="mx-auto"
                         />
                     </div>
                     <h1 className="mb-2 text-2xl font-bold text-gray-800">
-                        인테리어 자재를 쉽고 빠르게
+                        급하게 가구가 <br />
+                        필요한 모든 순간
                     </h1>
-                    <p className="text-gray-600">
-                        도어링과 함께 시작하세요
-                    </p>
+                    <div className="flex justify-center items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="89" height="24" viewBox="0 0 89 24" fill="none">
+                            <g clip-path="url(#clip0_2964_13319)">
+                                <path d="M83.8723 1.79692V1.42769H69.9155V4.48H80.3387C80.3096 4.95723 80.2341 5.71024 80.1088 6.74968L80.1085 6.75184L80.1083 6.75403C79.9621 8.10195 79.7264 9.54181 79.4003 11.0739L79.3056 11.52H82.8211L82.8805 11.2232C83.1451 9.89984 83.3763 8.43835 83.5741 6.83917C83.7731 5.23115 83.8723 3.55029 83.8723 1.79692Z" fill="#99A1AF" />
+                                <path d="M78.7523 14.8923H88.5V11.8154H66.1493V14.8923H75.2816V24H78.7523V14.8923Z" fill="#99A1AF" />
+                                <path d="M56.1381 3.4736L56.1981 3.05232H45.0651V6.10461H52.2085C51.2237 9.37309 48.8315 12.6034 44.9773 15.7893L44.6355 16.072L47.1781 18.2015L47.4144 18.0099C52.4155 13.9559 55.3355 9.10896 56.1381 3.4736Z" fill="#99A1AF" />
+                                <path d="M66.1493 8.02461H62.26V0H58.8384V23.5569H62.26V11.2H66.1493V8.02461Z" fill="#99A1AF" />
+                                <path d="M29.5955 10.2646H39.1216V2.11692H26.0262V5.12H35.6507V7.26155H26.1246V15.5569H31.0968V17.7477H21.62V20.8246H43.9707V17.7477H34.5923V15.5569H39.5893V12.5538H29.5955V10.2646Z" fill="#99A1AF" />
+                                <path d="M17.9523 7.95077H21.8415V11.1262H17.9523V23.5569H14.5308V0H17.9523V7.95077ZM3.87232 7.43384H8.59845V2.88H11.9708V16.7877H0.5V2.88H3.87232V7.43384ZM3.87232 10.4615V13.7354H8.59845V10.4615H3.87232Z" fill="#99A1AF" />
+                            </g>
+                            <defs>
+                                <clipPath id="clip0_2964_13319">
+                                    <rect width="88" height="24" fill="white" transform="translate(0.5)" />
+                                </clipPath>
+                            </defs>
+                        </svg>
+                    </div>
                 </div>
 
                 {/* 로그인 버튼 */}
-                <div className="w-full max-w-sm">
+                <div className="flex flex-col gap-4">
                     <Image
                         src="/img/kakao_login_large_wide.png"
                         alt="카카오 로그인"
@@ -149,26 +165,16 @@ function LoginPageContent() {
                             }
                         }}
                     />
-
-                    <p className="mt-4 text-center text-sm text-gray-500">
-                        카카오 계정으로 간편하게 로그인하세요
-                    </p>
+                    <Button
+                        type={"OutlinedMedium"}
+                        text={"전화주문"}
+                        className="w-[300px] h-[40px]"
+                        onClick={() => window.open("tel:010-9440-1874", "_blank")} />
                 </div>
-
-                {/* 구분선 */}
-                <div className="w-full max-w-sm flex items-center">
-                    <div className="flex-1 h-px bg-gray-300"></div>
-                    <span className="px-4 text-sm text-gray-500">또는</span>
-                    <div className="flex-1 h-px bg-gray-300"></div>
-                </div>
-                <div>
-                    전화주문
-                </div>
-
             </div>
 
             {/* 하단 안내 텍스트 */}
-            <div className="px-8 pb-8">
+            <div className="px-8 pb-8 fixed bottom-0 w-full max-w-[460px]">
                 <div className="text-center">
                     <p className="text-xs text-gray-400">
                         로그인 시{" "}
