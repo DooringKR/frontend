@@ -110,6 +110,7 @@ function DoorReportPageContent() {
                                 hinge: item.hinge!,
                                 door_location: item.door_location ?? undefined,
                                 door_request: item.door_request ?? undefined,
+                                addOn_hinge: item.addOn_hinge ?? false,
                             });
 
                             console.log(door);
