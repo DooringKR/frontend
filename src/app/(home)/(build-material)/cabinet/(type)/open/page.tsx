@@ -74,7 +74,7 @@ function OpenCabinetPageContent() {
 		DoorHeight,
 		DoorDepth,
 	});
-	const button1Disabled = isFormValid() || (bodyMaterial === null && !bodyMaterialDirectInput) || !riceRail || !lowerDrawer || !finishType;
+	const button1Disabled = isFormValid() || (bodyMaterial === null && !bodyMaterialDirectInput) || !riceRail || !lowerDrawer || !finishType || (cabinet_construct === null) || (legType === null && !legTypeDirectInput);
 
 	const selectedMaterial = bodyMaterial !== null ? BODY_MATERIAL_LIST.find(option => option.id === bodyMaterial) : null;
 	const bodyMaterialLabel = bodyMaterial !== null

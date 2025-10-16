@@ -13,7 +13,7 @@ import { InteriorMaterialsSupabaseRepository } from "@/DDD/data/db/interior_mate
 import { CABINET_CATEGORY_LIST } from "@/constants/category";
 import useItemStore from "@/store/itemStore";
 import { calculateUnitCabinetPrice } from "@/services/pricing/cabinetPricing";
-import { Cabinet, UpperCabinet, LowerCabinet, OpenCabinet, FlapCabinet, DrawerCabinet } from "dooring-core-domain/dist/models/InteriorMaterials/Cabinet";
+import { Cabinet, UpperCabinet, LowerCabinet, TallCabinet, OpenCabinet, FlapCabinet, DrawerCabinet } from "dooring-core-domain/dist/models/InteriorMaterials/Cabinet";
 import { CabinetLegType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import { Suspense, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -82,6 +82,22 @@ function createCabinetInstance(item: any) {
 			});
 		case "하부장":
 			return new LowerCabinet({
+				cabinet_color: colorId,
+				cabinet_width: item.width,
+				cabinet_height: item.height,
+				cabinet_depth: item.depth,
+				cabinet_location: item.cabinet_location,
+				cabinet_behind_type: item.cabinet_behind_type,
+				cabinet_body_material: cabinet_body_material,
+				cabinet_body_material_direct_input: cabinet_body_material_direct_input,
+				cabinet_construct: item.cabinet_construct,
+				legType: legType as any,
+				legType_direct_input: legType_direct_input,
+				cabinet_request: item.request,
+				handle_type: item.handleType,
+			});
+		case "키큰장":
+			return new TallCabinet({
 				cabinet_color: colorId,
 				cabinet_width: item.width,
 				cabinet_height: item.height,
@@ -328,6 +344,9 @@ function ReportPageContent() {
 									break;
 								case "하부장":
 									detailProductType = DetailProductType.LOWERCABINET;
+									break;
+								case "키큰장":
+									detailProductType = DetailProductType.TALLCABINET;
 									break;
 								case "플랩장":
 									detailProductType = DetailProductType.FLAPCABINET;

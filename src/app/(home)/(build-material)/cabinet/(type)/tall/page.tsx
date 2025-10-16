@@ -2,14 +2,12 @@
 
 import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
 import { CABINET_COLOR_LIST } from "@/constants/colorList";
-import { ABSORBER_TYPE_LIST } from "@/constants/absorbertype";
-import { CABINET_DRAWER_TYPE_LIST } from "@/constants/cabinetdrawertype";
 import { useCabinetValidation } from "./hooks/useCabinetValidation";
 
 
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState, useRef } from "react";
-import { CabinetHandleType, CabinetBehindType, Location, CabinetRailType, CabinetLegType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import { CabinetHandleType, CabinetBehindType, Location, CabinetLegType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
@@ -25,13 +23,8 @@ import GrayVerticalLine from "@/components/GrayVerticalLine/GrayVerticalLine";
 import BoxedInput from "@/components/Input/BoxedInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";
 import formatColor from "@/utils/formatColor";
-import CabinetIcon1 from "@/app/(home)/(build-material)/cabinet/(type)/drawer/_components/cabinetIcon1";
-import CabinetIcon2 from "@/app/(home)/(build-material)/cabinet/(type)/drawer/_components/cabinetIcon2";
-import CabinetIcon3 from "@/app/(home)/(build-material)/cabinet/(type)/drawer/_components/cabinetIcon3";
-import React from "react";
-import ToastIcon from "public/icons/toast";
 
-function DrawerCabinetPageContent() {
+function TallCabinetPageContent() {
     const router = useRouter();
     const item = useItemStore(state => state.item);
     const updateItem = useItemStore(state => state.updateItem);
@@ -67,22 +60,6 @@ function DrawerCabinetPageContent() {
     const [legTypeDirectInput, setLegTypeDirectInput] = useState<string>(item?.legType_direct_input ?? "");
     const [isLegTypeSheetOpen, setIsLegTypeSheetOpen] = useState(false);
 
-    const [drawerType, setDrawerType] = useState<number | null>(
-        typeof item?.drawer_type === "number" ? item.drawer_type : null
-    );
-    const [drawerTypeDirectInput, setDrawerTypeDirectInput] = useState(item?.drawer_type_direct_input ?? "");
-    const [isDrawerTypeSheetOpen, setIsDrawerTypeSheetOpen] = useState(false);
-    const [railType, setRailType] = useState<string>(item?.rail_type ?? "");
-    const [railTypeDirectInput, setRailTypeDirectInput] = useState(item?.rail_type_direct_input ?? "");
-    const [isRailTypeSheetOpen, setIsRailTypeSheetOpen] = useState(false);
-
-
-    // 쇼바 종류 관련 상태
-    const [absorber_type, setAbsorber_type] = useState<number | null>(null);
-    const [absorber_type_direct_input, setAbsorber_type_direct_input] = useState("");
-    const [isAbsorberSheetOpen, setIsAbsorberSheetOpen] = useState(false);
-    const selectedAbsorber = absorber_type !== null ? ABSORBER_TYPE_LIST.find(opt => opt.id === absorber_type) : null;
-
     // 값 변경 시 itemStore에 동기화
     useEffect(() => { updateItem({ width: DoorWidth }); }, [DoorWidth]);
     useEffect(() => { updateItem({ height: DoorHeight }); }, [DoorHeight]);
@@ -97,13 +74,6 @@ function DrawerCabinetPageContent() {
     useEffect(() => { updateItem({ cabinet_construct }); }, [cabinet_construct]);
     useEffect(() => { updateItem({ legType }); }, [legType]);
     useEffect(() => { updateItem({ legType_direct_input: legTypeDirectInput }); }, [legTypeDirectInput]);
-    useEffect(() => { updateItem({ absorber_type }); }, [absorber_type]);
-    useEffect(() => { updateItem({ absorber_type_direct_input }); }, [absorber_type_direct_input]);
-    // robust: 서랍 종류, 레일 종류 동기화
-    useEffect(() => { updateItem({ drawer_type: drawerType }); }, [drawerType]);
-    useEffect(() => { updateItem({ drawer_type_direct_input: drawerTypeDirectInput }); }, [drawerTypeDirectInput]);
-    useEffect(() => { updateItem({ rail_type: railType }); }, [railType]);
-    useEffect(() => { updateItem({ rail_type_direct_input: railTypeDirectInput }); }, [railTypeDirectInput]);
 
     // validation
     const { widthError, heightError, depthError, isFormValid } = useCabinetValidation({
@@ -111,16 +81,8 @@ function DrawerCabinetPageContent() {
         DoorHeight,
         DoorDepth,
     });
-    // robust: 버튼 활성화 조건 (직접입력 포함)
-    const button1Disabled =
-        isFormValid() ||
-        (bodyMaterial === null && !bodyMaterialDirectInput) ||
-        !handleType ||
-        !behindType ||
-        (drawerType === null && !drawerTypeDirectInput) ||
-        (railType === "" && !railTypeDirectInput) || 
-        (cabinet_construct === null) || 
-        (legType === null && !legTypeDirectInput);
+    // 버튼 활성화 조건 (order/cabinet upper와 동일)
+    const button1Disabled = isFormValid() || (bodyMaterial === null && !bodyMaterialDirectInput) || !handleType || !behindType || (cabinet_construct === null) || (legType === null && !legTypeDirectInput);
 
     // BODY_MATERIAL_LIST에서 선택된 소재명 또는 직접입력값 표시
     const selectedMaterial = bodyMaterial !== null ? BODY_MATERIAL_LIST.find(option => option.id === bodyMaterial) : null;
@@ -132,11 +94,6 @@ function DrawerCabinetPageContent() {
     const cabinetLocationLabel = cabinetLocation && locationEnumValues.includes(cabinetLocation)
         ? formatLocation(cabinetLocation)
         : "";
-    
-    // 서랍 종류 라벨 계산
-    const drawerTypeLabel = drawerType !== null 
-        ? CABINET_DRAWER_TYPE_LIST.find(option => option.id === drawerType)?.name || ""
-        : drawerTypeDirectInput || "";
     // 다리발 표시 라벨 (enum 값 또는 직접입력)
     const legEnumValues = (Object.values(CabinetLegType) as string[]).filter(v => v !== CabinetLegType.DIRECT_INPUT);
     const legTypeStr = (legType as string) || "";
@@ -150,7 +107,7 @@ function DrawerCabinetPageContent() {
     return (
         <div className="flex flex-col">
             <TopNavigator />
-            <Header title="서랍장 정보를 입력해주세요" />
+            <Header title="키큰장 정보를 입력해주세요" />
             <div className="h-5" />
             <div className="flex flex-col gap-5 px-5">
                 {/* 도어 색상 */}
@@ -221,40 +178,6 @@ function DrawerCabinetPageContent() {
                     error={!!depthError}
                     helperText={depthError}
                 />
-                <BoxedSelect
-                    label="서랍 종류"
-                    options={[]}
-                    value={drawerTypeLabel}
-                    onClick={() => setIsDrawerTypeSheetOpen(true)}
-                    onChange={() => { }}
-                />
-                <DrawerTypeInputSheet
-                    isOpen={isDrawerTypeSheetOpen}
-                    onClose={() => setIsDrawerTypeSheetOpen(false)}
-                    value={drawerTypeLabel}
-                    onChange={(value) => {
-                        console.log("🔄 DrawerType changed:", value);
-                        
-                        // CABINET_DRAWER_TYPE_LIST에서 매칭되는 옵션 찾기
-                        const matchedOption = CABINET_DRAWER_TYPE_LIST.find(option => option.name === value);
-                        
-                        if (matchedOption && matchedOption.id !== 4) {
-                            // 미리 정의된 옵션인 경우 (직접입력 제외)
-                            setDrawerType(matchedOption.id);
-                            setDrawerTypeDirectInput("");
-                            console.log("✅ Set as predefined option:", matchedOption.id, value);
-                        } else if (value.trim() !== "" && (!matchedOption || matchedOption.id === 4)) {
-                            // 직접입력인 경우
-                            setDrawerType(4); // 직접입력은 id가 4
-                            setDrawerTypeDirectInput(value);
-                            console.log("✅ Set as direct input:", value);
-                        } else {
-                            // 빈 값인 경우
-                            setDrawerType(null);
-                            setDrawerTypeDirectInput("");
-                        }
-                    }}
-                />
                 {/* 손잡이 robust (enum) */}
                 <div className="flex flex-col gap-2">
                     <div className="text-[14px]/[20px] font-400 text-gray-600">손잡이 종류</div>
@@ -271,72 +194,6 @@ function DrawerCabinetPageContent() {
                             ))}
                     </div>
                 </div>
-
-                {/* 레일 종류 robust (enum/direct input, CabinetRailType) */}
-                <BoxedSelect
-                    label="레일 종류"
-                    options={[
-                        ...Object.values(CabinetRailType)
-                            .filter(opt => opt !== CabinetRailType.DIRECT_INPUT)
-                            .map(opt => ({ value: String(opt), label: String(opt) })),
-                        { value: "직접입력", label: "직접입력" }
-                    ]}
-                    value={railType !== "" ? railType : railTypeDirectInput}
-                    onClick={() => setIsRailTypeSheetOpen(true)}
-                    onChange={() => { }}
-                />
-                <BottomSheet
-                    isOpen={isRailTypeSheetOpen}
-                    title="레일 종류를 선택해주세요"
-                    contentPadding="px-1"
-                    onClose={() => setIsRailTypeSheetOpen(false)}
-                    children={
-                        <div>
-                            {Object.values(CabinetRailType)
-                                .filter(opt => opt !== CabinetRailType.DIRECT_INPUT)
-                                .map(opt => (
-                                    <SelectToggleButton
-                                        key={opt}
-                                        label={String(opt)}
-                                        checked={railType === String(opt)}
-                                        onClick={() => {
-                                            setRailType(String(opt));
-                                            setRailTypeDirectInput("");
-                                            setIsRailTypeSheetOpen(false);
-                                        }}
-                                    />
-                                ))}
-                            <SelectToggleButton
-                                label="직접입력"
-                                checked={railType === ""}
-                                onClick={() => {
-                                    setRailType("");
-                                    setTimeout(() => {
-                                        const el = document.getElementById("rail-type-direct-input");
-                                        if (el) (el as HTMLInputElement).focus();
-                                    }, 0);
-                                }}
-                            />
-                            {railType === "" && (
-                                <div className="flex items-center gap-2 px-4 pb-3">
-                                    <GrayVerticalLine />
-                                    <BoxedInput
-                                        type="text"
-                                        placeholder="레일 종류를 입력해주세요"
-                                        className="w-full"
-                                        value={railTypeDirectInput}
-                                        onChange={e => setRailTypeDirectInput(e.target.value)}
-                                    />
-                                </div>
-                            )}
-                        </div>
-                    }
-                    buttonArea={
-                        <div className="p-5">
-                            <Button type="Brand" text="다음" onClick={() => setIsRailTypeSheetOpen(false)} />
-                        </div>
-                    }
-                />
                 {/* 뒷판 robust (enum) */}
                 <div className="flex flex-col gap-2">
                     <div className="text-[14px]/[20px] font-400 text-gray-600">마감 방식</div>
@@ -697,116 +554,12 @@ function LegTypeInputSheet({ isOpen, onClose, value, directInput, onChange }: { 
 }
 // 불필요한 CabinetLocationSheet, UpperCabinetPageContent 중복 선언 제거
 
-function DrawerTypeInputSheet({
-    isOpen,
-    onClose,
-    value,
-    onChange,
-}: {
-    isOpen: boolean;
-    onClose: () => void;
-    value: string;
-    onChange: (v: string) => void;
-}) {
-    const inputRef = useRef<HTMLInputElement>(null);
-    const options = [
-        { main: "2단 서랍", sub: "", icon: <CabinetIcon1 /> },
-        { main: "3단 서랍", sub: "(1 : 1 : 2)", icon: <CabinetIcon2 /> },
-        { main: "3단 서랍", sub: "(겉2 ∙ 속1)", icon: <CabinetIcon3 /> },
-    ];
-    // 옵션/직접입력 모드 상태
-    const [mode, setMode] = useState<"option" | "input">("option");
-
-    useEffect(() => {
-        if (isOpen) {
-            if (options.some(opt => (opt.sub ? `${opt.main} ${opt.sub}` : opt.main) === value)) {
-                setMode("option");
-            } else if (value) {
-                setMode("input");
-            } else {
-                setMode("option");
-            }
-        }
-    }, [isOpen]);
-
-    return (
-        <BottomSheet
-            isOpen={isOpen}
-            title="서랍 종류를 선택해주세요"
-            headerButtonText={mode === "option" ? "직접 입력" : "이전"}
-            onHeaderButtonClick={() => {
-                if (mode === "option") {
-                    setMode("input");
-                    onChange("");
-                    setTimeout(() => inputRef.current?.focus(), 0);
-                } else {
-                    setMode("option");
-                }
-            }}
-            children={
-                <div>
-                    {mode === "option" ? (
-                        <div className="flex justify-between pt-5">
-                            {options.map(option => {
-                                const label = option.sub ? `${option.main} ${option.sub}` : option.main;
-                                const selected = value === label;
-                                return (
-                                    <div
-                                        key={label}
-                                        className="flex w-full cursor-pointer flex-col items-center gap-2"
-                                        onClick={() => onChange(label)}
-                                    >
-                                        <span className="flex w-full items-center justify-center">
-                                            {React.cloneElement(option.icon, { color: selected ? "#44BE83" : "#D1D5DC" })}
-                                        </span>
-                                        <div className="flex h-[42px] flex-col items-center justify-center">
-                                            <span className={`text-[16px]/[22px] font-400 text-gray-600`}>
-                                                {option.main}
-                                            </span>
-                                            {option.sub && (
-                                                <span className={`text-[14px]/[20px] font-500 text-gray-400`}>
-                                                    {option.sub}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <ToastIcon active={selected} />
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    ) : (
-                        <BoxedInput
-                            label="서랍 종류"
-                            ref={inputRef}
-                            type="text"
-                            placeholder="구체적으로 꼼꼼히 입력해주세요"
-                            className="w-full pt-5"
-                            value={value}
-                            onChange={e => onChange(e.target.value)}
-                        />
-                    )}
-                    <div className="py-5">
-                        <Button
-                            type="Brand"
-                            text="다음"
-                            onClick={() => {
-                                onClose();
-                            }}
-                        />
-                    </div>
-                </div>
-            }
-            onClose={onClose}
-        />
-    );
-}
-
-function DrawerCabinetPage() {
+function TallCabinetPage() {
     return (
         <Suspense fallback={<div>로딩 중...</div>}>
-            <DrawerCabinetPageContent />
+            <TallCabinetPageContent />
         </Suspense>
     );
 }
 
-export default DrawerCabinetPage;
+export default TallCabinetPage;

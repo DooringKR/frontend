@@ -128,6 +128,11 @@ export default function CartClient() {
                   new InteriorMaterialsSupabaseRepository<Cabinet>("LowerCabinet")
                 ).findById(cartItem.item_detail);
                 break;
+              case DetailProductType.TALLCABINET:
+                detail = await new CrudInteriorMaterialsUsecase(
+                  new InteriorMaterialsSupabaseRepository<Cabinet>("TallCabinet")
+                ).findById(cartItem.item_detail);
+                break;
               case DetailProductType.FLAPCABINET:
                 detail = await new CrudInteriorMaterialsUsecase(
                   new InteriorMaterialsSupabaseRepository<Cabinet>("FlapCabinet")
@@ -294,7 +299,7 @@ export default function CartClient() {
                 );
               }
               // CABINET
-              if ((category === DetailProductType.UPPERCABINET || category === DetailProductType.LOWERCABINET || category === DetailProductType.FLAPCABINET || category === DetailProductType.DRAWERCABINET || category === DetailProductType.OPENCABINET) && detail) {
+              if ((category === DetailProductType.UPPERCABINET || category === DetailProductType.LOWERCABINET || category === DetailProductType.TALLCABINET || category === DetailProductType.FLAPCABINET || category === DetailProductType.DRAWERCABINET || category === DetailProductType.OPENCABINET) && detail) {
                 const colorName = CABINET_COLOR_LIST.find(c => c.id === detail.cabinet_color)?.name || detail.cabinet_color;
                 const behindTypeEnum = detail.behind_type ?? detail.cabinet_behind_type ?? "";
                 const behindTypeLabel =
