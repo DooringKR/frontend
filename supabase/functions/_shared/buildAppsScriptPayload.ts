@@ -21,18 +21,36 @@ export function buildAppsScriptPayload(order: any, items: any[]): AppsScriptOrde
     if (raw === '마감재' || p === 'FINISH') return 'FINISH';
     if (raw === '부속' || p === 'ACCESSORY') return 'ACCESSORY';
     if (raw === '경첩' || p === 'HINGE' || raw === '레일' || p === 'RAIL' || raw === '피스' || p === 'PIECE' || raw === '하드웨어' || p === 'HARDWARE') return 'HARDWARE';
-    if (raw === '상부장' || raw === '하부장' || raw === '플랩장' || raw === '서랍장' || raw === '오픈장' || p.includes('CABINET')) return 'CABINET';
+    // Treat all cabinet variants (including Korean) as CABINET
+    if (
+      raw === '상부장' || raw === '하부장' || raw === '키큰장' || raw === '플랩장' || raw === '서랍장' || raw === '오픈장' ||
+      p.includes('CABINET')
+    ) return 'CABINET';
     return p;
   };
 
-  const order_items: AppsScriptOrderItem[] = (items || []).map((it) => ({
-    product_type: toBroadType(it.detail_product_type ?? it.product_type),
-    item_count: Number(it.item_count ?? 0),
-    unit_price: Number(it.unit_price ?? 0),
-    // If item_options column exists, pass-through; otherwise remain null (Apps Script handles defaults)
-    item_options: (it as any).item_options ?? null,
-    image_url: it.image_url ?? null,
-  }));
+  // Fallback: if item_options clearly indicate cabinet data, force product_type to CABINET
+  const looksLikeCabinet = (opts: any): boolean => {
+    if (!opts || typeof opts !== 'object') return false;
+    const keys = Object.keys(opts);
+    const hasCabinetKeys = ['cabinet_type', 'cabinet_width', 'cabinet_height', 'cabinet_depth', 'body_material_id', 'body_material_name']
+      .some((k) => k in opts);
+    return hasCabinetKeys;
+  };
+
+  const order_items: AppsScriptOrderItem[] = (items || []).map((it) => {
+    const baseType = toBroadType(it.detail_product_type ?? it.product_type);
+    const opts = (it as any).item_options ?? null;
+    const product_type = looksLikeCabinet(opts) ? 'CABINET' : baseType;
+    return {
+      product_type,
+      item_count: Number(it.item_count ?? 0),
+      unit_price: Number(it.unit_price ?? 0),
+      // If item_options column exists, pass-through; otherwise remain null (Apps Script handles defaults)
+      item_options: opts,
+      image_url: it.image_url ?? null,
+    };
+  });
 
   // Populate delivery info for DeliveryOrder table to help Apps Script decide 배송/픽업 and address
   const order_options = (() => {
