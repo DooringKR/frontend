@@ -53,14 +53,14 @@ export default function WithdrawConfirmModal({
                 <div className="flex gap-3">
                     <Button
                         text="취소"
-                        type="GrayMedium"
+                        type="OutlinedLarge"
                         className="flex-1"
                         onClick={onClose}
                         disabled={isLoading}
                     />
                     <Button
                         text={isLoading ? "처리 중..." : "탈퇴하기"}
-                        type="Primary"
+                        type="Brand"
                         className="flex-1 !bg-red-500 hover:!bg-red-600"
                         onClick={onConfirm}
                         disabled={!isConfirmEnabled || isLoading}

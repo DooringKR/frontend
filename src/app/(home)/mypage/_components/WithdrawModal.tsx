@@ -35,13 +35,13 @@ export default function WithdrawModal({
                 <div className="flex gap-3">
                     <Button
                         text="취소"
-                        type="GrayMedium"
+                        type="OutlinedLarge"
                         className="flex-1"
                         onClick={onClose}
                     />
                     <Button
                         text="탈퇴하기"
-                        type="Primary"
+                        type="Brand"
                         className="flex-1 !bg-red-500 hover:!bg-red-600"
                         onClick={onConfirm}
                     />
