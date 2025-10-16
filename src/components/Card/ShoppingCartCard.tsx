@@ -5,7 +5,7 @@ import React from "react";
 import { ABSORBER_TYPE_LIST } from "@/constants/absorbertype";
 
 
-import { DoorType, FinishEdgeCount, HingeDirection } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import { DoorType, FinishEdgeCount, HingeDirection, CabinetLegType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 import Button from "../Button/Button";
 import DoorPreviewIcon from "../DoorPreviewIcon/DoorPreviewIcon";
@@ -50,8 +50,9 @@ interface ShoppingCartCardProps {
   modelName?: string;
   size?: string;
   addOn_hinge?: boolean;
-  addOn_construction?: boolean;
-  legType?: string;
+  cabinet_construct?: boolean;
+  legType?: CabinetLegType;
+  legType_direct_input?: string;
   thickness?: string;
   angle?: string;
   railDamping?: boolean;
@@ -98,8 +99,9 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   modelName,
   size,
   addOn_hinge,
-  addOn_construction,
+  cabinet_construct,
   legType,
+  legType_direct_input,
   thickness,
   angle,
   railLength,
@@ -157,6 +159,14 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
     else if (railType === "UNDER_MOUNT") railTypeLabel = "언더마운트";
     else if (railType === "SIDE_MOUNT") railTypeLabel = "사이드마운트";
     else railTypeLabel = railType;
+  }
+
+  // legType label: prefer direct input with prefix, else enum label
+  let legTypeLabel: string | undefined = undefined;
+  if (typeof legType_direct_input === "string" && legType_direct_input.trim() !== "") {
+    legTypeLabel = `(직접 입력) ${legType_direct_input}`;
+  } else if (legType) {
+    legTypeLabel = String(legType);
   }
   return (
     <div className="flex w-full flex-col gap-3 rounded-[16px] border-[1px] border-gray-200 bg-white p-[20px]">
@@ -234,10 +244,12 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
             {addOn_hinge !== undefined && addOn_hinge !== null && (
               <div>경첩 추가 선택 : {addOn_hinge ? "경첩도 받기" : "필요 없어요"}</div>
             )}
-            {typeof addOn_construction !== "undefined" && addOn_construction !== null && (
-              <div>시공 필요 여부 : {addOn_construction ? "시공도 필요해요" : "필요 없어요"}</div>
+            {typeof cabinet_construct !== "undefined" && cabinet_construct !== null && (
+              <div>시공 필요 여부 : {cabinet_construct ? "시공도 필요해요" : "필요 없어요"}</div>
             )}
-            {legType && <div>다리발 : {legType}</div>}
+            {typeof legTypeLabel !== "undefined" && legTypeLabel !== null && legTypeLabel !== "" && (
+              <div>다리발 : {legTypeLabel}</div>
+            )}
           </div>
         </div>
         {type === "door" && (title === "플랩문" || title === "일반문") && hingeCount && (

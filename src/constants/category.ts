@@ -37,11 +37,12 @@ export const HARDWARE_CATEGORY_LIST: Category[] = [
 ]
 
 export const CABINET_CATEGORY_LIST: Category[] = [
-  { type: DetailProductType.UPPERCABINET, image: "/img/cabinet-category/Upper.png", slug: "upper" },
   { type: DetailProductType.LOWERCABINET, image: "/img/cabinet-category/Lower.png", slug: "lower" },
-  { type: DetailProductType.FLAPCABINET, image: "/img/cabinet-category/Flap.png", slug: "flap" },
+  { type: DetailProductType.UPPERCABINET, image: "/img/cabinet-category/Upper.png", slug: "upper" },
   { type: DetailProductType.DRAWERCABINET, image: "/img/cabinet-category/Drawers.png", slug: "drawer" },
   { type: DetailProductType.OPENCABINET, image: "/img/cabinet-category/Open.png", slug: "open" },
+  { type: DetailProductType.TALLCABINET, image: "/img/cabinet-category/Tall.png", slug: "tall" },
+  { type: DetailProductType.FLAPCABINET, image: "/img/cabinet-category/Flap.png", slug: "flap" },
 ]
 
 export const FINISH_CATEGORY_LIST: Category[] = [

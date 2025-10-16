@@ -22,7 +22,7 @@ export function calculateUnitCabinetPrice(
 
   let cabinet_depth_price = 0;
   let cabinet_width_price = 0;
-  if (category === DetailProductType.LOWERCABINET) {
+  if (category === DetailProductType.LOWERCABINET || category === DetailProductType.TALLCABINET) {
     if (1 <= depth && depth <= 400) {
       cabinet_depth_price = 200;
     } else if (400 < depth && depth <= 600) {

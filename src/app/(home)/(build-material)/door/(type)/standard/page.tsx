@@ -42,7 +42,7 @@ function StandardDoorPageContent() {
 
     const [door_request, setDoorRequest] = useState(item?.request ?? "");
     const [door_location, setDoorLocation] = useState(item?.door_location ?? "");
-    // const [addOn_hinge, setAddOn_hinge] = useState(item?.addOn_hinge ?? false);
+    const [addOn_hinge, setAddOn_hinge] = useState(item?.addOn_hinge ?? false);
     const [isDoorLocationSheetOpen, setIsDoorLocationSheetOpen] = useState(false);
 
     // 유효성 검사 훅 사용
@@ -103,10 +103,10 @@ function StandardDoorPageContent() {
         updateItem({ door_location: newLocation });
     };
 
-    // const handleAddOnHingeChange = (newAddOnHinge: boolean) => {
-    //     setAddOn_hinge(newAddOnHinge);
-    //     updateItem({ addOn_hinge: newAddOnHinge });
-    // };
+    const handleAddOnHingeChange = (newAddOnHinge: boolean) => {
+        setAddOn_hinge(newAddOnHinge);
+        updateItem({ addOn_hinge: newAddOnHinge });
+    };
 
     return (
         <div className="flex min-h-screen flex-col">
@@ -202,7 +202,7 @@ function StandardDoorPageContent() {
                     value={door_location}
                     onChange={handleDoorLocationChange}
                 />
-                {/* <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2">
                     <div className="w-full text-[14px] font-400 text-gray-600">경첩 추가 선택</div>
                     <div className="flex flex-row gap-2">
                         <Button
@@ -216,7 +216,7 @@ function StandardDoorPageContent() {
                             onClick={() => handleAddOnHingeChange(false)}
                         />
                     </div>
-                </div> */}
+                </div>
                 <BoxedInput
                     label="제작 시 요청사항"
                     placeholder="제작 시 요청사항 | 예) 시공도 필요해요, …"

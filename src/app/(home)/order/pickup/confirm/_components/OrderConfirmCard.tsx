@@ -35,7 +35,7 @@ interface OrderConfirmCardProps {
   size?: string;
   price: number | string;
   addOn_hinge?: boolean;
-  addOn_construction?: boolean;
+  cabinet_construct?: boolean;
   legType?: string;
 }
 
@@ -67,7 +67,7 @@ const OrderConfirmCard: React.FC<OrderConfirmCardProps> = ({
   size,
   price,
   addOn_hinge,
-  addOn_construction,
+  cabinet_construct,
   legType,
 }) => {
   return (
@@ -120,8 +120,8 @@ const OrderConfirmCard: React.FC<OrderConfirmCardProps> = ({
         {addOn_hinge !== undefined && addOn_hinge !== null && (
           <p>경첩 추가 선택 : {addOn_hinge ? "경첩도 받기" : "필요 없어요"}</p>
         )}
-        {addOn_construction !== undefined && addOn_construction !== null && (
-          <p>시공 필요 여부 : {addOn_construction ? "시공도 필요해요" : "필요 없어요"}</p>
+        {cabinet_construct !== undefined && cabinet_construct !== null && (
+          <p>시공 필요 여부 : {cabinet_construct ? "시공도 필요해요" : "필요 없어요"}</p>
         )}
         {legType && <p>다리발: {legType}</p>}
         <p className="mt-1 text-[15px] font-500 text-gray-800">

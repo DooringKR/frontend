@@ -247,6 +247,7 @@ export default function OrderItemDetail({ item }: OrderItemDetailProps) {
 
       case DetailProductType.UPPERCABINET:
       case DetailProductType.LOWERCABINET:
+      case DetailProductType.TALLCABINET:
       case DetailProductType.DRAWERCABINET:
       case DetailProductType.OPENCABINET:
       case DetailProductType.FLAPCABINET:

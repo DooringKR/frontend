@@ -130,6 +130,7 @@ Deno.serve(async (req) => {
       if (raw === '피스' || u === 'PIECE') return 'PIECE';
       if (raw === '상부장' || u === 'UPPERCABINET' || u === 'UPPER_CABINET') return 'UPPERCABINET';
       if (raw === '하부장' || u === 'LOWERCABINET' || u === 'LOWER_CABINET') return 'LOWERCABINET';
+      if (raw === '키큰장' || u === 'TALLCABINET' || u === 'TALL_CABINET') return 'TALLCABINET';
       if (raw === '플랩장' || u === 'FLAPCABINET' || u === 'FLAP_CABINET') return 'FLAPCABINET';
       if (raw === '서랍장' || u === 'DRAWERCABINET' || u === 'DRAWER_CABINET') return 'DRAWERCABINET';
       if (raw === '오픈장' || u === 'OPENCABINET' || u === 'OPEN_CABINET') return 'OPENCABINET';
@@ -149,6 +150,7 @@ Deno.serve(async (req) => {
         case 'PIECE': return 'Piece';
         case 'UPPERCABINET': return 'UpperCabinet';
         case 'LOWERCABINET': return 'LowerCabinet';
+        case 'TALLCABINET': return 'TallCabinet';
         case 'FLAPCABINET': return 'FlapCabinet';
         case 'DRAWERCABINET': return 'DrawerCabinet';
         case 'OPENCABINET': return 'OpenCabinet';
@@ -217,6 +219,7 @@ Deno.serve(async (req) => {
         const cabinet_type =
           t === 'UPPERCABINET' ? 'UPPER' :
           t === 'LOWERCABINET' ? 'LOWER' :
+          t === 'TALLCABINET' ? 'TALL' :
           t === 'FLAPCABINET' ? 'FLAP' :
           t === 'DRAWERCABINET' ? 'DRAWER' :
           t === 'OPENCABINET' ? 'OPEN' : undefined;

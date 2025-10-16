@@ -24,7 +24,7 @@ import BoxedInput from "@/components/Input/BoxedInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";
 import formatColor from "@/utils/formatColor";
 
-function UpperCabinetPageContent() {
+function TallCabinetPageContent() {
     const router = useRouter();
     const item = useItemStore(state => state.item);
     const updateItem = useItemStore(state => state.updateItem);
@@ -52,7 +52,7 @@ function UpperCabinetPageContent() {
     // 추가 필드: 용도/장소, 시공 필요 여부, 다리발
     const [cabinetLocation, setCabinetLocation] = useState(item?.cabinet_location ?? null);
     const [isCabinetLocationSheetOpen, setIsCabinetLocationSheetOpen] = useState(false);
-    const [cabinetConstruct, setCabinetConstruct] = useState(item?.cabinet_construct ?? false);
+    const [cabinet_construct, setCabinetConstruct] = useState(item?.cabinet_construct ?? false);
     // 다리발: enum + 직접입력
     const [legType, setLegType] = useState<CabinetLegType | "">(
         item && Object.values(CabinetLegType).includes(item.legType) ? item.legType : ""
@@ -71,7 +71,7 @@ function UpperCabinetPageContent() {
     useEffect(() => { updateItem({ behindType }); }, [behindType]);
     useEffect(() => { updateItem({ request }); }, [request]);
     useEffect(() => { updateItem({ cabinet_location: cabinetLocation }); }, [cabinetLocation]);
-    useEffect(() => { updateItem({ cabinet_construct: cabinetConstruct }); }, [cabinetConstruct]);
+    useEffect(() => { updateItem({ cabinet_construct }); }, [cabinet_construct]);
     useEffect(() => { updateItem({ legType }); }, [legType]);
     useEffect(() => { updateItem({ legType_direct_input: legTypeDirectInput }); }, [legTypeDirectInput]);
 
@@ -82,7 +82,7 @@ function UpperCabinetPageContent() {
         DoorDepth,
     });
     // 버튼 활성화 조건 (order/cabinet upper와 동일)
-    const button1Disabled = isFormValid() || (bodyMaterial === null && !bodyMaterialDirectInput) || !handleType || !behindType || (cabinetConstruct === null) || (legType === null && !legTypeDirectInput);
+    const button1Disabled = isFormValid() || (bodyMaterial === null && !bodyMaterialDirectInput) || !handleType || !behindType || (cabinet_construct === null) || (legType === null && !legTypeDirectInput);
 
     // BODY_MATERIAL_LIST에서 선택된 소재명 또는 직접입력값 표시
     const selectedMaterial = bodyMaterial !== null ? BODY_MATERIAL_LIST.find(option => option.id === bodyMaterial) : null;
@@ -107,7 +107,7 @@ function UpperCabinetPageContent() {
     return (
         <div className="flex flex-col">
             <TopNavigator />
-            <Header title="상부장 정보를 입력해주세요" />
+            <Header title="키큰장 정보를 입력해주세요" />
             <div className="h-5" />
             <div className="flex flex-col gap-5 px-5">
                 {/* 도어 색상 */}
@@ -232,12 +232,12 @@ function UpperCabinetPageContent() {
                     <div className="w-full text-[14px] font-400 text-gray-600">시공 필요 여부</div>
                     <div className="flex flex-row gap-2">
                         <Button
-                            type={cabinetConstruct ? "BrandInverse" : "GrayLarge"}
+                            type={cabinet_construct ? "BrandInverse" : "GrayLarge"}
                             text={"시공도 필요해요"}
                             onClick={() => setCabinetConstruct(true)}
                         />
                         <Button
-                            type={!cabinetConstruct ? "BrandInverse" : "GrayLarge"}
+                            type={!cabinet_construct ? "BrandInverse" : "GrayLarge"}
                             text={"필요 없어요"}
                             onClick={() => setCabinetConstruct(false)}
                         />
@@ -554,12 +554,12 @@ function LegTypeInputSheet({ isOpen, onClose, value, directInput, onChange }: { 
 }
 // 불필요한 CabinetLocationSheet, UpperCabinetPageContent 중복 선언 제거
 
-function UpperCabinetPage() {
+function TallCabinetPage() {
     return (
         <Suspense fallback={<div>로딩 중...</div>}>
-            <UpperCabinetPageContent />
+            <TallCabinetPageContent />
         </Suspense>
     );
 }
 
-export default UpperCabinetPage;
+export default TallCabinetPage;

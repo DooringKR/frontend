@@ -99,7 +99,14 @@ export const useOrderDetail = (orderId: string | null) => {
                                         if (cabinetDetail) materialDetails = cabinetDetail;
                                     }
                                     break;
-
+                                case DetailProductType.TALLCABINET:
+                                    if (materialId) {
+                                        const cabinetDetail = await new CrudInteriorMaterialsUsecase(
+                                            new InteriorMaterialsSupabaseRepository<Cabinet>("TallCabinet")
+                                        ).findById(materialId);
+                                        if (cabinetDetail) materialDetails = cabinetDetail;
+                                    }
+                                    break;
                                 case DetailProductType.FLAPCABINET:
                                     if (materialId) {
                                         const cabinetDetail = await new CrudInteriorMaterialsUsecase(
