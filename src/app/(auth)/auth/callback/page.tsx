@@ -90,42 +90,42 @@ function AuthCallbackContent() {
                     router.push('/start');
                     alert('회원가입에 실패했습니다. 다시 시도해주세요.');
                 }
-            } else if (type === 'login') {
-                try {
-                    console.log('🔄 OAuth 콜백 처리 시작 (로그인)');
+                // } else if (type === 'login') {
+                //     try {
+                //         console.log('🔄 OAuth 콜백 처리 시작 (로그인)');
 
-                    // OAuth 콜백 후 세션 확인
-                    const { data, error } = await supabase.auth.getSession();
-                    console.log('📝 세션 데이터:', data);
-                    console.log('❌ 세션 에러:', error);
+                //         // OAuth 콜백 후 세션 확인
+                //         const { data, error } = await supabase.auth.getSession();
+                //         console.log('📝 세션 데이터:', data);
+                //         console.log('❌ 세션 에러:', error);
 
-                    if (error) {
-                        console.error('Auth callback error:', error);
-                        router.push('/login?error=auth_failed');
-                        return;
-                    }
+                //         if (error) {
+                //             console.error('Auth callback error:', error);
+                //             router.push('/login?error=auth_failed');
+                //             return;
+                //         }
 
-                    if (data.session) {
-                        console.log('✅ 세션 확인됨, 사용자 정보 조회 시작');
-                        const readBizClientUsecase = new ReadBizClientUsecase(new BizClientSupabaseRepository());
-                        const user = await readBizClientUsecase.execute(data.session.user.id);
-                        const readCartUsecase = new CrudCartUsecase(new CartSupabaseRepository());
-                        const cart = await readCartUsecase.findById(data.session.user.id)!;
-                        console.log('📡 API 응답 상태:', user);
-                        console.log('📡 API 응답:', user);
+                //         if (data.session) {
+                //             console.log('✅ 세션 확인됨, 사용자 정보 조회 시작');
+                //             const readBizClientUsecase = new ReadBizClientUsecase(new BizClientSupabaseRepository());
+                //             const user = await readBizClientUsecase.execute(data.session.user.id);
+                //             const readCartUsecase = new CrudCartUsecase(new CartSupabaseRepository());
+                //             const cart = await readCartUsecase.findById(data.session.user.id)!;
+                //             console.log('📡 API 응답 상태:', user);
+                //             console.log('📡 API 응답:', user);
 
-                        if (user.success && user.data) {
-                            useBizClientStore.setState({ bizClient: user.data });
-                            useCartStore.setState({ cart: cart! });
-                            router.push(`/`);
-                        } else {
-                            router.push('/login?error=user_not_found');
-                        }
-                    }
-                } catch (error) {
-                    console.error('💥 Unexpected error:', error);
-                    router.push('/login?error=unexpected');
-                }
+                //             if (user.success && user.data) {
+                //                 useBizClientStore.setState({ bizClient: user.data });
+                //                 useCartStore.setState({ cart: cart! });
+                //                 router.push(`/`);
+                //             } else {
+                //                 router.push('/login?error=user_not_found');
+                //             }
+                //         }
+                //     } catch (error) {
+                //         console.error('💥 Unexpected error:', error);
+                //         router.push('/login?error=unexpected');
+                //     }
             } else if (type === 'check') {
                 try {
                     console.log('🔄 OAuth 콜백 처리 시작 (bizClient 확인)');
