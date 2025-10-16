@@ -339,7 +339,8 @@ export default function CartClient() {
                     quantity={cartItem.item_count ?? 0}
                     showQuantitySelector={true}
                     cabinet_construct={detail.cabinet_construct ?? undefined}
-                    legType={detail.leg_type ?? undefined}
+                    legType={detail.legType ?? undefined}
+                    legType_direct_input={detail.legType_direct_input ?? undefined}
                     addRiceCookerRail={addRiceCookerRail}
                     addBottomDrawer={addBottomDrawer}
                     {...commonProps}

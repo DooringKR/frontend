@@ -7,7 +7,7 @@ import { useCabinetValidation } from "./hooks/useCabinetValidation";
 
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState, useRef } from "react";
-import { CabinetHandleType, CabinetBehindType, Location } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import { CabinetHandleType, CabinetBehindType, Location, CabinetLegType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
@@ -53,7 +53,11 @@ function LowerCabinetPageContent() {
     const [cabinetLocation, setCabinetLocation] = useState(item?.cabinet_location ?? null);
     const [isCabinetLocationSheetOpen, setIsCabinetLocationSheetOpen] = useState(false);
     const [cabinet_construct, setCabinetConstruct] = useState(item?.cabinet_construct ?? false);
-    const [legType, setLegType] = useState(item?.legType ?? "");
+    // 다리발: enum + 직접입력
+    const [legType, setLegType] = useState<CabinetLegType | "">(
+        item && Object.values(CabinetLegType).includes(item.legType) ? item.legType : ""
+    );
+    const [legTypeDirectInput, setLegTypeDirectInput] = useState<string>(item?.legType_direct_input ?? "");
     const [isLegTypeSheetOpen, setIsLegTypeSheetOpen] = useState(false);
 
     // 값 변경 시 itemStore에 동기화
@@ -69,6 +73,7 @@ function LowerCabinetPageContent() {
     useEffect(() => { updateItem({ cabinet_location: cabinetLocation }); }, [cabinetLocation]);
     useEffect(() => { updateItem({ cabinet_construct }); }, [cabinet_construct]);
     useEffect(() => { updateItem({ legType }); }, [legType]);
+    useEffect(() => { updateItem({ legType_direct_input: legTypeDirectInput }); }, [legTypeDirectInput]);
 
     // validation
     const { widthError, heightError, depthError, isFormValid } = useCabinetValidation({
@@ -89,11 +94,12 @@ function LowerCabinetPageContent() {
     const cabinetLocationLabel = cabinetLocation && locationEnumValues.includes(cabinetLocation)
         ? formatLocation(cabinetLocation)
         : "";
-    // 다리발 직접입력 (바텀시트용)
-    // const [legTypeDirectInput, setLegTypeDirectInput] = useState("");
-    // const legTypeLabel = ["150 다리 (걸레받이)","120 다리 (걸레받이)","다리발 없음 (60 속걸레받이)"].includes(legType)
-    //     ? legType
-    //     : (legTypeDirectInput || "");
+    // 다리발 표시 라벨 (enum 값 또는 직접입력)
+    const legEnumValues = (Object.values(CabinetLegType) as string[]).filter(v => v !== CabinetLegType.DIRECT_INPUT);
+    const legTypeStr = (legType as string) || "";
+    const legTypeLabel = legEnumValues.includes(legTypeStr)
+        ? legTypeStr
+        : (legTypeDirectInput || "");
 
     // 색상 옵션 변환
     const colorOptions = CABINET_COLOR_LIST.map(opt => ({ value: opt.name, label: formatColor(opt.name) }));
@@ -238,7 +244,6 @@ function LowerCabinetPageContent() {
                     </div>
                 </div>
                 {/* 다리발 (BoxedSelect 1개, 바텀시트+직접입력) */}
-                {/**
                 <BoxedSelect
                     label="다리발"
                     value={legTypeLabel}
@@ -247,67 +252,20 @@ function LowerCabinetPageContent() {
                 <LegTypeInputSheet
                     isOpen={isLegTypeSheetOpen}
                     onClose={() => setIsLegTypeSheetOpen(false)}
-                    value={legType}
+                    value={legType as string}
                     directInput={legTypeDirectInput}
-                    onChange={(val) => {
-                        if (["150 다리 (걸레받이)","120 다리 (걸레받이)","다리발 없음 (60 속걸레받이)"].includes(val)) {
-                            setLegType(val);
+                    onChange={(val: string) => {
+                        const isEnum = (Object.values(CabinetLegType) as string[]).includes(val) && val !== CabinetLegType.DIRECT_INPUT;
+                        if (isEnum) {
+                            setLegType(val as CabinetLegType);
                             setLegTypeDirectInput("");
                         } else {
-                            setLegType(val);
+                            // Direct input mode: keep enum as DIRECT_INPUT and store text separately
+                            setLegType(CabinetLegType.DIRECT_INPUT);
                             setLegTypeDirectInput(val);
                         }
                     }}
                 />
-                <BottomSheet
-                    isOpen={isLegTypeSheetOpen}
-                    title="다리발 종류를 선택해주세요"
-                    contentPadding="px-1"
-                    onClose={() => setIsLegTypeSheetOpen(false)}
-                    children={
-                        <div>
-                            {["150 다리 (걸레받이)", "120 다리 (걸레받이)", "다리발 없음 (60 속걸레받이)"].map(opt => (
-                                <SelectToggleButton
-                                    key={opt}
-                                    label={opt}
-                                    checked={legType === opt}
-                                    onClick={() => {
-                                        setLegType(opt);
-                                        setLegTypeDirectInput("");
-                                        setIsLegTypeSheetOpen(false);
-                                    }}
-                                />
-                            ))}
-                            <div className="flex flex-col">
-                                <SelectToggleButton
-                                    label="직접 입력"
-                                    checked={!["150 다리 (걸레받이)","120 다리 (걸레받이)","다리발 없음 (60 속걸레받이)"].includes(legType)}
-                                    onClick={() => {
-                                        setLegType("");
-                                        setTimeout(() => document.getElementById('legTypeDirectInput')?.focus(), 0);
-                                    }}
-                                />
-                                {!["150 다리 (걸레받이)","120 다리 (걸레받이)","다리발 없음 (60 속걸레받이)"].includes(legType) && (
-                                    <div className="flex items-center gap-2 px-4 pb-3">
-                                        <GrayVerticalLine />
-                                        <BoxedInput
-                                            // id="legTypeDirectInput"
-                                            type="text"
-                                            placeholder="다리발 종류를 입력해주세요"
-                                            className="w-full"
-                                            value={legTypeDirectInput}
-                                            onChange={e => {
-                                                setLegTypeDirectInput(e.target.value);
-                                                setLegType(e.target.value);
-                                            }}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    }
-                />
-                */}
                 {/* 요청사항 */}
                 <BoxedInput
                     label="제작 시 요청사항"
@@ -543,11 +501,8 @@ function CabinetLocationInputSheet({ isOpen, onClose, value, onChange }: { isOpe
 
 function LegTypeInputSheet({ isOpen, onClose, value, directInput, onChange }: { isOpen: boolean; onClose: () => void; value: string; directInput: string; onChange: (v: string) => void; }) {
     const inputRef = useRef<HTMLInputElement>(null);
-    const options = [
-        "150 다리 (걸레받이)",
-        "120 다리 (걸레받이)",
-        "다리발 없음 (60 속걸레받이)",
-    ];
+    const options = (Object.values(CabinetLegType) as string[]).filter(v => v !== CabinetLegType.DIRECT_INPUT);
+    const isValueInEnum = options.includes(value);
     return (
         <BottomSheet
             isOpen={isOpen}
@@ -566,13 +521,13 @@ function LegTypeInputSheet({ isOpen, onClose, value, directInput, onChange }: { 
                     <div className="flex flex-col">
                         <SelectToggleButton
                             label="직접 입력"
-                            checked={options.every(opt => value !== opt)}
+                            checked={!isValueInEnum}
                             onClick={() => {
                                 onChange("");
                                 setTimeout(() => inputRef.current?.focus(), 0);
                             }}
                         />
-                        {options.every(opt => value !== opt) && (
+                        {!isValueInEnum && (
                             <div className="flex items-center gap-2 px-4 pb-3">
                                 <GrayVerticalLine />
                                 <BoxedInput

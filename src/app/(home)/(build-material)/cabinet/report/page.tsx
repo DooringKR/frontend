@@ -14,6 +14,7 @@ import { CABINET_CATEGORY_LIST } from "@/constants/category";
 import useItemStore from "@/store/itemStore";
 import { calculateUnitCabinetPrice } from "@/services/pricing/cabinetPricing";
 import { Cabinet, UpperCabinet, LowerCabinet, OpenCabinet, FlapCabinet, DrawerCabinet } from "dooring-core-domain/dist/models/InteriorMaterials/Cabinet";
+import { CabinetLegType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import { Suspense, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -44,6 +45,16 @@ function createCabinetInstance(item: any) {
 	// Find the '직접입력' option in BODY_MATERIAL_LIST
 	const directInputOption = BODY_MATERIAL_LIST.find(opt => opt.name.includes("직접입력"));
 	const isDirectInput = item.bodyMaterial === null && item.body_material_direct_input && item.body_material_direct_input !== "";
+	// leg type mapping (enum or direct input)
+	let legType = item.legType as string | undefined;
+	let legType_direct_input = item.legType_direct_input as string | undefined;
+	// If user provided direct input but enum is empty or invalid, coerce enum to DIRECT_INPUT
+	const legEnumValues = Object.values(CabinetLegType) as string[];
+	const hasDirectLeg = typeof legType_direct_input === "string" && legType_direct_input.trim() !== "";
+	const isValidEnum = legType && legEnumValues.includes(String(legType));
+	if (hasDirectLeg && !isValidEnum) {
+		legType = CabinetLegType.DIRECT_INPUT;
+	}
 	if (isDirectInput && directInputOption) {
 		cabinet_body_material = directInputOption.id;
 		cabinet_body_material_direct_input = item.body_material_direct_input;
@@ -64,6 +75,8 @@ function createCabinetInstance(item: any) {
 				cabinet_body_material: cabinet_body_material,
 				cabinet_body_material_direct_input: cabinet_body_material_direct_input,
 				cabinet_construct: item.cabinet_construct,
+				legType: legType as any,
+				legType_direct_input: legType_direct_input,
 				cabinet_request: item.request,
 				handle_type: item.handleType,
 			});
@@ -78,6 +91,8 @@ function createCabinetInstance(item: any) {
 				cabinet_body_material: cabinet_body_material,
 				cabinet_body_material_direct_input: cabinet_body_material_direct_input,
 				cabinet_construct: item.cabinet_construct,
+				legType: legType as any,
+				legType_direct_input: legType_direct_input,
 				cabinet_request: item.request,
 				handle_type: item.handleType,
 			});
@@ -95,6 +110,8 @@ function createCabinetInstance(item: any) {
 				cabinet_body_material: cabinet_body_material,
 				cabinet_body_material_direct_input: cabinet_body_material_direct_input,
 				cabinet_construct: item.cabinet_construct,
+				legType: legType as any,
+				legType_direct_input: legType_direct_input,
 				cabinet_request: item.request,
 				add_rice_cooker_rail: addRiceCookerRail,
 				add_bottom_drawer: addBottomDrawer,
@@ -118,6 +135,8 @@ function createCabinetInstance(item: any) {
 				cabinet_body_material: cabinet_body_material,
 				cabinet_body_material_direct_input: cabinet_body_material_direct_input,
 				cabinet_construct: item.cabinet_construct,
+				legType: legType as any,
+				legType_direct_input: legType_direct_input,
 				cabinet_request: item.request,
 				handle_type: item.handleType,
 				absorber_type,
@@ -161,6 +180,8 @@ function createCabinetInstance(item: any) {
 				cabinet_body_material: cabinet_body_material,
 				cabinet_body_material_direct_input: cabinet_body_material_direct_input,
 				cabinet_construct: item.cabinet_construct,
+				legType: legType as any,
+				legType_direct_input: legType_direct_input,
 				cabinet_request: item.request,
 				handle_type: item.handleType,
 				drawer_type,
@@ -195,7 +216,9 @@ function ReportPageContent() {
 		'item.depth:', item.depth ?? 0,
 		'item.behindType:', item.behindType ?? "",
 		'item.cabinet_behind_type:', item.cabinet_behind_type ?? "",
-		'item.cabinet_construct:', item.cabinet_construct ?? ""
+		'item.cabinet_construct:', item.cabinet_construct ?? "",
+		'item.legType:', item.legType ?? "",
+		'item.legType_direct_input:', item.legType_direct_input ?? "",
 	);
 
 	// Use behindType value as-is for DB (no mapping)
@@ -256,6 +279,7 @@ function ReportPageContent() {
 					location={item.cabinet_location ?? undefined}
 					cabinet_construct={item.cabinet_construct ?? undefined}
 					legType={item.legType ?? undefined}
+					legType_direct_input={item.legType_direct_input ?? undefined}
 					// 오픈장만 표시
 					addRiceCookerRail={item.type === "오픈장" ? addRiceCookerRail : undefined}
 					addBottomDrawer={item.type === "오픈장" ? addBottomDrawer : undefined}

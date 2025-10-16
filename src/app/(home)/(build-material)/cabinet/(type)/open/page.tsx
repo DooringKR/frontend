@@ -16,7 +16,7 @@ import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
 import { CABINET_COLOR_LIST } from "@/constants/colorList";
 import useItemStore from "@/store/itemStore";
 import { useCabinetValidation } from "../upper/hooks/useCabinetValidation";
-import { CabinetBehindType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import { CabinetBehindType, CabinetLegType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 function OpenCabinetPageContent() {
 	const router = useRouter();
@@ -46,6 +46,12 @@ function OpenCabinetPageContent() {
 	const [cabinet_construct, setCabinetConstruct] = useState(item?.cabinet_construct ?? false);
 	const [request, setRequest] = useState(item?.request ?? "");
 	const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+	// 다리발: enum + 직접입력
+	const [legType, setLegType] = useState<CabinetLegType | "">(
+		item && Object.values(CabinetLegType).includes(item.legType) ? item.legType : ""
+	);
+	const [legTypeDirectInput, setLegTypeDirectInput] = useState<string>(item?.legType_direct_input ?? "");
+	const [isLegTypeSheetOpen, setIsLegTypeSheetOpen] = useState(false);
 
 	// 값 변경 시 itemStore에 동기화
 	React.useEffect(() => { updateItem({ width: DoorWidth }); }, [DoorWidth]);
@@ -59,6 +65,8 @@ function OpenCabinetPageContent() {
 	React.useEffect(() => { updateItem({ finishType }); }, [finishType]);
 	React.useEffect(() => { updateItem({ cabinet_construct }); }, [cabinet_construct]);
 	React.useEffect(() => { updateItem({ request }); }, [request]);
+	React.useEffect(() => { updateItem({ legType }); }, [legType]);
+	React.useEffect(() => { updateItem({ legType_direct_input: legTypeDirectInput }); }, [legTypeDirectInput]);
 
 	// validation
 	const { widthError, heightError, depthError, isFormValid } = useCabinetValidation({
@@ -73,6 +81,13 @@ function OpenCabinetPageContent() {
 		? (selectedMaterial ? selectedMaterial.name : "")
 		: (bodyMaterialDirectInput || "");
 	const colorOptions = CABINET_COLOR_LIST.map(opt => ({ value: opt.name, label: formatColor(opt.name) }));
+
+	// 다리발 표시 라벨 (enum 값 또는 직접입력)
+	const legEnumValues = (Object.values(CabinetLegType) as string[]).filter(v => v !== CabinetLegType.DIRECT_INPUT);
+	const legTypeStr = (legType as string) || "";
+	const legTypeLabel = legEnumValues.includes(legTypeStr)
+		? legTypeStr
+		: (legTypeDirectInput || "");
 
 	return (
 		<div className="flex flex-col">
@@ -198,6 +213,29 @@ function OpenCabinetPageContent() {
 						/>
 					</div>
 				</div>
+				{/* 다리발 (BoxedSelect 1개, 바텀시트+직접입력) */}
+				<BoxedSelect
+					label="다리발"
+					value={legTypeLabel}
+					onClick={() => setIsLegTypeSheetOpen(true)}
+				/>
+				<LegTypeInputSheet
+					isOpen={isLegTypeSheetOpen}
+					onClose={() => setIsLegTypeSheetOpen(false)}
+					value={legType as string}
+					directInput={legTypeDirectInput}
+					onChange={(val: string) => {
+						const isEnum = (Object.values(CabinetLegType) as string[]).includes(val) && val !== CabinetLegType.DIRECT_INPUT;
+						if (isEnum) {
+							setLegType(val as CabinetLegType);
+							setLegTypeDirectInput("");
+						} else {
+							// Direct input mode: keep enum as DIRECT_INPUT and store text separately
+							setLegType(CabinetLegType.DIRECT_INPUT);
+							setLegTypeDirectInput(val);
+						}
+					}}
+				/>
 				{/* 요청사항 */}
 				<BoxedInput
 					label="제작 시 요청사항"
@@ -303,3 +341,57 @@ function OpenCabinetPage() {
 }
 
 export default OpenCabinetPage;
+
+function LegTypeInputSheet({ isOpen, onClose, value, directInput, onChange }: { isOpen: boolean; onClose: () => void; value: string; directInput: string; onChange: (v: string) => void; }) {
+	const inputRef = useRef<HTMLInputElement>(null);
+	const options = (Object.values(CabinetLegType) as string[]).filter(v => v !== CabinetLegType.DIRECT_INPUT);
+	const isValueInEnum = options.includes(value);
+	return (
+		<BottomSheet
+			isOpen={isOpen}
+			title="다리발 종류를 선택해주세요"
+			contentPadding="px-1"
+			children={
+				<div>
+					{options.map(option => (
+						<SelectToggleButton
+							key={option}
+							label={option}
+							checked={value === option}
+							onClick={() => onChange(option)}
+						/>
+					))}
+					<div className="flex flex-col">
+						<SelectToggleButton
+							label="직접 입력"
+							checked={!isValueInEnum}
+							onClick={() => {
+								onChange("");
+								setTimeout(() => inputRef.current?.focus(), 0);
+							}}
+						/>
+						{!isValueInEnum && (
+							<div className="flex items-center gap-2 px-4 pb-3">
+								<GrayVerticalLine />
+								<BoxedInput
+									ref={inputRef}
+									type="text"
+									placeholder="다리발 종류를 입력해주세요"
+									className="w-full"
+									value={directInput}
+									onChange={e => onChange(e.target.value)}
+								/>
+							</div>
+						)}
+					</div>
+				</div>
+			}
+			onClose={onClose}
+			buttonArea={
+				<div className="p-5">
+					<Button type="Brand" text="다음" onClick={onClose} />
+				</div>
+			}
+		/>
+	);
+}
