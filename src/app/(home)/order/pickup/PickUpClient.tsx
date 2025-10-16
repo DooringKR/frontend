@@ -10,6 +10,7 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import PickUpVehicleSelector from "./_components/PickUpVehicleSelector";
 import RecipientPhoneNumber from "./_components/RecipientPhoneNumber";
 import PickUpAddressCard from "./_components/PickUpAddressCard";
+import PickupScheduleSelector from "./_components/PickupScheduleSelector/PickupScheduleSelector";
 
 import { useOrderStore } from "@/store/orderStore";
 import { PickUpOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/PickUpOrder";
@@ -54,7 +55,7 @@ export default function PickUpClientPage() {
     updateOrder(pickupOrderData);
   }, []);
 
-  const isDisabled = !order?.recipient_phone || !order?.vehicle_type;
+  const isDisabled = !order?.recipient_phone || !order?.vehicle_type || !order?.pickup_time;
 
   const handleSubmit = async () => {
     setIsLoading(true);
@@ -147,6 +148,9 @@ export default function PickUpClientPage() {
           <h1 className="text-xl font-600">픽업정보 확인</h1>
           <RecipientPhoneNumber />
           <PickUpVehicleSelector />
+        </div>
+        <div className="px-5">
+          <PickupScheduleSelector />
         </div>
         <div className="px-5">
           <PriceSummaryCard

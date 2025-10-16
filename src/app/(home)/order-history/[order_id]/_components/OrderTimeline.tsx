@@ -27,6 +27,17 @@ export default function OrderTimeline({ order, isDelivery }: OrderTimelineProps)
           </div>
         </>
       )}
+      {!isDelivery && (order as unknown as PickUpOrder & { pickup_time?: Date }).pickup_time && (
+        <>
+          <div className="mx-5 h-[1px] bg-gray-200"></div>
+          <div className="gap-1 px-5 py-4">
+            <div className="text-[17px]/[24px] font-600 text-gray-800">픽업 일시</div>
+            <div className="text-[15px]/[22px] font-400 text-gray-500">
+              {formatDate((order as unknown as PickUpOrder & { pickup_time?: Date }).pickup_time?.toString() ?? "", true)}
+            </div>
+          </div>
+        </>
+      )}
       <div className="mx-5 h-[1px] bg-gray-200"></div>
     </>
   );

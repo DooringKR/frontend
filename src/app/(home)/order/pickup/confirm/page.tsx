@@ -9,6 +9,7 @@ import Button from "@/components/BeforeEditByKi/Button/Button";
 import PickUpAddressCard from "./_components/PickUpAddressCard";
 import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
+import { formatDate } from "@/app/(home)/order-history/utils/formatters";
 
 export default function OrderConfirmPage() {
     const router = useRouter();
@@ -209,7 +210,7 @@ export default function OrderConfirmPage() {
 
                                 <div className="mb-2 mt-3 border-b border-gray-200 pb-3 text-gray-500">
                                     <p className="mb-1 text-[17px] font-600 text-gray-800">픽업 정보</p>
-                                    <p>픽업 예정</p>
+                                    <p>픽업 날짜: {recentOrder?.pickup_time ? formatDate(recentOrder?.pickup_time.toString(), true) : "날짜 정보 없음"}</p>
                                 </div>
 
                                 <div className="my-4 border-b border-gray-200 pb-3 text-gray-500">
