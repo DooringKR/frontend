@@ -6,6 +6,7 @@ import {
   HOME_PAGE,
   LICENSE_PAGE,
   MY_PAGE,
+  ORDER_HISTORY_FROM_CONFIRM,
 } from "@/constants/pageName";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -37,7 +38,7 @@ const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, cartItemCount 
           <path d="M14.5436 6.62564H17.7846V9.2718H14.5436V19.6308H11.6923V0H14.5436V6.62564ZM2.81026 6.19487H6.74872V2.4H9.55897V13.9897H0V2.4H2.81026V6.19487ZM2.81026 8.71795V11.4462H6.74872V8.71795H2.81026Z" fill="black" />
         </svg>
         // <h3 className="text-xl font-700">바로가구</h3>
-      ) : page === MY_PAGE || page === CART_PAGE ? (
+      ) : page === MY_PAGE || page === CART_PAGE || page === ORDER_HISTORY_FROM_CONFIRM ? (
         <button onClick={() => router.replace("/")} className="flex items-center justify-center">
           <img src={"/icons/close.svg"} alt="엑스 아이콘" />
         </button>
