@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useOrderDetail } from "./_hooks/useOrderDetail";
 import { DeliveryOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/DeliveryOrder";
@@ -11,10 +11,15 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import OrderHeader from "./_components/OrderHeader";
 import OrderTimeline from "./_components/OrderTimeline";
 import OrderItemsList from "./_components/OrderItemsList";
+import { ORDER_HISTORY_FROM_CONFIRM } from "@/constants/pageName";
 
 export default function OrderDetailPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const [orderId, setOrderId] = useState<string | null>(null);
+
+  // confirm 페이지에서 온 경우인지 확인
+  const isFromConfirm = searchParams.get("from") === "confirm";
 
   useEffect(() => {
     if (params?.order_id) {
@@ -74,7 +79,7 @@ export default function OrderDetailPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <TopNavigator title="상세 내역" />
+      <TopNavigator title="상세 내역" page={isFromConfirm ? ORDER_HISTORY_FROM_CONFIRM : undefined} />
       <div className="flex flex-col pb-[60px]">
         {/* 주문 방식 & 가격 */}
         <OrderHeader order={order} isDelivery={isDelivery} />

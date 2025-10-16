@@ -59,7 +59,7 @@ export default function OrderConfirmPage() {
             return;
         }
 
-        router.replace(`/order-history/${recentOrder.order_id}`);
+        router.replace(`/order-history/${recentOrder.order_id}?from=confirm`);
     };
 
     const handleGoHome = async () => {
