@@ -74,7 +74,7 @@ function AddressCheckClientPage() {
   const handleSubmit = async () => {
     if (isCheckingDelivery) return;
 
-    if (!road_address || !detail_address) {
+    if (!temp_road_address || !temp_detail_address) {
       alert("주소와 상세주소를 모두 입력해주세요.");
       return;
     }

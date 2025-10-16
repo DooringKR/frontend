@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { devtools, persist } from "zustand/middleware";
 
 interface AddressState {
   address1: string;
@@ -9,15 +9,21 @@ interface AddressState {
 }
 
 const useAddressStore = create<AddressState>()(
-  persist(
-    (set) => ({
-      address1: "",
-      address2: "",
-      setAddress: (address1, address2) => set({ address1, address2 }),
-      clearAddress: () => set({ address1: "", address2: "" }),
-    }),
-    {
-      name: "address-storage", // localStorage 키
+  devtools(
+    persist(
+      (set) => ({
+        address1: "",
+        address2: "",
+        setAddress: (address1, address2) => set({ address1, address2 }),
+        clearAddress: () => set({ address1: "", address2: "" }),
+      }),
+      {
+        name: "address-storage", // localStorage 키
+      }
+    )
+    , {
+      name: "address-store",
+      enabled: process.env.NODE_ENV === 'development',
     }
   )
 );
