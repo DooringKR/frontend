@@ -59,7 +59,7 @@ function DrawerCabinetPageContent() {
     // 추가 필드: 용도/장소, 시공 필요 여부, 다리발
     const [cabinetLocation, setCabinetLocation] = useState(item?.cabinet_location ?? null);
     const [isCabinetLocationSheetOpen, setIsCabinetLocationSheetOpen] = useState(false);
-    const [addOnConstruction, setAddOnConstruction] = useState(item?.addOn_construction ?? false);
+    const [cabinet_construct, setCabinetConstruct] = useState(item?.cabinet_construct ?? false);
     const [legType, setLegType] = useState(item?.legType ?? "");
     const [isLegTypeSheetOpen, setIsLegTypeSheetOpen] = useState(false);
 
@@ -90,7 +90,7 @@ function DrawerCabinetPageContent() {
     useEffect(() => { updateItem({ behindType }); }, [behindType]);
     useEffect(() => { updateItem({ request }); }, [request]);
     useEffect(() => { updateItem({ cabinet_location: cabinetLocation }); }, [cabinetLocation]);
-    useEffect(() => { updateItem({ addOn_construction: addOnConstruction }); }, [addOnConstruction]);
+    useEffect(() => { updateItem({ cabinet_construct }); }, [cabinet_construct]);
     useEffect(() => { updateItem({ legType }); }, [legType]);
     useEffect(() => { updateItem({ absorber_type }); }, [absorber_type]);
     useEffect(() => { updateItem({ absorber_type_direct_input }); }, [absorber_type_direct_input]);
@@ -367,14 +367,14 @@ function DrawerCabinetPageContent() {
                     <div className="w-full text-[14px] font-400 text-gray-600">시공 필요 여부</div>
                     <div className="flex flex-row gap-2">
                         <Button
-                            type={addOnConstruction ? "BrandInverse" : "GrayLarge"}
+                            type={cabinet_construct ? "BrandInverse" : "GrayLarge"}
                             text={"시공도 필요해요"}
-                            onClick={() => setAddOnConstruction(true)}
+                            onClick={() => setCabinetConstruct(true)}
                         />
                         <Button
-                            type={!addOnConstruction ? "BrandInverse" : "GrayLarge"}
+                            type={!cabinet_construct ? "BrandInverse" : "GrayLarge"}
                             text={"필요 없어요"}
-                            onClick={() => setAddOnConstruction(false)}
+                            onClick={() => setCabinetConstruct(false)}
                         />
                     </div>
                 </div>

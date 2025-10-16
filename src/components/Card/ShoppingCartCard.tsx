@@ -50,7 +50,7 @@ interface ShoppingCartCardProps {
   modelName?: string;
   size?: string;
   addOn_hinge?: boolean;
-  addOn_construction?: boolean;
+  cabinet_construct?: boolean;
   legType?: string;
   thickness?: string;
   angle?: string;
@@ -98,7 +98,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   modelName,
   size,
   addOn_hinge,
-  addOn_construction,
+  cabinet_construct,
   legType,
   thickness,
   angle,
@@ -234,8 +234,8 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
             {addOn_hinge !== undefined && addOn_hinge !== null && (
               <div>경첩 추가 선택 : {addOn_hinge ? "경첩도 받기" : "필요 없어요"}</div>
             )}
-            {typeof addOn_construction !== "undefined" && addOn_construction !== null && (
-              <div>시공 필요 여부 : {addOn_construction ? "시공도 필요해요" : "필요 없어요"}</div>
+            {typeof cabinet_construct !== "undefined" && cabinet_construct !== null && (
+              <div>시공 필요 여부 : {cabinet_construct ? "시공도 필요해요" : "필요 없어요"}</div>
             )}
             {legType && <div>다리발 : {legType}</div>}
           </div>

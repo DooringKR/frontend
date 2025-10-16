@@ -338,7 +338,7 @@ export default function CartClient() {
                     location={detail.cabinet_location ?? ""}
                     quantity={cartItem.item_count ?? 0}
                     showQuantitySelector={true}
-                    addOn_construction={detail.addOn_construction ?? undefined}
+                    cabinet_construct={detail.cabinet_construct ?? undefined}
                     legType={detail.leg_type ?? undefined}
                     addRiceCookerRail={addRiceCookerRail}
                     addBottomDrawer={addBottomDrawer}

@@ -63,6 +63,7 @@ function createCabinetInstance(item: any) {
 				cabinet_behind_type: item.cabinet_behind_type,
 				cabinet_body_material: cabinet_body_material,
 				cabinet_body_material_direct_input: cabinet_body_material_direct_input,
+				cabinet_construct: item.cabinet_construct,
 				cabinet_request: item.request,
 				handle_type: item.handleType,
 			});
@@ -76,6 +77,7 @@ function createCabinetInstance(item: any) {
 				cabinet_behind_type: item.cabinet_behind_type,
 				cabinet_body_material: cabinet_body_material,
 				cabinet_body_material_direct_input: cabinet_body_material_direct_input,
+				cabinet_construct: item.cabinet_construct,
 				cabinet_request: item.request,
 				handle_type: item.handleType,
 			});
@@ -92,6 +94,7 @@ function createCabinetInstance(item: any) {
 				cabinet_behind_type: item.cabinet_behind_type,
 				cabinet_body_material: cabinet_body_material,
 				cabinet_body_material_direct_input: cabinet_body_material_direct_input,
+				cabinet_construct: item.cabinet_construct,
 				cabinet_request: item.request,
 				add_rice_cooker_rail: addRiceCookerRail,
 				add_bottom_drawer: addBottomDrawer,
@@ -114,6 +117,7 @@ function createCabinetInstance(item: any) {
 				cabinet_behind_type: item.cabinet_behind_type,
 				cabinet_body_material: cabinet_body_material,
 				cabinet_body_material_direct_input: cabinet_body_material_direct_input,
+				cabinet_construct: item.cabinet_construct,
 				cabinet_request: item.request,
 				handle_type: item.handleType,
 				absorber_type,
@@ -156,6 +160,7 @@ function createCabinetInstance(item: any) {
 				cabinet_behind_type: item.cabinet_behind_type,
 				cabinet_body_material: cabinet_body_material,
 				cabinet_body_material_direct_input: cabinet_body_material_direct_input,
+				cabinet_construct: item.cabinet_construct,
 				cabinet_request: item.request,
 				handle_type: item.handleType,
 				drawer_type,
@@ -189,7 +194,8 @@ function ReportPageContent() {
 		'item.handleType:', item.handleType ?? "",
 		'item.depth:', item.depth ?? 0,
 		'item.behindType:', item.behindType ?? "",
-		'item.cabinet_behind_type:', item.cabinet_behind_type ?? ""
+		'item.cabinet_behind_type:', item.cabinet_behind_type ?? "",
+		'item.cabinet_construct:', item.cabinet_construct ?? ""
 	);
 
 	// Use behindType value as-is for DB (no mapping)
@@ -248,7 +254,7 @@ function ReportPageContent() {
 					railType={item?.rail_type ?? undefined}
 					rail_type_direct_input={item?.rail_type_direct_input ?? undefined}
 					location={item.cabinet_location ?? undefined}
-					addOn_construction={item.addOn_construction ?? undefined}
+					cabinet_construct={item.cabinet_construct ?? undefined}
 					legType={item.legType ?? undefined}
 					// 오픈장만 표시
 					addRiceCookerRail={item.type === "오픈장" ? addRiceCookerRail : undefined}
