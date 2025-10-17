@@ -34,7 +34,7 @@ function createCabinetInstance(item: any) {
 	// 색상 id 변환 (DB 저장용) + 직접입력 처리
 	const colorObj = CABINET_COLOR_LIST.find(c => c.id === Number(item.color))
 		|| CABINET_COLOR_LIST.find(c => c.name === item.color);
-	const colorId: number = colorObj ? colorObj.id : 0; // use 0 sentinel when direct input
+	const colorId = colorObj ? colorObj.id : 0; // use 0 as sentinel when using direct input
     const cabinet_color_direct_input: string | undefined = (typeof item.cabinet_color_direct_input === 'string' && item.cabinet_color_direct_input.trim() !== '')
       ? item.cabinet_color_direct_input
       : undefined;
