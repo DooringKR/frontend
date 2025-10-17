@@ -35,7 +35,7 @@ export default function CustomDateDeliveryOption({
                 //오늘 배송이 아니면 날짜 선택 버튼 노출
                 <span className="text-[15px] font-500">
                     {order?.delivery_arrival_time
-                        ? formatSelectedDate(order?.delivery_arrival_time.toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" }))
+                        ? formatSelectedDate(order.delivery_arrival_time)
                         : "날짜를 선택해주세요"}
                     {" "}
                     원하는 시간 도착

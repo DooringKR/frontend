@@ -11,6 +11,7 @@ import { DoorType, FinishEdgeCount, HingeDirection, CabinetLegType } from "doori
 import Button from "../Button/Button";
 import DoorPreviewIcon from "../DoorPreviewIcon/DoorPreviewIcon";
 import QuantitySelector from "../QuantitySelector/QuantitySelector";
+import formatColor from "@/utils/formatColor";
 
 interface ShoppingCartCardProps {
   addRiceCookerRail?: boolean;

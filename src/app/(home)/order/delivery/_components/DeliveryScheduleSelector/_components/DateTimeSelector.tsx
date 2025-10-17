@@ -1,5 +1,5 @@
 import { useState } from "react";
-import DatePicker from "@/components/DatePicker";
+import DeliveryDatePicker from "./DeliveryDatePicker";
 import Modal from "@/components/Modal/Modal";
 import TimePickerSimple from "@/components/TimePicker";
 import { useOrderStore } from "@/store/orderStore";
@@ -22,7 +22,7 @@ export default function DateTimeSelector({
         <div className="flex flex-col gap-2">
             <div className="mt-3 flex items-center">
                 <span className="text-sm font-400 text-gray-800">
-                    {order?.delivery_arrival_time ? formatSelectedDate(order?.delivery_arrival_time.toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })) : "날짜 미선택"}{" "}
+                    {order?.delivery_arrival_time ? formatSelectedDate(order.delivery_arrival_time) : "날짜 미선택"}{" "}
                     <span className="text-sm font-400 text-gray-600">희망배송시간</span>
                 </span>
             </div>
@@ -32,7 +32,7 @@ export default function DateTimeSelector({
                 className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-lg"
             >
                 {order?.delivery_arrival_time
-                    ? formatSelectedDate(order?.delivery_arrival_time.toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" }))
+                    ? formatSelectedDate(order.delivery_arrival_time)
                     : "날짜를 선택해주세요"}
             </div>
 
@@ -46,23 +46,25 @@ export default function DateTimeSelector({
             </div>
 
             <Modal isOpen={isDateModalOpen} onClose={() => setIsDateModalOpen(false)}>
-                <DatePicker
+                <DeliveryDatePicker
                     initialDate={
                         order?.delivery_arrival_time
                             ? order?.delivery_arrival_time
-                            : isTodayDeliveryAvailable
-                                ? null
-                                : (() => {
-                                    const tomorrow = new Date();
-                                    tomorrow.setDate(tomorrow.getDate() + 1);
-                                    tomorrow.setHours(0, 0, 0, 0);
-                                    return tomorrow;
-                                })()
+                            : (() => {
+                                // 배송은 항상 내일부터 가능
+                                const tomorrow = new Date();
+                                tomorrow.setDate(tomorrow.getDate() + 1);
+                                tomorrow.setHours(0, 0, 0, 0);
+                                return tomorrow;
+                            })()
                     }
                     onConfirm={date => {
-                        //시간 초기화
-                        const dateTimeString = `${date}T00:00:00`;
-                        updateOrder({ delivery_arrival_time: new Date(dateTimeString) });
+                        // 로컬 시간대로 날짜 생성 (UTC 변환 방지)
+                        const [year, month, day] = date.split('-').map(Number);
+                        const localDate = new Date(year, month - 1, day, 0, 0, 0, 0);
+                        updateOrder({ delivery_arrival_time: localDate });
+                        console.log('📅 날짜 선택 완료:', localDate.toISOString().split("T")[0]);
+                        console.log('📅 로컬 날짜:', localDate.toLocaleDateString());
                         setIsDateModalOpen(false);
                     }}
                     onClose={() => setIsDateModalOpen(false)}

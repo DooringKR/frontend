@@ -10,13 +10,11 @@ export default function PickupScheduleSelector() {
     const order = useOrderStore(state => state.order);
     const updateOrder = useOrderStore(state => state.updateOrder);
 
-    // 초기 픽업 날짜 설정 (내일로)
+    // 초기 픽업 날짜 설정 (현재 시간으로)
     useEffect(() => {
         if (!order?.pickup_time) {
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            tomorrow.setHours(0, 0, 0, 0);
-            updateOrder({ pickup_time: tomorrow });
+            const now = new Date();
+            updateOrder({ pickup_time: now });
         }
     }, []);
 
@@ -30,15 +28,18 @@ export default function PickupScheduleSelector() {
                 </div>
                 <span className="text-[15px] font-500">
                     {order?.pickup_time
-                        ? formatSelectedDate(order?.pickup_time.toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" }))
+                        ? formatSelectedDate(order.pickup_time)
                         : "날짜를 선택해주세요"}
                     {" "}
                     원하는 시간 픽업
                 </span>
 
-                <PickupDateTimeSelector formatSelectedDate={formatSelectedDate} />
+                <PickupDateTimeSelector
+                    formatSelectedDate={(dateString: string) => {
+                        return formatSelectedDate(new Date(dateString));
+                    }}
+                />
             </div>
         </section>
     );
 }
-
