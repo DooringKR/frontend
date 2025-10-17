@@ -27,6 +27,7 @@ import { BizClient } from "dooring-core-domain/dist/models/User/BizClient";
 import { useOrderStore } from "@/store/orderStore";
 import useCartItemStore from "@/store/cartItemStore";
 import { KakaoAuthSupabaseRepository } from "@/DDD/data/service/kakao_auth_supabase_repository";
+import { supabase } from "@/lib/supabase";
 
 export default function Page() {
   const router = useRouter();
@@ -97,38 +98,74 @@ export default function Page() {
     }
   }, [bizClient]);
 
-
-
-  // 로그인 상태 체크 (checkDelivery 제거)
   useEffect(() => {
-    // localStorage에서 데이터를 복원하는 동안 잠시 대기
-    const timer = setTimeout(async () => {
-      if (!bizClient) {
-        const kakaoAuthSupabaseRepository = new KakaoAuthSupabaseRepository();
-        const logoutResponse = await kakaoAuthSupabaseRepository.logout();
-        console.log('logoutResponse:', logoutResponse);
-        useCartStore.setState({ cart: null });
-        useBizClientStore.setState({ bizClient: null });
+    const checkSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error("Error checking session:", error);
+        return;
+      }
+      if (!session) {
+        console.log('❌ 세션이 없음, /start로 이동');
         router.replace("/start");
-      } else {
+        return;
+      }
+
+      // 세션은 있지만 BizClient가 DB에 존재하는지 확인
+      console.log('✅ 세션 존재, BizClient DB 존재 여부 확인 시작');
+      try {
+        const readBizClientUsecase = new ReadBizClientUsecase(new BizClientSupabaseRepository());
+        const bizClientResponse = await readBizClientUsecase.execute(session.user.id);
+
+        if (!bizClientResponse.success || !bizClientResponse.data) {
+          console.log('❌ BizClient가 DB에 존재하지 않음, 로그아웃 후 /start로 이동');
+          const kakaoAuthSupabaseRepository = new KakaoAuthSupabaseRepository();
+          await kakaoAuthSupabaseRepository.logout();
+          useBizClientStore.setState({ bizClient: null });
+          useCartStore.setState({ cart: null });
+          useOrderStore.setState({ order: null });
+          router.replace("/start");
+          return;
+        }
+
+        console.log('✅ BizClient가 DB에 존재함:', bizClientResponse.data.id);
+      } catch (error) {
+        console.error('BizClient DB 확인 중 에러:', error);
+        // 에러 발생 시에도 로그아웃 처리
+        const kakaoAuthSupabaseRepository = new KakaoAuthSupabaseRepository();
+        await kakaoAuthSupabaseRepository.logout();
+        useBizClientStore.setState({ bizClient: null });
+        useCartStore.setState({ cart: null });
+        useOrderStore.setState({ order: null });
+        router.replace("/start");
+      }
+    };
+    checkSession();
+  }, []);
+
+  // BizClient가 있을 때 데이터 로딩 및 배송 정보 확인
+  useEffect(() => {
+    if (bizClient) {
+      console.log('✅ bizClient 존재, 데이터 로딩 시작:', bizClient.id);
+      const loadData = async () => {
         try {
           const readCartUsecase = new CrudCartUsecase(new CartSupabaseRepository());
           const cart = await readCartUsecase.findById(bizClient.id!);
 
-          useBizClientStore.setState({ bizClient: bizClient });
           useCartStore.setState({ cart: cart! });
           useOrderStore.setState({ order: null });
+
+          console.log('✅ 데이터 로딩 완료, 배송 정보 확인 시작');
           await checkDelivery();
-
-          return;
+          console.log('✅ 배송 정보 확인 완료');
         } catch (err) {
-          console.error("Error checking user:", err);
+          console.error("Error loading user data:", err);
         }
-      }
-    }, 100); // 100ms 대기
+      };
 
-    return () => clearTimeout(timer);
-  }, [router, bizClient]);
+      loadData();
+    }
+  }, [bizClient]);
 
   // 로그인되지 않은 경우 로딩 화면 표시
   if (!bizClient) {

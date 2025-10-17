@@ -34,10 +34,7 @@ function AuthCallbackContent() {
                     const phoneNumber = useSignupStore.getState().phoneNumber;
                     console.log('📝 useSignupStore 데이터:', businessType, phoneNumber);
 
-                    // OAuth 콜백 후 세션 확인
                     const { data, error } = await supabase.auth.getSession();
-                    console.log('📝 세션 데이터:', data);
-                    console.log('❌ 세션 에러:', error);
 
                     if (error) {
                         console.error('Auth callback error:', error);
@@ -49,7 +46,7 @@ function AuthCallbackContent() {
                         alert('일시적인 네트워크 오류입니다. 처음부터 다시 시도해주세요.');
                         return;
                     }
-
+                    console.log('data12312312312321312312312:', data);
                     if (data.session) {
                         console.log('✅ 세션 확인됨, 회원가입 API 호출 시작');
                         const kakaoSignupUsecase = new KakaoSignupUsecase(
@@ -57,20 +54,25 @@ function AuthCallbackContent() {
                             new BizClientSupabaseRepository(),
                             new CartSupabaseRepository()
                         );
-                        const result = await kakaoSignupUsecase.handleAuthCallback(businessType as BusinessType, phoneNumber as string);
-                        console.log('📡 API 응답 상태:', result);
-                        console.log('📡 API 응답:', result);
 
-                        if (result.success) {
+                        try {
+                            const result = await kakaoSignupUsecase.handleAuthCallback(businessType as BusinessType, phoneNumber as string);
+                            console.log('📡 API 응답 상태:', result);
+                            console.log('📡 API 응답:', result);
+                            console.log('✅ 회원가입 성공, 스토어에 데이터 저장 후 홈으로 이동');
                             useBizClientStore.setState({ bizClient: result.data.bizClient });
                             useCartStore.setState({ cart: result.data.cart });
-                            router.push('/');
                             useSignupStore.setState({ businessType: null, phoneNumber: null });
-                        } else {
+                            console.log('🔄 / (홈) 페이지로 이동 시작');
+                            router.push('/');
+                        } catch (error) {
+                            console.error('💥 Unexpected error:', error);
+                            useSignupStore.setState({ businessType: null, phoneNumber: null });
+                            supabase.auth.signOut();
                             useBizClientStore.setState({ bizClient: null });
                             useCartStore.setState({ cart: null });
-                            useSignupStore.setState({ businessType: null, phoneNumber: null });
                             router.push('/start');
+                            alert('회원가입에 실패했습니다. 다시 시도해주세요.');
                         }
                     } else {
                         console.log('❌ 세션이 없음, 로그인 페이지로 이동');
@@ -131,9 +133,17 @@ function AuthCallbackContent() {
                     console.log('🔄 OAuth 콜백 처리 시작 (bizClient 확인)');
 
                     // OAuth 콜백 후 세션 확인
+                    console.log('🔄 check 타입 세션 확인 시작...');
                     const { data, error } = await supabase.auth.getSession();
-                    console.log('📝 세션 데이터:', data);
-                    console.log('❌ 세션 에러:', error);
+
+                    if (data && data.session) {
+                        console.log('✅ 세션 존재 - 사용자 ID:', data.session.user.id);
+                    } else if (data && !data.session) {
+                        console.log('ℹ️ 세션 없음 - data는 있지만 session이 null');
+                    } else if (!data) {
+                        console.log('❌ data 자체가 null/undefined');
+                    }
+
 
                     if (error) {
                         console.error('Auth callback error:', error);
@@ -163,17 +173,15 @@ function AuthCallbackContent() {
                             router.push('/signup');
                         }
                     } else {
-                        console.log('❌ 세션이 없음, 시작 페이지로 이동');
-                        router.push('/start');
+                        console.log('❌ 세션이 없음, 회원가입 페이지로 이동');
+                        //이건 사파리에서 이 로직으로 실행돼서 여기다가 추가할게요. 위에있지만..
+                        router.push('/signup');
                     }
                 } catch (error) {
                     console.error('💥 Unexpected error:', error);
+                    alert('일시적인 네트워크 오류입니다. 처음부터 다시 시도해주세요.');
                     router.push('/start?error=unexpected');
                 }
-            } else {
-                // type 파라미터가 없는 경우 기본 처리
-                console.log('❌ type 파라미터가 없음, 시작 페이지로 이동');
-                router.push('/start');
             }
         };
 
