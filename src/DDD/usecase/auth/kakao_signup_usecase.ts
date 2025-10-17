@@ -62,10 +62,10 @@ export class KakaoSignupUsecase {
                 };
             }
 
-
-            const kakaoLoginUsecase = new KakaoLoginUsecase(this.kakaoAuthRepository);
-            const loginResponse = await kakaoLoginUsecase.execute();
-            console.log('로그인 결과:', loginResponse);
+            // 복잡해서 diagram 그려봤는데 이 부분 삭제해야됨.
+            // const kakaoLoginUsecase = new KakaoLoginUsecase(this.kakaoAuthRepository);
+            // const loginResponse = await kakaoLoginUsecase.execute();
+            // console.log('로그인 결과:', loginResponse);
             useSignupStore.getState().resetBusinessType();
             useSignupStore.getState().resetPhoneNumber();
 
