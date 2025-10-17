@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, Suspense } from "react";
+import React, { useState, useRef, Suspense, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import Header from "@/components/Header/Header";
@@ -278,59 +278,182 @@ function OpenCabinetPageContent() {
 	);
 }
 
+// 아래는 바텀시트 컴포넌트들 (원본 /order/cabinet 참고, 옵션/직접입력 구조)
 function BodyMaterialManualInputSheet({ isOpen, onClose, value, directInput, onChange }: { isOpen: boolean; onClose: () => void; value: number | null; directInput: string; onChange: (v: number | string) => void; }) {
-	const inputRef = useRef<HTMLInputElement>(null);
-	const options = BODY_MATERIAL_LIST.filter(option => option.name !== "직접입력");
-	const selectedMaterial = value !== null ? options.find(option => option.id === value) : null;
-	return (
-		<BottomSheet
-			isOpen={isOpen}
-			title="몸통 소재 및 두께를 선택해주세요"
-			contentPadding="px-1"
-			children={
-				<div>
-					{options.map(option => (
-						<SelectToggleButton
-							key={option.id}
-							label={option.name}
-							checked={value === option.id}
-							onClick={() => onChange(option.id)}
-						/>
-					))}
-					<div className="flex flex-col">
-						<SelectToggleButton
-							label="직접 입력"
-							checked={value === null}
-							onClick={() => {
-								onChange("");
-								setTimeout(() => inputRef.current?.focus(), 0);
-							}}
-						/>
-						{value === null && (
-							<div className="flex items-center gap-2 px-4 pb-3">
-								<GrayVerticalLine />
-								<BoxedInput
-									ref={inputRef}
-									type="text"
-									placeholder="브랜드, 소재, 두께 등"
-									className="w-full"
-									value={directInput}
-									onChange={e => onChange(e.target.value)}
-								/>
-							</div>
-						)}
-					</div>
-				</div>
-			}
-			onClose={onClose}
-			buttonArea={
-				<div className="p-5">
-					<Button type="Brand" text="다음" onClick={onClose} />
-				</div>
-			}
-		/>
-	);
+    const inputRef = useRef<HTMLInputElement>(null);
+    const options = BODY_MATERIAL_LIST.filter(option => option.name !== "직접입력");
+    // local selection state so sheet opens with nothing selected by default
+    const [localSelected, setLocalSelected] = useState<number | "direct" | undefined>(undefined);
+    const [localInput, setLocalInput] = useState<string>(directInput || "");
+
+    useEffect(() => {
+        if (isOpen) {
+            // Reset selection only when the sheet is opened
+            setLocalSelected(undefined);
+            setLocalInput(directInput || "");
+        }
+        // intentionally not depending on directInput to avoid resets while typing
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen]);
+
+    return (
+        <BottomSheet
+            isOpen={isOpen}
+            title="몸통 소재 및 두께를 선택해주세요"
+            contentPadding="px-1"
+            children={
+                <div>
+                    {options.map(option => (
+                        <SelectToggleButton
+                            key={option.id}
+                            label={option.name}
+                            checked={localSelected === option.id}
+                            onClick={() => {
+                                setLocalSelected(option.id);
+                                onChange(option.id);
+                            }}
+                        />
+                    ))}
+                    <div className="flex flex-col">
+                        <SelectToggleButton
+                            label="직접 입력"
+                            checked={localSelected === "direct"}
+                            onClick={() => {
+                                setLocalSelected("direct");
+                                setTimeout(() => inputRef.current?.focus(), 0);
+                            }}
+                        />
+                        {localSelected === "direct" && (
+                            <div className="flex items-center gap-2 px-4 pb-3">
+                                <GrayVerticalLine />
+                                <BoxedInput
+                                    ref={inputRef}
+                                    type="text"
+                                    placeholder="브랜드, 소재, 두께 등"
+                                    className="w-full"
+                                    value={localInput}
+                                    onChange={e => {
+                                        const val = e.target.value;
+                                        setLocalInput(val);
+                                        onChange(val);
+                                    }}
+                                />
+                            </div>
+                        )}
+                    </div>
+                </div>
+            }
+            onClose={onClose}
+            buttonArea={
+                <div className="p-5">
+                    <Button type="Brand" text="다음" onClick={onClose} />
+                </div>
+            }
+        />
+    );
 }
+
+function LegTypeInputSheet({ isOpen, onClose, value, directInput, onChange }: { isOpen: boolean; onClose: () => void; value: string; directInput: string; onChange: (v: string) => void; }) {
+    const inputRef = useRef<HTMLInputElement>(null);
+    const options = (Object.values(CabinetLegType) as string[]).filter(v => v !== CabinetLegType.DIRECT_INPUT);
+    // local selection state to ensure no default selection when opened
+    const [localSelected, setLocalSelected] = useState<string | "direct" | undefined>(undefined);
+    const [localInput, setLocalInput] = useState<string>(directInput || "");
+
+    useEffect(() => {
+        if (isOpen) {
+            setLocalSelected(undefined);
+            setLocalInput(directInput || "");
+        }
+        // intentionally not depending on directInput to avoid resets while typing
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen]);
+
+    return (
+        <BottomSheet
+            isOpen={isOpen}
+            title="다리발 종류를 선택해주세요"
+            contentPadding="px-1"
+            children={
+                <div>
+                    {options.map(option => (
+                        <SelectToggleButton
+                            key={option}
+                            label={option}
+                            checked={localSelected === option}
+                            onClick={() => {
+                                setLocalSelected(option);
+                                onChange(option);
+                            }}
+                        />
+                    ))}
+                    <div className="flex flex-col">
+                        <SelectToggleButton
+                            label="직접 입력"
+                            checked={localSelected === "direct"}
+                            onClick={() => {
+                                setLocalSelected("direct");
+                                setTimeout(() => inputRef.current?.focus(), 0);
+                            }}
+                        />
+                        {localSelected === "direct" && (
+                            <div className="flex items-center gap-2 px-4 pb-3">
+                                <GrayVerticalLine />
+                                <BoxedInput
+                                    ref={inputRef}
+                                    type="text"
+                                    placeholder="다리발 종류를 입력해주세요"
+                                    className="w-full"
+                                    value={localInput}
+                                    onChange={e => {
+                                        const val = e.target.value;
+                                        setLocalInput(val);
+                                        onChange(val);
+                                    }}
+                                />
+                            </div>
+                        )}
+                    </div>
+                </div>
+            }
+            onClose={onClose}
+            buttonArea={
+                <div className="p-5">
+                    <Button type="Brand" text="다음" onClick={onClose} />
+                </div>
+            }
+        />
+    );
+}
+
+// function CabinetLocationInputSheet({ isOpen, onClose, value, onChange }: { isOpen: boolean; onClose: () => void; value: string | null; onChange: (v: string | null) => void; }) {
+//     const locationEnumValues = Object.values(Location);
+//     return (
+//         <BottomSheet
+//             isOpen={isOpen}
+//             title="용도 및 장소를 선택해주세요"
+//             contentPadding="px-1"
+//             children={
+//                 <div>
+//                     {locationEnumValues.map(option => (
+//                         <SelectToggleButton
+//                             key={option}
+//                             label={formatLocation(option)}
+//                             checked={value === option}
+//                             onClick={() => onChange(option)}
+//                         />
+//                     ))}
+//                 </div>
+//             }
+//             onClose={onClose}
+//             buttonArea={
+//                 <div className="p-5" style={{ position: "relative", zIndex: 1000 }}>
+//                     <Button type="Brand" text="다음" onClick={onClose} />
+//                 </div>
+//             }
+//         />
+//     );
+// }
 
 function OpenCabinetPage() {
 	return (
@@ -341,57 +464,3 @@ function OpenCabinetPage() {
 }
 
 export default OpenCabinetPage;
-
-function LegTypeInputSheet({ isOpen, onClose, value, directInput, onChange }: { isOpen: boolean; onClose: () => void; value: string; directInput: string; onChange: (v: string) => void; }) {
-	const inputRef = useRef<HTMLInputElement>(null);
-	const options = (Object.values(CabinetLegType) as string[]).filter(v => v !== CabinetLegType.DIRECT_INPUT);
-	const isValueInEnum = options.includes(value);
-	return (
-		<BottomSheet
-			isOpen={isOpen}
-			title="다리발 종류를 선택해주세요"
-			contentPadding="px-1"
-			children={
-				<div>
-					{options.map(option => (
-						<SelectToggleButton
-							key={option}
-							label={option}
-							checked={value === option}
-							onClick={() => onChange(option)}
-						/>
-					))}
-					<div className="flex flex-col">
-						<SelectToggleButton
-							label="직접 입력"
-							checked={!isValueInEnum}
-							onClick={() => {
-								onChange("");
-								setTimeout(() => inputRef.current?.focus(), 0);
-							}}
-						/>
-						{!isValueInEnum && (
-							<div className="flex items-center gap-2 px-4 pb-3">
-								<GrayVerticalLine />
-								<BoxedInput
-									ref={inputRef}
-									type="text"
-									placeholder="다리발 종류를 입력해주세요"
-									className="w-full"
-									value={directInput}
-									onChange={e => onChange(e.target.value)}
-								/>
-							</div>
-						)}
-					</div>
-				</div>
-			}
-			onClose={onClose}
-			buttonArea={
-				<div className="p-5">
-					<Button type="Brand" text="다음" onClick={onClose} />
-				</div>
-			}
-		/>
-	);
-}

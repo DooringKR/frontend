@@ -40,7 +40,7 @@ function StandardDoorPageContent() {
     // boringSize 초기값 설정
     const [hinge, setHinge] = useState<(number | null)[]>(item?.hinge ?? []);
 
-    const [door_request, setDoorRequest] = useState(item?.request ?? "");
+    const [door_request, setDoorRequest] = useState(item?.door_request ?? "");
     const [door_location, setDoorLocation] = useState(item?.door_location ?? "");
     const [addOn_hinge, setAddOn_hinge] = useState(item?.addOn_hinge ?? false);
     const [isDoorLocationSheetOpen, setIsDoorLocationSheetOpen] = useState(false);

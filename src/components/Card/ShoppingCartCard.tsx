@@ -193,15 +193,9 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
           <div className="text-[17px] font-600 text-gray-800">{title}</div>
           <div className="flex flex-col text-[15px] font-400 text-gray-500">
             {type !== "hardware" && colorLabel && <div>색상 : {colorLabel}</div>}
+            {edgeCount && <div>엣지 면 수 : {edgeCount}</div>}
             {bodyMaterialLabel && <div>몸통 소재 및 두께 : {bodyMaterialLabel}</div>}
             {width && <div>너비 : {width}mm</div>}
-            {height && <div>높이 : {height}mm</div>}
-            {heightIncrease !== undefined && heightIncrease !== null && heightIncrease > 0 && (
-              <>
-                <div>⤷ 높이 키우기 : {heightIncrease}mm</div>
-                {height && <div>⤷ 합산 높이 : {Number(height) + Number(heightIncrease)}mm</div>}
-              </>
-            )}
             {depth && <div>깊이 : {depth}mm</div>}
             {depthIncrease !== undefined && depthIncrease !== null && depthIncrease > 0 && (
               <>
@@ -209,7 +203,13 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
                 {depth && <div>⤷ 합산 깊이 : {Number(depth) + Number(depthIncrease)}mm</div>}
               </>
             )}
-            {edgeCount && <div>엣지 면 수 : {edgeCount}</div>}
+            {height && <div>높이 : {height}mm</div>}
+            {heightIncrease !== undefined && heightIncrease !== null && heightIncrease > 0 && (
+              <>
+                <div>⤷ 높이 키우기 : {heightIncrease}mm</div>
+                {height && <div>⤷ 합산 높이 : {Number(height) + Number(heightIncrease)}mm</div>}
+              </>
+            )}
             {(type === "hardware" || type === "accessory") && manufacturer && <div>제조사 : {manufacturer}</div>}
             {/* robust: 레일 종류 값 있을 때만 출력 (중복 제거)
             {typeof railTypeLabel !== "undefined" && railTypeLabel !== null && railTypeLabel !== "" && (
@@ -256,7 +256,6 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
             {/* 중복 방지: manufacturer는 위에서만 출력 */}
             {modelName && <div>모델명 : {modelName}</div>}
             {type !== "hardware" && size && <div>사이즈 : {size}</div>}
-            {request && <div>제작 시 요청 사항 : {request}</div>}
             {location && <div>용도 ∙ 장소 : {location}</div>}
             {addOn_hinge !== undefined && addOn_hinge !== null && (
               <div>경첩 추가 선택 : {addOn_hinge ? "경첩도 받기" : "필요 없어요"}</div>
@@ -267,6 +266,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
             {typeof legTypeLabel !== "undefined" && legTypeLabel !== null && legTypeLabel !== "" && (
               <div>다리발 : {legTypeLabel}</div>
             )}
+            {request && <div>제작 시 요청 사항 : {request}</div>}
           </div>
         </div>
         {type === "door" && (title === "플랩문" || title === "일반문") && hingeCount && (

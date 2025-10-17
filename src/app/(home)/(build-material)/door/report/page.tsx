@@ -64,16 +64,16 @@ function DoorReportPageContent() {
                     color={item?.color ? formatColor(item?.color ?? "") : "(직접입력) " + item?.door_color_direct_input}
                     width={item?.door_width ?? undefined}
                     height={item?.door_height ?? undefined}
-                    hingeDirection={item?.hinge_direction ?? undefined}
                     hingeCount={item?.hinge ? item.hinge.length : undefined}
+                    hingeDirection={item?.hinge_direction ?? undefined}
                     boring={item?.hinge || undefined}
                     boringCategory={item?.type as DoorType || undefined}
                     quantity={0}
                     trashable={false}
                     showQuantitySelector={false}
-                    request={item?.door_request ?? undefined}
                     location={item?.door_location ?? undefined}
                     addOn_hinge={item?.addOn_hinge ?? undefined}
+                    request={item?.door_request ?? undefined}
                     onOptionClick={() => {
                         router.push(`/door/${DOOR_CATEGORY_LIST.find(cat => cat.type === item.type)?.slug}`);
                     }}
