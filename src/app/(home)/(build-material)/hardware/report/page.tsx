@@ -104,19 +104,19 @@ function ReportPageContent() {
           type="hardware"
           title={item?.type ?? ""}
           manufacturer={(() => {
-            if (item?.madeby === HardwareMadeBy.DIRECT_INPUT) return item?.madebyInput || "";
+            if (item?.madeby === HardwareMadeBy.DIRECT_INPUT) return "(직접입력) " + (item?.madebyInput || "");
             return item?.madeby ?? "";
           })()}
           thickness={(() => {
-            if (item?.thickness === HingeThickness.DIRECT_INPUT) return item?.thicknessInput || "";
+            if (item?.thickness === HingeThickness.DIRECT_INPUT) return "(직접입력) " + (item?.thicknessInput || "");
             return item?.thickness ?? "";
           })()}
           angle={(() => {
-            if (item?.angle === HingeAngle.DIRECT_INPUT) return item?.angleInput || "";
+            if (item?.angle === HingeAngle.DIRECT_INPUT) return "(직접입력) " + (item?.angleInput || "");
             return item?.angle ?? "";
           })()}
-          railType={item?.railType === RailType.DIRECT_INPUT ? item?.railTypeInput || "" : item?.railType ?? ""}
-          railLength={item?.railLength === RailLength.DIRECT_INPUT ? item?.railLengthInput || "" : item?.railLength ?? ""}
+          railType={item?.railType === RailType.DIRECT_INPUT ? "(직접입력) " + (item?.railTypeInput || "") : item?.railType ?? ""}
+          railLength={item?.railLength === RailLength.DIRECT_INPUT ? "(직접입력) " + (item?.railLengthInput || "") : item?.railLength ?? ""}
           color={item?.color ?? ""}
           size={item?.size ?? ""}
           railDamping={item?.railType === RailType.BALL ? item?.railDamping ?? "" : undefined}

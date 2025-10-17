@@ -1,6 +1,7 @@
 
 import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
 import { CABINET_DRAWER_TYPE_LIST } from "@/constants/cabinetdrawertype";
+import { DOOR_COLOR_LIST, FINISH_COLOR_LIST, CABINET_COLOR_LIST } from "@/constants/colorList";
 import React from "react";
 import { ABSORBER_TYPE_LIST } from "@/constants/absorbertype";
 
@@ -19,6 +20,7 @@ interface ShoppingCartCardProps {
   title: string;
   totalPrice?: number;
   color?: string;
+  color_direct_input?: string;
   width?: number;
   height?: number;
   depth?: number;
@@ -68,6 +70,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   title,
   totalPrice,
   color,
+  color_direct_input,
   width,
   height,
   depth,
@@ -113,6 +116,19 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   addRiceCookerRail,
   addBottomDrawer,
 }) => {
+  // color label: direct input first, else resolve id/name by product type
+  let colorLabel: string | undefined = undefined;
+  if (typeof color_direct_input === "string" && color_direct_input.trim() !== "") {
+    colorLabel = "(직접입력) " + color_direct_input;
+  } else if (color) {
+    const list = type === "door" ? DOOR_COLOR_LIST : type === "finish" ? FINISH_COLOR_LIST : type === "cabinet" ? CABINET_COLOR_LIST : null;
+    if (list) {
+      const found = list.find(opt => String(opt.id) === String(color) || opt.name === color);
+      colorLabel = found ? found.name : color;
+    } else {
+      colorLabel = color;
+    }
+  }
   // bodyMaterial이 '직접입력' id면 직접입력값, 아니면 name 변환
   let bodyMaterialLabel = bodyMaterial;
   const directBodyMaterialOption = BODY_MATERIAL_LIST.find(opt => opt.name === "직접입력");
@@ -176,16 +192,10 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
         <div className="flex flex-col gap-2">
           <div className="text-[17px] font-600 text-gray-800">{title}</div>
           <div className="flex flex-col text-[15px] font-400 text-gray-500">
-            {type !== "hardware" && color && <div>색상 : {formatColor(color)}</div>}
+            {type !== "hardware" && colorLabel && <div>색상 : {colorLabel}</div>}
+            {edgeCount && <div>엣지 면 수 : {edgeCount}</div>}
             {bodyMaterialLabel && <div>몸통 소재 및 두께 : {bodyMaterialLabel}</div>}
             {width && <div>너비 : {width}mm</div>}
-            {height && <div>높이 : {height}mm</div>}
-            {heightIncrease !== undefined && heightIncrease !== null && heightIncrease > 0 && (
-              <>
-                <div>⤷ 높이 키우기 : {heightIncrease}mm</div>
-                {height && <div>⤷ 합산 높이 : {Number(height) + Number(heightIncrease)}mm</div>}
-              </>
-            )}
             {depth && <div>깊이 : {depth}mm</div>}
             {depthIncrease !== undefined && depthIncrease !== null && depthIncrease > 0 && (
               <>
@@ -193,14 +203,20 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
                 {depth && <div>⤷ 합산 깊이 : {Number(depth) + Number(depthIncrease)}mm</div>}
               </>
             )}
-            {edgeCount && <div>엣지 면 수 : {edgeCount}</div>}
+            {height && <div>높이 : {height}mm</div>}
+            {heightIncrease !== undefined && heightIncrease !== null && heightIncrease > 0 && (
+              <>
+                <div>⤷ 높이 키우기 : {heightIncrease}mm</div>
+                {height && <div>⤷ 합산 높이 : {Number(height) + Number(heightIncrease)}mm</div>}
+              </>
+            )}
             {(type === "hardware" || type === "accessory") && manufacturer && <div>제조사 : {manufacturer}</div>}
             {/* robust: 레일 종류 값 있을 때만 출력 (중복 제거)
             {typeof railTypeLabel !== "undefined" && railTypeLabel !== null && railTypeLabel !== "" && (
               <div>레일 종류 : {railTypeLabel}</div>
             )} */}
             {type === "hardware" && railLength && <div>레일 길이 : {railLength}</div>}
-            {type === "hardware" && color && <div>색상 : {color}</div>}
+            {type === "hardware" && colorLabel && <div>색상 : {colorLabel}</div>}
             {type === "hardware" && size && <div>사이즈 : {size}</div>}
             {type === "hardware" && thickness && <div>합판 두께 : {thickness}</div>}
             {type === "hardware" && angle && <div>각도 : {angle}</div>}
@@ -240,7 +256,6 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
             {/* 중복 방지: manufacturer는 위에서만 출력 */}
             {modelName && <div>모델명 : {modelName}</div>}
             {type !== "hardware" && size && <div>사이즈 : {size}</div>}
-            {request && <div>제작 시 요청 사항 : {request}</div>}
             {location && <div>용도 ∙ 장소 : {location}</div>}
             {addOn_hinge !== undefined && addOn_hinge !== null && (
               <div>경첩 추가 선택 : {addOn_hinge ? "경첩도 받기" : "필요 없어요"}</div>
@@ -251,6 +266,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
             {typeof legTypeLabel !== "undefined" && legTypeLabel !== null && legTypeLabel !== "" && (
               <div>다리발 : {legTypeLabel}</div>
             )}
+            {request && <div>제작 시 요청 사항 : {request}</div>}
           </div>
         </div>
         {type === "door" && (title === "플랩문" || title === "일반문") && hingeCount && (

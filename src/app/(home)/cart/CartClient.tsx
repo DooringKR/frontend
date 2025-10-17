@@ -31,6 +31,7 @@ import { UpdateCartItemCountUsecase } from "@/DDD/usecase/update_cart_item_count
 import { CartItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/cartitem_supabase_repository";
 import { CABINET_DRAWER_TYPE_LIST } from "@/constants/cabinetdrawertype";
 import { useOrderStore } from "@/store/orderStore";
+import formatColor from "@/utils/formatColor";
 
 
 // type OrderItem = DoorItem | FinishItem | CabinetItem | AccessoryItem | HardwareItem | null;
@@ -260,7 +261,7 @@ export default function CartClient() {
                     type="door"
                     totalPrice={cartItem.unit_price * cartItem.item_count}
                     title={category || "일반문"}
-                    color={colorName}
+                    color={formatColor(colorName) || "(직접입력) " + (detail.door_color_direct_input || "")}
                     width={Number(detail.door_width)}
                     height={Number(detail.door_height)}
                     hingeCount={detail.hinge?.length > 0 ? detail.hinge.length : undefined}
@@ -277,14 +278,14 @@ export default function CartClient() {
               }
               // FINISH
               if (category === DetailProductType.FINISH && detail) {
-                const colorName = FINISH_COLOR_LIST.find(c => c.id === detail.finish_color)?.name || detail.finish_color || detail.finish_color_direct_input || "";
+                const colorName = FINISH_COLOR_LIST.find(c => c.id === detail.finish_color)?.name || detail.finish_color;
                 return (
                   <ShoppingCartCard
                     key={key}
                     type="finish"
                     totalPrice={cartItem.unit_price * cartItem.item_count}
                     title={category || "마감재"}
-                    color={colorName}
+                    color={formatColor(colorName) || "(직접입력) " + (detail.finish_color_direct_input || "")}
                     edgeCount={detail.finish_edge_count ?? undefined}
                     depth={detail.finish_base_depth}
                     depthIncrease={detail.finish_additional_depth ?? undefined}
@@ -310,7 +311,7 @@ export default function CartClient() {
                 let drawerTypeLabel = "";
                 if (category === DetailProductType.DRAWERCABINET) {
                   if (detail.drawer_type === 4 && detail.drawer_type_direct_input) {
-                    drawerTypeLabel = detail.drawer_type_direct_input;
+                    drawerTypeLabel = "(직접입력) " + detail.drawer_type_direct_input;
                   } else {
                     const found = CABINET_DRAWER_TYPE_LIST.find(opt => opt.id === detail.drawer_type);
                     drawerTypeLabel = found ? found.name : (detail.drawer_type ?? "");
@@ -327,18 +328,18 @@ export default function CartClient() {
                     type="cabinet"
                     totalPrice={cartItem.unit_price * cartItem.item_count}
                     title={category || "부분장"}
-                    color={colorName}
+                    color={formatColor(colorName) || "(직접입력) " + (detail.cabinet_color_direct_input || "")}
                     width={Number(detail.cabinet_width ?? 0)}
                     height={Number(detail.cabinet_height ?? 0)}
                     depth={Number(detail.cabinet_depth ?? 0)}
                     bodyMaterial={detail.cabinet_body_material ?? ""}
-                    body_material_direct_input={detail.cabinet_body_material_direct_input ?? ""}
+                    body_material_direct_input={detail.cabinet_body_material_direct_input ? "(직접입력) " + detail.cabinet_body_material_direct_input : ""}
                     absorberType={detail.absorber_type ?? ""}
-                    absorber_type_direct_input={detail.absorber_type_direct_input ?? ""}
+                    absorber_type_direct_input={detail.absorber_type_direct_input ? "(직접입력) " + detail.absorber_type_direct_input : ""}
                     handleType={detail.handle_type ?? ""}
                     behindType={behindTypeLabel}
                     drawerType={drawerTypeLabel}
-                    railType={detail.rail_type ?? ""}
+                    railType={detail.rail_type ?? detail.rail_type_direct_input ? "(직접입력) " + detail.rail_type_direct_input : ""}
                     request={detail.cabinet_request ?? ""}
                     location={detail.cabinet_location ?? ""}
                     quantity={cartItem.item_count ?? 0}
@@ -376,9 +377,9 @@ export default function CartClient() {
                 let angle = "";
                 let color = "";
                 if (category === DetailProductType.HINGE) {
-                  manufacturer = detail.hinge_madeby_direct_input ? detail.hinge_madeby_direct_input : (detail.hinge_madeby ?? "");
-                  thickness = detail.hinge_thickness_direct_input ? detail.hinge_thickness_direct_input : (detail.hinge_thickness ?? "");
-                  angle = detail.hinge_angle_direct_input ? detail.hinge_angle_direct_input : (detail.hinge_angle ?? "");
+                  manufacturer = detail.hinge_madeby_direct_input ? "(직접입력) " + detail.hinge_madeby_direct_input : (detail.hinge_madeby ?? "");
+                  thickness = detail.hinge_thickness_direct_input ? "(직접입력) " + detail.hinge_thickness_direct_input : (detail.hinge_thickness ?? "");
+                  angle = detail.hinge_angle_direct_input ? "(직접입력) " + detail.hinge_angle_direct_input : (detail.hinge_angle ?? "");
                   color = detail.hinge_color ?? "";
                 }
                 // RAIL: manufacturer, railType, railLength, railDamping (직접입력 robust, report page 방식)
@@ -387,9 +388,9 @@ export default function CartClient() {
                 let railLength = "";
                 let railDamping = undefined;
                 if (category === DetailProductType.RAIL) {
-                  railManufacturer = detail.rail_madeby_direct_input ? detail.rail_madeby_direct_input : (detail.rail_madeby ?? "");
-                  railType = detail.rail_type_direct_input ? detail.rail_type_direct_input : (detail.rail_type ?? "");
-                  railLength = detail.rail_length_direct_input ? detail.rail_length_direct_input : (detail.rail_length ?? "");
+                  railManufacturer = detail.rail_madeby_direct_input ? "(직접입력) " + detail.rail_madeby_direct_input : (detail.rail_madeby ?? "");
+                  railType = detail.rail_type_direct_input ? "(직접입력) " + detail.rail_type_direct_input : (detail.rail_type ?? "");
+                  railLength = detail.rail_length_direct_input ? "(직접입력) " + detail.rail_length_direct_input : (detail.rail_length ?? "");
                   railDamping = detail.rail_damping ?? undefined;
                   color = detail.rail_color ?? "";
                 }

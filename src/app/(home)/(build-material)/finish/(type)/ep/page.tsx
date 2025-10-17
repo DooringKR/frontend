@@ -121,6 +121,11 @@ function FinishPageContent() {
         updateItem({ heightIncrease: newHeightIncrease });
     };
 
+    const handleRequestChange = (newRequest: string | null) => {
+        setRequest(newRequest);
+        updateItem({ request: newRequest });
+    }
+
     return (
         <div className="flex flex-col">
             <TopNavigator />
@@ -177,7 +182,7 @@ function FinishPageContent() {
                     label="제작 시 요청사항"
                     placeholder="제작 시 요청사항 | 예) 시공도 필요해요, …"
                     value={request}
-                    onChange={e => setRequest(e.target.value)}
+                    onChange={e => handleRequestChange(e.target.value)}
                 />
             </div>
             <div className="h-[100px]" />
