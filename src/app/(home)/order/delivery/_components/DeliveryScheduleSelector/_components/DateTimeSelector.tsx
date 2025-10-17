@@ -22,7 +22,7 @@ export default function DateTimeSelector({
         <div className="flex flex-col gap-2">
             <div className="mt-3 flex items-center">
                 <span className="text-sm font-400 text-gray-800">
-                    {order?.delivery_arrival_time ? formatSelectedDate(order.delivery_arrival_time.toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })) : "날짜 미선택"}{" "}
+                    {order?.delivery_arrival_time ? formatSelectedDate(order.delivery_arrival_time) : "날짜 미선택"}{" "}
                     <span className="text-sm font-400 text-gray-600">희망배송시간</span>
                 </span>
             </div>
@@ -32,7 +32,7 @@ export default function DateTimeSelector({
                 className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-lg"
             >
                 {order?.delivery_arrival_time
-                    ? formatSelectedDate(order.delivery_arrival_time.toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" }))
+                    ? formatSelectedDate(order.delivery_arrival_time)
                     : "날짜를 선택해주세요"}
             </div>
 
