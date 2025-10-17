@@ -327,9 +327,28 @@ function ReportPageContent() {
 								throw new Error("Cabinet instance could not be created.");
 							}
 
-							// Supabase에 저장
+							// Supabase에 저장 – 주의: constructor.name은 프로덕션 번들에서 '_' 등으로 난독화될 수 있으므로 명시적으로 테이블 이름을 매핑한다.
+							const tableName = (() => {
+								switch (item.type) {
+									case "상부장":
+										return "UpperCabinet";
+									case "하부장":
+										return "LowerCabinet";
+									case "키큰장":
+										return "TallCabinet";
+									case "오픈장":
+										return "OpenCabinet";
+									case "플랩장":
+										return "FlapCabinet";
+									case "서랍장":
+										return "DrawerCabinet";
+									default:
+										throw new Error("Unknown cabinet type for table mapping");
+								}
+							})();
+
 							const createdCabinet = await new CrudInteriorMaterialsUsecase(
-								new InteriorMaterialsSupabaseRepository<typeof cabinet>(cabinet.constructor.name)
+								new InteriorMaterialsSupabaseRepository<typeof cabinet>(tableName)
 							).create(cabinet);
 
 							// cart, cartItems, setCartItems는 useCartStore에서 가져옴
