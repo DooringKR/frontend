@@ -1,5 +1,5 @@
 import { useState } from "react";
-import DatePicker from "@/components/DatePicker";
+import DeliveryDatePicker from "./DeliveryDatePicker";
 import Modal from "@/components/Modal/Modal";
 import TimePickerSimple from "@/components/TimePicker";
 import { useOrderStore } from "@/store/orderStore";
@@ -46,18 +46,17 @@ export default function DateTimeSelector({
             </div>
 
             <Modal isOpen={isDateModalOpen} onClose={() => setIsDateModalOpen(false)}>
-                <DatePicker
+                <DeliveryDatePicker
                     initialDate={
                         order?.delivery_arrival_time
                             ? order?.delivery_arrival_time
-                            : isTodayDeliveryAvailable
-                                ? null
-                                : (() => {
-                                    const tomorrow = new Date();
-                                    tomorrow.setDate(tomorrow.getDate() + 1);
-                                    tomorrow.setHours(0, 0, 0, 0);
-                                    return tomorrow;
-                                })()
+                            : (() => {
+                                // 배송은 항상 내일부터 가능
+                                const tomorrow = new Date();
+                                tomorrow.setDate(tomorrow.getDate() + 1);
+                                tomorrow.setHours(0, 0, 0, 0);
+                                return tomorrow;
+                            })()
                     }
                     onConfirm={date => {
                         // 로컬 시간대로 날짜 생성 (UTC 변환 방지)
