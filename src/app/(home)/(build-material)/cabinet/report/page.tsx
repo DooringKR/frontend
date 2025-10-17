@@ -34,11 +34,12 @@ function createCabinetInstance(item: any) {
 	// 색상 id 변환 (DB 저장용) + 직접입력 처리
 	const colorObj = CABINET_COLOR_LIST.find(c => c.id === Number(item.color))
 		|| CABINET_COLOR_LIST.find(c => c.name === item.color);
-	const colorId = colorObj ? colorObj.id : 0; // use 0 as sentinel when using direct input
+	const colorId: number | null = colorObj ? colorObj.id : null; // null when direct input or not found
     const cabinet_color_direct_input: string | undefined = (typeof item.cabinet_color_direct_input === 'string' && item.cabinet_color_direct_input.trim() !== '')
       ? item.cabinet_color_direct_input
       : undefined;
-    const usingDirectColor = !!cabinet_color_direct_input;
+	const usingDirectColor = !!cabinet_color_direct_input;
+	const cabinetColor: number | null = usingDirectColor ? null : colorId;
 
 	// robust body material logic
 	// If bodyMaterial is a number, use it. If direct input, set enum and string.
@@ -68,7 +69,7 @@ function createCabinetInstance(item: any) {
 	switch (item.type) {
 		case "상부장":
 			return new UpperCabinet({
-				cabinet_color: usingDirectColor ? 0 : colorId,
+				cabinet_color: cabinetColor as any,
 				cabinet_color_direct_input,
 				cabinet_width: item.width,
 				cabinet_height: item.height,
@@ -85,7 +86,7 @@ function createCabinetInstance(item: any) {
 			});
 		case "하부장":
 			return new LowerCabinet({
-				cabinet_color: usingDirectColor ? 0 : colorId,
+				cabinet_color: cabinetColor as any,
 				cabinet_color_direct_input,
 				cabinet_width: item.width,
 				cabinet_height: item.height,
@@ -102,7 +103,7 @@ function createCabinetInstance(item: any) {
 			});
 		case "키큰장":
 			return new TallCabinet({
-				cabinet_color: usingDirectColor ? 0 : colorId,
+				cabinet_color: cabinetColor as any,
 				cabinet_color_direct_input,
 				cabinet_width: item.width,
 				cabinet_height: item.height,
@@ -122,7 +123,7 @@ function createCabinetInstance(item: any) {
 			const addRiceCookerRail = item.riceRail === "추가";
 			const addBottomDrawer = item.lowerDrawer === "추가";
 			return new OpenCabinet({
-				cabinet_color: usingDirectColor ? 0 : colorId,
+				cabinet_color: cabinetColor as any,
 				cabinet_color_direct_input,
 				cabinet_width: item.width,
 				cabinet_height: item.height,
@@ -148,7 +149,7 @@ function createCabinetInstance(item: any) {
 				absorber_type = directInputOption ? directInputOption.id : 0;
 			}
 			return new FlapCabinet({
-				cabinet_color: usingDirectColor ? 0 : colorId,
+				cabinet_color: cabinetColor as any,
 				cabinet_color_direct_input,
 				cabinet_width: item.width,
 				cabinet_height: item.height,
@@ -194,7 +195,7 @@ function createCabinetInstance(item: any) {
 				rail_type = "직접 입력";
 			}
 			return new DrawerCabinet({
-				cabinet_color: usingDirectColor ? 0 : colorId,
+				cabinet_color: cabinetColor as any,
 				cabinet_color_direct_input,
 				cabinet_width: item.width,
 				cabinet_height: item.height,
