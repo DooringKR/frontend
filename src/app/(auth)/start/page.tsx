@@ -135,30 +135,30 @@ function LoginPageContent() {
                         onClick={async () => {
                             try {
                                 // 1. 초기화
-                                useBizClientStore.setState({ bizClient: null });
-                                useCartStore.setState({ cart: null });
+                                // useBizClientStore.setState({ bizClient: null });
+                                // useCartStore.setState({ cart: null });
 
                                 // 2. 현재 유저 로그인 상태 확인
-                                const { data: { user }, error } = await supabase.auth.getUser();
-                                const bizClient = useBizClientStore.getState().bizClient;
+                                // const { data: { user }, error } = await supabase.auth.getUser();
+                                // const bizClient = useBizClientStore.getState().bizClient;
 
-                                if (!user && !bizClient) {
-                                    // 3. 로그인도 안되어 있고 bizClient도 없는 경우 - 카카오 OAuth 시작
-                                    console.log('📡 로그인도 안되어 있고 bizClient도 없음 - 카카오 OAuth 시작');
+                                // if (!user && !bizClient) {
+                                // 3. 로그인도 안되어 있고 bizClient도 없는 경우 - 카카오 OAuth 시작
+                                // console.log('📡 로그인도 안되어 있고 bizClient도 없음 - 카카오 OAuth 시작');
 
-                                    // OAuth 시작 (uid로 bizClient 확인 후 분기처리를 위해 type=check로 설정)
-                                    const kakaoAuthSupabaseRepository = new KakaoAuthSupabaseRepository();
-                                    const kakaoResponse = await kakaoAuthSupabaseRepository.checkAndLogin();
-                                    console.log('OAuth 시작 결과:', kakaoResponse);
+                                // OAuth 시작 (uid로 bizClient 확인 후 분기처리를 위해 type=check로 설정)
+                                const kakaoAuthSupabaseRepository = new KakaoAuthSupabaseRepository();
+                                const kakaoResponse = await kakaoAuthSupabaseRepository.checkAndLogin();
+                                console.log('OAuth 시작 결과:', kakaoResponse);
 
-                                    if (!kakaoResponse.success) {
-                                        alert('일시적인 에러입니다. 다시 시도해주세요.');
-                                    }
-                                } else {
-                                    // 4. 다른 경우들은 이미 useEffect에서 처리됨
-                                    console.log('📡 이미 로그인 상태이거나 bizClient가 존재함');
-                                    alert('이미 로그인된 상태입니다.');
+                                if (!kakaoResponse.success) {
+                                    alert('일시적인 에러입니다. 다시 시도해주세요.');
                                 }
+                                // } else {
+                                // 4. 다른 경우들은 이미 useEffect에서 처리됨
+                                // console.log('📡 이미 로그인 상태이거나 bizClient가 존재함');
+                                // alert('이미 로그인된 상태입니다.');
+                                // }
                             } catch (error) {
                                 console.error('카카오 로그인 처리 중 오류:', error);
                                 alert('일시적인 에러입니다. 다시 시도해주세요.');
