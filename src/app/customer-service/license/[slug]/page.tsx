@@ -16,7 +16,7 @@ export default async function LicenseDetailPage({ params }: { params: Promise<{ 
   return (
     <div className="whitespace-pre-line text-[17px] font-400 leading-relaxed text-gray-500">
       <TopNavigator title={license.name} page={LICENSE_PAGE} />
-      {content}
+      <div className="p-5">{content}</div>
     </div>
   );
 }

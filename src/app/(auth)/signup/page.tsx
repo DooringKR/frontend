@@ -2,7 +2,7 @@
 
 import { Chip } from "@/components/Chip/Chip";
 import Header from "@/components/Header/Header";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import UnderlinedInput from "@/components/Input/UnderlinedInput";
 import Button from "@/components/Button/Button";
 import { BusinessType } from "dooring-core-domain/dist/enums/UserEnums";
@@ -16,11 +16,31 @@ import useSignupStore from "@/store/signupStore";
 export default function SignupPage() {
     const [phoneNumber, setPhoneNumber] = useState("");
     const [selectedBusinessType, setSelectedBusinessType] = useState<BusinessType | null>(null);
+    const phoneInputRef = useRef<HTMLInputElement>(null);
 
     // 전화번호 숫자만 추출하여 길이 체크
     const getNumbersOnly = (phone: string) => phone.replace(/[^0-9]/g, '');
     const numbersOnly = getNumbersOnly(phoneNumber);
     const isValidLength = numbersOnly.length === 11;
+
+    // 화면 진입 시 포커스, 11자리 입력 완료 시 포커스 해제
+    useEffect(() => {
+        // 화면 진입 시 포커스
+        const timer = setTimeout(() => {
+            if (phoneInputRef.current) {
+                phoneInputRef.current.focus();
+            }
+        }, 100);
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    // 11자리 입력 완료 시 포커스 해제
+    useEffect(() => {
+        if (isValidLength && phoneInputRef.current) {
+            phoneInputRef.current.blur();
+        }
+    }, [isValidLength]);
     const hasInput = phoneNumber.length > 0;
 
     // 에러 상태와 헬퍼 텍스트 결정
@@ -44,6 +64,7 @@ export default function SignupPage() {
             <Header title={isValidLength ? "어떤 업체에서 오셨나요?" : "휴대폰 번호를 입력해주세요"} />
             <div className="px-5">
                 <UnderlinedInput
+                    ref={phoneInputRef}
                     label="휴대폰 번호"
                     placeholder="010-1234-5678"
                     value={phoneNumber}

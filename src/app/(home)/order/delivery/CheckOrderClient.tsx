@@ -93,9 +93,21 @@ function CheckOrderClientPage() {
 
 
   const handleOrderSubmit = async () => {
+    // 주소 입력 검증
+    if (!order?.road_address?.trim()) {
+      alert("배송 주소를 입력해주세요.");
+      return;
+    }
+
+    if (!order?.detail_address?.trim()) {
+      alert("상세 주소를 입력해주세요.");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
+
       // 1. 주문 생성 (CreateOrderUsecase 사용)
       // Reuse a single repo instance for order so export usecase uses same implementation
       const orderRepo = new OrderSupabaseRepository();

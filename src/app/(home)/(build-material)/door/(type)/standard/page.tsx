@@ -34,6 +34,13 @@ function StandardDoorPageContent() {
     const [hinge_direction, setHingeDirection] = useState<HingeDirection>(
         (item?.hinge_direction as HingeDirection) || HingeDirection.LEFT,
     );
+
+    // 초기 hinge_direction 설정 (itemStore에 없으면 좌경으로 설정)
+    useEffect(() => {
+        if (!item?.hinge_direction) {
+            updateItem({ hinge_direction: HingeDirection.LEFT });
+        }
+    }, [item?.hinge_direction, updateItem]);
     const [door_width, setDoorWidth] = useState<number | null>(item?.door_width ?? null);
     const [door_height, setDoorHeight] = useState<number | null>(item?.door_height ?? null);
 
@@ -188,7 +195,6 @@ function StandardDoorPageContent() {
                         doorColor={item?.color ?? ""}
                     />
                 </div>
-
                 <BoxedSelect
                     label="용도 ∙ 장소"
                     options={[]}
