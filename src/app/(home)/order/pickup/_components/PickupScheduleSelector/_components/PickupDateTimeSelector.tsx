@@ -20,7 +20,7 @@ export default function PickupDateTimeSelector({
         <div className="flex flex-col gap-2">
             <div className="mt-3 flex items-center">
                 <span className="text-sm font-400 text-gray-800">
-                    {order?.pickup_time ? formatSelectedDate(order?.pickup_time.toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" })) : "날짜 미선택"}{" "}
+                    {order?.pickup_time ? formatSelectedDate(order.pickup_time) : "날짜 미선택"}{" "}
                     <span className="text-sm font-400 text-gray-600">희망픽업시간</span>
                 </span>
             </div>
@@ -30,7 +30,7 @@ export default function PickupDateTimeSelector({
                 className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-lg cursor-pointer"
             >
                 {order?.pickup_time
-                    ? formatSelectedDate(order?.pickup_time.toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" }))
+                    ? formatSelectedDate(order.pickup_time)
                     : "날짜를 선택해주세요"}
             </div>
 
@@ -49,17 +49,23 @@ export default function PickupDateTimeSelector({
                         order?.pickup_time
                             ? order?.pickup_time
                             : (() => {
-                                // 픽업은 최소 내일부터 가능
-                                const tomorrow = new Date();
-                                tomorrow.setDate(tomorrow.getDate() + 1);
-                                tomorrow.setHours(0, 0, 0, 0);
-                                return tomorrow;
+                                // 픽업은 현재 시간부터 가능
+                                const now = new Date();
+                                return now;
                             })()
                     }
                     onConfirm={date => {
-                        // 시간 초기화
-                        const dateTimeString = `${date}T00:00:00`;
-                        updateOrder({ pickup_time: new Date(dateTimeString) });
+                        // 현재 시간 유지하면서 날짜만 변경
+                        if (order?.pickup_time) {
+                            const newDate = new Date(date);
+                            newDate.setHours(order.pickup_time.getHours());
+                            newDate.setMinutes(order.pickup_time.getMinutes());
+                            updateOrder({ pickup_time: newDate });
+                        } else {
+                            // 현재 시간으로 설정
+                            const now = new Date();
+                            updateOrder({ pickup_time: now });
+                        }
                         setIsDateModalOpen(false);
                     }}
                     onClose={() => setIsDateModalOpen(false)}

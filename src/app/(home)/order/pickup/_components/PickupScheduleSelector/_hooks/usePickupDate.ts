@@ -10,9 +10,12 @@ export function usePickupDate() {
         return new Date(order?.pickup_time);
     };
 
-    // 날짜 포맷팅 함수
-    const formatSelectedDate = (dateString: string) => {
-        const date = new Date(dateString);
+    // 날짜 포맷팅 함수 - Date 객체를 직접 받아서 처리
+    const formatSelectedDate = (date: Date) => {
+        if (!date || isNaN(date.getTime())) {
+            return "날짜를 선택해주세요";
+        }
+
         const month = (date.getMonth() + 1).toString().padStart(2, "0");
         const day = date.getDate().toString().padStart(2, "0");
         const weekDays = ["일", "월", "화", "수", "목", "금", "토"];
@@ -22,9 +25,15 @@ export function usePickupDate() {
         const tomorrow = new Date(today);
         tomorrow.setDate(today.getDate() + 1);
 
-        if (dateString === today.toISOString().split("T")[0]) {
+        // 날짜 비교를 위해 시간을 0으로 설정
+        const compareDate = new Date(date);
+        compareDate.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
+        tomorrow.setHours(0, 0, 0, 0);
+
+        if (compareDate.getTime() === today.getTime()) {
             return `오늘 (${month}/${day} ${weekDay})`;
-        } else if (dateString === tomorrow.toISOString().split("T")[0]) {
+        } else if (compareDate.getTime() === tomorrow.getTime()) {
             return `내일 (${month}/${day} ${weekDay})`;
         } else {
             return `${month}/${day} (${weekDay})`;

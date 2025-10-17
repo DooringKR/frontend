@@ -46,11 +46,15 @@ export default function DatePicker({ initialDate, onConfirm, onClose }: DatePick
 
     // 현재 달의 날짜들
     const today = new Date();
+    // 날짜 비교를 위해 시간을 0으로 설정
+    const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
     for (let day = 1; day <= lastDay.getDate(); day++) {
       const date = new Date(year, month, day);
       const isTomorrow =
         date.toDateString() === new Date(today.getTime() + 24 * 60 * 60 * 1000).toDateString();
-      const isPast = date < today;
+      // 날짜만 비교 (시간 제외)
+      const isPast = date < todayDateOnly;
 
       calendar.push({
         date,

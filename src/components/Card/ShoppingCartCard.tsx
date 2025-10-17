@@ -10,6 +10,7 @@ import { DoorType, FinishEdgeCount, HingeDirection, CabinetLegType } from "doori
 import Button from "../Button/Button";
 import DoorPreviewIcon from "../DoorPreviewIcon/DoorPreviewIcon";
 import QuantitySelector from "../QuantitySelector/QuantitySelector";
+import formatColor from "@/utils/formatColor";
 
 interface ShoppingCartCardProps {
   addRiceCookerRail?: boolean;
@@ -175,7 +176,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
         <div className="flex flex-col gap-2">
           <div className="text-[17px] font-600 text-gray-800">{title}</div>
           <div className="flex flex-col text-[15px] font-400 text-gray-500">
-            {type !== "hardware" && color && <div>색상 : {color}</div>}
+            {type !== "hardware" && color && <div>색상 : {formatColor(color)}</div>}
             {bodyMaterialLabel && <div>몸통 소재 및 두께 : {bodyMaterialLabel}</div>}
             {width && <div>너비 : {width}mm</div>}
             {height && <div>높이 : {height}mm</div>}
