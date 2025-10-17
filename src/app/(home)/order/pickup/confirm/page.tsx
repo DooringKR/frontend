@@ -98,7 +98,7 @@ export default function OrderConfirmPage() {
                                 <p className="pb-7 font-400 text-gray-500">
                                     {formatPhoneNumber(recipient_phone)}로
                                     <br />
-                                    10분 안에 확인 전화드려요
+                                    담당자 확인 후 순차적으로 확인 전화드려요
                                 </p>
                             </div>
                         </div>
