@@ -41,7 +41,7 @@ export default function VehicleClientPage() {
     <div className="flex min-h-screen flex-col bg-white pb-5">
       <TopNavigator />
 
-      <div className="flex-1 flex-col overflow-y-auto">
+      <div className="flex-1 flex-col overflow-y-auto pb-20">
         <h1 className="mx-5 mt-5 text-[23px] font-700">픽업차량 종류</h1>
 
         <div className="mx-1 mt-5 flex flex-col gap-3">
@@ -63,7 +63,7 @@ export default function VehicleClientPage() {
               checked={tempVehicleType === VehicleType.DIRECT_INPUT}
             />
             {tempVehicleType === VehicleType.DIRECT_INPUT && (
-              <div className="flex gap-2 px-4">
+              <div className="flex gap-2 px-4 pb-4">
                 <div className="mx-2 h-12 w-1 rounded-full bg-gray-200"></div>
                 <div className="flex flex-1 flex-col">
                   <Input
@@ -81,7 +81,7 @@ export default function VehicleClientPage() {
         </div>
       </div>
 
-      <div className="fixed bottom-0 w-full max-w-[460px] bg-white px-5 py-4">
+      <div className="fixed bottom-0 w-full max-w-[460px] bg-white px-5 py-4 safe-area-pb">
         <Button
           selected={true}
           onClick={handleSave}

@@ -183,7 +183,7 @@ function TallCabinetPageContent() {
                     <div className="text-[14px]/[20px] font-400 text-gray-600">손잡이 종류</div>
                     <div className="flex w-full gap-2">
                         {Object.values(CabinetHandleType)
-                            .filter(opt => opt !== "찬넬")
+                            .filter(opt => opt !== CabinetHandleType.PULL_DOWN)
                             .map(opt => (
                                 <Button
                                     key={opt}
