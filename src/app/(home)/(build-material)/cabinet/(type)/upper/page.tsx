@@ -15,7 +15,6 @@ import Button from "@/components/Button/Button";
 import Header from "@/components/Header/Header";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
-
 import useItemStore from "@/store/itemStore";
 import formatLocation from "@/utils/formatLocation";
 import SelectToggleButton from "@/components/Button/SelectToggleButton";
@@ -54,10 +53,10 @@ function UpperCabinetPageContent() {
     const [isCabinetLocationSheetOpen, setIsCabinetLocationSheetOpen] = useState(false);
     const [cabinetConstruct, setCabinetConstruct] = useState(item?.cabinet_construct ?? false);
     // 다리발: enum + 직접입력
-    const [legType, setLegType] = useState<CabinetLegType | "">(
-        item && Object.values(CabinetLegType).includes(item.legType) ? item.legType : ""
+    const [legType, setLegType] = useState<CabinetLegType | null>(
+        item && Object.values(CabinetLegType).includes(item.legType) ? item.legType : null
     );
-    const [legTypeDirectInput, setLegTypeDirectInput] = useState<string>(item?.legType_direct_input ?? "");
+    const [legTypeDirectInput, setLegTypeDirectInput] = useState<string>(item?.legType_direct_input ?? null);
     const [isLegTypeSheetOpen, setIsLegTypeSheetOpen] = useState(false);
 
     // 값 변경 시 itemStore에 동기화
