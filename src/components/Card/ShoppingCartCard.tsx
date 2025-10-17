@@ -119,7 +119,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   // color label: direct input first, else resolve id/name by product type
   let colorLabel: string | undefined = undefined;
   if (typeof color_direct_input === "string" && color_direct_input.trim() !== "") {
-    colorLabel = color_direct_input;
+    colorLabel = "(직접입력) " + color_direct_input;
   } else if (color) {
     const list = type === "door" ? DOOR_COLOR_LIST : type === "finish" ? FINISH_COLOR_LIST : type === "cabinet" ? CABINET_COLOR_LIST : null;
     if (list) {

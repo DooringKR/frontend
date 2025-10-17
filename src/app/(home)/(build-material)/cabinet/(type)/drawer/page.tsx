@@ -133,10 +133,16 @@ function DrawerCabinetPageContent() {
         ? formatLocation(cabinetLocation)
         : "";
     
-    // 서랍 종류 라벨 계산
-    const drawerTypeLabel = drawerType !== null 
-        ? CABINET_DRAWER_TYPE_LIST.find(option => option.id === drawerType)?.name || ""
-        : drawerTypeDirectInput || "";
+    // 서랍 종류 라벨 계산 (직접입력 시 사용자가 입력한 값 우선 표시)
+    const drawerTypeLabel = (() => {
+        if (drawerType !== null) {
+            if (drawerType === 4) {
+                return drawerTypeDirectInput || "직접입력";
+            }
+            return CABINET_DRAWER_TYPE_LIST.find(option => option.id === drawerType)?.name || "";
+        }
+        return drawerTypeDirectInput || "";
+    })();
     // 다리발 표시 라벨 (enum 값 또는 직접입력)
     const legEnumValues = (Object.values(CabinetLegType) as string[]).filter(v => v !== CabinetLegType.DIRECT_INPUT);
     const legTypeStr = (legType as string) || "";
@@ -243,8 +249,8 @@ function DrawerCabinetPageContent() {
                             setDrawerType(matchedOption.id);
                             setDrawerTypeDirectInput("");
                             console.log("✅ Set as predefined option:", matchedOption.id, value);
-                        } else if (value.trim() !== "" && (!matchedOption || matchedOption.id === 4)) {
-                            // 직접입력인 경우
+                        } else if (value.trim() !== "") {
+                            // 직접입력인 경우 (id=4), 사용자가 입력한 텍스트를 별도 보관
                             setDrawerType(4); // 직접입력은 id가 4
                             setDrawerTypeDirectInput(value);
                             console.log("✅ Set as direct input:", value);

@@ -59,7 +59,7 @@ function ReportPageContent() {
                 <ShoppingCartCard
                     type="finish"
                     title={item?.type ?? ""}
-                    color={formatColor(item?.color ?? "") || item?.finish_color_direct_input || ""}
+                    color={item?.color ? formatColor(item?.color ?? "") : "(직접입력) " + item?.finish_color_direct_input}
                     edgeCount={item?.edgeCount ?? undefined}
                     depth={item?.depth ? Number(item.depth) : undefined}
                     height={item?.height ? Number(item.height) : undefined}

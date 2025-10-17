@@ -269,7 +269,7 @@ function ReportPageContent() {
 	const bodyMaterialObj = typeof item.bodyMaterial === "number"
 		? BODY_MATERIAL_LIST.find(b => b.id === item.bodyMaterial)
 		: undefined;
-	const bodyMaterialName = bodyMaterialObj ? bodyMaterialObj.name : (item.body_material_direct_input ?? "");
+	const bodyMaterialName = bodyMaterialObj ? bodyMaterialObj.name : (item.body_material_direct_input ? "(직접입력) " + item.body_material_direct_input : "");
 
 	const unitPrice = calculateUnitCabinetPrice(
 		item.type,
@@ -292,7 +292,7 @@ function ReportPageContent() {
 				<ShoppingCartCard
 					type="cabinet"
 					title={item?.type ?? ""}
-					color={colorName}
+					color={item?.color ? formatColor(item?.color ?? "") : "(직접입력) " + item?.cabinet_color_direct_input}
 					depth={item?.depth ? Number(item.depth) : undefined}
 					height={item?.height ? Number(item.height) : undefined}
 					width={item?.width ? Number(item.width) : undefined}
@@ -303,9 +303,9 @@ function ReportPageContent() {
 					handleType={item?.handleType ?? undefined}
 					behindType={item?.finishType ?? undefined}
 					drawerType={item?.drawer_type ?? undefined}
-					drawer_type_direct_input={item?.drawer_type_direct_input ?? undefined}
+					drawer_type_direct_input={item?.drawer_type_direct_input ? "(직접입력) " + item.drawer_type_direct_input : undefined}
 					railType={item?.rail_type ?? undefined}
-					rail_type_direct_input={item?.rail_type_direct_input ?? undefined}
+					rail_type_direct_input={item?.rail_type_direct_input ? "(직접입력) " + item.rail_type_direct_input : undefined}
 					location={item.cabinet_location ?? undefined}
 					cabinet_construct={item.cabinet_construct ?? undefined}
 					legType={item.legType ?? undefined}

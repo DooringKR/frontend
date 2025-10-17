@@ -61,7 +61,7 @@ function DoorReportPageContent() {
                 <ShoppingCartCard
                     type="door"
                     title={item.type}
-                    color={formatColor(item?.color ?? "")}
+                    color={item?.color ? formatColor(item?.color ?? "") : "(직접입력) " + item?.door_color_direct_input}
                     width={item?.door_width ?? undefined}
                     height={item?.door_height ?? undefined}
                     hingeDirection={item?.hinge_direction ?? undefined}
