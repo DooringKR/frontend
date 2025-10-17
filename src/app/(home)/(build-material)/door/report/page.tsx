@@ -47,8 +47,8 @@ function DoorReportPageContent() {
 
     const unitPrice = calculateUnitDoorPrice(
         item?.color ?? "",
-        item?.width ?? 0,
-        item?.height ?? 0
+        item?.door_width ?? 0,
+        item?.door_height ?? 0
     );
 
     // 카테고리 정보 가져오기
