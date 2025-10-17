@@ -33,10 +33,13 @@ import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_r
 
 function createCabinetInstance(item: any) {
 	console.log("Creating cabinet instance for item:", item);
-	// 색상 id 변환 (DB 저장용)
+	// 색상 id 변환 (DB 저장용) + 직접입력 처리
 	const colorObj = CABINET_COLOR_LIST.find(c => c.id === Number(item.color))
 		|| CABINET_COLOR_LIST.find(c => c.name === item.color);
 	const colorId = colorObj ? colorObj.id : 0;
+    const cabinet_color_direct_input: string | undefined = (typeof item.cabinet_color_direct_input === 'string' && item.cabinet_color_direct_input.trim() !== '')
+      ? item.cabinet_color_direct_input
+      : undefined;
 
 	// robust body material logic
 	// If bodyMaterial is a number, use it. If direct input, set enum and string.
@@ -67,6 +70,7 @@ function createCabinetInstance(item: any) {
 		case "상부장":
 			return new UpperCabinet({
 				cabinet_color: colorId,
+				cabinet_color_direct_input,
 				cabinet_width: item.width,
 				cabinet_height: item.height,
 				cabinet_depth: item.depth,
@@ -83,6 +87,7 @@ function createCabinetInstance(item: any) {
 		case "하부장":
 			return new LowerCabinet({
 				cabinet_color: colorId,
+				cabinet_color_direct_input,
 				cabinet_width: item.width,
 				cabinet_height: item.height,
 				cabinet_depth: item.depth,
@@ -99,6 +104,7 @@ function createCabinetInstance(item: any) {
 		case "키큰장":
 			return new TallCabinet({
 				cabinet_color: colorId,
+				cabinet_color_direct_input,
 				cabinet_width: item.width,
 				cabinet_height: item.height,
 				cabinet_depth: item.depth,
@@ -118,6 +124,7 @@ function createCabinetInstance(item: any) {
 			const addBottomDrawer = item.lowerDrawer === "추가";
 			return new OpenCabinet({
 				cabinet_color: colorId,
+				cabinet_color_direct_input,
 				cabinet_width: item.width,
 				cabinet_height: item.height,
 				cabinet_depth: item.depth,
@@ -143,6 +150,7 @@ function createCabinetInstance(item: any) {
 			}
 			return new FlapCabinet({
 				cabinet_color: colorId,
+				cabinet_color_direct_input,
 				cabinet_width: item.width,
 				cabinet_height: item.height,
 				cabinet_depth: item.depth,
@@ -188,6 +196,7 @@ function createCabinetInstance(item: any) {
 			}
 			return new DrawerCabinet({
 				cabinet_color: colorId,
+				cabinet_color_direct_input,
 				cabinet_width: item.width,
 				cabinet_height: item.height,
 				cabinet_depth: item.depth,
@@ -249,7 +258,10 @@ function ReportPageContent() {
 	const colorObj = CABINET_COLOR_LIST.find(c => c.id === Number(item.color))
 		|| CABINET_COLOR_LIST.find(c => c.name === item.color);
 	const colorId = colorObj ? String(colorObj.id) : "";
-	const colorName = colorObj ? colorObj.name : (item.color ?? "");
+	// 표시용 색상 이름: 직접입력 우선, 없으면 리스트 이름, 그 외엔 원본 문자열
+	const colorName = (typeof item.cabinet_color_direct_input === 'string' && item.cabinet_color_direct_input.trim() !== '')
+		? item.cabinet_color_direct_input
+		: (colorObj ? colorObj.name : (item.color ?? ""));
 
 	// 몸통 소재 id/name 변환
 	const bodyMaterialObj = typeof item.bodyMaterial === "number"
