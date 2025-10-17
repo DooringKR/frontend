@@ -1,6 +1,7 @@
 
 import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
 import { CABINET_DRAWER_TYPE_LIST } from "@/constants/cabinetdrawertype";
+import { DOOR_COLOR_LIST, FINISH_COLOR_LIST, CABINET_COLOR_LIST } from "@/constants/colorList";
 import React from "react";
 import { ABSORBER_TYPE_LIST } from "@/constants/absorbertype";
 
@@ -18,6 +19,7 @@ interface ShoppingCartCardProps {
   title: string;
   totalPrice?: number;
   color?: string;
+  color_direct_input?: string;
   width?: number;
   height?: number;
   depth?: number;
@@ -67,6 +69,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   title,
   totalPrice,
   color,
+  color_direct_input,
   width,
   height,
   depth,
@@ -112,6 +115,19 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   addRiceCookerRail,
   addBottomDrawer,
 }) => {
+  // color label: direct input first, else resolve id/name by product type
+  let colorLabel: string | undefined = undefined;
+  if (typeof color_direct_input === "string" && color_direct_input.trim() !== "") {
+    colorLabel = color_direct_input;
+  } else if (color) {
+    const list = type === "door" ? DOOR_COLOR_LIST : type === "finish" ? FINISH_COLOR_LIST : type === "cabinet" ? CABINET_COLOR_LIST : null;
+    if (list) {
+      const found = list.find(opt => String(opt.id) === String(color) || opt.name === color);
+      colorLabel = found ? found.name : color;
+    } else {
+      colorLabel = color;
+    }
+  }
   // bodyMaterial이 '직접입력' id면 직접입력값, 아니면 name 변환
   let bodyMaterialLabel = bodyMaterial;
   const directBodyMaterialOption = BODY_MATERIAL_LIST.find(opt => opt.name === "직접입력");
@@ -175,7 +191,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
         <div className="flex flex-col gap-2">
           <div className="text-[17px] font-600 text-gray-800">{title}</div>
           <div className="flex flex-col text-[15px] font-400 text-gray-500">
-            {type !== "hardware" && color && <div>색상 : {color}</div>}
+            {type !== "hardware" && colorLabel && <div>색상 : {colorLabel}</div>}
             {bodyMaterialLabel && <div>몸통 소재 및 두께 : {bodyMaterialLabel}</div>}
             {width && <div>너비 : {width}mm</div>}
             {height && <div>높이 : {height}mm</div>}
@@ -199,7 +215,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
               <div>레일 종류 : {railTypeLabel}</div>
             )} */}
             {type === "hardware" && railLength && <div>레일 길이 : {railLength}</div>}
-            {type === "hardware" && color && <div>색상 : {color}</div>}
+            {type === "hardware" && colorLabel && <div>색상 : {colorLabel}</div>}
             {type === "hardware" && size && <div>사이즈 : {size}</div>}
             {type === "hardware" && thickness && <div>합판 두께 : {thickness}</div>}
             {type === "hardware" && angle && <div>각도 : {angle}</div>}
