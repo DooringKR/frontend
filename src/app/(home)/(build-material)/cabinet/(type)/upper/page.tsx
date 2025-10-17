@@ -113,7 +113,7 @@ function UpperCabinetPageContent() {
                 <BoxedSelect
                     label="도어 색상"
                     options={colorOptions}
-                    value={color}
+                    value={formatColor(item?.color ?? "") || item?.cabinet_color_direct_input || ""}
                     onClick={() => router.push("/cabinet/color")}
                     onChange={() => { }}
                 />

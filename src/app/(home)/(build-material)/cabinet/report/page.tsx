@@ -29,14 +29,17 @@ import { CartItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/cartitem_su
 import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
 import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_repository";
 
-
-
 function createCabinetInstance(item: any) {
 	console.log("Creating cabinet instance for item:", item);
-	// 색상 id 변환 (DB 저장용)
+	// 색상 id 변환 (DB 저장용) + 직접입력 처리
 	const colorObj = CABINET_COLOR_LIST.find(c => c.id === Number(item.color))
 		|| CABINET_COLOR_LIST.find(c => c.name === item.color);
-	const colorId = colorObj ? colorObj.id : 0;
+	const colorId: number | null = colorObj ? colorObj.id : null; // null when direct input or not found
+    const cabinet_color_direct_input: string | undefined = (typeof item.cabinet_color_direct_input === 'string' && item.cabinet_color_direct_input.trim() !== '')
+      ? item.cabinet_color_direct_input
+      : undefined;
+	const usingDirectColor = !!cabinet_color_direct_input;
+	const cabinetColor: number | null = usingDirectColor ? null : colorId;
 
 	// robust body material logic
 	// If bodyMaterial is a number, use it. If direct input, set enum and string.
@@ -66,7 +69,8 @@ function createCabinetInstance(item: any) {
 	switch (item.type) {
 		case "상부장":
 			return new UpperCabinet({
-				cabinet_color: colorId,
+				cabinet_color: cabinetColor as any,
+				cabinet_color_direct_input,
 				cabinet_width: item.width,
 				cabinet_height: item.height,
 				cabinet_depth: item.depth,
@@ -82,7 +86,8 @@ function createCabinetInstance(item: any) {
 			});
 		case "하부장":
 			return new LowerCabinet({
-				cabinet_color: colorId,
+				cabinet_color: cabinetColor as any,
+				cabinet_color_direct_input,
 				cabinet_width: item.width,
 				cabinet_height: item.height,
 				cabinet_depth: item.depth,
@@ -98,7 +103,8 @@ function createCabinetInstance(item: any) {
 			});
 		case "키큰장":
 			return new TallCabinet({
-				cabinet_color: colorId,
+				cabinet_color: cabinetColor as any,
+				cabinet_color_direct_input,
 				cabinet_width: item.width,
 				cabinet_height: item.height,
 				cabinet_depth: item.depth,
@@ -117,7 +123,8 @@ function createCabinetInstance(item: any) {
 			const addRiceCookerRail = item.riceRail === "추가";
 			const addBottomDrawer = item.lowerDrawer === "추가";
 			return new OpenCabinet({
-				cabinet_color: colorId,
+				cabinet_color: cabinetColor as any,
+				cabinet_color_direct_input,
 				cabinet_width: item.width,
 				cabinet_height: item.height,
 				cabinet_depth: item.depth,
@@ -142,7 +149,8 @@ function createCabinetInstance(item: any) {
 				absorber_type = directInputOption ? directInputOption.id : 0;
 			}
 			return new FlapCabinet({
-				cabinet_color: colorId,
+				cabinet_color: cabinetColor as any,
+				cabinet_color_direct_input,
 				cabinet_width: item.width,
 				cabinet_height: item.height,
 				cabinet_depth: item.depth,
@@ -187,7 +195,8 @@ function createCabinetInstance(item: any) {
 				rail_type = "직접 입력";
 			}
 			return new DrawerCabinet({
-				cabinet_color: colorId,
+				cabinet_color: cabinetColor as any,
+				cabinet_color_direct_input,
 				cabinet_width: item.width,
 				cabinet_height: item.height,
 				cabinet_depth: item.depth,
@@ -249,7 +258,12 @@ function ReportPageContent() {
 	const colorObj = CABINET_COLOR_LIST.find(c => c.id === Number(item.color))
 		|| CABINET_COLOR_LIST.find(c => c.name === item.color);
 	const colorId = colorObj ? String(colorObj.id) : "";
-	const colorName = colorObj ? colorObj.name : (item.color ?? "");
+	// 직접입력 색상 여부
+	const usingDirectColor = typeof item.cabinet_color_direct_input === 'string' && item.cabinet_color_direct_input.trim() !== '';
+	// 표시용 색상 이름: 직접입력 우선, 없으면 리스트 이름, 그 외엔 원본 문자열
+	const colorName = (typeof item.cabinet_color_direct_input === 'string' && item.cabinet_color_direct_input.trim() !== '')
+		? item.cabinet_color_direct_input
+		: (colorObj ? colorObj.name : (item.color ?? ""));
 
 	// 몸통 소재 id/name 변환
 	const bodyMaterialObj = typeof item.bodyMaterial === "number"
@@ -259,7 +273,7 @@ function ReportPageContent() {
 
 	const unitPrice = calculateUnitCabinetPrice(
 		item.type,
-		colorId,
+		usingDirectColor ? "" : String(colorId ?? ""),
 		item.width ?? 0,
 		typeof item.bodyMaterial === "number" ? item.bodyMaterial : 0,
 		item.handleType ?? "",

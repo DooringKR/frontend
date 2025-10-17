@@ -99,7 +99,7 @@ function OpenCabinetPageContent() {
 				<BoxedSelect
 					label="도어 색상"
 					options={colorOptions}
-					value={color}
+					value={formatColor(item?.color ?? "") || item?.cabinet_color_direct_input || ""}
 					onClick={() => setIsColorSheetOpen(true)}
 					onChange={() => { }}
 				/>
