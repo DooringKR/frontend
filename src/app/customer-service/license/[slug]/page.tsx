@@ -1,3 +1,5 @@
+"use client";
+
 // /customer-service/license/[slug]/page.tsx
 import { LICENSE_CONTENTS } from "@/constants/license/licenseContents";
 import { LICENSE_LIST } from "@/constants/license/licenseData";

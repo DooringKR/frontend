@@ -1,3 +1,5 @@
+"use client";
+
 import { LICENSE_LIST } from "@/constants/license/licenseData";
 import { LICENSE_PAGE } from "@/constants/pageName";
 

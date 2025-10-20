@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, Suspense } from "react";
 
 import AddressCheckClientPage from "./AddressCheckClient";

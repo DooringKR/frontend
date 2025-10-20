@@ -1,3 +1,5 @@
+"use client";
+
 import ReceiveOptionClientPage from "./ReceiveOptionClient";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";

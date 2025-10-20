@@ -1,3 +1,5 @@
+"use client";
+
 import { Suspense, useEffect } from "react";
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import { trackView } from "@/services/analytics/amplitude";

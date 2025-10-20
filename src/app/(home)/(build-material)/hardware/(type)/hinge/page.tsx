@@ -2,7 +2,7 @@
 
 import { HardwareMadeBy, HingeThickness, HingeAngle } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import { useRouter } from "next/navigation";
-import React, { Suspense, useRef } from "react";
+import React, { Suspense, useEffect, useRef } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import Header from "@/components/Header/Header";
@@ -13,6 +13,10 @@ import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import SelectToggleButton from "@/components/Button/SelectToggleButton";
 import Button from "@/components/Button/Button";
 import useItemStore from "@/store/itemStore";
+
+import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
+import { trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
 
 
 function HingePageContent() {
@@ -32,6 +36,19 @@ function HingePageContent() {
   const [madebyInput, setMadebyInput] = React.useState("");
   const [thicknessInput, setThicknessInput] = React.useState("");
   const [angleInput, setAngleInput] = React.useState("");
+
+  // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
+  useEffect(() => {
+    // 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
+    setScreenName('hardware_hinge');
+    const prev = getPreviousScreenName();
+    trackView({
+      object_type: "screen",
+      object_name: null,
+      current_screen: typeof window !== 'undefined' ? window.screen_name ?? null : null,
+      previous_screen: prev,
+    });
+  }, []);
 
   // itemStore에 직접입력값 동기화 (항상 동기화)
   React.useEffect(() => {
@@ -62,6 +79,7 @@ function HingePageContent() {
   const isAnySheetOpen = isMadebySheetOpen || isThicknessSheetOpen || isAngleSheetOpen;
   return (
     <div className="flex flex-col">
+      <InitAmplitude />
       <TopNavigator />
       <Header title={`${headerTitle} 정보를 입력해주세요`} />
       <div className="h-5" />

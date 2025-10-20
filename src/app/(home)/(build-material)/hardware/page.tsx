@@ -6,7 +6,7 @@
 import { HARDWARE_CATEGORY_LIST } from "@/constants/category";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 
 import Header from "@/components/Header/Header";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
@@ -14,10 +14,27 @@ import { HardwareType } from "dooring-core-domain/dist/enums/InteriorMateralsEnu
 import useItemStore from "@/store/itemStore";
 import { DetailProductType, ProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 
+import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
+import { trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+
 function HardwareCategoryPage() {
   const router = useRouter();
   const hardwarecategory = HARDWARE_CATEGORY_LIST;
   const setItem = useItemStore(state => state.setItem);
+
+  // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
+  useEffect(() => {
+      // 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
+      setScreenName('hardware');
+      const prev = getPreviousScreenName();
+      trackView({
+          object_type: "screen",
+          object_name: null,
+          current_screen: typeof window !== 'undefined' ? window.screen_name ?? null : null,
+          previous_screen: prev,
+      });
+  }, []);
 
   // const category = CATEGORY_LIST.find(item => item.slug === type);
   // let header;
@@ -30,6 +47,7 @@ function HardwareCategoryPage() {
 
   return (
     <div className="flex flex-col">
+      <InitAmplitude />
       <TopNavigator />
       <Header size="Large" title={`하드웨어 종류를 선택해주세요`} />
       <div className="grid w-full grid-cols-2 gap-x-3 gap-y-[40px] px-5 pb-5 pt-10">

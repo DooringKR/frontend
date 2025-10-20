@@ -1,3 +1,5 @@
+"use client";
+
 import { Suspense, useEffect } from "react";
 
 import VehicleClientPage from "./VehicleClient";
