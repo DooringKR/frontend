@@ -28,6 +28,7 @@ import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_r
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import { trackView } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+import { FinishType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 function ReportPageContent() {
     const router = useRouter();
@@ -66,6 +67,7 @@ function ReportPageContent() {
         item?.depthIncrease ?? 0,
         item?.height ?? 0,
         item?.heightIncrease ?? 0,
+        item.type
     );
 
     return (
