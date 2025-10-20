@@ -1,3 +1,4 @@
+import { FinishType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import { getPricingColorName } from "./colorMapping";
 
 // 마진율 (60%)
@@ -12,6 +13,7 @@ export function calculateUnitFinishPrice(
   additionalDepth: number,
   baseHeight: number,
   additionalHeight: number,
+  finishType: FinishType,
 ) {
   const originalPrice = calculateOriginalPrice(color);
   const totalDepth = baseDepth + additionalDepth;
@@ -19,7 +21,11 @@ export function calculateUnitFinishPrice(
   const split = calculateSplit(totalDepth, totalHeight);
 
   // 최종 견적 = (original_price / split ) * { 1 + ( margin + 0.1 ) }
-  const unitPrice = (originalPrice / split) * (1 + (MARGIN + 0.1));
+  let unitPrice = (originalPrice / split) * (1 + (MARGIN + 0.1));
+
+  if (finishType === FinishType.GALLE || finishType === FinishType.MOLDING) {
+    unitPrice *= 0.125; // 갤러리 및 몰딩 마감재는 20% 추가
+  }
 
   // 백원 단위에서 올림
   const finalPrice = Math.ceil(unitPrice / 100) * 100;
