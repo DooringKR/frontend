@@ -166,6 +166,33 @@ export default function OrderConfirmPage() {
                                 </div>
                             </div>
                         </div>
+                        <div>
+                            <div className="flex items-center gap-3 text-[17px] font-600 text-gray-800">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-gray-500">
+                                    5
+                                </div>
+                                <div>
+                                    시공 현장 사진, 도면을 카톡 채널로 보내주세요
+                                </div>
+                            </div>
+                            <div className="mt-2 flex">
+                                <div className="mx-[14.5px] w-[3px] rounded-full bg-gray-200"></div>
+                                <div
+                                    className="flex cursor-pointer justify-between py-[10px] w-full"
+                                    onClick={() => {
+                                        window.open(
+                                            "https://pf.kakao.com/_BlAHG",
+                                            "_blank",
+                                        );
+                                    }}
+                                >
+                                    <div className="flex gap-2 w-full">
+                                        <img src={"/icons/kakaoTalk.svg"} alt="카카오톡 아이콘" />
+                                        <span className="text-[17px] font-600">카카오톡 채널 바로가기</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div className="bg-gray-100 px-5 py-10">
