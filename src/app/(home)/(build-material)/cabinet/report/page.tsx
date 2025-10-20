@@ -15,7 +15,7 @@ import useItemStore from "@/store/itemStore";
 import { calculateUnitCabinetPrice } from "@/services/pricing/cabinetPricing";
 import { Cabinet, UpperCabinet, LowerCabinet, TallCabinet, OpenCabinet, FlapCabinet, DrawerCabinet } from "dooring-core-domain/dist/models/InteriorMaterials/Cabinet";
 import { CabinetLegType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import formatColor from "@/utils/formatColor";
@@ -29,7 +29,12 @@ import { CartItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/cartitem_su
 import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
 import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_repository";
 
+import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
+import { trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+
 function createCabinetInstance(item: any) {
+
 	console.log("Creating cabinet instance for item:", item);
 	// 색상 id 변환 (DB 저장용) + 직접입력 처리
 	const colorObj = CABINET_COLOR_LIST.find(c => c.id === Number(item.color))
@@ -230,6 +235,18 @@ function ReportPageContent() {
 		return <div>로딩 중...</div>;
 	}
 
+	// 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
+	useEffect(() => {
+		// 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
+		setScreenName('cabinet_report');
+		const prev = getPreviousScreenName();
+		trackView({
+			object_type: "screen",
+			object_name: null,
+			current_screen: typeof window !== 'undefined' ? window.screen_name ?? null : null,
+			previous_screen: prev,
+		});
+	}, []);
 
 	// 주요 필드 콘솔 출력
 	console.log(
@@ -286,6 +303,7 @@ function ReportPageContent() {
 
 	return (
 		<div className="flex flex-col">
+			<InitAmplitude />
 			<TopNavigator />
 			<Header size="Large" title={`${item?.type ?? ""} 주문 개수를 선택해주세요`} />
 			<div className="flex flex-col gap-[20px] px-5 pb-[100px] pt-5">
