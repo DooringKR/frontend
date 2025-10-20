@@ -80,9 +80,16 @@ function UpperCabinetPageContent() {
         DoorHeight,
         DoorDepth,
     });
-    // 버튼 활성화 조건 (order/cabinet upper와 동일)
-    const button1Disabled = isFormValid() || (bodyMaterial === null && !bodyMaterialDirectInput) || !handleType || !behindType || (cabinetConstruct === null) || (legType === null && !legTypeDirectInput);
 
+    // 버튼 활성화 조건 (order/cabinet upper와 동일)
+    const button1Disabled = 
+        isFormValid() || 
+        (bodyMaterial === null && !bodyMaterialDirectInput) || 
+        !handleType || 
+        !behindType || 
+        !cabinetLocation ||
+        (cabinetConstruct === null) || 
+        (legType === null && !legTypeDirectInput);
     // BODY_MATERIAL_LIST에서 선택된 소재명 또는 직접입력값 표시
     const selectedMaterial = bodyMaterial !== null ? BODY_MATERIAL_LIST.find(option => option.id === bodyMaterial) : null;
     const bodyMaterialLabel = bodyMaterial !== null

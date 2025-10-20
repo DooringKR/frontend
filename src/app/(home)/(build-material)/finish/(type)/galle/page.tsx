@@ -185,7 +185,7 @@ function FinishPageContent() {
                         type={"1button"}
                         button1Text={"다음"}
                         className="fixed bottom-0 w-full max-w-[460px]"
-                        button1Disabled={isFormValid()}
+                        button1Disabled={isFormValid() || !finish_location}
                         onButton1Click={() => {
                             // setCart({
                             //     type: "finish",
