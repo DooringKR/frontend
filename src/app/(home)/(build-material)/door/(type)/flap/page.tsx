@@ -20,6 +20,10 @@ import useItemStore from "@/store/itemStore";
 import { useFlapDoorValidation } from "./hooks/useFlapDoorValidation";
 import { Location } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
+import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
+import { trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+
 
 // Hooks
 
@@ -48,6 +52,19 @@ function FlapDoorPageContent() {
         boringSize,
         boringNum,
     });
+
+    // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
+    useEffect(() => {
+        // 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
+        setScreenName('door_flap');
+        const prev = getPreviousScreenName();
+        trackView({
+            object_type: "screen",
+            object_name: null,
+            current_screen: typeof window !== 'undefined' ? window.screen_name ?? null : null,
+            previous_screen: prev,
+        });
+    }, []);
 
     // boringNum이 바뀔 때 boringSize 길이 자동 조정
     useEffect(() => {
@@ -100,6 +117,7 @@ function FlapDoorPageContent() {
 
     return (
         <div className="flex min-h-screen flex-col">
+            <InitAmplitude />
             <TopNavigator />
             <Header
                 title={

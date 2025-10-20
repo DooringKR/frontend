@@ -20,6 +20,10 @@ import { useFinishValidation } from "./hooks/useFinishValidation";
 import DepthInputSection from "./_components/DepthInputSection";
 import HeightInputSection from "./_components/HeightInputSection";
 
+import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
+import { trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+
 // Location enum을 사용하여 options 생성
 const getLocationOptions = () => {
     return [
@@ -61,6 +65,19 @@ function FinishPageContent() {
     const [isHeightIncrease, setIsHeightIncrease] = useState(false);
     const [isFinishLocationSheetOpen, setIsFinishLocationSheetOpen] = useState(false);
     const [isEdgeCountSheetOpen, setIsEdgeCountSheetOpen] = useState(false);
+
+    // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
+    useEffect(() => {
+        // 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
+        setScreenName('finish_galle');
+        const prev = getPreviousScreenName();
+        trackView({
+            object_type: "screen",
+            object_name: null,
+            current_screen: typeof window !== 'undefined' ? window.screen_name ?? null : null,
+            previous_screen: prev,
+        });
+    }, []);
 
     // 유효성 검사 훅 사용
     const { depthError, heightError, isFormValid } = useFinishValidation({
@@ -121,6 +138,7 @@ function FinishPageContent() {
 
     return (
         <div className="flex flex-col">
+            <InitAmplitude />
             <TopNavigator />
             <Header
                 size="Large"

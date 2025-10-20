@@ -9,6 +9,10 @@ import Button from "@/components/BeforeEditByKi/Button/Button";
 
 import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 
+import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
+import { trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+
 export default function OrderConfirmPage() {
   const router = useRouter();
   const [recentOrder, setRecentOrder] = useState<any>(null);
@@ -16,14 +20,27 @@ export default function OrderConfirmPage() {
   const [showDetails, setShowDetails] = useState(true);
   const [isNavigating, setIsNavigating] = useState(false);
 
-  useEffect(() => {
-    const recentOrderRaw = localStorage.getItem("recentOrder");
-    if (recentOrderRaw) {
-      const orderData = JSON.parse(recentOrderRaw);
-      console.log("📦 전체 orderData:", orderData);
-      console.log("📦 orderData.order:", orderData.order);
-      console.log("📦 orderData.cartItems:", orderData.cartItems);
-      console.log("📦 orderData.order_id:", orderData.order_id); // 이게 실제 order_id
+    // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
+    useEffect(() => {
+        // 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
+        setScreenName('order_delivery_confirm');
+        const prev = getPreviousScreenName();
+        trackView({
+            object_type: "screen",
+            object_name: null,
+            current_screen: typeof window !== 'undefined' ? window.screen_name ?? null : null,
+            previous_screen: prev,
+        });
+    }, []);
+
+    useEffect(() => {
+        const recentOrderRaw = localStorage.getItem("recentOrder");
+        if (recentOrderRaw) {
+            const orderData = JSON.parse(recentOrderRaw);
+            console.log("📦 전체 orderData:", orderData);
+            console.log("📦 orderData.order:", orderData.order);
+            console.log("📦 orderData.cartItems:", orderData.cartItems);
+            console.log("📦 orderData.order_id:", orderData.order_id); // 이게 실제 order_id
 
       setRecentOrder(orderData.order);
       setOrderItems(orderData.cartItems || []);

@@ -24,6 +24,10 @@ import BoxedInput from "@/components/Input/BoxedInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";
 import formatColor from "@/utils/formatColor";
 
+import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
+import { trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+
 function TallCabinetPageContent() {
     const router = useRouter();
     const item = useItemStore(state => state.item);
@@ -59,6 +63,19 @@ function TallCabinetPageContent() {
     );
     const [legTypeDirectInput, setLegTypeDirectInput] = useState<string>(item?.legType_direct_input ?? null);
     const [isLegTypeSheetOpen, setIsLegTypeSheetOpen] = useState(false);
+
+    // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
+    useEffect(() => {
+        // 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
+        setScreenName('cabinet_tall');
+        const prev = getPreviousScreenName();
+        trackView({
+            object_type: "screen",
+            object_name: null,
+            current_screen: typeof window !== 'undefined' ? window.screen_name ?? null : null,
+            previous_screen: prev,
+        });
+    }, []);
 
     // 값 변경 시 itemStore에 동기화
     useEffect(() => { updateItem({ width: DoorWidth }); }, [DoorWidth]);
@@ -113,6 +130,7 @@ function TallCabinetPageContent() {
 
     return (
         <div className="flex flex-col">
+            <InitAmplitude />
             <TopNavigator />
             <Header title="키큰장 정보를 입력해주세요" />
             <div className="h-5" />

@@ -18,6 +18,10 @@ import useItemStore from "@/store/itemStore";
 import { useCabinetValidation } from "../upper/hooks/useCabinetValidation";
 import { CabinetBehindType, CabinetLegType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
+import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
+import { trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+
 function OpenCabinetPageContent() {
 	const router = useRouter();
 	const item = useItemStore(state => state.item);
@@ -52,6 +56,19 @@ function OpenCabinetPageContent() {
 	);
 	const [legTypeDirectInput, setLegTypeDirectInput] = useState<string>(item?.legType_direct_input ?? null);
 	const [isLegTypeSheetOpen, setIsLegTypeSheetOpen] = useState(false);
+
+	// 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
+	useEffect(() => {
+		// 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
+		setScreenName('cabinet_open');
+		const prev = getPreviousScreenName();
+		trackView({
+			object_type: "screen",
+			object_name: null,
+			current_screen: typeof window !== 'undefined' ? window.screen_name ?? null : null,
+			previous_screen: prev,
+		});
+	}, []);
 
 	// 값 변경 시 itemStore에 동기화
 	React.useEffect(() => { updateItem({ width: DoorWidth }); }, [DoorWidth]);
@@ -98,6 +115,7 @@ function OpenCabinetPageContent() {
 
 	return (
 		<div className="flex flex-col">
+			<InitAmplitude />
 			<TopNavigator />
 			<Header title="오픈장 정보를 입력해주세요" />
 			<div className="h-5" />

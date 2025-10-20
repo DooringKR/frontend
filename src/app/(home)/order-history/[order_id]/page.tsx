@@ -13,6 +13,10 @@ import OrderTimeline from "./_components/OrderTimeline";
 import OrderItemsList from "./_components/OrderItemsList";
 import { ORDER_HISTORY_FROM_CONFIRM } from "@/constants/pageName";
 
+import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
+import { trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+
 export default function OrderDetailPage() {
   const params = useParams();
   const searchParams = useSearchParams();
@@ -30,6 +34,19 @@ export default function OrderDetailPage() {
 
   // 훅은 항상 실행되지만, 내부에서 orderId가 null이면 아무것도 하지 않음
   const { orderWithItems, loading, error } = useOrderDetail(orderId);
+
+  // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
+  useEffect(() => {
+      // 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
+      setScreenName('order_history_detail');
+      const prev = getPreviousScreenName();
+      trackView({
+          object_type: "screen",
+          object_name: null,
+          current_screen: typeof window !== 'undefined' ? window.screen_name ?? null : null,
+          previous_screen: prev,
+      });
+  }, []);
 
   // orderId가 없으면 로딩 상태 표시
   if (!orderId) {
@@ -79,6 +96,7 @@ export default function OrderDetailPage() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <InitAmplitude />
       <TopNavigator title="상세 내역" page={isFromConfirm ? ORDER_HISTORY_FROM_CONFIRM : undefined} />
       <div className="flex flex-col pb-[60px]">
         {/* 주문 방식 & 가격 */}

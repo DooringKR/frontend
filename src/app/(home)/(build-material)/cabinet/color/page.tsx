@@ -3,7 +3,7 @@
 import { CABINET_COLOR_LIST } from "@/constants/colorList";
 import { CABINET_CATEGORY_LIST } from "@/constants/category";
 import { useRouter } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 import Header from "@/components/Header/Header";
 import BoxedInput from "@/components/Input/BoxedInput";
@@ -14,6 +14,10 @@ import ColorManualInputSheet from "./_components/ColorManualInputSheet";
 import ColorSelectBottomButton from "./_components/ColorSelectBottomButton";
 import ColorSelectList from "./_components/ColorSelectList";
 import useItemStore from "@/store/itemStore";
+
+import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
+import { trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
 
 function CabinetColorListPageContent() {
 	const router = useRouter();
@@ -26,8 +30,22 @@ function CabinetColorListPageContent() {
 		c.name.toLowerCase().includes(searchKeyword.toLowerCase()),
 	);
 
+	// 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
+	useEffect(() => {
+		// 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
+		setScreenName('cabinet_color');
+		const prev = getPreviousScreenName();
+		trackView({
+			object_type: "screen",
+			object_name: null,
+			current_screen: typeof window !== 'undefined' ? window.screen_name ?? null : null,
+			previous_screen: prev,
+		});
+	}, []);
+
 	return (
 		<div className="flex flex-col">
+			<InitAmplitude />
 			<TopNavigator />
 			<Header size="Large" title={`${item?.type} 색상을 선택해주세요`} />
 			<BoxedInput
