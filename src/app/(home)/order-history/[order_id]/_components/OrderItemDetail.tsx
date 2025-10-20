@@ -36,7 +36,9 @@ export default function OrderItemDetail({ item }: OrderItemDetailProps) {
 
   const renderItemDetails = () => {
     switch (item.detail_product_type) {
-      case DetailProductType.DOOR:
+      case DetailProductType.DOOR: {
+        const hinge = item?.materialDetails?.hinge;
+        const hingeCount = Array.isArray(hinge) ? hinge.length : undefined;
         return (
           <>
             <p className="text-[15px]/[22px] font-400 text-gray-600">
@@ -55,11 +57,11 @@ export default function OrderItemDetail({ item }: OrderItemDetailProps) {
               mm
             </p>
             <p className="text-[15px]/[22px] font-400 text-gray-600">
-              경첩 개수 : {item.materialDetails.hinge.length || "-"}개
+              경첩 개수 : {hingeCount ?? "-"}개
             </p>
-            {item.materialDetails.hinge.length > 0 && (
+            {Array.isArray(hinge) && hinge.length > 0 && (
               <p className="text-[15px]/[22px] font-400 text-gray-600">
-                경첩 위치 : {Array.isArray(item.materialDetails.hinge) ? item.materialDetails.hinge.filter(Boolean).join(", ") : item.materialDetails.hinge}
+                경첩 위치 : {hinge.filter(Boolean).join(", ")}
               </p>
             )}
             {item.materialDetails.hinge_direction && (
@@ -85,6 +87,7 @@ export default function OrderItemDetail({ item }: OrderItemDetailProps) {
             )}
           </>
         );
+      }
 
       case DetailProductType.FINISH:
         return (

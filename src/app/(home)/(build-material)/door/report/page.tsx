@@ -44,17 +44,6 @@ function DoorReportPageContent() {
         return colorItem?.id;
     };
 
-    // 빌드 시점에 item이 비어있을 수 있으므로 안전한 처리
-    if (!item || Object.keys(item).length === 0) {
-        return <div>로딩 중...</div>;
-    }
-
-    const unitPrice = calculateUnitDoorPrice(
-        item?.color ?? "",
-        item?.door_width ?? 0,
-        item?.door_height ?? 0
-    );
-
     // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
     useEffect(() => {
         // 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
@@ -67,6 +56,17 @@ function DoorReportPageContent() {
             previous_screen: prev,
         });
     }, []);
+
+    // 빌드 시점에 item이 비어있을 수 있으므로 안전한 처리
+    if (!item || Object.keys(item).length === 0) {
+        return <div>로딩 중...</div>;
+    }
+
+    const unitPrice = calculateUnitDoorPrice(
+        item?.color ?? "",
+        item?.door_width ?? 0,
+        item?.door_height ?? 0
+    );
 
     // 카테고리 정보 가져오기
 

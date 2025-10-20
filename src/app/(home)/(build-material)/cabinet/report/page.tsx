@@ -231,10 +231,6 @@ function ReportPageContent() {
 	const { cart, incrementCartCount } = useCartStore();
 	const [quantity, setQuantity] = useState(1);
 
-	if (!item || Object.keys(item).length === 0) {
-		return <div>로딩 중...</div>;
-	}
-
 	// 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
 	useEffect(() => {
 		// 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
@@ -247,6 +243,12 @@ function ReportPageContent() {
 			previous_screen: prev,
 		});
 	}, []);
+
+	if (!item || Object.keys(item).length === 0) {
+		return <div>로딩 중...</div>;
+	}
+
+	
 
 	// 주요 필드 콘솔 출력
 	console.log(
