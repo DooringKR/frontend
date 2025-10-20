@@ -9,6 +9,10 @@ import CurrentTime from "@/components/DeliveryTimeCheck/CurrentTime";
 import useAddressStore from "@/store/addressStore";
 import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 
+import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
+import { trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+
 export default function UnavailableDeliveryPage() {
   const router = useRouter();
 
@@ -17,6 +21,19 @@ export default function UnavailableDeliveryPage() {
   const [arrivalTimeFormatted, setArrivalTimeFormatted] = useState("");
   const [productionTimeFormatted, setProductionTimeFormatted] = useState("");
   const { address1 } = useAddressStore();
+
+  // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
+  useEffect(() => {
+      // 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
+      setScreenName('sameday_delivery_unavailable');
+      const prev = getPreviousScreenName();
+      trackView({
+          object_type: "screen",
+          object_name: null,
+          current_screen: typeof window !== 'undefined' ? window.screen_name ?? null : null,
+          previous_screen: prev,
+      });
+  }, []);
 
   // useEffect(() => {
   //   const fetchDeliveryInfo = async () => {
@@ -93,6 +110,7 @@ export default function UnavailableDeliveryPage() {
 
   return (
     <div className="relative mx-auto flex min-h-screen max-w-[500px] flex-col justify-center">
+      <InitAmplitude />
       <div className="flex flex-grow flex-col">
         <div className="p-5">
           <div>
