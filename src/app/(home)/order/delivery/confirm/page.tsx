@@ -172,7 +172,7 @@ export default function OrderConfirmPage() {
                                     5
                                 </div>
                                 <div>
-                                    시공 현장 사진, 도면을 카톡 채널로 보내주세요
+                                    시공 현장 사진, 도면을 카톡 채널 또는<br />문자(010-6409-4542)로 보내주세요
                                 </div>
                             </div>
                             <div className="mt-2 flex">
