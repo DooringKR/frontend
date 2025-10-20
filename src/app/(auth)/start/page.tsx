@@ -19,6 +19,9 @@ import useBizClientStore from "@/store/bizClientStore";
 import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
 import { ReadBizClientUsecase } from "@/DDD/usecase/user/read_bizClient_usecase";
 import Button from "@/components/Button/Button";
+import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
+import { trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
 
 function LoginPageContent() {
     const router = useRouter();
@@ -67,6 +70,28 @@ function LoginPageContent() {
 
         checkUserAndRedirect();
     }, [router]);
+
+    // 현재 화면명을 마운트 시 1회 설정 (이전 화면명은 보존됨)
+    useEffect(() => {
+        setScreenName('start');
+    }, []);
+
+    // 페이지 진입 View 이벤트 트래킹 (로딩 완료 시 전송)
+    useEffect(() => {
+        if (!isLoading) {
+            try {
+                const prev = getPreviousScreenName();
+                trackView({
+                    object_type: "screen",
+                    object_name: null,
+                    current_screen: typeof window !== 'undefined' ? window.screen_name ?? null : null,
+                    previous_screen: prev,
+                });
+            } catch (e) {
+                // no-op
+            }
+        }
+    }, [isLoading]);
 
     // 로딩 중일 때는 로딩 화면 표시
     if (isLoading) {
@@ -171,6 +196,9 @@ function LoginPageContent() {
                         className="w-[300px] h-[40px]"
                         onClick={() => window.open("tel:010-9440-1874", "_blank")} />
                 </div>
+                <div className="text-center text-m text-black-400"> 고객센터 전화번호 : 031-528-4002
+                </div>
+                
             </div>
 
             {/* 하단 안내 텍스트 */}
@@ -218,6 +246,8 @@ function LoginPage() {
                 </div>
             </div>
         }>
+            {/* Amplitude 초기화 (클라이언트 전용) */}
+            <InitAmplitude />
             <LoginPageContent />
         </Suspense>
     );

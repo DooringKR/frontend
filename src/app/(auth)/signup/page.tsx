@@ -13,6 +13,10 @@ import { KakaoAuthSupabaseRepository } from "@/DDD/data/service/kakao_auth_supab
 import { BizClientSupabaseRepository } from "@/DDD/data/db/User/bizclient_supabase_repository";
 import { KakaoSignupUsecase } from "@/DDD/usecase/auth/kakao_signup_usecase";
 import useSignupStore from "@/store/signupStore";
+import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
+import { trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+
 export default function SignupPage() {
     const [phoneNumber, setPhoneNumber] = useState("");
     const [selectedBusinessType, setSelectedBusinessType] = useState<BusinessType | null>(null);
@@ -22,6 +26,19 @@ export default function SignupPage() {
     const getNumbersOnly = (phone: string) => phone.replace(/[^0-9]/g, '');
     const numbersOnly = getNumbersOnly(phoneNumber);
     const isValidLength = numbersOnly.length === 11;
+
+    // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
+    useEffect(() => {
+        // 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
+        setScreenName('signup');
+        const prev = getPreviousScreenName();
+        trackView({
+            object_type: "screen",
+            object_name: null,
+            current_screen: typeof window !== 'undefined' ? window.screen_name ?? null : null,
+            previous_screen: prev,
+        });
+    }, []);
 
     // 화면 진입 시 포커스, 11자리 입력 완료 시 포커스 해제
     useEffect(() => {
@@ -58,6 +75,8 @@ export default function SignupPage() {
 
     return (
         <div className="flex h-screen w-full flex-col justify-start bg-white">
+            {/* Amplitude 초기화 (클라이언트 전용) */}
+            <InitAmplitude />
             <div className="px-5 pt-5">
                 <Chip text="가입을 위한 마지막 단계예요!" color="gray" />
             </div>
