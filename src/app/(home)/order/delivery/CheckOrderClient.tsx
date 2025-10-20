@@ -1,6 +1,15 @@
 "use client";
 
+import { CartItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/cartitem_supabase_repository";
+import { OrderSupabaseRepository } from "@/DDD/data/db/CartNOrder/order_supabase_repository";
+import { OrderItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/orderitem_supabase_repository";
+import { EstimateExportEdgeFunctionAdapter } from "@/DDD/data/service/estimate_export_edge_function_adapter";
+import { CreateOrderUsecase } from "@/DDD/usecase/create_order_usecase";
+import { CrudCartItemUsecase } from "@/DDD/usecase/crud_cart_item_usecase";
+import { GenerateOrderEstimateUseCase } from "@/DDD/usecase/generate_order_estimate_usecase";
 import { CHECK_ORDER_PAGE } from "@/constants/pageName";
+import { DeliveryMethod } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
+import { DeliveryOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/DeliveryOrder";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -10,24 +19,16 @@ import ReceiveOptionBar from "@/components/ReceiveOptionBar/ReceiveOptionBar";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import useAddressStore from "@/store/addressStore";
-import useCartStore from "@/store/cartStore";
-import useCartItemStore from "@/store/cartItemStore";
 import useBizClientStore from "@/store/bizClientStore";
+import useCartItemStore from "@/store/cartItemStore";
+import useCartStore from "@/store/cartStore";
 import { useOrderStore } from "@/store/orderStore";
 import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
-import { CreateOrderUsecase } from "@/DDD/usecase/create_order_usecase";
-import { GenerateOrderEstimateUseCase } from "@/DDD/usecase/generate_order_estimate_usecase";
-import { OrderSupabaseRepository } from "@/DDD/data/db/CartNOrder/order_supabase_repository";
-import { OrderItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/orderitem_supabase_repository";
-import { CartItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/cartitem_supabase_repository";
-import { EstimateExportEdgeFunctionAdapter } from "@/DDD/data/service/estimate_export_edge_function_adapter";
-import { CrudCartItemUsecase } from "@/DDD/usecase/crud_cart_item_usecase";
-import { DeliveryOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/DeliveryOrder";
+
 import DeliveryAddressCard from "./_components/DeliveryAddressCard";
+import DeliveryRequestSelector from "./_components/DeliveryRequestSelector";
 import DeliveryScheduleSelector from "./_components/DeliveryScheduleSelector/DeliveryScheduleSelector";
 import RecipientPhoneNumber from "./_components/RecipientPhoneNumber";
-import DeliveryRequestSelector from "./_components/DeliveryRequestSelector";
-import { DeliveryMethod } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 
 const CATEGORY_MAP: Record<string, string> = {
   door: "문짝",
@@ -38,10 +39,7 @@ const CATEGORY_MAP: Record<string, string> = {
 };
 
 function CheckOrderClientPage() {
-
   const router = useRouter();
-
-
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -56,7 +54,6 @@ function CheckOrderClientPage() {
   const updateOrder = useOrderStore(state => state.updateOrder);
   const user = useBizClientStore(state => state.bizClient!);
   const order = useOrderStore(state => state.order);
-
 
   // 화면 진입 시 초기 DeliveryOrder 구성
   useEffect(() => {
@@ -75,22 +72,21 @@ function CheckOrderClientPage() {
         is_today_delivery: useOrderStore.getState().order?.is_today_delivery || false,
         // 오늘 배송이 아니면 '내일 자정'이 기본값,
         //2025-10-01T15:00:00.000Z 이런 형식으로 저장되어 있음, z는 UTC(+0) 시간임, 저장은 이렇게 해두고 보여줄 때만 한국시간으로 변환
-        delivery_arrival_time: useOrderStore.getState().order?.delivery_arrival_time || (() => {
-          const tomorrow = new Date();
-          tomorrow.setDate(tomorrow.getDate() + 1);
-          tomorrow.setHours(0, 0, 0, 0);
-          return tomorrow;
-        })(),
+        delivery_arrival_time:
+          useOrderStore.getState().order?.delivery_arrival_time ||
+          (() => {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(0, 0, 0, 0);
+            return tomorrow;
+          })(),
       };
 
       // setOrder 대신 updateOrder 사용 (Order는 초기화되면 안되기 때문)
       updateOrder(deliveryOrderData);
-    }
+    };
     fetchDeliveryInfo();
   }, [user, getTotalPrice, updateOrder]);
-
-
-
 
   const handleOrderSubmit = async () => {
     // 주소 입력 검증
@@ -107,7 +103,6 @@ function CheckOrderClientPage() {
     setIsLoading(true);
 
     try {
-
       // 1. 주문 생성 (CreateOrderUsecase 사용)
       // Reuse a single repo instance for order so export usecase uses same implementation
       const orderRepo = new OrderSupabaseRepository();
@@ -117,10 +112,9 @@ function CheckOrderClientPage() {
         orderRepo,
         new OrderItemSupabaseRepository(),
         new CartItemSupabaseRepository(),
-        generateEstimateUC
+        generateEstimateUC,
       );
-      console.log('[OrderSubmit] Export usecase injected');
-
+      console.log("[OrderSubmit] Export usecase injected");
 
       const response = await createOrderUsecase.execute(order!, cart!.id!);
 
@@ -132,19 +126,17 @@ function CheckOrderClientPage() {
 
       // 2. DB에서 장바구니 아이템 삭제
       const deleteResults = await Promise.all(
-        cartItems.map(async (item) => {
+        cartItems.map(async item => {
           if (!item.id) return true;
 
           try {
-            await new CrudCartItemUsecase(
-              new CartItemSupabaseRepository()
-            ).delete(item.id);
+            await new CrudCartItemUsecase(new CartItemSupabaseRepository()).delete(item.id);
             return true;
           } catch (err) {
             console.error(`❌ CartItem 삭제 실패: ${item.id}`, err);
             return false;
           }
-        })
+        }),
       );
 
       const allDeleted = deleteResults.every(result => result === true);
@@ -162,7 +154,7 @@ function CheckOrderClientPage() {
           order_id: response.data?.id,
           order,
           cartItems,
-        })
+        }),
       ); // 자동 덮어쓰기
 
       // 4 Cart count 초기화 (cartItems 수만큼 감소시켜 0으로 만듦)
@@ -174,11 +166,8 @@ function CheckOrderClientPage() {
       clearCartItems(); // CartItemStore 초기화
       useOrderStore.getState().clearOrder(); // OrderStore 초기화
 
-
       // 6. 성공 페이지로 이동
       router.push("/order/delivery/confirm");
-
-
     } catch (error) {
       console.error("주문 처리 중 오류 발생:", error);
       alert("주문 처리 중 오류가 발생했습니다.");
@@ -187,11 +176,11 @@ function CheckOrderClientPage() {
     }
   };
 
-
   const isRequestInvalid =
     !order?.delivery_method ||
     (order?.delivery_method === DeliveryMethod.OPEN_GATE && !order?.gate_password?.trim()) ||
-    (order?.delivery_method === DeliveryMethod.DIRECT_INPUT && !order?.delivery_method_direct_input?.trim()) ||
+    (order?.delivery_method === DeliveryMethod.DIRECT_INPUT &&
+      !order?.delivery_method_direct_input?.trim()) ||
     (order?.is_today_delivery === false && !order?.delivery_arrival_time);
   return (
     <div className="flex min-h-screen flex-col justify-between">
@@ -207,14 +196,12 @@ function CheckOrderClientPage() {
           <h2 className="text-xl font-600 text-gray-800">주소 확인</h2>
           <DeliveryAddressCard
             address={{ address1: order?.road_address!, address2: order?.detail_address! }}
-            setAddress={
-              (address: { address1: string; address2: string }) => {
-                updateOrder({
-                  road_address: address.address1,
-                  detail_address: address.address2,
-                });
-              }
-            }
+            setAddress={(address: { address1: string; address2: string }) => {
+              updateOrder({
+                road_address: address.address1,
+                detail_address: address.address2,
+              });
+            }}
           />
         </div>
 
@@ -226,9 +213,7 @@ function CheckOrderClientPage() {
           <DeliveryRequestSelector />
         </section>
 
-        <PriceSummaryCard
-          getTotalPrice={getTotalPrice}
-        />
+        <PriceSummaryCard getTotalPrice={getTotalPrice} />
       </div>
       <div className="h-[100px]"></div>
       <div id="delivery-order-button" className="fixed bottom-0 w-full max-w-[460px] p-5">
@@ -237,7 +222,7 @@ function CheckOrderClientPage() {
           onClick={handleOrderSubmit}
           className="w-full"
           disabled={isRequestInvalid || isLoading}
-        // disabled={true}
+          // disabled={true}
         >
           {isLoading ? "주문 요청 중..." : "주문 접수하기"}
         </Button>

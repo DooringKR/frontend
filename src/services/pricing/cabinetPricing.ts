@@ -1,7 +1,9 @@
-import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
-import { getPricingColorName } from "./colorMapping";
-import { CabinetHandleType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
+import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
+import { CabinetHandleType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+
+import { getPricingColorName } from "./colorMapping";
+
 /**
  * 부분장 가격 계산
  */
@@ -12,7 +14,6 @@ export function calculateUnitCabinetPrice(
   bodyType: number,
   handleType: CabinetHandleType,
   depth: number,
-
 ): number {
   //변수 선언
   // const doorPrice = calculateDoorPrice(color);
@@ -23,56 +24,72 @@ export function calculateUnitCabinetPrice(
   let cabinet_depth_price = 0;
   let cabinet_width_price = 0;
   if (category === DetailProductType.LOWERCABINET || category === DetailProductType.TALLCABINET) {
-    if (1 <= depth && depth <= 400) {
-      cabinet_depth_price = 200;
-    } else if (400 < depth && depth <= 600) {
-      cabinet_depth_price = 260;
-    } else if (600 < depth) {
+    if (depth >= 1 && depth <= 400) {
+      // 깊이 급간 A
+      if (width >= 1 && width <= 900) {
+        // 너비 급간 A
+        cabinet_depth_price = 200;
+      } else if (width > 900) {
+        // 너비 급간 B
+        cabinet_depth_price = 250;
+      }
+    } else if (depth > 400 && depth <= 650) {
+      // 깊이 급간 B
+      if (width >= 1 && width <= 900) {
+        // 너비 급간 A
+        cabinet_depth_price = 250;
+      } else if (width > 900) {
+        // 너비 급간 B
+        cabinet_depth_price = 250;
+      }
+    } else if (650 < depth) {
       return 0;
     }
     const doorColorWeight = caculateDoorColorWeight(color);
     const bodyWeight = calculateBodyWeight(bodyType);
     const margin = 0.2;
-    const unitPrice = (cabinet_depth_price * width) * (1 + doorColorWeight + bodyWeight) * (1 + margin);
+    const unitPrice =
+      cabinet_depth_price * width * (1 + doorColorWeight + bodyWeight) * (1 + margin);
 
     // 만원 단위로 올림 처리 (432,400원 → 440,000원)
     const roundedUnitPrice = Math.ceil(unitPrice / 10000) * 10000;
 
-    return roundedUnitPrice
+    return roundedUnitPrice;
   } else if (category === DetailProductType.UPPERCABINET) {
     if (1 <= depth && depth <= 350) {
       cabinet_depth_price = 200;
     } else if (350 < depth) {
-      cabinet_depth_price = 260;
+      cabinet_depth_price = 250;
     }
     const doorColorWeight = caculateDoorColorWeight(color);
     const bodyWeight = calculateBodyWeight(bodyType);
     const margin = 0.2;
-    const unitPrice = (cabinet_depth_price * width) * (1 + doorColorWeight + bodyWeight) * (1 + margin);
+    const unitPrice =
+      cabinet_depth_price * width * (1 + doorColorWeight + bodyWeight) * (1 + margin);
 
     // 만원 단위로 올림 처리 (432,400원 → 440,000원)
     const roundedUnitPrice = Math.ceil(unitPrice / 10000) * 10000;
 
-    return roundedUnitPrice
+    return roundedUnitPrice;
   } else if (category === DetailProductType.DRAWERCABINET) {
     const doorColorWeight = caculateDoorColorWeight(color);
     const bodyWeight = calculateBodyWeight(bodyType);
     const margin = 0.2;
-    const unitPrice = (width * 500) * (1 + doorColorWeight + bodyWeight) * (1 + margin);
+    const unitPrice = width * 500 * (1 + doorColorWeight + bodyWeight) * (1 + margin);
 
     // 만원 단위로 올림 처리 (432,400원 → 440,000원)
     const roundedUnitPrice = Math.ceil(unitPrice / 10000) * 10000;
 
-    return roundedUnitPrice
+    return roundedUnitPrice;
   } else if (category === DetailProductType.OPENCABINET) {
     const doorColorPrice = calculateDoorPrice(color);
     const margin = 0.2;
-    const unitPrice = (width * doorColorPrice) * (1 + margin);
+    const unitPrice = width * doorColorPrice * (1 + margin);
 
     // 만원 단위로 올림 처리 (432,400원 → 440,000원)
     const roundedUnitPrice = Math.ceil(unitPrice / 10000) * 10000;
 
-    return roundedUnitPrice
+    return roundedUnitPrice;
   } else if (category === DetailProductType.FLAPCABINET) {
     if (1 <= width && width <= 600) {
       cabinet_width_price = 250000;
@@ -92,16 +109,18 @@ export function calculateUnitCabinetPrice(
     const doorColorWeight = caculateDoorColorWeight(color);
     const bodyWeight = calculateBodyWeight(bodyType);
     const margin = 0.2;
-    const unitPrice = (cabinet_depth_price + cabinet_width_price) * (1 + doorColorWeight + bodyWeight) * (1 + margin);
+    const unitPrice =
+      (cabinet_depth_price + cabinet_width_price) *
+      (1 + doorColorWeight + bodyWeight) *
+      (1 + margin);
 
     // 만원 단위로 올림 처리 (432,400원 → 440,000원)
     const roundedUnitPrice = Math.ceil(unitPrice / 10000) * 10000;
 
-    return roundedUnitPrice
+    return roundedUnitPrice;
   }
 
   return 0;
-
 }
 
 function caculateDoorColorWeight(color: string): number {
@@ -185,7 +204,7 @@ function calculateDoorPrice(color: string): number {
  * 바디 소재별 가격 계산
  */
 function calculateBodyPrice(bodyType: number): number {
-  const material = BODY_MATERIAL_LIST.find((m) => m.id === bodyType);
+  const material = BODY_MATERIAL_LIST.find(m => m.id === bodyType);
   if (!material) return 0;
   switch (material.name) {
     case "헤링본 PB 15T":
@@ -202,7 +221,7 @@ function calculateBodyPrice(bodyType: number): number {
 }
 
 function calculateBodyWeight(bodyType: number): number {
-  const material = BODY_MATERIAL_LIST.find((m) => m.id === bodyType);
+  const material = BODY_MATERIAL_LIST.find(m => m.id === bodyType);
   if (!material) return 0;
   switch (material.name) {
     case "헤링본 PB 15T":
@@ -229,5 +248,3 @@ function calculateHandlePrice(handleType: string): number {
       return 0;
   }
 }
-
-
