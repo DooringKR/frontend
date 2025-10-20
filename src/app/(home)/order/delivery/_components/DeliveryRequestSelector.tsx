@@ -1,21 +1,26 @@
 "use client";
 
+import { DeliveryMethod } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 import { useRouter } from "next/navigation";
 
 import { useOrderStore } from "@/store/orderStore";
-import { DeliveryMethod } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 
 export default function DeliveryRequestSelector() {
   const router = useRouter();
   const delivery_method = useOrderStore(state => state.order?.delivery_method);
-  const delivery_method_direct_input = useOrderStore(state => state.order?.delivery_method_direct_input);
+  const delivery_method_direct_input = useOrderStore(
+    state => state.order?.delivery_method_direct_input,
+  );
   const gate_password = useOrderStore(state => state.order?.gate_password);
 
   return (
     <>
       <div className="flex items-center justify-between rounded-xl border border-gray-200 px-5 py-4">
         <div className="flex flex-col gap-2">
-          <p className="text-[17px] font-600">배송 시 요청사항</p>
+          <div className="flex items-center gap-2">
+            <p className="text-[17px] font-600">배송 시 요청사항</p>
+            <span className="text-[14px] font-500 text-red-500">필수</span>
+          </div>
           <div className="flex flex-col gap-1">
             <button
               onClick={() => router.push("/order/delivery/receive-request")}
@@ -26,9 +31,10 @@ export default function DeliveryRequestSelector() {
             {delivery_method === DeliveryMethod.OPEN_GATE && gate_password?.trim() && (
               <span className="text-[15px] text-gray-800">{gate_password}</span>
             )}
-            {delivery_method === DeliveryMethod.DIRECT_INPUT && delivery_method_direct_input?.trim() && (
-              <span className="text-[15px] text-gray-800">{delivery_method_direct_input}</span>
-            )}
+            {delivery_method === DeliveryMethod.DIRECT_INPUT &&
+              delivery_method_direct_input?.trim() && (
+                <span className="text-[15px] text-gray-800">{delivery_method_direct_input}</span>
+              )}
           </div>
         </div>
         <button

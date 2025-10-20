@@ -21,8 +21,8 @@ export function useCabinetValidation({
     if (DoorWidth !== null) {
       if (DoorWidth < 1) {
         setWidthError("가로 길이는 최소 1mm 이상이어야 합니다.");
-      } else if (DoorWidth > 9999) {
-        setWidthError("가로 길이는 최대 9999mm 이하여야 합니다.");
+      } else if (DoorWidth > 99999) {
+        setWidthError("가로 길이는 최대 99999mm 이하여야 합니다.");
       } else {
         setWidthError("");
       }
