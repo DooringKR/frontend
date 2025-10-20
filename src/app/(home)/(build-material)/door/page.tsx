@@ -36,7 +36,7 @@ function DoorCategoryPage() {
                         <div className="relative aspect-square w-full">
                             <Image
                                 src={category.image}
-                                alt={category.type || ''}
+                                alt={category.type === DoorType.DRAWER ? '서랍 마에다' : (category.type || '')}
                                 fill
                                 style={{
                                     objectFit: "contain",
@@ -45,7 +45,7 @@ function DoorCategoryPage() {
                             />
                         </div>
                         <div className="text-center text-[17px]/[24px] font-500 text-gray-500">
-                            {category.type || ''}
+                            {category.type === DoorType.DRAWER ? '서랍 마에다' : (category.type || '')}
                         </div>
                     </div>
                 ))}
