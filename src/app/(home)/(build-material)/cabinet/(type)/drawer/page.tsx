@@ -127,10 +127,11 @@ function DrawerCabinetPageContent() {
     const button1Disabled =
         isFormValid() ||
         (bodyMaterial === null && !bodyMaterialDirectInput) ||
-        !handleType ||
-        !behindType ||
         (drawerType === null && !drawerTypeDirectInput) ||
+        !handleType ||
         (railType === "" && !railTypeDirectInput) || 
+        !behindType ||
+        !cabinetLocation ||
         (cabinet_construct === null) || 
         (legType === null && !legTypeDirectInput);
 
