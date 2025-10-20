@@ -9,8 +9,8 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import LicenseAnalyticsClient from "./LicenseAnalyticsClient";
 
-export default function LicenseDetailPage({ params }: { params: { slug: string } }) {
-  const { slug } = params;
+export default async function LicenseDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const content = LICENSE_CONTENTS[slug];
   const license = LICENSE_LIST.find(item => item.slug === slug);
 
