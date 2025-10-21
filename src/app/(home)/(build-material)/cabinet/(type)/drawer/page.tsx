@@ -32,8 +32,8 @@ import React from "react";
 import ToastIcon from "public/icons/toast";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
-import { trackView } from "@/services/analytics/amplitude";
-import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+import { trackClick, trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 
 function DrawerCabinetPageContent() {
     const router = useRouter();
@@ -485,6 +485,12 @@ function DrawerCabinetPageContent() {
                         className="fixed bottom-0 w-full max-w-[460px]"
                         button1Disabled={button1Disabled}
                         onButton1Click={() => {
+                            trackClick({
+                                object_type: "button",
+                                object_name: "confirm",
+                                current_page: getScreenName(),
+                                modal_name: null,
+                            });
                             // itemStore 값만 활용
                             router.push("/cabinet/report");
                         }}

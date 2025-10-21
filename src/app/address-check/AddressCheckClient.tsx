@@ -14,6 +14,8 @@ import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 import useBizClientStore from "@/store/bizClientStore";
 import { UpdateBizClientUsecase } from "@/DDD/usecase/user/update_BizClient_usecase";
 import { BizClientSupabaseRepository } from "@/DDD/data/db/User/bizclient_supabase_repository";
+import { trackClick } from "@/services/analytics/amplitude";
+import { getScreenName } from "@/utils/screenName";
 
 function AddressCheckClientPage() {
   const router = useRouter();
@@ -72,6 +74,14 @@ function AddressCheckClientPage() {
   }, [road_address]);
 
   const handleSubmit = async () => {
+
+    trackClick({
+      object_type: "button",
+      object_name: "confirm",
+      current_page: getScreenName(),
+      modal_name: null,
+    });
+
     if (isCheckingDelivery) return;
 
     if (!temp_road_address || !temp_detail_address) {

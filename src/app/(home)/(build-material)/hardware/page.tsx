@@ -15,8 +15,8 @@ import useItemStore from "@/store/itemStore";
 import { DetailProductType, ProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
-import { trackView } from "@/services/analytics/amplitude";
-import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+import { trackClick, trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 
 function HardwareCategoryPage() {
   const router = useRouter();
@@ -56,6 +56,13 @@ function HardwareCategoryPage() {
             key={category.slug}
             className="flex flex-1 cursor-pointer flex-col items-center gap-2"
             onClick={() => {
+
+              trackClick({
+                  object_type: "button",
+                  object_name: category.slug,
+                  current_page: getScreenName(),
+                  modal_name: null,
+              });
               setItem({
                 category: ProductType.HARDWARE,
                 type: category.type as HardwareType,

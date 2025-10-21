@@ -32,6 +32,9 @@ import { CartItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/cartitem_su
 import { CABINET_DRAWER_TYPE_LIST } from "@/constants/cabinetdrawertype";
 import { useOrderStore } from "@/store/orderStore";
 import formatColor from "@/utils/formatColor";
+import { track } from "@amplitude/analytics-browser";
+import { trackClick } from "@/services/analytics/amplitude";
+import { getScreenName } from "@/utils/screenName";
 
 
 // type OrderItem = DoorItem | FinishItem | CabinetItem | AccessoryItem | HardwareItem | null;
@@ -59,6 +62,12 @@ export default function CartClient() {
   const clearCartItems = useCartItemStore(state => state.clearCartItems);
 
   const handleGoToReceiveOption = async () => {
+    trackClick({
+      object_type: "button",
+      object_name: "confirm",
+      current_page: getScreenName(),
+      modal_name: null,
+    });
     try {
       router.push("/order");
     } catch (err) {
@@ -91,6 +100,12 @@ export default function CartClient() {
   };
 
   const handleAddProduct = () => {
+    trackClick({
+      object_type: "button",
+      object_name: "addanother",
+      current_page: getScreenName(),
+      modal_name: null,
+    });
     router.push("/");
   };
 

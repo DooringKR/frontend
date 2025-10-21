@@ -13,6 +13,8 @@ import { useRouter } from "next/navigation";
 import HeadphonesIcon from "public/icons/Headphones";
 import ChevronLeft from "public/icons/chevron_left";
 import React from "react";
+import { trackClick } from "@/services/analytics/amplitude";
+import { getScreenName } from "@/utils/screenName";
 
 interface TopNavigatorProps {
   title?: string;
@@ -77,7 +79,18 @@ const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, cartItemCount 
           {/* 장바구니 아이콘 */}
           <div className="rounded-2xl p-3 transition hover:bg-gray-100">
             <div className="relative">
-              <Link href={"/cart"} className="cursor-pointer">
+              <Link
+                href={"/cart"}
+                className="cursor-pointer"
+                onClick={() =>
+                  trackClick({
+                    object_type: "button",
+                    object_name: "cart",
+                    current_page: getScreenName(),
+                    modal_name: null,
+                  })
+                }
+              >
                 <img src={"/icons/shopping-cart.svg"} alt="장바구니 아이콘" />
               </Link>
 

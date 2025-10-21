@@ -15,8 +15,8 @@ import Button from "@/components/Button/Button";
 import useItemStore from "@/store/itemStore";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
-import { trackView } from "@/services/analytics/amplitude";
-import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+import { trackClick, trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 
 
 function RailPageContent() {
@@ -365,6 +365,12 @@ function RailPageContent() {
 							((railType === RailType.BALL || railType === RailType.UNDER) && railLength === "")
 						}
 						onButton1Click={() => {
+							trackClick({
+								object_type: "button",
+								object_name: "confirm",
+								current_page: getScreenName(),
+								modal_name: null,
+							});
 							router.push(`/hardware/report`);
 						}}
 					/>

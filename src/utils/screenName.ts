@@ -42,3 +42,16 @@ export const getPreviousScreenName = (): string | null => {
     return null;
   }
 };
+
+// Convenience alias used across the app
+export const getScreenName = (): string | null => {
+  if (typeof window === 'undefined') return null;
+  const fromWindow = window.screen_name ?? null;
+  if (fromWindow) return fromWindow;
+  try {
+    const v = sessionStorage.getItem('screen_name_current');
+    return v && v.length > 0 ? v : null;
+  } catch (_) {
+    return null;
+  }
+};
