@@ -196,11 +196,12 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
             {edgeCount && <div>엣지 면 수 : {edgeCount}</div>}
             {bodyMaterialLabel && <div>몸통 소재 및 두께 : {bodyMaterialLabel}</div>}
             {width && <div>너비 : {width}mm</div>}
-            {depth && <div>깊이 : {depth}mm</div>}
+            {depth && type === "finish" && <div>가로 : {depth}mm</div>}
+            {depth && type === "cabinet" && <div>깊이 : {depth}mm</div>}
             {depthIncrease !== undefined && depthIncrease !== null && depthIncrease > 0 && (
               <>
-                <div>⤷ 깊이 키우기 : {depthIncrease}mm</div>
-                {depth && <div>⤷ 합산 깊이 : {Number(depth) + Number(depthIncrease)}mm</div>}
+                <div>⤷ 가로 키우기 : {depthIncrease}mm</div>
+                {depth && <div>⤷ 합산 가로 : {Number(depth) + Number(depthIncrease)}mm</div>}
               </>
             )}
             {height && <div>높이 : {height}mm</div>}

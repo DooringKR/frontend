@@ -28,8 +28,8 @@ const DepthInputSection: React.FC<DepthInputSectionProps> = ({
     <div className="flex flex-col gap-2">
       <BoxedInput
         type="number"
-        label="깊이(가로) (mm)"
-        placeholder="깊이를 입력해주세요"
+        label="가로 (mm)"
+        placeholder="가로를 입력해주세요"
         value={depth}
         onChange={e => {
           const value = e.target.value;
