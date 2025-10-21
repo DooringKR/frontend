@@ -8,8 +8,9 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import ContactStatusChip from "./components/contactStatusChip";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
-import { trackView } from "@/services/analytics/amplitude";
-import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+import { trackClick, trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
+import { track } from "@amplitude/analytics-browser";
 
 function CustomerServicePage() {
   const [isContactAvailable, setIsContactAvailable] = useState(true);
@@ -45,6 +46,12 @@ function CustomerServicePage() {
               className="flex cursor-pointer justify-between py-[10px]"
               onClick={() => {
                 window.open("tel:010-9440-1874", "_blank");
+                trackClick({
+                  object_type: "button",
+                  object_name: "call",
+                  current_page: getScreenName(),
+                  modal_name: null,
+                });
               }}
             >
               <div className="flex gap-2">
@@ -60,6 +67,13 @@ function CustomerServicePage() {
                   "https://pf.kakao.com/_BlAHG",
                   "_blank",
                 );
+
+                trackClick({
+                  object_type: "button",
+                  object_name: "kakaotalkchannel",
+                  current_page: getScreenName(),
+                  modal_name: null,
+                });
               }}
             >
               <div className="flex gap-2">

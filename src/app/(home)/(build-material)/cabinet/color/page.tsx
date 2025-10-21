@@ -16,8 +16,8 @@ import ColorSelectList from "./_components/ColorSelectList";
 import useItemStore from "@/store/itemStore";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
-import { trackView } from "@/services/analytics/amplitude";
-import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+import { trackClick, trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 
 function CabinetColorListPageContent() {
 	const router = useRouter();
@@ -83,6 +83,12 @@ function CabinetColorListPageContent() {
 				onNext={() => {
 					if (item?.color || item?.cabinet_color_direct_input) {
 						const slug = CABINET_CATEGORY_LIST.find(cat => cat.type === item?.type)?.slug || "";
+						trackClick({
+							object_type: "button",
+							object_name: "confirm",
+							current_page: getScreenName(),
+							modal_name: null,
+						});
 						router.push(`/cabinet/${slug}`);
 					}
 				}}
@@ -92,6 +98,12 @@ function CabinetColorListPageContent() {
 					selectedColor={item?.color || item?.cabinet_color_direct_input || null}
 					type={item?.category || ""}
 					onClick={() => {
+						trackClick({
+							object_type: "button",
+							object_name: "confirm",
+							current_page: getScreenName(),
+							modal_name: null,
+						});
 						const slug = CABINET_CATEGORY_LIST.find(cat => cat.type === item?.type)?.slug || "";
 						router.push(`/cabinet/${slug}`);
 					}}

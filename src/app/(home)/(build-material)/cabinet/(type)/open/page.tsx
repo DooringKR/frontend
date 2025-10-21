@@ -19,8 +19,8 @@ import { useCabinetValidation } from "../upper/hooks/useCabinetValidation";
 import { CabinetBehindType, CabinetLegType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
-import { trackView } from "@/services/analytics/amplitude";
-import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+import { trackClick, trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 
 function OpenCabinetPageContent() {
 	const router = useRouter();
@@ -294,6 +294,12 @@ function OpenCabinetPageContent() {
 						className="fixed bottom-0 w-full max-w-[460px]"
 						button1Disabled={button1Disabled}
 						onButton1Click={() => {
+							trackClick({
+								object_type: "button",
+								object_name: "confirm",
+								current_page: getScreenName(),
+								modal_name: null,
+							});
 							router.push("/cabinet/report");
 						}}
 					/>

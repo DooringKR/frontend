@@ -17,6 +17,8 @@ import useCartStore from "@/store/cartStore";
 import WithdrawModal from "./_components/WithdrawModal";
 import WithdrawConfirmModal from "./_components/WithdrawConfirmModal";
 import { WithdrawAccountUsecase } from "@/DDD/usecase/withdraw_account_usecase";
+import { getScreenName } from "@/utils/screenName";
+import { trackClick } from "@/services/analytics/amplitude";
 
 function MyPageClient() {
   const router = useRouter();
@@ -132,6 +134,12 @@ function MyPageClient() {
           text="로그아웃"
           type={"GrayMedium"}
           onClick={() => {
+            trackClick({
+              object_type: "button",
+              object_name: "logout",
+              current_page: getScreenName(),
+              modal_name: null,
+            });
             console.log("로그아웃");
             supabase.auth.signOut();
             useBizClientStore.setState({ bizClient: null });
@@ -143,7 +151,15 @@ function MyPageClient() {
           className="w-[80px]"
           text="탈퇴하기"
           type={"GrayMedium"}
-          onClick={handleWithdrawClick}
+          onClick= {() => {
+            trackClick({
+              object_type: "button",
+              object_name: "withdraw",
+              current_page: getScreenName(),
+              modal_name: null,
+            });
+            handleWithdrawClick();
+          }}
         />
       </div>
 

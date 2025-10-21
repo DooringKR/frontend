@@ -19,6 +19,9 @@ import DoorIcon from "./Icons/Door";
 import FinishingMaterialsIcon from "./Icons/FinishingMaterials";
 import HardWareIcon from "./Icons/HardWare";
 import SectionHeadIcon from "./Icons/SectionHead";
+import { trackClick } from "@/services/analytics/amplitude";
+import { getScreenName } from "@/utils/screenName";
+import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 
 const productList = [
   { label: "가구 문짝", icon: <DoorIcon />, slug: "door", image: "/img/type/door.png" },
@@ -35,25 +38,62 @@ const HomeProductContainer: React.FC = () => {
 
   const handleCategoryClick = (slug: string) => {
     if (slug === "custom") {
+      trackClick({
+        object_type: "button",
+        object_name: "custom",
+        current_page: getScreenName(),
+        modal_name: null,
+      });
       router.push("/customer-service");
       return;
     }
 
     if (slug === "finish") {
+      trackClick({
+        object_type: "button",
+        object_name: "finish",
+        current_page: getScreenName(),
+        modal_name: null,
+      });
       router.push(`/finish`);
     } else if (slug === "hardware") {
+      trackClick({
+        object_type: "button",
+        object_name: "hardware",
+        current_page: getScreenName(),
+        modal_name: null,
+      });
       router.push(`/hardware`);
     } else if (slug === "accessory") {
+      trackClick({
+        object_type: "button",
+        object_name: "accessory",
+        current_page: getScreenName(),
+        modal_name: null,
+      });
       router.push(`/accessory`);
     } else if (slug === "cabinet") {
+      trackClick({
+        object_type: "button",
+        object_name: "cabinet",
+        current_page: getScreenName(),
+        modal_name: null,
+      });
       router.push(`/cabinet`);
     } else if (slug === "door") {
+      trackClick({
+        object_type: "button",
+        object_name: "door",
+        current_page: getScreenName(),
+        modal_name: null,
+      });
       router.push(`/door`);
     }
   };
 
   return (
     <div className="flex flex-col items-center gap-6 px-5">
+      <InitAmplitude />
       <div className="grid grid-cols-2 items-stretch justify-items-stretch gap-5 w-full h-full">
         {productList.map((item, idx) => (
           <HomeProductButton

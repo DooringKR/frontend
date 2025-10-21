@@ -12,8 +12,8 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import useItemStore from "@/store/itemStore";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
-import { trackView } from "@/services/analytics/amplitude";
-import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+import { trackClick, trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 
 // 유효성 검사 훅
 function useAccessoryValidation({
@@ -119,6 +119,12 @@ function AccessoryPageContent() {
                     className="fixed bottom-0 w-full max-w-[460px]"
                     button1Disabled={isFormValid()}
                     onButton1Click={() => {
+                        trackClick({
+                            object_type: "button",
+                            object_name: "confirm",
+                            current_page: getScreenName(),
+                            modal_name: null,
+                        });
                         router.push(`/accessory/spec/report`);
                     }}
                 />

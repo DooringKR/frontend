@@ -25,8 +25,8 @@ import { HingeDirection } from "dooring-core-domain/dist/enums/InteriorMateralsE
 import { Location } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
-import { trackView } from "@/services/analytics/amplitude";
-import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+import { trackClick, trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 
 function StandardDoorPageContent() {
     const router = useRouter();
@@ -257,6 +257,12 @@ function StandardDoorPageContent() {
                         className="fixed bottom-0 w-full max-w-[460px]"
                         button1Disabled={isFormValid() || !door_location}
                         onButton1Click={() => {
+                            trackClick({
+                                object_type: "button",
+                                object_name: "confirm",
+                                current_page: getScreenName(),
+                                modal_name: null,
+                            });
                             router.push("/door/report");
                         }}
                     />

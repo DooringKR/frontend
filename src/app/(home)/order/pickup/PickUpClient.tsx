@@ -24,6 +24,8 @@ import useCartStore from "@/store/cartStore";
 import { CrudCartItemUsecase } from "@/DDD/usecase/crud_cart_item_usecase";
 import { GenerateOrderEstimateUseCase } from "@/DDD/usecase/generate_order_estimate_usecase";
 import { EstimateExportEdgeFunctionAdapter } from "@/DDD/data/service/estimate_export_edge_function_adapter";
+import { getScreenName } from "@/utils/screenName";
+import { trackClick } from "@/services/analytics/amplitude";
 
 
 export default function PickUpClientPage() {
@@ -58,6 +60,12 @@ export default function PickUpClientPage() {
   const isDisabled = !order?.recipient_phone || !order?.vehicle_type || !order?.pickup_time;
 
   const handleSubmit = async () => {
+    trackClick({
+      object_type: "button",
+      object_name: "submit",
+      current_page: getScreenName(),
+      modal_name: null,
+    });
     setIsLoading(true);
 
     try {

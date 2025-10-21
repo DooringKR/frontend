@@ -29,6 +29,8 @@ import DeliveryAddressCard from "./_components/DeliveryAddressCard";
 import DeliveryRequestSelector from "./_components/DeliveryRequestSelector";
 import DeliveryScheduleSelector from "./_components/DeliveryScheduleSelector/DeliveryScheduleSelector";
 import RecipientPhoneNumber from "./_components/RecipientPhoneNumber";
+import { trackClick } from "@/services/analytics/amplitude";
+import { getScreenName } from "@/utils/screenName";
 
 const CATEGORY_MAP: Record<string, string> = {
   door: "문짝",
@@ -89,6 +91,13 @@ function CheckOrderClientPage() {
   }, [user, getTotalPrice, updateOrder]);
 
   const handleOrderSubmit = async () => {
+    trackClick({
+      object_type: "button",
+      object_name: "submit",
+      current_page: getScreenName(),
+      modal_name: null,
+    });
+
     // 주소 입력 검증
     if (!order?.road_address?.trim()) {
       alert("배송 주소를 입력해주세요.");

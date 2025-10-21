@@ -15,6 +15,9 @@ import { DeliverTime } from "@/utils/CheckDeliveryTime";
 import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 
 import AddressChangeConfirmModal from "./_components/AddressChangeConfirm";
+import { track } from "@amplitude/analytics-browser";
+import { trackClick } from "@/services/analytics/amplitude";
+import { getScreenName } from "@/utils/screenName";
 
 export default function AddressClientPage() {
   const router = useRouter();
@@ -172,6 +175,12 @@ export default function AddressClientPage() {
           type="button"
           disabled={isButtonDisabled || isCheckingDelivery}
           onClick={() => {
+            trackClick({
+              object_type: "button",
+              object_name: "confirm",
+              current_page: getScreenName(),
+              modal_name: null,
+            });
             if (!isAddress1Changed && !isAddress2Changed) {
               router.back(); // 변경사항 없으면 확인 누르면 뒤로가기
               return;
