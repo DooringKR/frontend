@@ -10,8 +10,8 @@ import BoxedInput from "@/components/Input/BoxedInput";
 import useItemStore from "@/store/itemStore";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
-import { trackView } from "@/services/analytics/amplitude";
-import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+import { trackClick, trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 
 function PiecePageContent() {
 	const router = useRouter();
@@ -68,6 +68,12 @@ function PiecePageContent() {
 					className="fixed bottom-0 w-full max-w-[460px]"
 					button1Disabled={color === "" || size === ""}
 					onButton1Click={() => {
+						trackClick({
+							object_type: "button",
+							object_name: "confirm",
+							current_page: getScreenName(),
+							modal_name: null,
+						});
 						router.push(`/hardware/report`);
 					}}
 				/>

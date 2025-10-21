@@ -20,8 +20,8 @@ import { Location } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import { useDrawerDoorValidation } from "./hooks/useDrawerDoorValidation";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
-import { trackView } from "@/services/analytics/amplitude";
-import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+import { trackClick, trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 
 function DrawerDoorPageContent() {
     const router = useRouter();
@@ -150,6 +150,12 @@ function DrawerDoorPageContent() {
                         className="fixed bottom-0 w-full max-w-[460px]"
                         button1Disabled={isFormValid() || !door_location}
                         onButton1Click={() => {
+                            trackClick({
+                                object_type: "button",
+                                object_name: "next",
+                                current_page: getScreenName(),
+                                modal_name: null,
+                            });
                             router.push("/door/report");
                         }}
                     />

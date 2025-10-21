@@ -9,6 +9,9 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import ReceiveOptionCard from "./_components/ReceiveOptionCard";
 import { useOrderStore } from "@/store/orderStore";
+import { trackClick } from "@/services/analytics/amplitude";
+import { getScreenName } from "@/utils/screenName";
+import { track } from "@amplitude/analytics-browser";
 
 export default function ReceiveOptionClientPage() {
   const router = useRouter();
@@ -21,8 +24,20 @@ export default function ReceiveOptionClientPage() {
   const handleSelect = (method: "DELIVERY" | "PICK_UP") => {
 
     if (method === "DELIVERY") {
+      trackClick({
+        object_type: "button",
+        object_name: "delivery",
+        current_page: getScreenName(),
+        modal_name: null,
+      });
       router.push("/order/delivery");
     } else {
+      trackClick({
+        object_type: "button",
+        object_name: "pickup",
+        current_page: getScreenName(),
+        modal_name: null,
+      });
       router.push("/order/pickup");
     }
   };

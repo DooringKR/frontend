@@ -23,8 +23,8 @@ import { FinishEdgeCount, Location } from "dooring-core-domain/dist/enums/Interi
 import useItemStore from "@/store/itemStore";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
-import { trackView } from "@/services/analytics/amplitude";
-import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+import { trackClick, trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 
 // Location enum을 사용하여 options 생성
 const getLocationOptions = () => {
@@ -219,6 +219,12 @@ function FinishPageContent() {
                             //     request: request,
                             //     finish_location: finish_location,
                             // });
+                            trackClick({
+                                object_type: "button",
+                                object_name: "confirm",
+                                current_page: getScreenName(),
+                                modal_name: null,
+                            });
                             router.push(`/finish/report`);
                         }}
                     />

@@ -26,8 +26,8 @@ import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
 import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_repository";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
-import { trackView } from "@/services/analytics/amplitude";
-import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+import { trackClick, trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 import { FinishType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 function ReportPageContent() {
@@ -111,6 +111,12 @@ function ReportPageContent() {
                     button1Text={"장바구니 담기"}
                     className="fixed bottom-0 w-full max-w-[460px]"
                     onButton1Click={async () => {
+                        trackClick({
+                            object_type: "button",
+                            object_name: "confirm",
+                            current_page: getScreenName(),
+                            modal_name: null,
+                        });
                         console.log(item!);
                         try {
 

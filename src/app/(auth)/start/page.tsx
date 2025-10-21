@@ -20,8 +20,8 @@ import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
 import { ReadBizClientUsecase } from "@/DDD/usecase/user/read_bizClient_usecase";
 import Button from "@/components/Button/Button";
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
-import { trackView } from "@/services/analytics/amplitude";
-import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+import { trackView, trackClick } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 
 function LoginPageContent() {
     const router = useRouter();
@@ -159,6 +159,13 @@ function LoginPageContent() {
                         className="cursor-pointer mx-auto"
                         onClick={async () => {
                             try {
+                                // Track click on Kakao login button
+                                trackClick({
+                                    object_type: "button",
+                                    object_name: "kakao",
+                                    current_page: getScreenName() ?? 'start',
+                                    modal_name: null,
+                                });
                                 // 1. 초기화
                                 // useBizClientStore.setState({ bizClient: null });
                                 // useCartStore.setState({ cart: null });
@@ -194,7 +201,15 @@ function LoginPageContent() {
                         type={"OutlinedMedium"}
                         text={"눌러서 전화 연결"}
                         className="w-[300px] h-[40px]"
-                        onClick={() => window.open("tel:010-9440-1874", "_blank")} />
+                        onClick={() => {
+                            trackClick({
+                                object_type: "button",
+                                object_name: "phone",
+                                current_page: getScreenName() ?? 'start',
+                                modal_name: null,
+                            });
+                            window.open("tel:010-9440-1874", "_blank");
+                        }} />
                 </div>
                 <div className="text-center text-m text-black-400"> 고객센터 전화번호 : 031-528-4002
                 </div>

@@ -14,8 +14,8 @@ import { BizClientSupabaseRepository } from "@/DDD/data/db/User/bizclient_supaba
 import { KakaoSignupUsecase } from "@/DDD/usecase/auth/kakao_signup_usecase";
 import useSignupStore from "@/store/signupStore";
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
-import { trackView } from "@/services/analytics/amplitude";
-import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+import { trackClick, trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 
 export default function SignupPage() {
     const [phoneNumber, setPhoneNumber] = useState("");
@@ -102,18 +102,38 @@ export default function SignupPage() {
                         <Button
                             type={selectedBusinessType === BusinessType.INTERIOR ? "BrandInverse" : "OutlinedLarge"}
                             text="인테리어 업체"
-                            onClick={() => handleBusinessTypeSelect(BusinessType.INTERIOR)}
+                            onClick={() => {handleBusinessTypeSelect(BusinessType.INTERIOR)
+                                trackClick({
+                                    object_type: "button",
+                                    object_name: "interior",
+                                    current_page: getScreenName() ?? 'signup',
+                                    modal_name: null,
+                                });
+                            }}
                         />
                         <Button
                             type={selectedBusinessType === BusinessType.FACTORY ? "BrandInverse" : "OutlinedLarge"}
                             text="가구 공장"
-                            onClick={() => handleBusinessTypeSelect(BusinessType.FACTORY)}
+                            onClick={() => {handleBusinessTypeSelect(BusinessType.FACTORY)
+                                trackClick({
+                                    object_type: "button",
+                                    object_name: "factory",
+                                    current_page: getScreenName() ?? 'signup',
+                                    modal_name: null,
+                                });
+                            }}
                         />
                     </div>
                 </div>
             )}
             {isValidLength && selectedBusinessType && <div className="fixed bottom-0 w-full max-w-[460px]">
                 <BottomButton type="1button" button1Text="확인" onButton1Click={() => {
+                    trackClick({
+                        object_type: "button",
+                        object_name: "confirm",
+                        current_page: getScreenName() ?? 'signup',
+                        modal_name: null,
+                    });
                     useSignupStore.setState({ businessType: selectedBusinessType, phoneNumber: phoneNumber.replace(/-/g, '') });
                     const kakaoSignupUsecase = new KakaoSignupUsecase(
                         new KakaoAuthSupabaseRepository(),

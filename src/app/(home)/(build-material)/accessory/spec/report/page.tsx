@@ -23,8 +23,8 @@ import { CrudInteriorMaterialsUsecase } from "@/DDD/usecase/crud_interior_materi
 import { InteriorMaterialsSupabaseRepository } from "@/DDD/data/db/interior_materials_supabase_repository";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
-import { trackView } from "@/services/analytics/amplitude";
-import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+import { trackClick, trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 
 function ReportPageContent() {
     const router = useRouter();
@@ -94,6 +94,12 @@ function ReportPageContent() {
                     button1Text={"장바구니 담기"}
                     className="fixed bottom-0 w-full max-w-[460px]"
                     onButton1Click={async () => {
+                        trackClick({
+                            object_type: "button",
+                            object_name: "confirm",
+                            current_page: getScreenName(),
+                            modal_name: null,
+                        });
                         console.log(item!);
                         try {
 
