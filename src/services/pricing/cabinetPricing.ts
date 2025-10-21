@@ -47,9 +47,8 @@ export function calculateUnitCabinetPrice(
     }
     const doorColorWeight = caculateDoorColorWeight(color);
     const bodyWeight = calculateBodyWeight(bodyType);
-    const margin = 0.2;
-    const unitPrice =
-      cabinet_depth_price * width * (1 + doorColorWeight + bodyWeight) * (1 + margin);
+    const margin = 0.1;
+    const unitPrice = (cabinet_depth_price * width) * (1 + doorColorWeight + bodyWeight) * (1 + margin);
 
     // 만원 단위로 올림 처리 (432,400원 → 440,000원)
     const roundedUnitPrice = Math.ceil(unitPrice / 10000) * 10000;
