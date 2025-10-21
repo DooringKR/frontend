@@ -192,13 +192,13 @@ function LoginPageContent() {
                     />
                     <Button
                         type={"OutlinedMedium"}
-                        text={"전화주문"}
+                        text={"눌러서 전화 연결"}
                         className="w-[300px] h-[40px]"
                         onClick={() => window.open("tel:010-9440-1874", "_blank")} />
                 </div>
                 <div className="text-center text-m text-black-400"> 고객센터 전화번호 : 031-528-4002
                 </div>
-                
+
             </div>
 
             {/* 하단 안내 텍스트 */}

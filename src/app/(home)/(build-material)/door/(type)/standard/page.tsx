@@ -8,6 +8,7 @@ import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import Button from "@/components/Button/Button";
 import Header from "@/components/Header/Header";
 import BoxedInput from "@/components/Input/BoxedInput";
+import ImageUploadInput from "@/components/Input/ImageUploadInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";
 import SelectToggleButton from "@/components/Button/SelectToggleButton";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
@@ -246,6 +247,14 @@ function StandardDoorPageContent() {
                     placeholder="제작 시 요청사항 | 예) 시공도 필요해요, …"
                     value={door_request}
                     onChange={e => handleRequestChange(e.target.value)}
+                />
+                <ImageUploadInput
+                    label="이미지 첨부"
+                    placeholder="이미지를 첨부해주세요"
+                    onChange={(files) => {
+                        // TODO: 이미지 업로드 기능 구현
+                        console.log('Selected files:', files);
+                    }}
                 />
             </div>
             <div className="h-[100px]"></div>
