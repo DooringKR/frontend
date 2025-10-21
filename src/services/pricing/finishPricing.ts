@@ -23,8 +23,8 @@ export function calculateUnitFinishPrice(
   // 최종 견적 = (original_price / split ) * { 1 + ( margin + 0.1 ) }
   let unitPrice = (originalPrice / split) * (1 + (MARGIN + 0.1));
 
-  // 백원 단위에서 올림
-  const finalPrice = Math.ceil(unitPrice / 100) * 100;
+  // 백원 단위에서 올림 -> 천원 단위에서 올림(1021)
+  const finalPrice = Math.ceil(unitPrice / 1000) * 1000;
 
   console.log(originalPrice, split, unitPrice, finalPrice);
   return finalPrice;
