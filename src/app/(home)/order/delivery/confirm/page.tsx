@@ -162,9 +162,9 @@ export default function OrderConfirmPage() {
                 <div className="mx-[14.5px] w-[3px] rounded-full bg-gray-200"></div>
                 <div className="flex w-[291px] flex-col gap-5 rounded-xl border border-gray-200 p-4 pb-7 font-400 text-gray-400">
                   <div className="flex flex-col">
-                    <span className="text-sm font-500">주문금액</span>
-                    <span className="text-xl font-600 text-blue-500">
-                      {order_price.toLocaleString()}원
+                    <span className="text-sm font-500"> 예상 금액 바탕으로 견적서 송부 예정</span>
+                    <span className="text-xl font-600 text-red-500">
+                      견적서 확인 후 송금해주세요
                     </span>
                   </div>
                   <div className="flex items-center justify-between">

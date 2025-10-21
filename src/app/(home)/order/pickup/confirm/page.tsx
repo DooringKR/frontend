@@ -23,26 +23,26 @@ export default function OrderConfirmPage() {
   const [showDetails, setShowDetails] = useState(true);
   const [isNavigating, setIsNavigating] = useState(false);
 
-    // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
-    useEffect(() => {
-        // 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
-        setScreenName('order_pickup_confirm');
-        const prev = getPreviousScreenName();
-        trackView({
-            object_type: "screen",
-            object_name: null,
-            current_screen: typeof window !== 'undefined' ? window.screen_name ?? null : null,
-            previous_screen: prev,
-        });
-    }, []);
+  // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
+  useEffect(() => {
+    // 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
+    setScreenName('order_pickup_confirm');
+    const prev = getPreviousScreenName();
+    trackView({
+      object_type: "screen",
+      object_name: null,
+      current_screen: typeof window !== 'undefined' ? window.screen_name ?? null : null,
+      previous_screen: prev,
+    });
+  }, []);
 
-    useEffect(() => {
-        const recentOrderRaw = localStorage.getItem("recentOrder");
-        if (recentOrderRaw) {
-            const orderData = JSON.parse(recentOrderRaw);
-            // console.log("📦 orderData.order:", orderData.order);
-            // console.log("📦 orderData.cartItems:", orderData.cartItems);
-            // console.log("📦 orderData.order_id:", orderData.order_id); // 이게 실제 order_id
+  useEffect(() => {
+    const recentOrderRaw = localStorage.getItem("recentOrder");
+    if (recentOrderRaw) {
+      const orderData = JSON.parse(recentOrderRaw);
+      // console.log("📦 orderData.order:", orderData.order);
+      // console.log("📦 orderData.cartItems:", orderData.cartItems);
+      // console.log("📦 orderData.order_id:", orderData.order_id); // 이게 실제 order_id
 
       setRecentOrder(orderData.order);
       setOrderItems(orderData.cartItems || []);
@@ -165,9 +165,9 @@ export default function OrderConfirmPage() {
                 <div className="mx-[14.5px] w-[3px] rounded-full bg-gray-200"></div>
                 <div className="flex w-[291px] flex-col gap-5 rounded-xl border border-gray-200 p-4 pb-7 font-400 text-gray-400">
                   <div className="flex flex-col">
-                    <span className="text-sm font-500">주문금액</span>
-                    <span className="text-xl font-600 text-blue-500">
-                      {order_price.toLocaleString()}원
+                    <span className="text-sm font-500">예상 금액 바탕으로 견적서 송부 예정</span>
+                    <span className="text-xl font-600 text-red-500">
+                      견적서 확인 후 송금해주세요
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
