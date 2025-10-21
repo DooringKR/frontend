@@ -1,8 +1,8 @@
 import { FinishType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import { getPricingColorName } from "./colorMapping";
 
-// 마진율 (60%)
-const MARGIN = 0;
+// 마진율 (20%)
+const MARGIN = 0.2;
 
 /**
  * 마감재 단위 가격 계산
@@ -21,7 +21,7 @@ export function calculateUnitFinishPrice(
   const split = calculateSplit(totalDepth, totalHeight, finishType);
 
   // 최종 견적 = (original_price / split ) * { 1 + ( margin + 0.1 ) }
-  let unitPrice = (originalPrice / split) * (1 + (MARGIN + 0.1));
+  let unitPrice = (originalPrice / split) * (1 + (MARGIN));
 
   // 백원 단위에서 올림 -> 천원 단위에서 올림(1021)
   const finalPrice = Math.ceil(unitPrice / 1000) * 1000;
@@ -74,9 +74,9 @@ function calculateOriginalPrice(color: string): number {
 
   // 색상별 가격 결정
   if (standardColors.includes(colorName)) {
-    return 130000;
+    return 110000;
   } else if (premiumColors.includes(colorName)) {
-    return 170000;
+    return 150000;
   } else if (herringbone3TColors.includes(colorName)) {
     return 30000;
   } else if (herringbone15TColors.includes(colorName)) {
@@ -86,7 +86,7 @@ function calculateOriginalPrice(color: string): number {
   } else if (lpmColors.includes(colorName)) {
     return 76000;
   } else {
-    return 130000;
+    return 110000;
   }
 }
 

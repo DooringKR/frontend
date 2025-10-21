@@ -1,7 +1,10 @@
+// 원장 동종 업계와 동일
+// 원장 가격에 마진 반영
+
 import { getPricingColorName } from "./colorMapping";
 
 // 마진율 (0%)
-const MARGIN = 0.1;
+const MARGIN = 0.2;
 
 /**
  * 문짝 가격 계산
@@ -50,13 +53,13 @@ function calculateOriginalPrice(color: string): number {
   ];
 
   if (premiumColors.includes(colorName)) {
-    return 170000;
+    return 150000;
   }
   // 표준 색상
   else if (standardColors.includes(colorName)) {
-    return 130000;
+    return 110000;
   } else {
-    return 130000;
+    return 110000;
   }
 }
 

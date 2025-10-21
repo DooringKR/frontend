@@ -292,7 +292,7 @@ function ReportPageContent() {
 
 	const unitPrice = calculateUnitCabinetPrice(
 		item.type,
-		usingDirectColor ? "" : String(colorId ?? ""),
+		usingDirectColor ? "" : String(colorName ?? ""),
 		item.width ?? 0,
 		typeof item.bodyMaterial === "number" ? item.bodyMaterial : 0,
 		item.handleType ?? "",
