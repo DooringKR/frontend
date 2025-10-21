@@ -2,6 +2,7 @@
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
+import ImageCard from "@/components/Card/ImageCard";
 import Header from "@/components/Header/Header";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
@@ -96,6 +97,10 @@ function DoorReportPageContent() {
                         router.push(`/door/${DOOR_CATEGORY_LIST.find(cat => cat.type === item.type)?.slug}`);
                     }}
                 />
+
+                {/* 업로드된 이미지 표시 */}
+                <ImageCard images={item?.raw_images || []} />
+
                 <OrderSummaryCard
                     quantity={quantity}
                     unitPrice={unitPrice}
@@ -107,6 +112,7 @@ function DoorReportPageContent() {
                     }}
                 />
             </div>
+
             <div id="door-add-to-cart-button">
                 <BottomButton
                     type={"1button"}
