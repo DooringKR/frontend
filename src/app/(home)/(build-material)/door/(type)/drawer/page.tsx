@@ -82,7 +82,7 @@ function DrawerDoorPageContent() {
             <TopNavigator />
             <Header
                 title={
-                    "서랍 정보를 입력해주세요"
+                    "서랍 마에다 정보를 입력해주세요"
                 }
             />
             <div className="flex flex-1 flex-col gap-5 px-5">
