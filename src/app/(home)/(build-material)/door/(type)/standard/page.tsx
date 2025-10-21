@@ -69,7 +69,7 @@ function StandardDoorPageContent() {
     const [door_location, setDoorLocation] = useState(item?.door_location ?? "");
     const [addOn_hinge, setAddOn_hinge] = useState(item?.addOn_hinge ?? false);
     const [isDoorLocationSheetOpen, setIsDoorLocationSheetOpen] = useState(false);
-
+    const [images, setImages] = useState<File[]>(item?.raw_images || []);
     // 유효성 검사 훅 사용
     const { widthError, heightError, boringError, isFormValid } = useDoorValidation({
         DoorWidth: door_width,
@@ -126,6 +126,12 @@ function StandardDoorPageContent() {
     const handleDoorLocationChange = (newLocation: string) => {
         setDoorLocation(newLocation);
         updateItem({ door_location: newLocation });
+    };
+
+    const handleImagesChange = (newImages: File[]) => {
+        setImages(newImages);
+        updateItem({ raw_images: newImages });
+        console.log('이미지 업로드됨:', newImages.length, '개');
     };
 
     const handleAddOnHingeChange = (newAddOnHinge: boolean) => {
@@ -251,10 +257,8 @@ function StandardDoorPageContent() {
                 <ImageUploadInput
                     label="이미지 첨부"
                     placeholder="이미지를 첨부해주세요"
-                    onChange={(files) => {
-                        // TODO: 이미지 업로드 기능 구현
-                        console.log('Selected files:', files);
-                    }}
+                    value={images}
+                    onChange={handleImagesChange}
                 />
             </div>
             <div className="h-[100px]"></div>

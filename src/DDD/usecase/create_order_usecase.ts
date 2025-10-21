@@ -102,7 +102,6 @@ export class CreateOrderUsecase {
                 order_id: orderId,
                 unit_price: cartItem.unit_price,
                 item_count: cartItem.item_count,
-                image_url: 'image_url',
                 detail_product_type: cartItem.detail_product_type,
                 item_detail: cartItem.item_detail,
             });

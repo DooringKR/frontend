@@ -13,6 +13,7 @@ interface ImageUploadInputProps {
     accept?: string;
     multiple?: boolean;
     maxSize?: number; // MB 단위
+    maxFiles?: number; // 최대 파일 개수
 }
 
 const ImageUploadInput = React.forwardRef<HTMLInputElement, ImageUploadInputProps>(
@@ -30,11 +31,13 @@ const ImageUploadInput = React.forwardRef<HTMLInputElement, ImageUploadInputProp
             accept = "image/*",
             multiple = true,
             maxSize = 10, // 10MB
+            maxFiles = 5, // 최대 5개
         },
         ref
     ) => {
         const [isDragOver, setIsDragOver] = useState(false);
         const [uploadedFiles, setUploadedFiles] = useState<File[]>(value);
+        const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
         const inputRef = useRef<HTMLInputElement>(null);
         const imageUrlsRef = useRef<string[]>([]);
 
@@ -93,9 +96,18 @@ const ImageUploadInput = React.forwardRef<HTMLInputElement, ImageUploadInputProp
 
             console.log('유효한 파일:', validFiles.length, '개');
             const newFiles = multiple ? [...uploadedFiles, ...validFiles] : validFiles;
-            console.log('새 파일 목록:', newFiles.length, '개');
-            setUploadedFiles(newFiles);
-            onChange?.(newFiles);
+
+            // 최대 파일 개수 체크
+            if (newFiles.length > maxFiles) {
+                console.warn(`최대 ${maxFiles}개까지만 업로드할 수 있습니다.`);
+                const limitedFiles = newFiles.slice(0, maxFiles);
+                setUploadedFiles(limitedFiles);
+                onChange?.(limitedFiles);
+            } else {
+                console.log('새 파일 목록:', newFiles.length, '개');
+                setUploadedFiles(newFiles);
+                onChange?.(newFiles);
+            }
         };
 
         const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -119,7 +131,7 @@ const ImageUploadInput = React.forwardRef<HTMLInputElement, ImageUploadInputProp
         };
 
         const handleClick = () => {
-            if (!disabled) {
+            if (!disabled && uploadedFiles.length < maxFiles) {
                 inputRef.current?.click();
             }
         };
@@ -156,15 +168,15 @@ const ImageUploadInput = React.forwardRef<HTMLInputElement, ImageUploadInputProp
                 )}
 
                 <div
-                    className={`relative rounded-[12px] border transition-colors cursor-pointer ${error
+                    className={`relative rounded-[12px] border transition-colors ${uploadedFiles.length >= maxFiles ? "cursor-not-allowed opacity-50" : "cursor-pointer"} ${error
                         ? "border-[2px] border-[#FCA5A5] py-[11px]"
                         : isDragOver
                             ? "border-[2px] border-brand-300 py-[11px]"
                             : "border border-gray-200 py-3 hover:border-[2px] hover:border-brand-100 hover:py-[11px]"
                         } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
-                    onDrop={handleDrop}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
+                    onDrop={uploadedFiles.length < maxFiles ? handleDrop : undefined}
+                    onDragOver={uploadedFiles.length < maxFiles ? handleDragOver : undefined}
+                    onDragLeave={uploadedFiles.length < maxFiles ? handleDragLeave : undefined}
                     onClick={handleClick}
                 >
                     <div className="px-6 text-center">
@@ -186,7 +198,7 @@ const ImageUploadInput = React.forwardRef<HTMLInputElement, ImageUploadInputProp
                                 {placeholder}
                             </p>
                             <p className="text-xs text-gray-400">
-                                JPG, PNG, GIF (최대 {maxSize}MB)
+                                JPG, PNG, GIF (최대 {maxSize}MB, {maxFiles}개)
                             </p>
                         </div>
                     </div>
@@ -206,10 +218,7 @@ const ImageUploadInput = React.forwardRef<HTMLInputElement, ImageUploadInputProp
                 {/* 업로드된 파일 미리보기 */}
                 {uploadedFiles.length > 0 && (
                     <div className="space-y-3">
-                        <div className="text-sm text-gray-600">
-                            업로드된 파일: {uploadedFiles.length}개
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-3 gap-3">
                             {uploadedFiles.map((file, index) => {
                                 console.log('미리보기 렌더링:', file.name, index);
                                 return (
@@ -219,7 +228,8 @@ const ImageUploadInput = React.forwardRef<HTMLInputElement, ImageUploadInputProp
                                             <img
                                                 src={createImageUrl(file, index)}
                                                 alt={file.name}
-                                                className="w-full h-full object-cover"
+                                                className="w-full h-full object-cover cursor-pointer"
+                                                onClick={() => setSelectedImageIndex(index)}
                                             />
                                             {/* 삭제 버튼 */}
                                             <button
@@ -228,58 +238,50 @@ const ImageUploadInput = React.forwardRef<HTMLInputElement, ImageUploadInputProp
                                                     e.stopPropagation();
                                                     removeFile(index);
                                                 }}
-                                                className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-600"
+                                                className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-100 hover:bg-red-600 transition-colors duration-200"
                                             >
                                                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                                 </svg>
                                             </button>
-                                            {/* 파일 정보 오버레이 */}
-                                            <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                                <p className="text-xs truncate">{file.name}</p>
-                                                <p className="text-xs text-gray-300">
-                                                    {(file.size / 1024 / 1024).toFixed(1)}MB
-                                                </p>
-                                            </div>
                                         </div>
                                     </div>
                                 );
                             })}
-                        </div>
-
-                        {/* 파일 목록 (컴팩트 버전) */}
-                        <div className="space-y-1">
-                            {uploadedFiles.map((file, index) => (
-                                <div key={`list-${index}`} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
-                                    <div className="flex items-center gap-2">
-                                        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                        <span className="text-sm text-gray-700 truncate">{file.name}</span>
-                                        <span className="text-xs text-gray-500">
-                                            ({(file.size / 1024 / 1024).toFixed(1)}MB)
-                                        </span>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            removeFile(index);
-                                        }}
-                                        className="text-gray-400 hover:text-red-500 transition-colors"
-                                    >
-                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            ))}
                         </div>
                     </div>
                 )}
 
                 {error && helperText && (
                     <div className="text-[15px] font-400 text-red-500">{helperText}</div>
+                )}
+
+                {/* 이미지 확대 모달 */}
+                {selectedImageIndex !== null && (
+                    <div
+                        className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+                        onClick={() => setSelectedImageIndex(null)}
+                    >
+                        <div className="relative max-w-[90vw] max-h-[90vh] p-4">
+                            <img
+                                src={createImageUrl(uploadedFiles[selectedImageIndex], selectedImageIndex)}
+                                alt={uploadedFiles[selectedImageIndex].name}
+                                className="max-w-full max-h-full object-contain"
+                                onClick={(e) => e.stopPropagation()}
+                            />
+
+                            {/* 닫기 버튼 */}
+                            <button
+                                type="button"
+                                onClick={() => setSelectedImageIndex(null)}
+                                className="absolute top-2 right-2 w-8 h-8 bg-black bg-opacity-50 text-white rounded-full flex items-center justify-center hover:bg-opacity-75 transition-colors"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                 )}
             </div>
         );
