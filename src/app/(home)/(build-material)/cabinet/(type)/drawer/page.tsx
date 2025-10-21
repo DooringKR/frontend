@@ -147,10 +147,10 @@ function DrawerCabinetPageContent() {
         (bodyMaterial === null && !bodyMaterialDirectInput) ||
         (drawerType === null && !drawerTypeDirectInput) ||
         !handleType ||
-        (railType === "" && !railTypeDirectInput) || 
+        (railType === "" && !railTypeDirectInput) ||
         !behindType ||
         !cabinetLocation ||
-        (cabinet_construct === null) || 
+        (cabinet_construct === null) ||
         (legType === null && !legTypeDirectInput);
 
     // BODY_MATERIAL_LIST에서 선택된 소재명 또는 직접입력값 표시
@@ -163,7 +163,7 @@ function DrawerCabinetPageContent() {
     const cabinetLocationLabel = cabinetLocation && locationEnumValues.includes(cabinetLocation)
         ? formatLocation(cabinetLocation)
         : "";
-    
+
     // 서랍 종류 라벨 계산 (직접입력 시 사용자가 입력한 값 우선 표시)
     const drawerTypeLabel = (() => {
         if (drawerType !== null) {
@@ -272,10 +272,10 @@ function DrawerCabinetPageContent() {
                     value={drawerTypeLabel}
                     onChange={(value) => {
                         console.log("🔄 DrawerType changed:", value);
-                        
+
                         // CABINET_DRAWER_TYPE_LIST에서 매칭되는 옵션 찾기
                         const matchedOption = CABINET_DRAWER_TYPE_LIST.find(option => option.name === value);
-                        
+
                         if (matchedOption && matchedOption.id !== 4) {
                             // 미리 정의된 옵션인 경우 (직접입력 제외)
                             setDrawerType(matchedOption.id);
@@ -298,7 +298,7 @@ function DrawerCabinetPageContent() {
                     <div className="text-[14px]/[20px] font-400 text-gray-600">손잡이 종류</div>
                     <div className="flex w-full gap-2">
                         {Object.values(CabinetHandleType)
-                            .filter(opt => opt !== "찬넬")
+                            .filter(opt => opt !== CabinetHandleType.PULL_DOWN)
                             .map(opt => (
                                 <Button
                                     key={opt}

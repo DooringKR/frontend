@@ -30,7 +30,7 @@ const ImageUploadInput = React.forwardRef<HTMLInputElement, ImageUploadInputProp
             className,
             accept = "image/*",
             multiple = true,
-            maxSize = 10, // 10MB
+            maxSize = 5, // 5MB
             maxFiles = 5, // 최대 5개
         },
         ref
@@ -41,7 +41,16 @@ const ImageUploadInput = React.forwardRef<HTMLInputElement, ImageUploadInputProp
         const inputRef = useRef<HTMLInputElement>(null);
         const imageUrlsRef = useRef<string[]>([]);
 
-        // value prop 동기화는 useState 초기값으로만 처리
+        // value prop 변경 시 uploadedFiles 동기화
+        React.useEffect(() => {
+            setUploadedFiles(value);
+            // 기존 URL들 정리
+            Object.values(imageUrlsRef.current).forEach(url => {
+                if (url) URL.revokeObjectURL(url);
+            });
+            // 새로운 URL 캐시 초기화
+            imageUrlsRef.current = [];
+        }, [value]);
 
         // 컴포넌트 언마운트 시 URL 정리
         React.useEffect(() => {

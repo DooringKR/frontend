@@ -162,7 +162,7 @@ function LoginPageContent() {
                                     current_page: getScreenName() ?? 'start',
                                     modal_name: null,
                                 });
-                                
+
                                 // 1. 초기화
                                 // useBizClientStore.setState({ bizClient: null });
                                 // useCartStore.setState({ cart: null });
@@ -212,7 +212,7 @@ function LoginPageContent() {
                                 current_page: getScreenName() ?? 'start',
                                 modal_name: null,
                             });
-                            window.open("tel:010-9440-1874", "_blank");
+                            window.open("tel:031-528-4002", "_blank");
                         }} />
                 </div>
                 <div className="text-center text-m text-black-400"> 고객센터 전화번호 : 031-528-4002

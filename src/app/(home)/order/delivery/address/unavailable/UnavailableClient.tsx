@@ -202,7 +202,7 @@ function UnavailableClientPage() {
         onButton1Click={() => router.back()}
         button2Type="Brand"
         button2Text="고객센터 전화하기"
-        onButton2Click={() => window.open("tel:010-9440-1874", "_blank")}
+        onButton2Click={() => window.open("tel:031-528-4002", "_blank")}
       />
     </div>
   );

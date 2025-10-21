@@ -17,15 +17,15 @@ function CustomerServicePage() {
 
   // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
   useEffect(() => {
-      // 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
-      setScreenName('customer_service');
-      const prev = getPreviousScreenName();
-      trackView({
-          object_type: "screen",
-          object_name: null,
-          current_screen: typeof window !== 'undefined' ? window.screen_name ?? null : null,
-          previous_screen: prev,
-      });
+    // 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
+    setScreenName('customer_service');
+    const prev = getPreviousScreenName();
+    trackView({
+      object_type: "screen",
+      object_name: null,
+      current_screen: typeof window !== 'undefined' ? window.screen_name ?? null : null,
+      previous_screen: prev,
+    });
   }, []);
   return (
     <>
@@ -45,7 +45,7 @@ function CustomerServicePage() {
             <div
               className="flex cursor-pointer justify-between py-[10px]"
               onClick={() => {
-                window.open("tel:010-9440-1874", "_blank");
+                window.open("tel:031-528-4002", "_blank");
                 trackClick({
                   object_type: "button",
                   object_name: "call",
