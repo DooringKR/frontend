@@ -20,7 +20,7 @@ import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
 import { ReadBizClientUsecase } from "@/DDD/usecase/user/read_bizClient_usecase";
 import Button from "@/components/Button/Button";
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
-import { trackView, trackClick } from "@/services/analytics/amplitude";
+import { trackView, trackClick, trackClickAndWait } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 
 function LoginPageContent() {
@@ -155,13 +155,14 @@ function LoginPageContent() {
                         className={`button  flex items-center justify-center w-full px-[48px] py-[16px] rounded-full bg-[#FEE600]`}
                         onClick={async () => {
                             try {
-                                // Track click on Kakao login button
-                                trackClick({
+                                // Track click and wait briefly to increase delivery chance before redirect
+                                await trackClickAndWait({
                                     object_type: "button",
                                     object_name: "kakao",
                                     current_page: getScreenName() ?? 'start',
                                     modal_name: null,
                                 });
+                                
                                 // 1. 초기화
                                 // useBizClientStore.setState({ bizClient: null });
                                 // useCartStore.setState({ cart: null });

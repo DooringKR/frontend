@@ -63,7 +63,9 @@ function calculateOriginalPrice(color: string): number {
 /**
  * 분할값 계산
  */
-function calculateSplit(width: number, height: number): number {
+function calculateSplit(width_in: number, height_in: number): number {
+  var width = width_in < height_in ? width_in : height_in;
+  var height = width_in < height_in ? height_in : width_in;
   // door_width: 1 - 300
   if (width >= 1 && width <= 300) {
     if (height >= 1 && height <= 1100) {
