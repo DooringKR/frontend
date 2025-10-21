@@ -47,7 +47,7 @@ export function calculateUnitCabinetPrice(
     }
     const doorColorWeight = caculateDoorColorWeight(color);
     const bodyWeight = calculateBodyWeight(bodyType);
-    const margin = 0.1;
+    const margin = 0.2;
     const unitPrice = (cabinet_depth_price * width) * (1 + doorColorWeight + bodyWeight) * (1 + margin);
 
     // 만원 단위로 올림 처리 (432,400원 → 440,000원)
@@ -56,9 +56,9 @@ export function calculateUnitCabinetPrice(
     return roundedUnitPrice;
   } else if (category === DetailProductType.UPPERCABINET) {
     if (1 <= depth && depth <= 350) {
-      cabinet_depth_price = 200;
+      cabinet_depth_price = 150;
     } else if (350 < depth) {
-      cabinet_depth_price = 250;
+      cabinet_depth_price = 200;
     }
     const doorColorWeight = caculateDoorColorWeight(color);
     const bodyWeight = calculateBodyWeight(bodyType);
@@ -82,7 +82,7 @@ export function calculateUnitCabinetPrice(
     return roundedUnitPrice;
   } else if (category === DetailProductType.OPENCABINET) {
     const doorColorPrice = calculateDoorPrice(color);
-    const margin = 0.2;
+    const margin = 0.0;
     const unitPrice = width * doorColorPrice * (1 + margin);
 
     // 만원 단위로 올림 처리 (432,400원 → 440,000원)
@@ -101,13 +101,13 @@ export function calculateUnitCabinetPrice(
     if (1 <= depth && depth <= 650) {
       cabinet_depth_price = 0;
     } else if (650 < depth && depth <= 750) {
-      cabinet_depth_price = 60000;
+      cabinet_depth_price = 30000;
     } else if (750 < depth) {
-      return 150000;
+      return 60000;
     }
     const doorColorWeight = caculateDoorColorWeight(color);
     const bodyWeight = calculateBodyWeight(bodyType);
-    const margin = 0.2;
+    const margin = 0.0;
     const unitPrice =
       (cabinet_depth_price + cabinet_width_price) *
       (1 + doorColorWeight + bodyWeight) *
@@ -190,12 +190,12 @@ function calculateDoorPrice(color: string): number {
 
   // 색상별 가격 결정
   if (standardColors.includes(colorName)) {
-    return 300;
+    return 250;
   } else if (premiumColors.includes(colorName)) {
-    return 400;
+    return 350;
   } else {
     // 직접 입력
-    return 300;
+    return 250;
   }
 }
 
