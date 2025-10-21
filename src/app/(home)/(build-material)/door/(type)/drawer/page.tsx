@@ -152,7 +152,7 @@ function DrawerDoorPageContent() {
                         onButton1Click={() => {
                             trackClick({
                                 object_type: "button",
-                                object_name: "next",
+                                object_name: "confirm",
                                 current_page: getScreenName(),
                                 modal_name: null,
                             });
