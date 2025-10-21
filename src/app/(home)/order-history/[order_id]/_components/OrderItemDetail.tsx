@@ -338,6 +338,16 @@ export default function OrderItemDetail({ item }: OrderItemDetailProps) {
                 종류: {item.materialDetails.add_bottom_drawer ? '하부 서랍 추가' : '하부 서랍 필요 없음'}
               </p>
             )}
+            {item.materialDetails.legType && (
+              <p className="text-[15px]/[22px] font-400 text-gray-600">
+                다리발: {item.materialDetails.legType}
+              </p>
+            )}
+            {item.materialDetails.legType_direct_input && (
+              <p className="text-[15px]/[22px] font-400 text-gray-600">
+                다리발 직접 입력: {item.materialDetails.legType_direct_input}
+              </p>
+            )}
             {item.materialDetails.cabinet_request && (
               <p className="text-[15px]/[22px] font-400 text-gray-600">
                 기타 요청 사항: {item.materialDetails.cabinet_request}
