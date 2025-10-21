@@ -16,8 +16,8 @@ import ColorSelectList from "./_components/ColorSelectList";
 import useItemStore from "@/store/itemStore";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
-import { trackView } from "@/services/analytics/amplitude";
-import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+import { trackClick, trackView } from "@/services/analytics/amplitude";
+import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 
 function ColorListPageContent() {
     const router = useRouter();
@@ -92,6 +92,12 @@ function ColorListPageContent() {
                     selectedColor={item?.color || item?.finish_color_direct_input || null}
                     type={item?.type ?? ""}
                     onClick={() => {
+                        trackClick({
+                            object_type: "button",
+                            object_name: "confirm",
+                            current_page: getScreenName(),  
+                            modal_name: null,
+                        });
                         const slug = FINISH_CATEGORY_LIST.find(cat => cat.type === item?.type)?.slug || "";
                         router.push(`/finish/${slug}`);
                     }}
