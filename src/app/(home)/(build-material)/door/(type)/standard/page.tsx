@@ -70,6 +70,7 @@ function StandardDoorPageContent() {
     const [addOn_hinge, setAddOn_hinge] = useState(item?.addOn_hinge ?? false);
     const [isDoorLocationSheetOpen, setIsDoorLocationSheetOpen] = useState(false);
     const [images, setImages] = useState<File[]>(item?.raw_images || []);
+
     // 유효성 검사 훅 사용
     const { widthError, heightError, boringError, isFormValid } = useDoorValidation({
         DoorWidth: door_width,
