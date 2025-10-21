@@ -38,6 +38,37 @@ export const initAmplitude = async (
   });
 };
 
+// Attempt to use globally injected Amplitude (from CDN snippet in layout)
+const getGlobalAmplitude = (): any | null => {
+  if (typeof window === 'undefined') return null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const w = window as any;
+  return w && w.amplitude ? w.amplitude : null;
+};
+
+// Internal: best-effort send via SDK or global, otherwise queue
+const send = (name: string, props: Record<string, any>) => {
+  // Prefer SDK if initialized
+  if (initialized && amp) {
+    try {
+      amp.track(name, props);
+      return;
+    } catch {
+      // fall through
+    }
+  }
+  const globalAmp = getGlobalAmplitude();
+  if (globalAmp) {
+    try {
+      globalAmp.track(name, props);
+      return;
+    } catch {
+      // fall through to queue
+    }
+  }
+  preInitQueue.push({ name, props });
+};
+
 // normalize helper: convert empty string/undefined to null
 const normalize = <T extends Record<string, any>>(props: T): T => {
   const out: Record<string, any> = {};
@@ -62,18 +93,64 @@ const encodeForAmplitude = <T extends Record<string, any>>(props: T): T => {
 
 export const trackView = (props: ViewEventProps) => {
   const payload = encodeForAmplitude(normalize(props));
-  if (!initialized || !amp) {
-    preInitQueue.push({ name: 'View', props: payload });
-    return;
-  }
-  amp.track('View', payload);
+  send('View', payload);
 };
 
 export const trackClick = (props: ClickEventProps) => {
   const payload = encodeForAmplitude(normalize(props));
-  if (!initialized || !amp) {
-    preInitQueue.push({ name: 'Click', props: payload });
+  send('Click', payload);
+};
+
+// Awaitable click tracking useful before hard navigations / OAuth redirects
+export const trackClickAndWait = async (
+  props: ClickEventProps,
+  options?: { timeoutMs?: number }
+) => {
+  const payload = encodeForAmplitude(normalize(props));
+
+  // Try SDK first: it returns a promise we can await
+  if (initialized && amp) {
+    try {
+      const res = amp.track('Click', payload);
+      // Some versions expose a .promise, others may be then-able, many return void
+      const maybeAny = res as any;
+      if (maybeAny && maybeAny.promise && typeof maybeAny.promise.then === 'function') {
+        try {
+          await maybeAny.promise;
+          return;
+        } catch {
+          // ignore and fall back to timeout
+        }
+      } else if (maybeAny && typeof maybeAny.then === 'function') {
+        try {
+          await maybeAny;
+          return;
+        } catch {
+          // ignore and fall back to timeout
+        }
+      } else {
+        // No promise, fall back to small delay
+        await new Promise((r) => setTimeout(r, options?.timeoutMs ?? 150));
+        return;
+      }
+    } catch {
+      // ignore and fall through
+    }
+  }
+
+  // Fallback to global amplitude (no promise API) then wait a short time
+  const globalAmp = getGlobalAmplitude();
+  if (globalAmp) {
+    try {
+      globalAmp.track('Click', payload);
+    } catch {
+      // ignore
+    }
+    await new Promise((r) => setTimeout(r, options?.timeoutMs ?? 150));
     return;
   }
-  amp.track('Click', payload);
+
+  // If neither available, queue and still delay a bit to increase chance of later flush
+  preInitQueue.push({ name: 'Click', props: payload });
+  await new Promise((r) => setTimeout(r, options?.timeoutMs ?? 150));
 };
