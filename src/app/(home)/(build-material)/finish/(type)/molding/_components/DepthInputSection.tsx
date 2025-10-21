@@ -28,8 +28,8 @@ const DepthInputSection: React.FC<DepthInputSectionProps> = ({
     <div className="flex flex-col gap-2">
       <BoxedInput
         type="number"
-        label="깊이(가로) (mm)"
-        placeholder="깊이를 입력해주세요"
+        label="가로 (mm)"
+        placeholder="가로를 입력해주세요"
         value={depth}
         onChange={e => {
           const value = e.target.value;
@@ -44,7 +44,7 @@ const DepthInputSection: React.FC<DepthInputSectionProps> = ({
           <SelectToggleButton
             checked={isDepthIncrease}
             customIcon={<Switch checked={isDepthIncrease} />}
-            label={"깊이 키우기"}
+            label={"가로 키우기"}
             onClick={() => {
               if (isDepthIncrease) {
                 setDepthIncrease(null); // false가 될 때 초기화
