@@ -96,7 +96,7 @@ function calculateOriginalPrice(color: string): number {
 function calculateSplit(depth_in: number, height_in: number, finishType: FinishType): number {
   var depth = depth_in > height_in ? height_in : depth_in;
   var height = depth_in > height_in ? depth_in : height_in;
-  var length = height;
+  var length = height / 1000;
 
   var split = 1;
 
