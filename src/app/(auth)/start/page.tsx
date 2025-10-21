@@ -154,14 +154,16 @@ function LoginPageContent() {
                     <button
                         className={`button  flex items-center justify-center w-full px-[48px] py-[16px] rounded-full bg-[#FEE600]`}
                         onClick={async () => {
+                            // Track click on Kakao login button
+                            trackClick({
+                                object_type: "button",
+                                object_name: "kakao",
+                                current_page: getScreenName() ?? 'start',
+                                modal_name: null,
+                            });
+                            
                             try {
-                                // Track click on Kakao login button
-                                trackClick({
-                                    object_type: "button",
-                                    object_name: "kakao",
-                                    current_page: getScreenName() ?? 'start',
-                                    modal_name: null,
-                                });
+                                
                                 // 1. 초기화
                                 // useBizClientStore.setState({ bizClient: null });
                                 // useCartStore.setState({ cart: null });

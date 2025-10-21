@@ -18,14 +18,10 @@ export function calculateUnitFinishPrice(
   const originalPrice = calculateOriginalPrice(color);
   const totalDepth = baseDepth + additionalDepth;
   const totalHeight = baseHeight + additionalHeight;
-  const split = calculateSplit(totalDepth, totalHeight);
+  const split = calculateSplit(totalDepth, totalHeight, finishType);
 
   // 최종 견적 = (original_price / split ) * { 1 + ( margin + 0.1 ) }
   let unitPrice = (originalPrice / split) * (1 + (MARGIN + 0.1));
-
-  if (finishType === FinishType.GALLE || finishType === FinishType.MOLDING) {
-    unitPrice *= 0.125; // 갤러리 및 몰딩 마감재는 20% 추가
-  }
 
   // 백원 단위에서 올림
   const finalPrice = Math.ceil(unitPrice / 100) * 100;
@@ -97,64 +93,77 @@ function calculateOriginalPrice(color: string): number {
 /**
  * 분할값 계산 (문짝과 동일한 로직)
  */
-function calculateSplit(depth: number, height: number): number {
+function calculateSplit(depth_in: number, height_in: number, finishType: FinishType): number {
+  var depth = depth_in > height_in ? height_in : depth_in;
+  var height = depth_in > height_in ? depth_in : height_in;
+  var length = height;
+
+  var split = 1;
+
+  if(finishType === FinishType.GALLE) {
+    return 8 / length;
+  }
   // depth: 1 - 300
   if (depth >= 1 && depth <= 300) {
     if (height >= 1 && height <= 1100) {
-      return 7;
+      split = 7;
     } else if (height >= 1101 && height <= 1300) {
-      return 5;
+      split = 5;
     } else if (height >= 1301 && height <= 1500) {
-      return 4;
+      split = 4;
     } else if (height >= 1501) {
-      return 3;
+      split = 3;
     }
   }
   // depth: 301 - 400
   else if (depth >= 301 && depth <= 400) {
     if (height >= 1 && height <= 900) {
-      return 6;
+      split = 6;
     } else if (height >= 901 && height <= 1100) {
-      return 5;
+      split = 5;
     } else if (height >= 1101 && height <= 1300) {
-      return 4;
+      split = 4;
     } else if (height >= 1301) {
-      return 3;
+      split = 3;
     }
   }
   // depth: 401 - 500
   else if (depth >= 401 && depth <= 500) {
     if (height >= 1 && height <= 900) {
-      return 5;
+      split = 5;
     } else if (height >= 901 && height <= 1100) {
-      return 4;
+      split = 4;
     } else if (height >= 1101 && height <= 1700) {
-      return 3;
+      split = 3;
     } else if (height >= 1701) {
-      return 2;
+      split = 2;
     }
   }
   // depth: 501 - 600
   else if (depth >= 501 && depth <= 600) {
     if (height >= 1 && height <= 900) {
-      return 4;
+      split = 4;
     } else if (height >= 901 && height <= 1500) {
-      return 3;
+      split = 3;
     } else if (height >= 1501) {
-      return 2;
+      split = 2;
     }
   }
   // depth: 601 - 1220
   else if (depth >= 601 && depth <= 1220) {
     if (height >= 1 && height <= 900) {
-      return 2;
+      split = 2;
     } else if (height >= 901 && height <= 1500) {
-      return 1.5;
+      split = 1.5;
     } else if (height >= 1501) {
-      return 1;
+      split = 1;
     }
   }
 
+  if(finishType === FinishType.MOLDING) {
+    split /= length;
+  }
+
   // 기본값
-  return 1;
+  return split;
 }
