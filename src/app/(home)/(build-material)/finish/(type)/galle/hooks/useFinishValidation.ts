@@ -28,10 +28,8 @@ export function useFinishValidation({
     if (totalDepth > 0) {
       if (totalDepth < 1) {
         setDepthError("깊이 합계는 최소 1mm 이상이어야 합니다.");
-      } else if (totalHeight >= 1221 && totalDepth > 1220) {
-        setDepthError("높이 길이가 1221mm 이상일 때는 깊이 합계가 최대 1220mm 이하여야 합니다.");
-      } else if (totalDepth > 2440) {
-        setDepthError("깊이 합계는 최대 2440mm 이하여야 합니다.");
+      } else if (totalDepth > 99999) {
+        setDepthError("깊이 합계는 최대 99999mm 이하여야 합니다.");
       } else {
         setDepthError("");
       }
@@ -48,10 +46,8 @@ export function useFinishValidation({
     if (totalHeight > 0) {
       if (totalHeight < 1) {
         setHeightError("높이 합계는 최소 1mm 이상이어야 합니다.");
-      } else if (totalDepth >= 1221 && totalHeight > 1220) {
-        setHeightError("깊이 길이가 1221mm 이상일 때는 높이 합계가 최대 1220mm 이하여야 합니다.");
-      } else if (totalHeight > 2440) {
-        setHeightError("높이 합계는 최대 2440mm 이하여야 합니다.");
+      } else if (totalHeight > 99999) {
+        setHeightError("높이 합계는 최대 99999mm 이하여야 합니다.");
       } else {
         setHeightError("");
       }

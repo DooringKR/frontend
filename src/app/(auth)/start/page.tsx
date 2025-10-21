@@ -151,12 +151,8 @@ function LoginPageContent() {
 
                 {/* 로그인 버튼 */}
                 <div className="flex flex-col gap-4">
-                    <Image
-                        src="/img/kakao_login_large_wide.png"
-                        alt="카카오 로그인"
-                        width={300}
-                        height={50}
-                        className="cursor-pointer mx-auto"
+                    <button
+                        className={`button  flex items-center justify-center w-full px-[48px] py-[16px] rounded-full bg-[#FEE600]`}
                         onClick={async () => {
                             try {
                                 // Track click on Kakao login button
@@ -196,7 +192,14 @@ function LoginPageContent() {
                                 alert('일시적인 에러입니다. 다시 시도해주세요.');
                             }
                         }}
-                    />
+                    >
+                        <div className="flex items-center justify-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="18" viewBox="0 0 20 18" fill="none">
+                                <path d="M9.75 0C4.36519 0 0 3.44184 0 7.6875C0 10.4324 1.82494 12.8409 4.57013 14.201C4.42078 14.716 3.61041 17.5145 3.57816 17.7343C3.57816 17.7343 3.55875 17.8995 3.66572 17.9625C3.77269 18.0255 3.8985 17.9766 3.8985 17.9766C4.20525 17.9337 7.45566 15.6505 8.01825 15.2541C8.58028 15.3337 9.159 15.375 9.75 15.375C15.1348 15.375 19.5 11.9332 19.5 7.6875C19.5 3.44184 15.1348 0 9.75 0Z" fill="black" />
+                            </svg>
+                            카카오로 시작하기
+                        </div>
+                    </button>
                     <Button
                         type={"OutlinedMedium"}
                         text={"눌러서 전화 연결"}
