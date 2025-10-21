@@ -158,14 +158,16 @@ function LoginPageContent() {
                         height={50}
                         className="cursor-pointer mx-auto"
                         onClick={async () => {
+                            // Track click on Kakao login button
+                            trackClick({
+                                object_type: "button",
+                                object_name: "kakao",
+                                current_page: getScreenName() ?? 'start',
+                                modal_name: null,
+                            });
+                            
                             try {
-                                // Track click on Kakao login button
-                                trackClick({
-                                    object_type: "button",
-                                    object_name: "kakao",
-                                    current_page: getScreenName() ?? 'start',
-                                    modal_name: null,
-                                });
+                                
                                 // 1. 초기화
                                 // useBizClientStore.setState({ bizClient: null });
                                 // useCartStore.setState({ cart: null });
