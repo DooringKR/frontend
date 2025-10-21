@@ -164,9 +164,23 @@ function ReportPageContent() {
               // 하드웨어 객체 생성
               const hardware = createHardwareInstance(item);
 
+              // 테이블명 명시적 매핑 (constructor.name은 배포환경에서 변경될 수 있음)
+              const tableName = (() => {
+                switch (item.type) {
+                  case HardwareType.HINGE:
+                    return "Hinge";
+                  case HardwareType.RAIL:
+                    return "Rail";
+                  case HardwareType.PIECE:
+                    return "Piece";
+                  default:
+                    throw new Error("Unknown hardware type for table mapping");
+                }
+              })();
+
               // Supabase에 저장
               const createdHardware = await new CrudInteriorMaterialsUsecase(
-                new InteriorMaterialsSupabaseRepository<typeof hardware>(hardware.constructor.name)
+                new InteriorMaterialsSupabaseRepository<typeof hardware>(tableName)
               ).create(hardware);
 
               // cart, cartItems, setCartItems는 useCartStore에서 가져옴
