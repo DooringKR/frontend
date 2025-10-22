@@ -14,7 +14,7 @@ import { BizClientSupabaseRepository } from "@/DDD/data/db/User/bizclient_supaba
 import { KakaoSignupUsecase } from "@/DDD/usecase/auth/kakao_signup_usecase";
 import useSignupStore from "@/store/signupStore";
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
-import { trackClick, trackView } from "@/services/analytics/amplitude";
+import { trackClick, trackView, trackClickAndWait } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 
 export default function SignupPage() {
@@ -127,8 +127,9 @@ export default function SignupPage() {
                 </div>
             )}
             {isValidLength && selectedBusinessType && <div className="fixed bottom-0 w-full max-w-[460px]">
-                <BottomButton type="1button" button1Text="확인" onButton1Click={() => {
-                    trackClick({
+                <BottomButton type="1button" button1Text="확인" onButton1Click={async () => {
+                    // Ensure the Click event is delivered before OAuth redirect (mobile/WebView safety)
+                    await trackClickAndWait({
                         object_type: "button",
                         object_name: "confirm",
                         current_page: getScreenName() ?? 'signup',
