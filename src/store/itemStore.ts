@@ -37,6 +37,13 @@ const useItemStore = create<ItemStore>()(
             }),
             {
                 name: "item-storage",
+                // File 객체는 직렬화할 수 없으므로 제외
+                partialize: (state) => ({
+                    item: state.item ? {
+                        ...state.item,
+                        raw_images: undefined // File 객체 제외
+                    } : null
+                })
             }
         ),
         {

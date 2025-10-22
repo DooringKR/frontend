@@ -16,7 +16,7 @@ import { useRouter } from "next/navigation";
 import formatColor from "@/utils/formatColor";
 import { CrudCartItemUsecase } from "@/DDD/usecase/crud_cart_item_usecase";
 import useCartStore from "@/store/cartStore";
-import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
+import { DetailProductType, ProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 import { CartItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/CartItem";
 import { CartItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/cartitem_supabase_repository";
 import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
@@ -26,6 +26,7 @@ import { DoorType, HingeDirection } from "dooring-core-domain/dist/enums/Interio
 import { DOOR_COLOR_LIST } from "@/constants/colorList";
 import { InteriorMaterialsSupabaseRepository } from "@/DDD/data/db/interior_materials_supabase_repository";
 import { CrudInteriorMaterialsUsecase } from "@/DDD/usecase/crud_interior_materials_usecase";
+import { SupabaseUploadImageUsecase } from "@/DDD/usecase/upload_image_usecase";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import { trackClick, trackView } from "@/services/analytics/amplitude";
@@ -127,6 +128,15 @@ function DoorReportPageContent() {
                         });
                         console.log(item!);
                         try {
+                            // 이미지 업로드 처리
+                            let doorImageUrls: string[] = [];
+                            if (item?.raw_images && item.raw_images.length > 0) {
+                                console.log('이미지 업로드 시작:', item.raw_images.length, '개');
+                                const uploadUsecase = new SupabaseUploadImageUsecase();
+                                doorImageUrls = await uploadUsecase.uploadImages(item.raw_images, "doors");
+                                console.log('이미지 업로드 완료:', doorImageUrls);
+                            }
+
                             // Door 생성자에 필요한 모든 인자를 전달해야 합니다.
                             // 예시로, Door 생성자가 7~12개의 인자를 받는다고 가정하고, 필요한 값을 item에서 가져옵니다.
                             // 실제 Door 클래스의 생성자 시그니처에 맞게 수정하세요.
@@ -141,6 +151,7 @@ function DoorReportPageContent() {
                                 door_location: item.door_location ?? undefined,
                                 door_request: item.door_request ?? undefined,
                                 addOn_hinge: item.addOn_hinge ?? false,
+                                door_image_url: doorImageUrls, // 업로드된 이미지 URL들
                             });
 
                             console.log(door);

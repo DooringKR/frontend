@@ -2,7 +2,7 @@
 
 function UnavailableDeliveryFooter() {
   const handleClick = () => {
-    window.open("tel:010-9440-1874", "_blank");
+    window.open("tel:031-528-4002", "_blank");
   };
 
   return (
