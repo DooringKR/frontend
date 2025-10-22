@@ -113,7 +113,7 @@ function ReportPageContent() {
                     onButton1Click={async () => {
                         trackClick({
                             object_type: "button",
-                            object_name: "confirm",
+                            object_name: "add_to_cart",
                             current_page: getScreenName(),
                             modal_name: null,
                         });
