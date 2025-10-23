@@ -2,6 +2,7 @@ import { useState } from "react";
 import DatePicker from "@/components/DatePicker";
 import Modal from "@/components/Modal/Modal";
 import TimePickerSimple from "@/components/TimePicker";
+import TimePickerSwiper from "@/components/TimePickerSwiper";
 import { useOrderStore } from "@/store/orderStore";
 
 interface PickupDateTimeSelectorProps {
@@ -72,7 +73,7 @@ export default function PickupDateTimeSelector({
                 />
             </Modal>
             <Modal isOpen={isTimeModalOpen} onClose={() => setIsTimeModalOpen(false)}>
-                <TimePickerSimple
+                <TimePickerSwiper
                     initialHour={order?.pickup_time ? order?.pickup_time.getHours().toString().padStart(2, "0") : ""}
                     initialMinute={order?.pickup_time ? order?.pickup_time.getMinutes().toString().padStart(2, "0") : ""}
                     onConfirm={(h, m) => {

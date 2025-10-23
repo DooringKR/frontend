@@ -246,7 +246,7 @@ export default function DeliveryDatePicker({ initialDate, onConfirm, onClose }: 
                                     : isSelected
                                         ? "bg-brand-500 text-white"
                                         : isTomorrow
-                                            ? "text-green-600 hover:bg-green-50 font-600"
+                                            ? "text-brand-600 hover:bg-brand-50 font-600"
                                             : isToday
                                                 ? "text-red-400 bg-red-50 cursor-not-allowed"
                                                 : "text-gray-800 hover:bg-gray-100"
