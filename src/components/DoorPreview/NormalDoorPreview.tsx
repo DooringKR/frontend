@@ -61,7 +61,7 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
       style={{ height: `${boringHeight}px` }} // style로 직접 높이 지정
       className="relative flex items-center justify-center"
     >
-      <div className="max-w-[125px]">
+      <div className="max-w-[125px] flex items-center">
         <BoringInputField
           placeholder="보링(mm)"
           value={adjustedBoringSize[idx] ?? null}
@@ -69,6 +69,7 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
           onFocus={() => setFocusedBoringIndex(idx)}
           onBlur={() => setFocusedBoringIndex(null)}
         />
+        <span className="ml-1 text-orange-500">*</span>
       </div>
     </div>
   ));

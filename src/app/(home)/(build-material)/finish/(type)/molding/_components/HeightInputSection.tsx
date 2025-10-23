@@ -28,7 +28,7 @@ const HeightInputSection: React.FC<HeightInputSectionProps> = ({
     <div className="flex flex-col gap-2">
       <BoxedInput
         type="number"
-        label="높이(세로) (mm)"
+        label={<><span>높이(세로) (mm)</span><span className="text-orange-500 ml-1">*</span></>}
         placeholder="높이를 입력해주세요"
         value={height}
         onChange={e => {

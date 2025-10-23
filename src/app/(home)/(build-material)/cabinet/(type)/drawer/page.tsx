@@ -195,7 +195,8 @@ function DrawerCabinetPageContent() {
             <div className="flex flex-col gap-5 px-5">
                 {/* 도어 색상 */}
                 <BoxedSelect
-                    label="도어 색상"
+                    default_label="도어 색상"
+                    label={<><span>도어 색상</span><span className="text-orange-500 ml-1">*</span></>}
                     options={colorOptions}
                     value={formatColor(item?.color ?? "") || item?.cabinet_color_direct_input || ""}
                     onClick={() => router.push("/cabinet/color")}
@@ -203,7 +204,8 @@ function DrawerCabinetPageContent() {
                 />
                 {/* 몸통 소재 및 두께 (BoxedSelect 1개만, 바텀시트만 사용) */}
                 <BoxedSelect
-                    label="몸통 소재 및 두께"
+                    default_label="몸통 소재 및 두께"
+                    label={<><span>몸통 소재 및 두께</span><span className="text-orange-500 ml-1">*</span></>}
                     value={bodyMaterialLabel}
                     onClick={() => setIsBottomSheetOpen(true)}
                 />
@@ -225,7 +227,7 @@ function DrawerCabinetPageContent() {
                 {/* 너비 */}
                 <BoxedInput
                     type="number"
-                    label="너비(mm)"
+                    label={<><span>너비(mm)</span><span className="text-orange-500 ml-1">*</span></>}
                     placeholder="너비를 입력해주세요"
                     value={DoorWidth ?? ""}
                     onChange={e => {
@@ -238,7 +240,7 @@ function DrawerCabinetPageContent() {
                 {/* 높이 */}
                 <BoxedInput
                     type="number"
-                    label="높이(mm)"
+                    label={<><span>높이(mm)</span><span className="text-orange-500 ml-1">*</span></>}
                     placeholder="높이를 입력해주세요"
                     value={DoorHeight ?? ""}
                     onChange={e => {
@@ -251,7 +253,7 @@ function DrawerCabinetPageContent() {
                 {/* 깊이 */}
                 <BoxedInput
                     type="number"
-                    label="깊이(mm)"
+                    label={<><span>깊이(mm)</span><span className="text-orange-500 ml-1">*</span></>}
                     placeholder="깊이를 입력해주세요"
                     value={DoorDepth ?? ""}
                     onChange={e => {
@@ -262,7 +264,8 @@ function DrawerCabinetPageContent() {
                     helperText={depthError}
                 />
                 <BoxedSelect
-                    label="서랍 종류"
+                    default_label="서랍 종류"
+                    label={<><span>서랍 종류</span><span className="text-orange-500 ml-1">*</span></>}
                     options={[]}
                     value={drawerTypeLabel}
                     onClick={() => setIsDrawerTypeSheetOpen(true)}
@@ -297,7 +300,10 @@ function DrawerCabinetPageContent() {
                 />
                 {/* 손잡이 robust (enum) */}
                 <div className="flex flex-col gap-2">
-                    <div className="text-[14px]/[20px] font-400 text-gray-600">손잡이 종류</div>
+                    <div className="text-[14px]/[20px] font-400 text-gray-600">
+                        손잡이 종류
+                        <span className="text-orange-500 ml-1">*</span>
+                    </div>
                     <div className="flex w-full gap-2">
                         {Object.values(CabinetHandleType)
                             .filter(opt => opt !== CabinetHandleType.PULL_DOWN)
@@ -314,7 +320,8 @@ function DrawerCabinetPageContent() {
 
                 {/* 레일 종류 robust (enum/direct input, CabinetRailType) */}
                 <BoxedSelect
-                    label="레일 종류"
+                    default_label="레일 종류"
+                    label={<><span>레일 종류</span><span className="text-orange-500 ml-1">*</span></>}
                     options={[
                         ...Object.values(CabinetRailType)
                             .filter(opt => opt !== CabinetRailType.DIRECT_INPUT)
@@ -384,7 +391,10 @@ function DrawerCabinetPageContent() {
                 />
                 {/* 뒷판 robust (enum) */}
                 <div className="flex flex-col gap-2">
-                    <div className="text-[14px]/[20px] font-400 text-gray-600">마감 방식</div>
+                    <div className="text-[14px]/[20px] font-400 text-gray-600">
+                        마감 방식
+                        <span className="text-orange-500 ml-1">*</span>
+                    </div>
                     <div className="flex w-full gap-2">
                         {Object.values(CabinetBehindType).reverse().map(opt => (
                             <Button
@@ -399,7 +409,8 @@ function DrawerCabinetPageContent() {
 
                 {/* 용도/장소 (BoxedSelect 1개, 바텀시트+직접입력) */}
                 <BoxedSelect
-                    label="용도 ∙ 장소"
+                    default_label="용도 ∙ 장소"
+                    label={<><span>용도 ∙ 장소</span><span className="text-orange-500 ml-1">*</span></>}
                     value={cabinetLocationLabel}
                     onClick={() => setIsCabinetLocationSheetOpen(true)}
                 />
@@ -433,7 +444,8 @@ function DrawerCabinetPageContent() {
                 </div>
                 {/* 다리발 (BoxedSelect 1개, 바텀시트+직접입력) */}
                 <BoxedSelect
-                    label="다리발"
+                    default_label="다리발"
+                    label={<><span>다리발</span><span className="text-orange-500 ml-1">*</span></>}
                     value={legTypeLabel}
                     onClick={() => setIsLegTypeSheetOpen(true)}
                 />

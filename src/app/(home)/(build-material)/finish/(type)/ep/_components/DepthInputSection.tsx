@@ -28,7 +28,7 @@ const DepthInputSection: React.FC<DepthInputSectionProps> = ({
     <div className="flex flex-col gap-2">
       <BoxedInput
         type="number"
-        label="가로 (mm)"
+        label={<><span>가로 (mm)</span><span className="text-orange-500 ml-1">*</span></>}
         placeholder="가로를 입력해주세요"
         value={depth}
         onChange={e => {

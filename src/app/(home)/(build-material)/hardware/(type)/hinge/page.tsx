@@ -85,7 +85,8 @@ function HingePageContent() {
       <div className="h-5" />
       <div className="flex flex-col gap-5 px-5">
         <BoxedSelect
-          label="제조사"
+          default_label="제조사"
+          label={<><span>제조사</span><span className="text-orange-500 ml-1">*</span></>}
           value={(() => {
             if (madeby === HardwareMadeBy.DIRECT_INPUT) {
               return madebyInput || "직접 입력";
@@ -100,7 +101,8 @@ function HingePageContent() {
           onChange={() => { }}
         />
         <BoxedSelect
-          label="합판 두께"
+          default_label="합판 두께"
+          label={<><span>합판 두께</span><span className="text-orange-500 ml-1">*</span></>}
           value={(() => {
             if (thickness === HingeThickness.DIRECT_INPUT) {
               return thicknessInput || "직접 입력";
@@ -112,7 +114,8 @@ function HingePageContent() {
           onChange={() => { }}
         />
         <BoxedSelect
-          label="각도"
+          default_label="각도"
+          label={<><span>각도</span><span className="text-orange-500 ml-1">*</span></>}
           value={(() => {
             if (angle === HingeAngle.DIRECT_INPUT) {
               return angleInput || "직접 입력";

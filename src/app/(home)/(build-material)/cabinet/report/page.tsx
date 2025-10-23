@@ -301,7 +301,7 @@ function ReportPageContent() {
 
 	const unitPrice = calculateUnitCabinetPrice(
 		item.type,
-		usingDirectColor ? "" : String(colorId ?? ""),
+		usingDirectColor ? "" : String(colorName ?? ""),
 		item.width ?? 0,
 		typeof item.bodyMaterial === "number" ? item.bodyMaterial : 0,
 		item.handleType ?? "",
@@ -369,7 +369,7 @@ function ReportPageContent() {
 					onButton1Click={async () => {
 						trackClick({
 							object_type: "button",
-							object_name: "confirm",
+							object_name: "add_to_cart",
 							current_page: getScreenName(),
 							modal_name: null,
 						});

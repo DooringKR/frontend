@@ -95,7 +95,7 @@ function DrawerDoorPageContent() {
             />
             <div className="flex flex-1 flex-col gap-5 px-5">
                 <BoxedSelect
-                    label="색상"
+                    label={<><span>색상</span><span className="text-orange-500 ml-1">*</span></>}
                     options={[]}
                     value={formatColor(item?.color ?? "") || item?.door_color_direct_input || ""}
                     onClick={() => router.back()}
@@ -106,7 +106,7 @@ function DrawerDoorPageContent() {
                 {/* 서랍 폼 내용 */}
                 <BoxedInput
                     type="number"
-                    label="가로 길이(mm)"
+                    label={<><span>가로 길이(mm)</span><span className="text-orange-500 ml-1">*</span></>}
                     placeholder="가로 길이를 입력해주세요"
                     value={doorWidth}
                     onChange={e => {
@@ -118,7 +118,7 @@ function DrawerDoorPageContent() {
                 />
                 <BoxedInput
                     type="number"
-                    label="세로 길이(mm)"
+                    label={<><span>세로 길이(mm)</span><span className="text-orange-500 ml-1">*</span></>}
                     placeholder="세로 길이를 입력해주세요"
                     value={doorHeight}
                     onChange={e => {
@@ -130,7 +130,8 @@ function DrawerDoorPageContent() {
                 />
 
                 <BoxedSelect
-                    label="용도 ∙ 장소"
+                    default_label="용도 ∙ 장소"
+                    label={<><span>용도 ∙ 장소</span><span className="text-orange-500 ml-1">*</span></>}
                     options={[]}
                     value={door_location ? formatLocation(door_location) : ""}
                     onClick={() => setIsDoorLocationSheetOpen(true)}
@@ -166,7 +167,7 @@ function DrawerDoorPageContent() {
                         onButton1Click={() => {
                             trackClick({
                                 object_type: "button",
-                                object_name: "next",
+                                object_name: "confirm",
                                 current_page: getScreenName(),
                                 modal_name: null,
                             });
