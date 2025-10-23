@@ -9,6 +9,7 @@ import Button from "@/components/Button/Button";
 import SelectToggleButton from "@/components/Button/SelectToggleButton";
 import Header from "@/components/Header/Header";
 import BoxedInput from "@/components/Input/BoxedInput";
+import ImageUploadInput from "@/components/Input/ImageUploadInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
@@ -65,6 +66,7 @@ function FinishPageContent() {
     const [isHeightIncrease, setIsHeightIncrease] = useState(false);
     const [isFinishLocationSheetOpen, setIsFinishLocationSheetOpen] = useState(false);
     const [isEdgeCountSheetOpen, setIsEdgeCountSheetOpen] = useState(false);
+    const [images, setImages] = useState<File[]>(item?.raw_images || []);
 
     // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
     useEffect(() => {
@@ -136,6 +138,12 @@ function FinishPageContent() {
         updateItem({ heightIncrease: newHeightIncrease });
     };
 
+    const handleImagesChange = (newImages: File[]) => {
+        setImages(newImages);
+        updateItem({ raw_images: newImages });
+        console.log('이미지 업로드됨:', newImages.length, '개');
+    };
+
     return (
         <div className="flex flex-col">
             <InitAmplitude />
@@ -200,6 +208,12 @@ function FinishPageContent() {
                     placeholder="제작 시 요청사항 | 예) 시공도 필요해요, …"
                     value={request}
                     onChange={e => setRequest(e.target.value)}
+                />
+                <ImageUploadInput
+                    label="이미지 첨부"
+                    placeholder="이미지를 첨부해주세요"
+                    value={images}
+                    onChange={handleImagesChange}
                 />
             </div>
             <div className="h-[100px]" />

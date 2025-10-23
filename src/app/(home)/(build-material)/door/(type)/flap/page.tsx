@@ -9,6 +9,7 @@ import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import Button from "@/components/Button/Button";
 import Header from "@/components/Header/Header";
 import BoxedInput from "@/components/Input/BoxedInput";
+import ImageUploadInput from "@/components/Input/ImageUploadInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";
 import SelectToggleButton from "@/components/Button/SelectToggleButton";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
@@ -44,6 +45,7 @@ function FlapDoorPageContent() {
     const [door_location, setDoorLocation] = useState(item?.door_location ?? "");
     const [addOn_hinge, setAddOn_hinge] = useState(item?.addOn_hinge ?? false);
     const [isDoorLocationSheetOpen, setIsDoorLocationSheetOpen] = useState(false);
+    const [images, setImages] = useState<File[]>(item?.raw_images || []);
 
     // 유효성 검사 훅 사용
     const { widthError, heightError, boringError, isFormValid } = useFlapDoorValidation({
@@ -113,6 +115,12 @@ function FlapDoorPageContent() {
     const handleAddOnHingeChange = (newAddOnHinge: boolean) => {
         setAddOn_hinge(newAddOnHinge);
         updateItem({ addOn_hinge: newAddOnHinge });
+    };
+
+    const handleImagesChange = (newImages: File[]) => {
+        setImages(newImages);
+        updateItem({ raw_images: newImages });
+        console.log('이미지 업로드됨:', newImages.length, '개');
     };
 
     return (
@@ -225,6 +233,12 @@ function FlapDoorPageContent() {
                     placeholder="제작 시 요청사항 | 예) 시공도 필요해요, …"
                     value={request}
                     onChange={e => handleRequestChange(e.target.value)}
+                />
+                <ImageUploadInput
+                    label="이미지 첨부"
+                    placeholder="이미지를 첨부해주세요"
+                    value={images}
+                    onChange={handleImagesChange}
                 />
             </div>
             <div className="h-[100px]"></div>

@@ -1,3 +1,5 @@
+"use client";
+
 import {
   CABINET_CATEGORY_LIST,
   DOOR_CATEGORY_LIST,
@@ -18,29 +20,68 @@ import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
 import { ABSORBER_TYPE_LIST } from "@/constants/absorbertype";
 import { CABINET_DRAWER_TYPE_LIST } from "@/constants/cabinetdrawertype";
 import { CabinetRailType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import Image from "next/image";
+import { useState } from "react";
 
 interface OrderItemDetailProps {
   item: any;
 }
 
 export default function OrderItemDetail({ item }: OrderItemDetailProps) {
-  // item 객체 구조 확인을 위한 콘솔 로그
-  console.log("🔍 OrderItemDetail - item:", item);
-  // console.log("🔍 OrderItemDetail - item.detail_product_type:", item.detail_product_type);
-  // console.log("🔍 OrderItemDetail - item.materialDetails:", item.materialDetails);
-
-  // // materialDetails가 배열인 경우 첫 번째 요소도 확인
-  // if (item.materialDetails && Array.isArray(item.materialDetails) && item.materialDetails.length > 0) {
-  //   console.log("🔍 OrderItemDetail - item.materialDetails[0]:", item.materialDetails[0]);
-  // }
+  // 이미지 모달 상태
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
   const renderItemDetails = () => {
     switch (item.detail_product_type) {
       case DetailProductType.DOOR: {
         const hinge = item?.materialDetails?.hinge;
         const hingeCount = Array.isArray(hinge) ? hinge.length : undefined;
+
+        // 이미지 URL 처리 - materialDetails에서 가져오기
+        let imageArray: string[] = [];
+        const doorImageUrl = item.materialDetails?.door_image_url;
+
+        if (doorImageUrl) {
+          if (Array.isArray(doorImageUrl)) {
+            imageArray = doorImageUrl;
+          } else if (typeof doorImageUrl === 'string') {
+            try {
+              const parsed = JSON.parse(doorImageUrl);
+              if (Array.isArray(parsed)) {
+                imageArray = parsed;
+              } else {
+                imageArray = doorImageUrl.split(',').map((url: string) => url.trim()).filter((url: string) => url.length > 0);
+              }
+            } catch {
+              imageArray = doorImageUrl.split(',').map((url: string) => url.trim()).filter((url: string) => url.length > 0);
+            }
+          }
+        }
+
         return (
           <>
+            {imageArray.length > 0 && (
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-2">
+                  {imageArray.map((url, index) => (
+                    <div
+                      key={`image-${index}-${url}`}
+                      className="relative w-20 h-20 rounded overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                      onClick={() => setSelectedImageIndex(index)}
+                    >
+                      <Image
+                        src={url}
+                        alt={`door-image-${index}`}
+                        fill
+                        className="object-cover"
+                        sizes="80px"
+                        unoptimized={true}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             <p className="text-[15px]/[22px] font-400 text-gray-600">
               종류 : {item.materialDetails.door_type || "-"}
             </p>
@@ -89,9 +130,52 @@ export default function OrderItemDetail({ item }: OrderItemDetailProps) {
         );
       }
 
-      case DetailProductType.FINISH:
+      case DetailProductType.FINISH: {
+        // 이미지 URL 처리 - materialDetails에서 가져오기
+        let imageArray: string[] = [];
+        const finishImageUrl = item.materialDetails?.finish_image_url;
+
+        if (finishImageUrl) {
+          if (Array.isArray(finishImageUrl)) {
+            imageArray = finishImageUrl;
+          } else if (typeof finishImageUrl === 'string') {
+            try {
+              const parsed = JSON.parse(finishImageUrl);
+              if (Array.isArray(parsed)) {
+                imageArray = parsed;
+              } else {
+                imageArray = finishImageUrl.split(',').map((url: string) => url.trim()).filter((url: string) => url.length > 0);
+              }
+            } catch {
+              imageArray = finishImageUrl.split(',').map((url: string) => url.trim()).filter((url: string) => url.length > 0);
+            }
+          }
+        }
+
         return (
           <>
+            {imageArray.length > 0 && (
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-2">
+                  {imageArray.map((url, index) => (
+                    <div
+                      key={`image-${index}-${url}`}
+                      className="relative w-20 h-20 rounded overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                      onClick={() => setSelectedImageIndex(index)}
+                    >
+                      <Image
+                        src={url}
+                        alt={`finish-image-${index}`}
+                        fill
+                        className="object-cover"
+                        sizes="80px"
+                        unoptimized={true}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             <p className="text-[15px]/[22px] font-400 text-gray-600">
               종류 : {item.materialDetails.finish_type || "-"}
             </p>
@@ -165,6 +249,7 @@ export default function OrderItemDetail({ item }: OrderItemDetailProps) {
             )}
           </>
         );
+      }
 
       case DetailProductType.HINGE:
         return (
@@ -253,9 +338,52 @@ export default function OrderItemDetail({ item }: OrderItemDetailProps) {
       case DetailProductType.TALLCABINET:
       case DetailProductType.DRAWERCABINET:
       case DetailProductType.OPENCABINET:
-      case DetailProductType.FLAPCABINET:
+      case DetailProductType.FLAPCABINET: {
+        // 이미지 URL 처리 - materialDetails에서 가져오기
+        let imageArray: string[] = [];
+        const cabinetImageUrl = item.materialDetails?.cabinet_image_url;
+
+        if (cabinetImageUrl) {
+          if (Array.isArray(cabinetImageUrl)) {
+            imageArray = cabinetImageUrl;
+          } else if (typeof cabinetImageUrl === 'string') {
+            try {
+              const parsed = JSON.parse(cabinetImageUrl);
+              if (Array.isArray(parsed)) {
+                imageArray = parsed;
+              } else {
+                imageArray = cabinetImageUrl.split(',').map((url: string) => url.trim()).filter((url: string) => url.length > 0);
+              }
+            } catch {
+              imageArray = cabinetImageUrl.split(',').map((url: string) => url.trim()).filter((url: string) => url.length > 0);
+            }
+          }
+        }
+
         return (
           <>
+            {imageArray.length > 0 && (
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-2">
+                  {imageArray.map((url, index) => (
+                    <div
+                      key={`image-${index}-${url}`}
+                      className="relative w-20 h-20 rounded overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                      onClick={() => setSelectedImageIndex(index)}
+                    >
+                      <Image
+                        src={url}
+                        alt={`cabinet-image-${index}`}
+                        fill
+                        className="object-cover"
+                        sizes="80px"
+                        unoptimized={true}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             {/* 공통 로직 */}
             <p className="text-[15px]/[22px] font-400 text-gray-600">
               색상: {CABINET_COLOR_LIST.find(color => color.id === item.materialDetails.cabinet_color)?.name || "-"}
@@ -355,6 +483,7 @@ export default function OrderItemDetail({ item }: OrderItemDetailProps) {
             )}
           </>
         );
+      }
 
       case DetailProductType.ACCESSORY:
         return (
@@ -385,5 +514,101 @@ export default function OrderItemDetail({ item }: OrderItemDetailProps) {
     }
   };
 
-  return <div className="border-t border-gray-100 pt-3">{renderItemDetails()}</div>;
+  return (
+    <div className="border-t border-gray-100 pt-3">
+      {renderItemDetails()}
+
+      {/* 이미지 확대 모달 */}
+      {selectedImageIndex !== null && (() => {
+        let imageArray: string[] = [];
+
+        // 제품 타입에 따라 다른 이미지 필드 사용
+        if (item.detail_product_type === DetailProductType.DOOR) {
+          const doorImageUrl = item.materialDetails?.door_image_url;
+          if (doorImageUrl) {
+            if (Array.isArray(doorImageUrl)) {
+              imageArray = doorImageUrl;
+            } else if (typeof doorImageUrl === 'string') {
+              try {
+                const parsed = JSON.parse(doorImageUrl);
+                if (Array.isArray(parsed)) {
+                  imageArray = parsed;
+                } else {
+                  imageArray = doorImageUrl.split(',').map((url: string) => url.trim()).filter((url: string) => url.length > 0);
+                }
+              } catch {
+                imageArray = doorImageUrl.split(',').map((url: string) => url.trim()).filter((url: string) => url.length > 0);
+              }
+            }
+          }
+        } else if (item.detail_product_type === DetailProductType.FINISH) {
+          const finishImageUrl = item.materialDetails?.finish_image_url;
+          if (finishImageUrl) {
+            if (Array.isArray(finishImageUrl)) {
+              imageArray = finishImageUrl;
+            } else if (typeof finishImageUrl === 'string') {
+              try {
+                const parsed = JSON.parse(finishImageUrl);
+                if (Array.isArray(parsed)) {
+                  imageArray = parsed;
+                } else {
+                  imageArray = finishImageUrl.split(',').map((url: string) => url.trim()).filter((url: string) => url.length > 0);
+                }
+              } catch {
+                imageArray = finishImageUrl.split(',').map((url: string) => url.trim()).filter((url: string) => url.length > 0);
+              }
+            }
+          }
+        } else if ([DetailProductType.UPPERCABINET, DetailProductType.LOWERCABINET, DetailProductType.TALLCABINET, DetailProductType.DRAWERCABINET, DetailProductType.OPENCABINET, DetailProductType.FLAPCABINET].includes(item.detail_product_type)) {
+          const cabinetImageUrl = item.materialDetails?.cabinet_image_url;
+          if (cabinetImageUrl) {
+            if (Array.isArray(cabinetImageUrl)) {
+              imageArray = cabinetImageUrl;
+            } else if (typeof cabinetImageUrl === 'string') {
+              try {
+                const parsed = JSON.parse(cabinetImageUrl);
+                if (Array.isArray(parsed)) {
+                  imageArray = parsed;
+                } else {
+                  imageArray = cabinetImageUrl.split(',').map((url: string) => url.trim()).filter((url: string) => url.length > 0);
+                }
+              } catch {
+                imageArray = cabinetImageUrl.split(',').map((url: string) => url.trim()).filter((url: string) => url.length > 0);
+              }
+            }
+          }
+        }
+
+        return (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+            onClick={() => setSelectedImageIndex(null)}
+          >
+            <div className="relative max-w-[90vw] max-h-[90vh] p-4">
+              <Image
+                src={imageArray[selectedImageIndex]}
+                alt={`${item.detail_product_type?.toLowerCase()}-image-${selectedImageIndex}`}
+                width={800}
+                height={600}
+                className="max-w-full max-h-full object-contain"
+                unoptimized={true}
+                onClick={(e) => e.stopPropagation()}
+              />
+
+              {/* 닫기 버튼 */}
+              <button
+                type="button"
+                onClick={() => setSelectedImageIndex(null)}
+                className="absolute top-2 right-2 w-8 h-8 bg-black bg-opacity-50 text-white rounded-full flex items-center justify-center hover:bg-opacity-75 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        );
+      })()}
+    </div>
+  );
 }

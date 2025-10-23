@@ -287,6 +287,7 @@ export default function CartClient() {
                     showQuantitySelector={true}
                     addOn_hinge={detail.addOn_hinge ?? undefined}
                     request={detail.door_request ?? undefined}
+                    images_url={detail.door_image_url as string[] | undefined}
                     {...commonProps}
                   />
                 );
@@ -310,6 +311,7 @@ export default function CartClient() {
                     location={detail.finish_location ?? ""}
                     quantity={cartItem.item_count}
                     showQuantitySelector={true}
+                    images_url={detail.finish_image_url as string[] | undefined}
                     {...commonProps}
                   />
                 );
@@ -364,6 +366,7 @@ export default function CartClient() {
                     legType_direct_input={detail.legType_direct_input ?? undefined}
                     addRiceCookerRail={addRiceCookerRail}
                     addBottomDrawer={addBottomDrawer}
+                    images_url={detail.cabinet_image_url as string[] | undefined}
                     {...commonProps}
                   />
                 );
