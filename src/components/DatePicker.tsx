@@ -225,7 +225,7 @@ export default function DatePicker({ initialDate, onConfirm, onClose }: DatePick
                   : isSelected
                     ? "bg-brand-500 text-white"
                     : day.isTomorrow
-                      ? "text-green-600 hover:bg-green-50"
+                      ? "text-brand-600 hover:bg-brand-50"
                       : isToday
                         ? "text-blue-600 hover:bg-blue-50"
                         : "text-gray-800 hover:bg-gray-100"
