@@ -30,6 +30,10 @@ function LoginPageContent() {
 
     const [isLoading, setIsLoading] = useState(true);
 
+    // 개발자용 숨겨진 페이지 접근을 위한 클릭 카운터
+    const [clickCount, setClickCount] = useState(0);
+    const [lastClickTime, setLastClickTime] = useState(0);
+
     const kakaoSignupUsecase = new KakaoSignupUsecase(
         new KakaoAuthSupabaseRepository(),
         new BizClientSupabaseRepository(),
@@ -215,7 +219,31 @@ function LoginPageContent() {
                             window.open("tel:031-528-4002", "_blank");
                         }} />
                 </div>
-                <div className="text-center text-m text-black-400"> 고객센터 전화번호 : 031-528-4002
+                <div
+                    className="text-center text-m text-black-400"
+                    onClick={() => {
+                        // 개발자용 숨겨진 페이지 접근 로직
+                        const now = Date.now();
+
+                        // 3초 내에 연속 클릭인지 확인
+                        if (now - lastClickTime < 3000) {
+                            setClickCount(prev => prev + 1);
+                        } else {
+                            setClickCount(1); // 새로운 연속 클릭 시작
+                        }
+
+                        setLastClickTime(now);
+
+                        // 5번 연속 클릭 시 개발자 로그인 페이지로 이동
+                        if (clickCount >= 4) { // 0부터 시작하므로 4면 5번째
+                            console.log('🔓 개발자 모드 접근');
+                            router.push('/dev/login');
+                            setClickCount(0); // 리셋
+                            return;
+                        }
+                    }}
+                >
+                    고객센터 전화번호 : 031-528-4002
                 </div>
 
             </div>
