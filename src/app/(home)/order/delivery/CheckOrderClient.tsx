@@ -31,6 +31,7 @@ import DeliveryScheduleSelector from "./_components/DeliveryScheduleSelector/Del
 import RecipientPhoneNumber from "./_components/RecipientPhoneNumber";
 import { trackClick } from "@/services/analytics/amplitude";
 import { getScreenName } from "@/utils/screenName";
+import BottomButton from "@/components/BottomButton/BottomButton";
 
 const CATEGORY_MAP: Record<string, string> = {
   door: "문짝",
@@ -226,15 +227,14 @@ function CheckOrderClientPage() {
       </div>
       <div className="h-[100px]"></div>
       <div id="delivery-order-button" className="fixed bottom-0 w-full max-w-[460px] p-5">
-        <Button
-          selected={true}
-          onClick={handleOrderSubmit}
-          className="w-full"
-          disabled={isRequestInvalid || isLoading}
-          // disabled={true}
+        <BottomButton
+          type={"1button"}
+          button1Text={isLoading ? "주문 요청 중..." : "주문 접수하기"}
+          className = "w-full"
+          button1Disabled={isRequestInvalid || isLoading}
+          onButton1Click={handleOrderSubmit}
         >
-          {isLoading ? "주문 요청 중..." : "주문 접수하기"}
-        </Button>
+        </BottomButton>
       </div>
     </div>
   );

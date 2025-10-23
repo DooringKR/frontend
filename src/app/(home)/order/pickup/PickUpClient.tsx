@@ -171,7 +171,8 @@ export default function PickUpClientPage() {
         <BottomButton
           type={"1button"}
           button1Text={isLoading ? "주문 요청 중..." : "주문 접수하기"}
-          className={`fixed bottom-0 w-full max-w-[460px] ${isDisabled ? "pointer-events-none opacity-50" : ""}`}
+          className={`fixed bottom-0 w-full max-w-[460px] `}
+          button1Disabled={isDisabled || isLoading}
           onButton1Click={handleSubmit}
         />
       </div>

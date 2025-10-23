@@ -11,6 +11,7 @@ import useBizClient from "@/store/bizClientStore";
 import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 import baseSchema from "@/utils/schema";
 import { useOrderStore } from "@/store/orderStore";
+import BottomButton from "@/components/BottomButton/BottomButton";
 
 export default function PhoneClientPage() {
   const router = useRouter();
@@ -65,15 +66,14 @@ export default function PhoneClientPage() {
         {errorMessage && <p className="mt-2 text-sm text-red-500">{errorMessage}</p>}
       </div>
       <div className="fixed bottom-0 w-full max-w-[460px] p-5">
-        <Button
-          type="button"
-          selected={!errorMessage}
-          onClick={handleSave}
-          disabled={!!errorMessage}
+        <BottomButton
+          type="1button"
+          button1Text={tempPhoneNumber === recipientPhoneNumber ? "확인" : "저장하기"}
+          onButton1Click={handleSave}
+          button1Disabled={!!errorMessage}
           className="w-full"
         >
-          {tempPhoneNumber === recipientPhoneNumber ? "확인" : "저장하기"}
-        </Button>
+        </BottomButton>
       </div>
     </div>
   );
