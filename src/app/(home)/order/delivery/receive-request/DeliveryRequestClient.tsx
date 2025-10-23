@@ -10,6 +10,7 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { useOrderStore } from "@/store/orderStore";
 import { DeliveryMethod } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
+import BottomButton from "@/components/BottomButton/BottomButton";
 
 export default function DeliveryRequestClientPage() {
   const router = useRouter();
@@ -119,14 +120,14 @@ export default function DeliveryRequestClientPage() {
       </div>
 
       <div className="fixed bottom-0 w-full max-w-[460px] p-5">
-        <Button
-          selected={true}
-          onClick={handleSave}
+        <BottomButton
+          type={"1button"}
+          button1Text="저장하기"
           className="w-full rounded-md"
-          disabled={isSaveDisabled}
+          button1Disabled={isSaveDisabled}
+          onButton1Click={handleSave}
         >
-          저장하기
-        </Button>
+        </BottomButton>
       </div>
     </div>
   );

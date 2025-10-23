@@ -10,6 +10,7 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import { useOrderStore } from "@/store/orderStore";
 import { VehicleType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
+import BottomButton from "@/components/BottomButton/BottomButton";
 
 export default function VehicleClientPage() {
   const router = useRouter();
@@ -82,17 +83,16 @@ export default function VehicleClientPage() {
       </div>
 
       <div className="fixed bottom-0 w-full max-w-[460px] bg-white px-5 py-4 safe-area-pb">
-        <Button
-          selected={true}
-          onClick={handleSave}
-          className="w-full rounded-md"
-          disabled={
+        <BottomButton
+          type={"1button"}
+          button1Text={"저장하기"}
+          onButton1Click={handleSave}
+          button1Disabled={
             tempVehicleType === "" ||
             (tempVehicleType === VehicleType.DIRECT_INPUT && tempCustomNote.trim() === "")
           }
         >
-          저장하기
-        </Button>
+        </BottomButton>
       </div>
     </div>
   );
