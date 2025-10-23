@@ -330,7 +330,7 @@ const FlapDoorPreview: React.FC<FlapDoorPreviewProps> = ({
               {idx + 1}
             </div>
             {/* 입력 필드 */}
-            <div className="max-w-[150px]">
+            <div className="max-w-[150px] flex items-center">
               <BoringInputField
                 value={adjustedBoringSize[idx] ?? null}
                 onChange={value => handleBoringInputChange(idx, value)}
@@ -338,6 +338,7 @@ const FlapDoorPreview: React.FC<FlapDoorPreviewProps> = ({
                 onFocus={() => setFocusedBoringIndex(idx)}
                 onBlur={() => setFocusedBoringIndex(null)}
               />
+              <span className="ml-1 text-orange-500">*</span>
             </div>
           </div>
         ))}

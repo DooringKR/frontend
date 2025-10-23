@@ -42,13 +42,13 @@ function PiecePageContent() {
 			<div className="h-5" />
 			<div className="flex flex-col gap-5 px-5">
 				<BoxedInput
-					label="색상"
+					label={<><span>색상</span><span className="text-orange-500 ml-1">*</span></>}
 					placeholder="색상을 입력해주세요"
 					value={color}
 					onChange={e => updateItem({ color: e.target.value })}
 				/>
 				<BoxedInput
-					label="사이즈"
+					label={<><span>사이즈</span><span className="text-orange-500 ml-1">*</span></>}
 					placeholder="사이즈를 입력해주세요"
 					value={size}
 					onChange={e => updateItem({ size: e.target.value })}

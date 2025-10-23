@@ -151,7 +151,7 @@ function StandardDoorPageContent() {
             />
             <div className="flex flex-1 flex-col gap-5 px-5">
                 <BoxedSelect
-                    label="색상"
+                    label={<><span>색상</span><span className="text-orange-500 ml-1">*</span></>}
                     options={[]}
                     value={formatColor(item?.color ?? "") || item?.door_color_direct_input || ""}
                     onClick={() => router.push("/door/color")}
@@ -162,7 +162,7 @@ function StandardDoorPageContent() {
                 {/* 표준문 폼 내용 */}
                 <BoxedInput
                     type="number"
-                    label="가로 길이(mm)"
+                    label={<><span>가로 길이 (mm)</span><span className="text-orange-500 ml-1">*</span></>}
                     placeholder="가로 길이를 입력해주세요"
                     value={door_width}
                     onChange={e => {
@@ -174,7 +174,7 @@ function StandardDoorPageContent() {
                 />
                 <BoxedInput
                     type="number"
-                    label="세로 길이(mm)"
+                    label={<><span>세로 길이 (mm)</span><span className="text-orange-500 ml-1">*</span></>}
                     placeholder="세로 길이를 입력해주세요"
                     value={door_height}
                     onChange={e => {
@@ -222,7 +222,8 @@ function StandardDoorPageContent() {
                     />
                 </div>
                 <BoxedSelect
-                    label="용도 ∙ 장소"
+                    default_label="용도 ∙ 장소"
+                    label={<><span>용도 ∙ 장소</span><span className="text-orange-500 ml-1">*</span></>}
                     options={[]}
                     value={door_location ? formatLocation(door_location) : ""}
                     onClick={() => setIsDoorLocationSheetOpen(true)}

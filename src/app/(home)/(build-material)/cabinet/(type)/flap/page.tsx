@@ -117,7 +117,6 @@ function FlapCabinetPageContent() {
         !behindType ||
         !cabinetLocation ||
         (cabinet_construct === null);
-    // (legType === null && !legTypeDirectInput);
 
     // BODY_MATERIAL_LIST에서 선택된 소재명 또는 직접입력값 표시
     const selectedMaterial = bodyMaterial !== null ? BODY_MATERIAL_LIST.find(option => option.id === bodyMaterial) : null;
@@ -129,12 +128,6 @@ function FlapCabinetPageContent() {
     const cabinetLocationLabel = cabinetLocation && locationEnumValues.includes(cabinetLocation)
         ? formatLocation(cabinetLocation)
         : "";
-    // 다리발 표시 라벨 (enum 값 또는 직접입력)
-    // const legEnumValues = (Object.values(CabinetLegType) as string[]).filter(v => v !== CabinetLegType.DIRECT_INPUT);
-    // const legTypeStr = (legType as string) || "";
-    // const legTypeLabel = legEnumValues.includes(legTypeStr)
-    //     ? legTypeStr
-    //     : (legTypeDirectInput || "");
 
     // 색상 옵션 변환
     const colorOptions = CABINET_COLOR_LIST.map(opt => ({ value: opt.name, label: formatColor(opt.name) }));
@@ -148,7 +141,8 @@ function FlapCabinetPageContent() {
             <div className="flex flex-col gap-5 px-5">
                 {/* 도어 색상 */}
                 <BoxedSelect
-                    label="도어 색상"
+                    default_label="도어 색상"
+                    label={<><span>도어 색상</span><span className="text-orange-500 ml-1">*</span></>}
                     options={colorOptions}
                     value={formatColor(item?.color ?? "") || item?.cabinet_color_direct_input || ""}
                     onClick={() => router.push("/cabinet/color")}
@@ -156,7 +150,8 @@ function FlapCabinetPageContent() {
                 />
                 {/* 몸통 소재 및 두께 (BoxedSelect 1개만, 바텀시트만 사용) */}
                 <BoxedSelect
-                    label="몸통 소재 및 두께"
+                    default_label="몸통 소재 및 두께"
+                    label={<><span>몸통 소재 및 두께</span><span className="text-orange-500 ml-1">*</span></>}
                     value={bodyMaterialLabel}
                     onClick={() => setIsBottomSheetOpen(true)}
                 />
@@ -178,7 +173,7 @@ function FlapCabinetPageContent() {
                 {/* 너비 */}
                 <BoxedInput
                     type="number"
-                    label="너비(mm)"
+                    label={<><span>너비(mm)</span><span className="text-orange-500 ml-1">*</span></>}
                     placeholder="너비를 입력해주세요"
                     value={DoorWidth ?? ""}
                     onChange={e => {
@@ -191,7 +186,7 @@ function FlapCabinetPageContent() {
                 {/* 높이 */}
                 <BoxedInput
                     type="number"
-                    label="높이(mm)"
+                    label={<><span>높이(mm)</span><span className="text-orange-500 ml-1">*</span></>}
                     placeholder="높이를 입력해주세요"
                     value={DoorHeight ?? ""}
                     onChange={e => {
@@ -204,7 +199,7 @@ function FlapCabinetPageContent() {
                 {/* 깊이 */}
                 <BoxedInput
                     type="number"
-                    label="깊이(mm)"
+                    label={<><span>깊이(mm)</span><span className="text-orange-500 ml-1">*</span></>}
                     placeholder="깊이를 입력해주세요"
                     value={DoorDepth ?? ""}
                     onChange={e => {
@@ -216,7 +211,8 @@ function FlapCabinetPageContent() {
                 />
                 {/* 쇼바 종류 (absorber_type) */}
                 <BoxedSelect
-                    label="쇼바 종류"
+                    default_label="쇼바 종류"
+                    label={<><span>쇼바 종류</span><span className="text-orange-500 ml-1">*</span></>}
                     options={ABSORBER_TYPE_LIST.filter(opt => opt.name !== "직접입력").map(opt => ({ value: String(opt.id), label: opt.name }))}
                     value={absorber_type !== null ? (selectedAbsorber ? selectedAbsorber.name : "") : absorber_type_direct_input}
                     onClick={() => setIsAbsorberSheetOpen(true)}
@@ -275,7 +271,10 @@ function FlapCabinetPageContent() {
                 />
                 {/* 손잡이 robust (enum) */}
                 <div className="flex flex-col gap-2">
-                    <div className="text-[14px]/[20px] font-400 text-gray-600">손잡이 종류</div>
+                    <div className="text-[14px]/[20px] font-400 text-gray-600">
+                        손잡이 종류
+                        <span className="text-orange-500 ml-1">*</span>
+                    </div>
                     <div className="flex w-full gap-2">
                         {Object.values(CabinetHandleType)
                             .filter(opt => opt !== "찬넬")
@@ -291,7 +290,10 @@ function FlapCabinetPageContent() {
                 </div>
                 {/* 뒷판 robust (enum) */}
                 <div className="flex flex-col gap-2">
-                    <div className="text-[14px]/[20px] font-400 text-gray-600">마감 방식</div>
+                    <div className="text-[14px]/[20px] font-400 text-gray-600">
+                        마감 방식
+                        <span className="text-orange-500 ml-1">*</span>
+                    </div>
                     <div className="flex w-full gap-2">
                         {Object.values(CabinetBehindType).reverse().map(opt => (
                             <Button
@@ -306,7 +308,8 @@ function FlapCabinetPageContent() {
 
                 {/* 용도/장소 (BoxedSelect 1개, 바텀시트+직접입력) */}
                 <BoxedSelect
-                    label="용도 ∙ 장소"
+                    default_label="용도 ∙ 장소"
+                    label={<><span>용도 ∙ 장소</span><span className="text-orange-500 ml-1">*</span></>}
                     value={cabinetLocationLabel}
                     onClick={() => setIsCabinetLocationSheetOpen(true)}
                 />
@@ -338,29 +341,7 @@ function FlapCabinetPageContent() {
                         />
                     </div>
                 </div>
-                {/* 다리발 (BoxedSelect 1개, 바텀시트+직접입력) */}
-                {/* <BoxedSelect
-                    label="다리발"
-                    value={legTypeLabel}
-                    onClick={() => setIsLegTypeSheetOpen(true)}
-                />
-                <LegTypeInputSheet
-                    isOpen={isLegTypeSheetOpen}
-                    onClose={() => setIsLegTypeSheetOpen(false)}
-                    value={legType as string}
-                    directInput={legTypeDirectInput}
-                    onChange={(val: string) => {
-                        const isEnum = (Object.values(CabinetLegType) as string[]).includes(val) && val !== CabinetLegType.DIRECT_INPUT;
-                        if (isEnum) {
-                            setLegType(val as CabinetLegType);
-                            setLegTypeDirectInput("");
-                        } else {
-                            // Direct input mode: keep enum as DIRECT_INPUT and store text separately
-                            setLegType(CabinetLegType.DIRECT_INPUT);
-                            setLegTypeDirectInput(val);
-                        }
-                    }}
-                /> */}
+
                 {/* 요청사항 */}
                 <BoxedInput
                     label="제작 시 요청사항"
@@ -484,78 +465,6 @@ function BodyMaterialManualInputSheet({ isOpen, onClose, value, directInput, onC
     );
 }
 
-// function LegTypeInputSheet({ isOpen, onClose, value, directInput, onChange }: { isOpen: boolean; onClose: () => void; value: string; directInput: string; onChange: (v: string) => void; }) {
-//     const inputRef = useRef<HTMLInputElement>(null);
-//     const options = (Object.values(CabinetLegType) as string[]).filter(v => v !== CabinetLegType.DIRECT_INPUT);
-//     // local selection state to ensure no default selection when opened
-//     const [localSelected, setLocalSelected] = useState<string | "direct" | undefined>(undefined);
-//     const [localInput, setLocalInput] = useState<string>(directInput || "");
-
-//     useEffect(() => {
-//         if (isOpen) {
-//             setLocalSelected(undefined);
-//             setLocalInput(directInput || "");
-//         }
-//         // intentionally not depending on directInput to avoid resets while typing
-//         // eslint-disable-next-line react-hooks/exhaustive-deps
-//     }, [isOpen]);
-
-//     return (
-//         <BottomSheet
-//             isOpen={isOpen}
-//             title="다리발 종류를 선택해주세요"
-//             contentPadding="px-1"
-//             children={
-//                 <div>
-//                     {options.map(option => (
-//                         <SelectToggleButton
-//                             key={option}
-//                             label={option}
-//                             checked={localSelected === option}
-//                             onClick={() => {
-//                                 setLocalSelected(option);
-//                                 onChange(option);
-//                             }}
-//                         />
-//                     ))}
-//                     <div className="flex flex-col">
-//                         <SelectToggleButton
-//                             label="직접 입력"
-//                             checked={localSelected === "direct"}
-//                             onClick={() => {
-//                                 setLocalSelected("direct");
-//                                 setTimeout(() => inputRef.current?.focus(), 0);
-//                             }}
-//                         />
-//                         {localSelected === "direct" && (
-//                             <div className="flex items-center gap-2 px-4 pb-3">
-//                                 <GrayVerticalLine />
-//                                 <BoxedInput
-//                                     ref={inputRef}
-//                                     type="text"
-//                                     placeholder="다리발 종류를 입력해주세요"
-//                                     className="w-full"
-//                                     value={localInput}
-//                                     onChange={e => {
-//                                         const val = e.target.value;
-//                                         setLocalInput(val);
-//                                         onChange(val);
-//                                     }}
-//                                 />
-//                             </div>
-//                         )}
-//                     </div>
-//                 </div>
-//             }
-//             onClose={onClose}
-//             buttonArea={
-//                 <div className="p-5">
-//                     <Button type="Brand" text="다음" onClick={onClose} />
-//                 </div>
-//             }
-//         />
-//     );
-// }
 function CabinetLocationInputSheet({ isOpen, onClose, value, onChange }: { isOpen: boolean; onClose: () => void; value: string | null; onChange: (v: string | null) => void; }) {
     const locationEnumValues = Object.values(Location);
     return (
