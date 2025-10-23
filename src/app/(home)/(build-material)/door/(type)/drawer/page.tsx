@@ -8,6 +8,7 @@ import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import Button from "@/components/Button/Button";
 import Header from "@/components/Header/Header";
 import BoxedInput from "@/components/Input/BoxedInput";
+import ImageUploadInput from "@/components/Input/ImageUploadInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";
 import SelectToggleButton from "@/components/Button/SelectToggleButton";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
@@ -35,6 +36,7 @@ function DrawerDoorPageContent() {
     const [request, setRequest] = useState(item?.door_request ?? "");
     const [door_location, setDoorLocation] = useState(item?.door_location ?? "");
     const [isDoorLocationSheetOpen, setIsDoorLocationSheetOpen] = useState(false);
+    const [images, setImages] = useState<File[]>(item?.raw_images || []);
 
     // 유효성 검사 훅 사용
     const { widthError, heightError, isFormValid } = useDrawerDoorValidation({
@@ -74,6 +76,12 @@ function DrawerDoorPageContent() {
     const handleDoorLocationChange = (newLocation: string) => {
         setDoorLocation(newLocation);
         updateItem({ door_location: newLocation });
+    };
+
+    const handleImagesChange = (newImages: File[]) => {
+        setImages(newImages);
+        updateItem({ raw_images: newImages });
+        console.log('이미지 업로드됨:', newImages.length, '개');
     };
 
     return (
@@ -139,6 +147,12 @@ function DrawerDoorPageContent() {
                     placeholder="제작 시 요청사항 | 예) 시공도 필요해요, …"
                     value={request}
                     onChange={e => handleRequestChange(e.target.value)}
+                />
+                <ImageUploadInput
+                    label="이미지 첨부"
+                    placeholder="이미지를 첨부해주세요"
+                    value={images}
+                    onChange={handleImagesChange}
                 />
             </div>
             <div className="h-[100px]"></div>

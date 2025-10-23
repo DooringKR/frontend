@@ -1,10 +1,12 @@
 
+"use client";
+
 import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
 import { CABINET_DRAWER_TYPE_LIST } from "@/constants/cabinetdrawertype";
 import { DOOR_COLOR_LIST, FINISH_COLOR_LIST, CABINET_COLOR_LIST } from "@/constants/colorList";
-import React from "react";
+import React, { useState } from "react";
 import { ABSORBER_TYPE_LIST } from "@/constants/absorbertype";
-
+import Image from "next/image";
 
 import { DoorType, FinishEdgeCount, HingeDirection, CabinetLegType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
@@ -12,6 +14,7 @@ import Button from "../Button/Button";
 import DoorPreviewIcon from "../DoorPreviewIcon/DoorPreviewIcon";
 import QuantitySelector from "../QuantitySelector/QuantitySelector";
 import formatColor from "@/utils/formatColor";
+import ImageCard from "./ImageCard";
 
 interface ShoppingCartCardProps {
   addRiceCookerRail?: boolean;
@@ -63,6 +66,7 @@ interface ShoppingCartCardProps {
   absorberType?: string;
   body_material_direct_input?: string;
   absorber_type_direct_input?: string;
+  images_url?: string[];
 }
 
 const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
@@ -115,7 +119,11 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   absorber_type_direct_input,
   addRiceCookerRail,
   addBottomDrawer,
+  images_url,
 }) => {
+  // 이미지 모달 상태
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+
   // color label: direct input first, else resolve id/name by product type
   let colorLabel: string | undefined = undefined;
   if (typeof color_direct_input === "string" && color_direct_input.trim() !== "") {
@@ -185,6 +193,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
   } else if (legType) {
     legTypeLabel = String(legType);
   }
+
   return (
     <div className="flex w-full flex-col gap-3 rounded-[16px] border-[1px] border-gray-200 bg-white p-[20px]">
       {/* 상품 정보 */}
@@ -268,6 +277,102 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
               <div>다리발 : {legTypeLabel}</div>
             )}
             {request && <div>제작 시 요청 사항 : {request}</div>}
+            {images_url && (() => {
+              // 디버깅을 위한 로그
+              console.log(`[${type}] images_url:`, images_url, 'type:', typeof images_url);
+
+              // images_url이 배열이 아니면 배열로 변환
+              let imageArray: string[] = [];
+              if (Array.isArray(images_url)) {
+                imageArray = images_url;
+              } else if (typeof images_url === 'string') {
+                // 문자열인 경우 JSON 파싱 시도
+                try {
+                  const parsed = JSON.parse(images_url);
+                  if (Array.isArray(parsed)) {
+                    imageArray = parsed;
+                  } else {
+                    // JSON이 아닌 경우 쉼표로 구분된 문자열로 처리
+                    imageArray = (images_url as string).split(',').map((url: string) => url.trim()).filter((url: string) => url.length > 0);
+                  }
+                } catch {
+                  // JSON 파싱 실패 시 쉼표로 구분된 문자열로 처리
+                  imageArray = (images_url as string).split(',').map((url: string) => url.trim()).filter((url: string) => url.length > 0);
+                }
+              }
+
+              // 유효한 URL만 필터링
+              const validUrls = imageArray.filter((url) =>
+                url &&
+                typeof url === 'string' &&
+                url.trim().length > 0 &&
+                url !== '[]' &&
+                url !== 'null' &&
+                url !== 'undefined' &&
+                (url.startsWith('http') || url.startsWith('blob:') || url.startsWith('data:') || url.startsWith('/'))
+              );
+
+              console.log(`[${type}] validUrls:`, validUrls);
+              return validUrls.length > 0;
+            })() && (
+                <div>
+                  {(() => {
+                    // images_url이 배열이 아니면 배열로 변환
+                    let imageArray: string[] = [];
+                    if (Array.isArray(images_url)) {
+                      imageArray = images_url;
+                    } else if (typeof images_url === 'string') {
+                      // 문자열인 경우 JSON 파싱 시도
+                      try {
+                        const parsed = JSON.parse(images_url);
+                        if (Array.isArray(parsed)) {
+                          imageArray = parsed;
+                        } else {
+                          // JSON이 아닌 경우 쉼표로 구분된 문자열로 처리
+                          imageArray = (images_url as string).split(',').map((url: string) => url.trim()).filter((url: string) => url.length > 0);
+                        }
+                      } catch {
+                        // JSON 파싱 실패 시 쉼표로 구분된 문자열로 처리
+                        imageArray = (images_url as string).split(',').map((url: string) => url.trim()).filter((url: string) => url.length > 0);
+                      }
+                    }
+
+                    // 유효한 URL만 필터링
+                    const validUrls = imageArray.filter((url) =>
+                      url &&
+                      typeof url === 'string' &&
+                      url.trim().length > 0 &&
+                      url !== '[]' &&
+                      url !== 'null' &&
+                      url !== 'undefined' &&
+                      (url.startsWith('http') || url.startsWith('blob:') || url.startsWith('data:') || url.startsWith('/'))
+                    );
+
+                    return (
+                      <>
+                        <div className="flex gap-2 mt-2">
+                          {validUrls.map((url, index) => (
+                            <div
+                              key={`image-${index}-${url}`}
+                              className="relative w-16 h-16 rounded overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                              onClick={() => setSelectedImageIndex(index)}
+                            >
+                              <Image
+                                src={url}
+                                alt={`image-${index}`}
+                                fill
+                                className="object-cover"
+                                sizes="64px"
+                                unoptimized={true}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+              )}
           </div>
         </div>
         {type === "door" && (title === "플랩문" || title === "일반문") && hingeCount && (
@@ -313,6 +418,66 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
           />
         )}
       </div>
+
+      {/* 이미지 확대 모달 */}
+      {selectedImageIndex !== null && (() => {
+        let imageArray: string[] = [];
+        if (Array.isArray(images_url)) {
+          imageArray = images_url;
+        } else if (typeof images_url === 'string') {
+          try {
+            const parsed = JSON.parse(images_url);
+            if (Array.isArray(parsed)) {
+              imageArray = parsed;
+            } else {
+              imageArray = (images_url as string).split(',').map((url: string) => url.trim()).filter((url: string) => url.length > 0);
+            }
+          } catch {
+            imageArray = (images_url as string).split(',').map((url: string) => url.trim()).filter((url: string) => url.length > 0);
+          }
+        }
+
+        // 유효한 URL만 필터링
+        const validUrls = imageArray.filter((url) =>
+          url &&
+          typeof url === 'string' &&
+          url.trim().length > 0 &&
+          url !== '[]' &&
+          url !== 'null' &&
+          url !== 'undefined' &&
+          (url.startsWith('http') || url.startsWith('blob:') || url.startsWith('data:') || url.startsWith('/'))
+        );
+
+        return (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+            onClick={() => setSelectedImageIndex(null)}
+          >
+            <div className="relative max-w-[90vw] max-h-[90vh] p-4">
+              <Image
+                src={validUrls[selectedImageIndex]}
+                alt={`image-${selectedImageIndex}`}
+                width={800}
+                height={600}
+                className="max-w-full max-h-full object-contain"
+                unoptimized={true}
+                onClick={(e) => e.stopPropagation()}
+              />
+
+              {/* 닫기 버튼 */}
+              <button
+                type="button"
+                onClick={() => setSelectedImageIndex(null)}
+                className="absolute top-2 right-2 w-8 h-8 bg-black bg-opacity-50 text-white rounded-full flex items-center justify-center hover:bg-opacity-75 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 };
