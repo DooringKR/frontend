@@ -148,9 +148,14 @@ function FinishPageContent() {
             />
             <div className="h-5"></div>
             <div className="flex flex-col gap-5 px-5">
-                <BoxedSelect label="색상" value={formatColor(item?.color ?? "") || item?.finish_color_direct_input || ""} onClick={() => router.back()} />
+                <BoxedSelect 
+                    label={<><span>색상</span><span className="text-orange-500 ml-1">*</span></>} 
+                    value={formatColor(item?.color ?? "") || item?.finish_color_direct_input || ""} 
+                    onClick={() => router.back()} 
+                />
                 <BoxedSelect
-                    label="엣지 면 수"
+                    default_label="엣지 면 수"
+                    label={<><span>엣지 면 수</span><span className="text-orange-500 ml-1">*</span></>}
                     value={edgeCount?.toString() ?? ""}
                     onClick={() => setIsEdgeCountSheetOpen(true)}
                 />
@@ -173,7 +178,8 @@ function FinishPageContent() {
                     heightError={heightError}
                 />
                 <BoxedSelect
-                    label="용도 ∙ 장소"
+                    default_label="용도 ∙ 장소"
+                    label={<><span>용도 ∙ 장소</span><span className="text-orange-500 ml-1">*</span></>}
                     options={[]}
                     value={finish_location ?? ""}
                     onClick={() => setIsFinishLocationSheetOpen(true)}
@@ -207,18 +213,6 @@ function FinishPageContent() {
                         className="fixed bottom-0 w-full max-w-[460px]"
                         button1Disabled={isFormValid() || !finish_location}
                         onButton1Click={() => {
-                            // setCart({
-                            //     type: "finish",
-                            //     category: category,
-                            //     // color: item?.color ?? "",
-                            //     edge_count: edgeCount,
-                            //     depth: depth,
-                            //     height: height,
-                            //     depthIncrease: depthIncrease,
-                            //     heightIncrease: heightIncrease,
-                            //     request: request,
-                            //     finish_location: finish_location,
-                            // });
                             trackClick({
                                 object_type: "button",
                                 object_name: "confirm",

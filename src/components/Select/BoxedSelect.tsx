@@ -2,7 +2,8 @@ import ChevronDown from "public/icons/chevron_down";
 import React, { useState } from "react";
 
 interface BoxedSelectProps {
-  label?: string;
+  default_label?: string;
+  label?: React.ReactNode;
   options?: { value: string; label: string }[];
   value: string;
   onChange?: (value: string) => void;
@@ -12,6 +13,7 @@ interface BoxedSelectProps {
 }
 
 const BoxedSelect: React.FC<BoxedSelectProps> = ({
+  default_label,
   label,
   options,
   value,
@@ -46,7 +48,7 @@ const BoxedSelect: React.FC<BoxedSelectProps> = ({
         }}
       >
         <div className={`${value && !error ? "text-gray-700" : "text-gray-300"} text-[17px] text-left ${truncate ? "truncate" : ""}`}>
-          {error ? "잘못된 입력" : value || label}
+          {error ? "잘못된 입력" : value || default_label}
         </div>
         <div className={`${isFocused && !error ? "text-brand-500" : "text-gray-200"}`}>
           <ChevronDown />

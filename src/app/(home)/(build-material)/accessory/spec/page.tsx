@@ -92,14 +92,14 @@ function AccessoryPageContent() {
             <div className="flex flex-col gap-5 px-5">
                 <BoxedInput
                     type="text"
-                    label="제조사"
+                    label={<><span>제조사</span><span className="text-orange-500 ml-1">*</span></>}
                     placeholder="제조사를 입력해주세요"
                     value={accessory_madeby}
                     onChange={e => handleMadebyChange(e.target.value)}
                 />
                 <BoxedInput
                     type="text"
-                    label="모델명"
+                    label={<><span>모델명</span><span className="text-orange-500 ml-1">*</span></>}
                     placeholder="모델명을 입력해주세요"
                     value={accessory_model}
                     onChange={e => handleModelChange(e.target.value)}

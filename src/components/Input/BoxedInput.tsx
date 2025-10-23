@@ -2,7 +2,7 @@ import InputClear from "public/icons/InputClear";
 import React, { useRef, useState } from "react";
 
 interface BoxedInputProps {
-  label?: string;
+  label?: React.ReactNode;
   error?: boolean;
   helperText?: string;
   placeholder?: string;

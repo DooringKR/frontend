@@ -83,7 +83,8 @@ function RailPageContent() {
 			<div className="h-5" />
 			<div className="flex flex-col gap-5 px-5">
 				<BoxedSelect
-					label="제조사"
+					default_label="제조사"
+					label={<><span>제조사</span><span className="text-orange-500 ml-1">*</span></>}
 					value={(() => {
 						if (madeby === HardwareMadeBy.DIRECT_INPUT) {
 							return item?.madebyInput || "직접 입력";
@@ -98,7 +99,8 @@ function RailPageContent() {
 					onChange={() => { }}
 				/>
 				<BoxedSelect
-					label="레일 종류"
+					default_label="레일 종류"
+					label={<><span>레일 종류</span><span className="text-orange-500 ml-1">*</span></>}
 					value={(() => {
 						if (railType === RailType.DIRECT_INPUT) {
 							return item?.railTypeInput || "직접 입력";
@@ -111,7 +113,8 @@ function RailPageContent() {
 				/>
 				{(railType === RailType.BALL || railType === RailType.UNDER || railType === RailType.DIRECT_INPUT) && (
 					<BoxedSelect
-						label="레일 길이"
+						default_label="레일 길이"
+						label={<><span>레일 길이</span><span className="text-orange-500 ml-1">*</span></>}
 						value={(() => {
 							if (railLength === RailLength.DIRECT_INPUT) {
 								return item?.railLengthInput || "직접 입력";
