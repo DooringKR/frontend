@@ -29,6 +29,7 @@ import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_r
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import { trackClick, trackView } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
+import PaymentNoticeCard from "@/components/PaymentNoticeCard";
 
 function createHardwareInstance(item: any) {
   switch (item.type) {
@@ -152,6 +153,7 @@ function ReportPageContent() {
           onIncrease={() => setQuantity(q => q + 1)}
           onDecrease={() => setQuantity(q => Math.max(1, q - 1))}
         />
+        <PaymentNoticeCard />
       </div>
       <div id="hardware-add-to-cart-button">
         <BottomButton
@@ -160,10 +162,10 @@ function ReportPageContent() {
           className="fixed bottom-0 w-full max-w-[460px]"
           onButton1Click={async () => {
             trackClick({
-                object_type: "button",
-                object_name: "add_to_cart",
-                current_page: getScreenName(),
-                modal_name: null,
+              object_type: "button",
+              object_name: "add_to_cart",
+              current_page: getScreenName(),
+              modal_name: null,
             });
             console.log(item!);
             try {

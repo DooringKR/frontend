@@ -31,6 +31,7 @@ import { trackClick, trackView } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 import { FinishType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import ImageCard from "@/components/Card/ImageCard";
+import PaymentNoticeCard from "@/components/PaymentNoticeCard";
 
 function ReportPageContent() {
     const router = useRouter();
@@ -108,6 +109,7 @@ function ReportPageContent() {
                         setQuantity(q => Math.max(1, q - 1));
                     }}
                 />
+                <PaymentNoticeCard />
             </div>
             <div id="finish-add-to-cart-button">
                 <BottomButton

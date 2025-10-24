@@ -34,6 +34,7 @@ import { SupabaseUploadImageUsecase } from "@/DDD/usecase/upload_image_usecase";
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import { trackClick, trackView } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
+import PaymentNoticeCard from "@/components/PaymentNoticeCard";
 
 function createCabinetInstance(item: any, cabinetImageUrls: string[] = []) {
 
@@ -360,6 +361,7 @@ function ReportPageContent() {
 					onIncrease={() => setQuantity(q => q + 1)}
 					onDecrease={() => setQuantity(q => Math.max(1, q - 1))}
 				/>
+				<PaymentNoticeCard />
 			</div>
 			<div id="cabinet-add-to-cart-button">
 				<BottomButton

@@ -6,6 +6,7 @@ import ImageCard from "@/components/Card/ImageCard";
 import Header from "@/components/Header/Header";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import PaymentNoticeCard from "@/components/PaymentNoticeCard";
 
 import { DOOR_CATEGORY_LIST } from "@/constants/category";
 import useItemStore from "@/store/itemStore";
@@ -112,6 +113,9 @@ function DoorReportPageContent() {
                         setQuantity(q => Math.max(1, q - 1));
                     }}
                 />
+
+                {/* 결제 안내 문구 */}
+                <PaymentNoticeCard />
             </div>
 
             <div id="door-add-to-cart-button">

@@ -32,6 +32,7 @@ import RecipientPhoneNumber from "./_components/RecipientPhoneNumber";
 import { trackClick } from "@/services/analytics/amplitude";
 import { getScreenName } from "@/utils/screenName";
 import BottomButton from "@/components/BottomButton/BottomButton";
+import PaymentNoticeCard from "@/components/PaymentNoticeCard";
 
 const CATEGORY_MAP: Record<string, string> = {
   door: "문짝",
@@ -223,14 +224,17 @@ function CheckOrderClientPage() {
           <DeliveryRequestSelector />
         </section>
 
-        <PriceSummaryCard getTotalPrice={getTotalPrice} />
+        <div className="flex flex-col gap-1">
+          <PriceSummaryCard getTotalPrice={getTotalPrice} />
+          <PaymentNoticeCard />
+        </div>
       </div>
-      <div className="h-[100px]"></div>
+      <div className="h-[150px]"></div>
       <div id="delivery-order-button" className="fixed bottom-0 w-full max-w-[460px] p-5">
         <BottomButton
           type={"1button"}
           button1Text={isLoading ? "주문 요청 중..." : "주문 접수하기"}
-          className = "w-full"
+          className="w-full"
           button1Disabled={isRequestInvalid || isLoading}
           onButton1Click={handleOrderSubmit}
         >

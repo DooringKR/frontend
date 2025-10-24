@@ -35,6 +35,7 @@ import formatColor from "@/utils/formatColor";
 import { track } from "@amplitude/analytics-browser";
 import { trackClick } from "@/services/analytics/amplitude";
 import { getScreenName } from "@/utils/screenName";
+import PaymentNoticeCard from "@/components/PaymentNoticeCard";
 
 
 // type OrderItem = DoorItem | FinishItem | CabinetItem | AccessoryItem | HardwareItem | null;
@@ -452,8 +453,9 @@ export default function CartClient() {
             onButton1Click={handleAddProduct}
           />
         </div>
-        <div className="px-5">
+        <div className="px-5 flex flex-col gap-3">
           <PriceSummaryCard getTotalPrice={getTotalPrice} />
+          <PaymentNoticeCard />
         </div>
       </div>
       <div className="h-[100px]"></div>
