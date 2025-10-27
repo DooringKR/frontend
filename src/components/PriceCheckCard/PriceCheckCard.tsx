@@ -8,11 +8,11 @@ function PriceCheckCard({ page }: PriceCheckCardProps) {
   return (
     <div className="flex flex-col gap-3 py-5">
       <div className="text-xl font-600 text-gray-800">
-        {page === CHECK_ORDER_PAGE ? "예상 주문금액을 확인해주세요" : "주문금액을 확인해주세요"}
+        예상 주문금액을 확인해주세요
       </div>
       <div className="flex w-full flex-col gap-3 rounded-2xl border-2 border-gray-200 p-5">
         <div className="flex justify-between text-[17px] font-600 text-gray-800">
-          <span>{page === CHECK_ORDER_PAGE ? "예상 주문금액" : "주문금액"}</span>
+          <span>예상 주문금액</span>
           <span>{page === CHECK_ORDER_PAGE ? "1000원~" : "100,000,000원"}</span>
         </div>
         {page === CHECK_ORDER_PAGE ? (

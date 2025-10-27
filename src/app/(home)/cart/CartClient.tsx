@@ -464,7 +464,7 @@ export default function CartClient() {
           type="textcombo+button"
           textComboText={{
             title: `${getTotalPrice().toLocaleString()}원`,
-            subtitle: "주문금액",
+            subtitle: "예상 주문금액",
           }}
           button1Text="다음"
           button1Type="Brand"
