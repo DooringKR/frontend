@@ -1,4 +1,4 @@
-import { FINISH_COLOR_LIST } from "@/constants/colorList";
+import { DOOR_COLOR_LIST } from "@/constants/colorList";
 import Image from "next/image";
 import React from "react";
 
@@ -24,7 +24,7 @@ const ColorSelectBottomButton: React.FC<ColorSelectBottomButtonProps> = ({
           <div className="flex items-center justify-center gap-2 bg-white px-5 pb-4 pt-2">
             <Image
               src={
-                FINISH_COLOR_LIST.find(item => item.name === selectedColor)?.image || ""
+                DOOR_COLOR_LIST.find(item => item.name === selectedColor)?.image || ""
               }
               alt={selectedColor}
               width={20}
