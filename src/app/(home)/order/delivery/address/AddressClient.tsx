@@ -127,7 +127,7 @@ export default function AddressClientPage() {
   }, [address1]);
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col pt-[60px]">
       <TopNavigator />
       <div className="flex flex-1 flex-col overflow-y-auto px-5 py-6 pb-40">
         <h1 className="mb-5 text-[23px] font-700">배송주소</h1>

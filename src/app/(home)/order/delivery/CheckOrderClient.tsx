@@ -194,7 +194,7 @@ function CheckOrderClientPage() {
       !order?.delivery_method_direct_input?.trim()) ||
     (order?.is_today_delivery === false && !order?.delivery_arrival_time);
   return (
-    <div className="flex min-h-screen flex-col justify-between">
+    <div className="flex min-h-screen flex-col justify-between pt-[60px]">
       <TopNavigator title="주문하기" />
       <ReceiveOptionBar
         icon={"/icons/truck.svg"}

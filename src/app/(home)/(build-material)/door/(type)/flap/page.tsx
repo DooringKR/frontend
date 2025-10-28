@@ -124,7 +124,7 @@ function FlapDoorPageContent() {
     };
 
     return (
-        <div className="flex min-h-screen flex-col">
+        <div className="flex min-h-screen flex-col pt-[60px]">
             <InitAmplitude />
             <TopNavigator />
             <Header

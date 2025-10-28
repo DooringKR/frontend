@@ -39,7 +39,7 @@ export default function VehicleClientPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-white pb-5">
+    <div className="flex min-h-screen flex-col bg-white pb-5 pt-[60px]">
       <TopNavigator />
 
       <div className="flex-1 flex-col overflow-y-auto pb-20">

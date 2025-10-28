@@ -143,7 +143,7 @@ export default function PickUpClientPage() {
   };
 
   return (
-    <div>
+    <div className="pt-[60px]">
       <TopNavigator title="주문하기" />
       <div>
         <ReceiveOptionBar

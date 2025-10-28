@@ -75,7 +75,7 @@ function DoorReportPageContent() {
     // 카테고리 정보 가져오기
 
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col pt-[90px]">
             <InitAmplitude />
             <TopNavigator />
             <ProgressBar progress={100} />

@@ -49,7 +49,7 @@ export default function PhoneClientPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col pt-[60px]">
       <TopNavigator title="휴대폰 번호" />
       <div className="flex-1 overflow-y-auto px-5 pb-32 pt-6">
         <h1 className="pb-5 pt-5 text-[23px] font-700 text-gray-900">받는 분 휴대폰 번호</h1>

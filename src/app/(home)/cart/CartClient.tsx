@@ -219,7 +219,7 @@ export default function CartClient() {
   // 로딩 중 표시
   if (isLoading) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center text-gray-500">
+      <div className="flex min-h-screen flex-col items-center justify-center text-gray-500 pt-[60px]">
         <TopNavigator title="장바구니" page={"/cart"} />
         <div className="flex flex-1 flex-col items-center justify-center px-5">
           <p className="text-[17px] font-500">장바구니 불러오는 중...</p>
@@ -231,7 +231,7 @@ export default function CartClient() {
   // 장바구니 비었을 때
   if (!cartItemDetails || cartItemDetails.length === 0) {
     return (
-      <div className="flex min-h-screen flex-col">
+      <div className="flex min-h-screen flex-col pt-[60px]">
         <TopNavigator title="장바구니" page={"/cart"} />
         <div className="flex flex-1 flex-col items-center justify-center px-5">
           <img src="/icons/paper.svg" alt="빈 용지 아이콘" className="mb-3" />
@@ -251,7 +251,7 @@ export default function CartClient() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col pt-[60px]">
       <TopNavigator title="장바구니" page={"/cart"} />
       <div className="flex-1 overflow-y-auto pb-[150px]">
         <div className="p-5">
