@@ -7,6 +7,7 @@ import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import Button from "@/components/Button/Button";
 import Header from "@/components/Header/Header";
+import ProgressBar from "@/components/Progress";
 import BoxedInput from "@/components/Input/BoxedInput";
 import ImageUploadInput from "@/components/Input/ImageUploadInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";

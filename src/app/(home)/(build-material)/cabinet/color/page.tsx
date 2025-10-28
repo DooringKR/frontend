@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
 import Header from "@/components/Header/Header";
+import ProgressBar from "@/components/Progress";
 import BoxedInput from "@/components/Input/BoxedInput";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
@@ -47,6 +48,7 @@ function CabinetColorListPageContent() {
 		<div className="flex flex-col">
 			<InitAmplitude />
 			<TopNavigator />
+			<ProgressBar progress={40} />
 			<Header size="Large" title={`${item?.type} 색상을 선택해주세요`} />
 			<BoxedInput
 				type="text"

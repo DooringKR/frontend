@@ -7,6 +7,7 @@ import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import Button from "@/components/Button/Button";
 import Header from "@/components/Header/Header";
+import ProgressBar from "@/components/Progress";
 import BoxedInput from "@/components/Input/BoxedInput";
 import ImageUploadInput from "@/components/Input/ImageUploadInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";
@@ -88,6 +89,7 @@ function DrawerDoorPageContent() {
         <div className="flex min-h-screen flex-col">
             <InitAmplitude />
             <TopNavigator />
+            <ProgressBar progress={80} />
             <Header
                 title={
                     "서랍 마에다 정보를 입력해주세요"

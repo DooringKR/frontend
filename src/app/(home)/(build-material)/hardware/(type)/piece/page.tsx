@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import React, { Suspense, useEffect } from "react";
 import BottomButton from "@/components/BottomButton/BottomButton";
 import Header from "@/components/Header/Header";
+import ProgressBar from "@/components/Progress";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import BoxedInput from "@/components/Input/BoxedInput";
 import useItemStore from "@/store/itemStore";
@@ -38,6 +39,7 @@ function PiecePageContent() {
 		<div className="flex flex-col">
 			<InitAmplitude />
 			<TopNavigator />
+			<ProgressBar progress={60} />
 			<Header title="피스 정보를 입력해주세요" />
 			<div className="h-5" />
 			<div className="flex flex-col gap-5 px-5">
