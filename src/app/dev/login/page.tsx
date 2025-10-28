@@ -91,25 +91,6 @@ export default function DevLoginPage() {
             useBizClientStore.setState({ bizClient: null });
             console.log('🔓 개발자 모드 접근');
 
-            await trackClickAndWait({
-                object_type: "button",
-                object_name: "dev_login",
-                current_page: 'dev_login',
-                modal_name: null,
-            });
-            await trackClickAndWait({
-                object_type: "button",
-                object_name: "dev_login",
-                current_page: 'dev_login',
-                modal_name: null,
-            });
-            await trackClickAndWait({
-                object_type: "button",
-                object_name: "dev_login",
-                current_page: 'dev_login',
-                modal_name: null,
-            });
-
             // 1. 현재 세션 확인
             const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
 
