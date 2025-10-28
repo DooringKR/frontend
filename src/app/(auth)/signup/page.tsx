@@ -14,7 +14,9 @@ import { BizClientSupabaseRepository } from "@/DDD/data/db/User/bizclient_supaba
 import { KakaoSignupUsecase } from "@/DDD/usecase/auth/kakao_signup_usecase";
 import useSignupStore from "@/store/signupStore";
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
+import InitAmplitudeUnstable from "@/app/(client-helpers)/init-amplitude-unstable";
 import { trackClick, trackView, trackClickAndWait } from "@/services/analytics/amplitude";
+import { trackClickUnstable, trackViewUnstable, trackClickAndWaitUnstable } from "@/services/analytics/amplitude-unstable";
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 
 export default function SignupPage() {

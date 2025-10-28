@@ -20,7 +20,9 @@ import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
 import { ReadBizClientUsecase } from "@/DDD/usecase/user/read_bizClient_usecase";
 import Button from "@/components/Button/Button";
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
+import InitAmplitudeUnstable from "@/app/(client-helpers)/init-amplitude-unstable";
 import { trackView, trackClick, trackClickAndWait } from "@/services/analytics/amplitude";
+import { trackViewUnstable, trackClickUnstable, trackClickAndWaitUnstable } from "@/services/analytics/amplitude-unstable";
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 
 function LoginPageContent() {
