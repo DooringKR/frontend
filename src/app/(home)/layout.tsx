@@ -1,6 +1,9 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
+import useBizClientStore from "@/store/bizClientStore";
+import { setAmplitudeUserId } from "@/services/analytics/amplitude";
 
 // const NAV_ITEMS = [
 //   { href: "/", label: "홈", key: "home" },
@@ -14,6 +17,14 @@ function Layout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
+  const bizClient = useBizClientStore((state) => state.bizClient);
+
+  // bizClient가 로드되면 Amplitude User ID 설정
+  useEffect(() => {
+    if (bizClient?.id) {
+      setAmplitudeUserId(bizClient.id);
+    }
+  }, [bizClient?.id]);
 
   return (
     <div>

@@ -15,6 +15,7 @@ import { ReadBizClientUsecase } from '@/DDD/usecase/user/read_bizClient_usecase'
 import useBizClientStore from '@/store/bizClientStore';
 import useCartStore from '@/store/cartStore';
 import { CrudCartUsecase } from '@/DDD/usecase/crud_cart_usecase';
+import { setAmplitudeUserId } from '@/services/analytics/amplitude';
 
 // 콜백 처리 컴포넌트를 분리
 function AuthCallbackContent() {
@@ -62,6 +63,7 @@ function AuthCallbackContent() {
                             console.log('✅ 회원가입 성공, 스토어에 데이터 저장 후 홈으로 이동');
                             useBizClientStore.setState({ bizClient: result.data.bizClient });
                             useCartStore.setState({ cart: result.data.cart });
+                            setAmplitudeUserId(result.data.bizClient.id);
                             useSignupStore.setState({ businessType: null, phoneNumber: null });
                             console.log('🔄 / (홈) 페이지로 이동 시작');
                             router.push('/');
@@ -166,6 +168,7 @@ function AuthCallbackContent() {
 
                             useBizClientStore.setState({ bizClient: bizClientResponse.data });
                             useCartStore.setState({ cart: cart! });
+                            setAmplitudeUserId(bizClientResponse.data.id);
                             router.push('/');
                         } else {
                             // bizClient가 존재하지 않으면 회원가입 페이지로

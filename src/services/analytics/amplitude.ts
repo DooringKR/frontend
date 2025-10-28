@@ -301,3 +301,15 @@ export const trackClickAndWait = async (
   preInitQueue.push({ name: 'Click', props: payload });
   await new Promise((r) => setTimeout(r, options?.timeoutMs ?? 400));
 };
+
+// amplitude.ts에 추가
+export const setAmplitudeUserId = (userId: string) => {
+  if (initialized && amp) {
+    amp.setUserId(userId);
+  }
+  // fallback to global
+  const globalAmp = getGlobalAmplitude();
+  if (globalAmp && typeof globalAmp.setUserId === 'function') {
+    globalAmp.setUserId(userId);
+  }
+};
