@@ -41,7 +41,7 @@ export const initAmplitude = async (
   preInitQueue.splice(0).forEach(({ name, props }) => {
     try {
       amp!.track(name, props);
-    } catch {}
+    } catch { }
   });
 };
 
@@ -114,7 +114,7 @@ export const trackViewAndWait = async (
   if (initialized && amp) {
     try {
       amp.track('View', payload);
-      
+
       if (typeof (amp as any).flush === 'function') {
         try {
           const flushResult = (amp as any).flush();
@@ -130,7 +130,7 @@ export const trackViewAndWait = async (
           }
         }
       }
-      
+
       await new Promise((r) => setTimeout(r, options?.timeoutMs ?? 400));
       return;
     } catch (err) {
@@ -211,7 +211,7 @@ export const trackClickAndWait = async (
     try {
       // Track the event first
       amp.track('Click', payload);
-      
+
       // ALWAYS flush when available (ignore options.flush - we want certainty)
       if (typeof (amp as any).flush === 'function') {
         try {
@@ -231,7 +231,7 @@ export const trackClickAndWait = async (
           }
         }
       }
-      
+
       // Fallback: if no flush API, wait longer to let beacon transport complete
       await new Promise((r) => setTimeout(r, options?.timeoutMs ?? 400));
       return;

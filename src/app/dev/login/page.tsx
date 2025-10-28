@@ -12,6 +12,9 @@ import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_r
 import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
 import useBizClientStore from "@/store/bizClientStore";
 import useCartStore from "@/store/cartStore";
+import { trackClickAndWait } from "@/services/analytics/amplitude";
+import { getScreenName } from "@/utils/screenName";
+import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 
 export default function DevLoginPage() {
     const router = useRouter();
@@ -86,6 +89,26 @@ export default function DevLoginPage() {
             supabase.auth.signOut();
             useCartStore.setState({ cart: null });
             useBizClientStore.setState({ bizClient: null });
+            console.log('🔓 개발자 모드 접근');
+
+            await trackClickAndWait({
+                object_type: "button",
+                object_name: "dev_login",
+                current_page: 'dev_login',
+                modal_name: null,
+            });
+            await trackClickAndWait({
+                object_type: "button",
+                object_name: "dev_login",
+                current_page: 'dev_login',
+                modal_name: null,
+            });
+            await trackClickAndWait({
+                object_type: "button",
+                object_name: "dev_login",
+                current_page: 'dev_login',
+                modal_name: null,
+            });
 
             // 1. 현재 세션 확인
             const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
@@ -142,6 +165,7 @@ export default function DevLoginPage() {
             // 6. 개발자 모드 인증 완료
             setIsAuthenticated(true);
             setError("");
+            router.push("/dev/environment");
             console.log("🔓 개발자 인증 성공 - 모든 데이터 로드 완료");
 
         } catch (error) {
@@ -161,6 +185,7 @@ export default function DevLoginPage() {
     if (isAuthenticated) {
         return (
             <div className="min-h-screen bg-black text-green-400 font-mono overflow-hidden relative">
+                <InitAmplitude />
                 {/* Matrix 배경 */}
                 <div className="absolute inset-0 opacity-20">
                     <div className="grid grid-cols-10 gap-1 p-4">
@@ -241,6 +266,7 @@ export default function DevLoginPage() {
 
     return (
         <div className="min-h-screen bg-black text-green-400 font-mono overflow-hidden relative">
+            <InitAmplitude />
             {/* Matrix 배경 */}
             <div className="absolute inset-0 opacity-20">
                 <div className="grid grid-cols-10 gap-1 p-4">

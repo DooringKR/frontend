@@ -104,7 +104,8 @@ export default function SignupPage() {
                         <Button
                             type={selectedBusinessType === BusinessType.INTERIOR ? "BrandInverse" : "OutlinedLarge"}
                             text="인테리어 업체"
-                            onClick={() => {handleBusinessTypeSelect(BusinessType.INTERIOR)
+                            onClick={() => {
+                                handleBusinessTypeSelect(BusinessType.INTERIOR)
                                 trackClick({
                                     object_type: "button",
                                     object_name: "interior",
@@ -116,7 +117,8 @@ export default function SignupPage() {
                         <Button
                             type={selectedBusinessType === BusinessType.FACTORY ? "BrandInverse" : "OutlinedLarge"}
                             text="가구 공장"
-                            onClick={() => {handleBusinessTypeSelect(BusinessType.FACTORY)
+                            onClick={() => {
+                                handleBusinessTypeSelect(BusinessType.FACTORY)
                                 trackClick({
                                     object_type: "button",
                                     object_name: "factory",
