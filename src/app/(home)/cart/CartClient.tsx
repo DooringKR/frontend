@@ -120,6 +120,7 @@ export default function CartClient() {
     async function fetchDetails() {
       setIsLoading(true);
       console.log("cartItems in fetchDetails", cartItems); // 추가
+      setCartItemDetails([]);
       const details: CartItemDetail[] = await Promise.all(
         cartItems.map(async (cartItem) => {
           let detail: any = null;
