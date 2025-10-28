@@ -4,6 +4,7 @@ import BottomButton from "@/components/BottomButton/BottomButton";
 import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
 import ImageCard from "@/components/Card/ImageCard";
 import Header from "@/components/Header/Header";
+import ProgressBar from "@/components/Progress";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import PaymentNoticeCard from "@/components/PaymentNoticeCard";
@@ -77,6 +78,7 @@ function DoorReportPageContent() {
         <div className="flex flex-col">
             <InitAmplitude />
             <TopNavigator />
+            <ProgressBar progress={100} />
             <Header size="Large" title={`${item.type} 주문 개수를 선택해주세요`} />
             <div className="flex flex-col gap-[20px] px-5 pb-[100px] pt-5">
                 <ShoppingCartCard

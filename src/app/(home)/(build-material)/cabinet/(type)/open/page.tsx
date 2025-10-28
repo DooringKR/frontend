@@ -4,6 +4,7 @@ import React, { useState, useRef, Suspense, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import Header from "@/components/Header/Header";
+import ProgressBar from "@/components/Progress";
 import BottomButton from "@/components/BottomButton/BottomButton";
 import BoxedSelect from "@/components/Select/BoxedSelect";
 import BoxedInput from "@/components/Input/BoxedInput";
@@ -119,6 +120,7 @@ function OpenCabinetPageContent() {
 		<div className="flex flex-col">
 			<InitAmplitude />
 			<TopNavigator />
+			<ProgressBar progress={80} />
 			<Header title="오픈장 정보를 입력해주세요" />
 			<div className="h-5" />
 			<div className="flex flex-col gap-5 px-5">

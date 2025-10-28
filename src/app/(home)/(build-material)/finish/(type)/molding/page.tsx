@@ -8,6 +8,7 @@ import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import Button from "@/components/Button/Button";
 import SelectToggleButton from "@/components/Button/SelectToggleButton";
 import Header from "@/components/Header/Header";
+import ProgressBar from "@/components/Progress";
 import BoxedInput from "@/components/Input/BoxedInput";
 import ImageUploadInput from "@/components/Input/ImageUploadInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";
@@ -150,6 +151,7 @@ function FinishPageContent() {
         <div className="flex flex-col">
             <InitAmplitude />
             <TopNavigator />
+            <ProgressBar progress={80} />
             <Header
                 size="Large"
                 title={`${item?.type} 정보를 입력해주세요`}
