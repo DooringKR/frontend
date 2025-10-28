@@ -40,12 +40,12 @@ const config: Config = {
       },
       colors: {
         brand: {
-          50: "#ECF9F3",
-          100: "#D2EFE1",
-          200: "#AFE3CA",
-          300: "#89D6B1",
-          500: "#44BE83",
-          600: "#3AA26F",
+          50: "#eff6ff",
+          100: "#dbeafe",
+          200: "#bedbff",
+          300: "#8ec5ff",
+          500: "#2b7fff",
+          600: "#155dfc",
         },
         red: {
           300: "#FCA5A5",

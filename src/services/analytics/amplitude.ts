@@ -28,13 +28,20 @@ export const initAmplitude = async (
   if (typeof window === 'undefined') return; // client only
   const mod = await import('@amplitude/analytics-browser');
   amp = mod;
-  amp.init(apiKey, undefined, config);
+  // Provide safe defaults that improve delivery on navigation/redirect
+  const defaultConfig: Record<string, any> = {
+    transport: 'beacon', // prefer Beacon API to survive unloads
+    flushQueueSize: 1, // send immediately for critical events
+    flushIntervalMillis: 500, // short interval if batching occurs
+    defaultTracking: false,
+  };
+  amp.init(apiKey, undefined, { ...defaultConfig, ...(config ?? {}) });
   initialized = true;
   // flush queued events
   preInitQueue.splice(0).forEach(({ name, props }) => {
     try {
       amp!.track(name, props);
-    } catch {}
+    } catch { }
   });
 };
 
@@ -96,61 +103,201 @@ export const trackView = (props: ViewEventProps) => {
   send('View', payload);
 };
 
+// Awaitable view tracking - use when view happens right before navigation
+export const trackViewAndWait = async (
+  props: ViewEventProps,
+  options?: { timeoutMs?: number }
+) => {
+  const payload = encodeForAmplitude(normalize(props));
+
+  // Same guaranteed delivery as trackClickAndWait
+  if (initialized && amp) {
+    try {
+      amp.track('View', payload);
+
+      if (typeof (amp as any).flush === 'function') {
+        try {
+          const flushResult = (amp as any).flush();
+          if (flushResult && typeof flushResult.then === 'function') {
+            await flushResult;
+          }
+          await new Promise((r) => setTimeout(r, 50));
+          return;
+        } catch (err) {
+          if (process.env.NODE_ENV !== 'production') {
+            // eslint-disable-next-line no-console
+            console.warn('[Amplitude] flush failed:', err);
+          }
+        }
+      }
+
+      await new Promise((r) => setTimeout(r, options?.timeoutMs ?? 400));
+      return;
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'production') {
+        // eslint-disable-next-line no-console
+        console.warn('[Amplitude] track failed:', err);
+      }
+    }
+  }
+
+  const globalAmp = getGlobalAmplitude();
+  if (globalAmp) {
+    try {
+      globalAmp.track('View', payload);
+      if (typeof globalAmp.flush === 'function') {
+        try {
+          const flushResult = globalAmp.flush();
+          if (flushResult && typeof flushResult.then === 'function') {
+            await flushResult;
+          }
+        } catch {
+          // ignore
+        }
+      }
+      await new Promise((r) => setTimeout(r, options?.timeoutMs ?? 400));
+      return;
+    } catch {
+      // ignore
+    }
+  }
+
+  if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
+    const apiKey = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY;
+    if (apiKey) {
+      try {
+        const beaconPayload = {
+          api_key: apiKey,
+          events: [
+            {
+              event_type: 'View',
+              event_properties: payload,
+              time: Date.now(),
+            },
+          ],
+        };
+        const sent = navigator.sendBeacon(
+          'https://api2.amplitude.com/2/httpapi',
+          JSON.stringify(beaconPayload)
+        );
+        if (sent) {
+          return;
+        }
+      } catch {
+        // ignore beacon failure
+      }
+    }
+  }
+
+  preInitQueue.push({ name: 'View', props: payload });
+  await new Promise((r) => setTimeout(r, options?.timeoutMs ?? 400));
+};
+
 export const trackClick = (props: ClickEventProps) => {
   const payload = encodeForAmplitude(normalize(props));
   send('Click', payload);
 };
 
 // Awaitable click tracking useful before hard navigations / OAuth redirects
+// CRITICAL: ensures event is sent before redirect, using flush + promise + beacon fallback
 export const trackClickAndWait = async (
   props: ClickEventProps,
-  options?: { timeoutMs?: number }
+  options?: { timeoutMs?: number; flush?: boolean }
 ) => {
   const payload = encodeForAmplitude(normalize(props));
 
-  // Try SDK first: it returns a promise we can await
+  // Strategy 1: Use SDK with guaranteed flush
   if (initialized && amp) {
     try {
-      const res = amp.track('Click', payload);
-      // Some versions expose a .promise, others may be then-able, many return void
-      const maybeAny = res as any;
-      if (maybeAny && maybeAny.promise && typeof maybeAny.promise.then === 'function') {
+      // Track the event first
+      amp.track('Click', payload);
+
+      // ALWAYS flush when available (ignore options.flush - we want certainty)
+      if (typeof (amp as any).flush === 'function') {
         try {
-          await maybeAny.promise;
+          const flushResult = (amp as any).flush();
+          // If flush returns a promise, await it
+          if (flushResult && typeof flushResult.then === 'function') {
+            await flushResult;
+          }
+          // Even if flush is void, give a tiny buffer for beacon dispatch
+          await new Promise((r) => setTimeout(r, 50));
           return;
-        } catch {
-          // ignore and fall back to timeout
+        } catch (err) {
+          // Log flush failure in dev
+          if (process.env.NODE_ENV !== 'production') {
+            // eslint-disable-next-line no-console
+            console.warn('[Amplitude] flush failed:', err);
+          }
         }
-      } else if (maybeAny && typeof maybeAny.then === 'function') {
-        try {
-          await maybeAny;
-          return;
-        } catch {
-          // ignore and fall back to timeout
-        }
-      } else {
-        // No promise, fall back to small delay
-        await new Promise((r) => setTimeout(r, options?.timeoutMs ?? 150));
-        return;
       }
-    } catch {
-      // ignore and fall through
+
+      // Fallback: if no flush API, wait longer to let beacon transport complete
+      await new Promise((r) => setTimeout(r, options?.timeoutMs ?? 400));
+      return;
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'production') {
+        // eslint-disable-next-line no-console
+        console.warn('[Amplitude] track failed:', err);
+      }
     }
   }
 
-  // Fallback to global amplitude (no promise API) then wait a short time
+  // Strategy 2: Fallback to global amplitude with sendBeacon polyfill
   const globalAmp = getGlobalAmplitude();
   if (globalAmp) {
     try {
       globalAmp.track('Click', payload);
+      // Try to flush global instance if available
+      if (typeof globalAmp.flush === 'function') {
+        try {
+          const flushResult = globalAmp.flush();
+          if (flushResult && typeof flushResult.then === 'function') {
+            await flushResult;
+          }
+        } catch {
+          // ignore
+        }
+      }
+      // Wait for beacon
+      await new Promise((r) => setTimeout(r, options?.timeoutMs ?? 400));
+      return;
     } catch {
       // ignore
     }
-    await new Promise((r) => setTimeout(r, options?.timeoutMs ?? 150));
-    return;
   }
 
-  // If neither available, queue and still delay a bit to increase chance of later flush
+  // Strategy 3: Manual sendBeacon as last resort
+  // If SDK isn't initialized, try to send directly via Beacon API
+  if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
+    const apiKey = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY;
+    if (apiKey) {
+      try {
+        const beaconPayload = {
+          api_key: apiKey,
+          events: [
+            {
+              event_type: 'Click',
+              event_properties: payload,
+              time: Date.now(),
+            },
+          ],
+        };
+        const sent = navigator.sendBeacon(
+          'https://api2.amplitude.com/2/httpapi',
+          JSON.stringify(beaconPayload)
+        );
+        if (sent) {
+          // Beacon queued successfully
+          return;
+        }
+      } catch {
+        // ignore beacon failure
+      }
+    }
+  }
+
+  // Last resort: queue for later
   preInitQueue.push({ name: 'Click', props: payload });
-  await new Promise((r) => setTimeout(r, options?.timeoutMs ?? 150));
+  await new Promise((r) => setTimeout(r, options?.timeoutMs ?? 400));
 };

@@ -18,6 +18,7 @@ import AddressChangeConfirmModal from "./_components/AddressChangeConfirm";
 import { track } from "@amplitude/analytics-browser";
 import { trackClick } from "@/services/analytics/amplitude";
 import { getScreenName } from "@/utils/screenName";
+import BottomButton from "@/components/BottomButton/BottomButton";
 
 export default function AddressClientPage() {
   const router = useRouter();
@@ -171,10 +172,11 @@ export default function AddressClientPage() {
         </div>
       </div>
       <div className="fixed bottom-0 w-full max-w-[460px] px-5 py-5">
-        <Button
-          type="button"
-          disabled={isButtonDisabled || isCheckingDelivery}
-          onClick={() => {
+        <BottomButton
+          type={"1button"}
+          button1Text={isCheckingDelivery ? "확인 중..." : buttonText}
+          button1Disabled={isButtonDisabled || isCheckingDelivery}
+          onButton1Click={() => {
             trackClick({
               object_type: "button",
               object_name: "confirm",
@@ -193,11 +195,9 @@ export default function AddressClientPage() {
 
             handleSave(); // 나머지는 저장하기 동작
           }}
-          selected={!isButtonDisabled}
           className="w-full"
         >
-          {isCheckingDelivery ? "확인 중..." : buttonText}
-        </Button>
+        </BottomButton>
       </div>
     </div>
   );

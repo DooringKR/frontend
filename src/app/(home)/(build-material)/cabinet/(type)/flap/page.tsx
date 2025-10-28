@@ -15,6 +15,7 @@ import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import Button from "@/components/Button/Button";
 import Header from "@/components/Header/Header";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import ImageUploadInput from "@/components/Input/ImageUploadInput";
 
 
 import useItemStore from "@/store/itemStore";
@@ -54,6 +55,7 @@ function FlapCabinetPageContent() {
     );
     const [request, setRequest] = useState(item?.request ?? "");
     const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+    const [images, setImages] = useState<File[]>(item?.raw_images || []);
     // 추가 필드: 용도/장소, 시공 필요 여부, 다리발
     const [cabinetLocation, setCabinetLocation] = useState(item?.cabinet_location ?? null);
     const [isCabinetLocationSheetOpen, setIsCabinetLocationSheetOpen] = useState(false);
@@ -348,6 +350,16 @@ function FlapCabinetPageContent() {
                     placeholder="제작 시 요청사항을 입력해주세요"
                     value={request}
                     onChange={e => setRequest(e.target.value)}
+                />
+                <ImageUploadInput
+                    label="이미지 첨부"
+                    placeholder="이미지를 첨부해주세요"
+                    value={images}
+                    onChange={(newImages) => {
+                        setImages(newImages);
+                        updateItem({ raw_images: newImages });
+                        console.log('이미지 업로드됨:', newImages.length, '개');
+                    }}
                 />
             </div>
             <div className="h-5" />

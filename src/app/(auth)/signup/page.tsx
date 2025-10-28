@@ -14,7 +14,9 @@ import { BizClientSupabaseRepository } from "@/DDD/data/db/User/bizclient_supaba
 import { KakaoSignupUsecase } from "@/DDD/usecase/auth/kakao_signup_usecase";
 import useSignupStore from "@/store/signupStore";
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
+import InitAmplitudeUnstable from "@/app/(client-helpers)/init-amplitude-unstable";
 import { trackClick, trackView, trackClickAndWait } from "@/services/analytics/amplitude";
+import { trackClickUnstable, trackViewUnstable, trackClickAndWaitUnstable } from "@/services/analytics/amplitude-unstable";
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 
 export default function SignupPage() {
@@ -102,7 +104,8 @@ export default function SignupPage() {
                         <Button
                             type={selectedBusinessType === BusinessType.INTERIOR ? "BrandInverse" : "OutlinedLarge"}
                             text="인테리어 업체"
-                            onClick={() => {handleBusinessTypeSelect(BusinessType.INTERIOR)
+                            onClick={() => {
+                                handleBusinessTypeSelect(BusinessType.INTERIOR)
                                 trackClick({
                                     object_type: "button",
                                     object_name: "interior",
@@ -114,7 +117,8 @@ export default function SignupPage() {
                         <Button
                             type={selectedBusinessType === BusinessType.FACTORY ? "BrandInverse" : "OutlinedLarge"}
                             text="가구 공장"
-                            onClick={() => {handleBusinessTypeSelect(BusinessType.FACTORY)
+                            onClick={() => {
+                                handleBusinessTypeSelect(BusinessType.FACTORY)
                                 trackClick({
                                     object_type: "button",
                                     object_name: "factory",

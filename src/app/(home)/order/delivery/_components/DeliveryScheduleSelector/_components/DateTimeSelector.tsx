@@ -2,6 +2,7 @@ import { useState } from "react";
 import DeliveryDatePicker from "./DeliveryDatePicker";
 import Modal from "@/components/Modal/Modal";
 import TimePickerSimple from "@/components/TimePicker";
+import TimePickerSwiper from "@/components/TimePickerSwiper";
 import { useOrderStore } from "@/store/orderStore";
 
 interface DateTimeSelectorProps {
@@ -71,7 +72,7 @@ export default function DateTimeSelector({
                 />
             </Modal>
             <Modal isOpen={isTimeModalOpen} onClose={() => setIsTimeModalOpen(false)}>
-                <TimePickerSimple
+                <TimePickerSwiper
                     initialHour={order?.delivery_arrival_time ? order?.delivery_arrival_time.getHours().toString().padStart(2, "0") : ""}
                     initialMinute={order?.delivery_arrival_time ? order?.delivery_arrival_time.getMinutes().toString().padStart(2, "0") : ""}
                     onConfirm={(h, m) => {

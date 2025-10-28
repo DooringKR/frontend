@@ -35,6 +35,7 @@ import formatColor from "@/utils/formatColor";
 import { track } from "@amplitude/analytics-browser";
 import { trackClick } from "@/services/analytics/amplitude";
 import { getScreenName } from "@/utils/screenName";
+import PaymentNoticeCard from "@/components/PaymentNoticeCard";
 
 
 // type OrderItem = DoorItem | FinishItem | CabinetItem | AccessoryItem | HardwareItem | null;
@@ -119,6 +120,7 @@ export default function CartClient() {
     async function fetchDetails() {
       setIsLoading(true);
       console.log("cartItems in fetchDetails", cartItems); // 추가
+      setCartItemDetails([]);
       const details: CartItemDetail[] = await Promise.all(
         cartItems.map(async (cartItem) => {
           let detail: any = null;
@@ -287,6 +289,7 @@ export default function CartClient() {
                     showQuantitySelector={true}
                     addOn_hinge={detail.addOn_hinge ?? undefined}
                     request={detail.door_request ?? undefined}
+                    images_url={detail.door_image_url as string[] | undefined}
                     {...commonProps}
                   />
                 );
@@ -310,6 +313,7 @@ export default function CartClient() {
                     location={detail.finish_location ?? ""}
                     quantity={cartItem.item_count}
                     showQuantitySelector={true}
+                    images_url={detail.finish_image_url as string[] | undefined}
                     {...commonProps}
                   />
                 );
@@ -364,6 +368,7 @@ export default function CartClient() {
                     legType_direct_input={detail.legType_direct_input ?? undefined}
                     addRiceCookerRail={addRiceCookerRail}
                     addBottomDrawer={addBottomDrawer}
+                    images_url={detail.cabinet_image_url as string[] | undefined}
                     {...commonProps}
                   />
                 );
@@ -449,8 +454,9 @@ export default function CartClient() {
             onButton1Click={handleAddProduct}
           />
         </div>
-        <div className="px-5">
+        <div className="px-5 flex flex-col gap-3">
           <PriceSummaryCard getTotalPrice={getTotalPrice} />
+          <PaymentNoticeCard />
         </div>
       </div>
       <div className="h-[100px]"></div>
@@ -459,7 +465,7 @@ export default function CartClient() {
           type="textcombo+button"
           textComboText={{
             title: `${getTotalPrice().toLocaleString()}원`,
-            subtitle: "주문금액",
+            subtitle: "예상 주문금액",
           }}
           button1Text="다음"
           button1Type="Brand"

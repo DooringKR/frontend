@@ -195,7 +195,7 @@ function UnavailableClientPage() {
       </div>
       <div className="h-[100px]"></div>
       <BottomButton
-        className="fixed bottom-0 w-full max-w-[500px] px-5 pb-5 pt-3"
+        className="fixed bottom-0 w-full max-w-[460px]"
         type={"2buttons"}
         button1Type="BrandInverse"
         button1Text="확인했어요"

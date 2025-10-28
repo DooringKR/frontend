@@ -19,6 +19,7 @@ import WithdrawConfirmModal from "./_components/WithdrawConfirmModal";
 import { WithdrawAccountUsecase } from "@/DDD/usecase/withdraw_account_usecase";
 import { getScreenName } from "@/utils/screenName";
 import { trackClick } from "@/services/analytics/amplitude";
+import useCartItemStore from "@/store/cartItemStore";
 
 function MyPageClient() {
   const router = useRouter();
@@ -70,6 +71,7 @@ function MyPageClient() {
         await supabase.auth.signOut();
         useBizClientStore.setState({ bizClient: null });
         useCartStore.setState({ cart: null });
+        useCartItemStore.setState({ cartItems: [] });
 
         // 시작 페이지로 이동
         alert("회원 탈퇴가 완료되었습니다.\n그동안 이용해주셔서 감사합니다.");
@@ -144,6 +146,7 @@ function MyPageClient() {
             supabase.auth.signOut();
             useBizClientStore.setState({ bizClient: null });
             useCartStore.setState({ cart: null });
+            useCartItemStore.setState({ cartItems: [] });
             router.replace("/start");
           }}
         />
@@ -151,7 +154,7 @@ function MyPageClient() {
           className="w-[80px]"
           text="탈퇴하기"
           type={"GrayMedium"}
-          onClick= {() => {
+          onClick={() => {
             trackClick({
               object_type: "button",
               object_name: "withdraw",

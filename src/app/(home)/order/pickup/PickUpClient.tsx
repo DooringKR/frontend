@@ -26,6 +26,7 @@ import { GenerateOrderEstimateUseCase } from "@/DDD/usecase/generate_order_estim
 import { EstimateExportEdgeFunctionAdapter } from "@/DDD/data/service/estimate_export_edge_function_adapter";
 import { getScreenName } from "@/utils/screenName";
 import { trackClick } from "@/services/analytics/amplitude";
+import PaymentNoticeCard from "@/components/PaymentNoticeCard";
 
 
 export default function PickUpClientPage() {
@@ -161,17 +162,21 @@ export default function PickUpClientPage() {
           <PickupScheduleSelector />
         </div>
         <div className="px-5">
-          <PriceSummaryCard
-            getTotalPrice={getTotalPrice}
-          />
+          <div className="flex flex-col gap-1">
+            <PriceSummaryCard
+              getTotalPrice={getTotalPrice}
+            />
+            <PaymentNoticeCard />
+          </div>
         </div>
       </div>
-      <div className="h-[100px]"></div>
+      <div className="h-[150px]"></div>
       <div id="pickup-order-button">
         <BottomButton
           type={"1button"}
           button1Text={isLoading ? "주문 요청 중..." : "주문 접수하기"}
-          className={`fixed bottom-0 w-full max-w-[460px] ${isDisabled ? "pointer-events-none opacity-50" : ""}`}
+          className={`fixed bottom-0 w-full max-w-[460px] `}
+          button1Disabled={isDisabled || isLoading}
           onButton1Click={handleSubmit}
         />
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface DatePickerProps {
   initialDate: Date | null;
@@ -15,6 +15,15 @@ export default function DatePicker({ initialDate, onConfirm, onClose }: DatePick
       : ""
   );
   const [currentMonth, setCurrentMonth] = useState(initialDate || new Date());
+
+  // Match BottomSheet behavior: lock body scroll while modal is open
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
 
   // 달력 데이터 생성
   const generateCalendarData = (date: Date) => {
@@ -131,8 +140,17 @@ export default function DatePicker({ initialDate, onConfirm, onClose }: DatePick
   const weekDays = ["일", "월", "화", "수", "목", "금", "토"];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="w-96 rounded-3xl bg-white p-5">
+    <div style={{ zIndex: 50, position: "fixed", inset: 0 }}>
+      {/* Overlay layer that blocks background interactions (like BottomSheet) */}
+      <div className="fixed inset-0 flex items-center justify-center z-50">
+        <div className="h-full w-full max-w-[460px] bg-black bg-opacity-20" />
+      </div>
+      {/* Modal content above the overlay; clicking inside shouldn't close or propagate */}
+      <div
+        className="fixed left-1/2 top-1/2 w-96 -translate-x-1/2 -translate-y-1/2 rounded-3xl bg-white p-5"
+        style={{ zIndex: 60 }}
+        onClick={e => e.stopPropagation()}
+      >
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-700">배송 날짜 선택</h2>
           <button
@@ -225,7 +243,7 @@ export default function DatePicker({ initialDate, onConfirm, onClose }: DatePick
                   : isSelected
                     ? "bg-brand-500 text-white"
                     : day.isTomorrow
-                      ? "text-green-600 hover:bg-green-50"
+                      ? "text-brand-600 hover:bg-brand-50"
                       : isToday
                         ? "text-blue-600 hover:bg-blue-50"
                         : "text-gray-800 hover:bg-gray-100"

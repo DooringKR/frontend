@@ -2,6 +2,7 @@
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
+import ImageCard from "@/components/Card/ImageCard";
 import Header from "@/components/Header/Header";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
@@ -28,21 +29,24 @@ import { CartItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/
 import { CartItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/cartitem_supabase_repository";
 import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
 import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_repository";
+import { SupabaseUploadImageUsecase } from "@/DDD/usecase/upload_image_usecase";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import { trackClick, trackView } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
+import PaymentNoticeCard from "@/components/PaymentNoticeCard";
 
-function createCabinetInstance(item: any) {
+function createCabinetInstance(item: any, cabinetImageUrls: string[] = []) {
 
 	console.log("Creating cabinet instance for item:", item);
+	console.log("cabinetImageUrls received:", cabinetImageUrls);
 	// 색상 id 변환 (DB 저장용) + 직접입력 처리
 	const colorObj = CABINET_COLOR_LIST.find(c => c.id === Number(item.color))
 		|| CABINET_COLOR_LIST.find(c => c.name === item.color);
 	const colorId: number | null = colorObj ? colorObj.id : null; // null when direct input or not found
-    const cabinet_color_direct_input: string | undefined = (typeof item.cabinet_color_direct_input === 'string' && item.cabinet_color_direct_input.trim() !== '')
-      ? item.cabinet_color_direct_input
-      : undefined;
+	const cabinet_color_direct_input: string | undefined = (typeof item.cabinet_color_direct_input === 'string' && item.cabinet_color_direct_input.trim() !== '')
+		? item.cabinet_color_direct_input
+		: undefined;
 	const usingDirectColor = !!cabinet_color_direct_input;
 	const cabinetColor: number | null = usingDirectColor ? null : colorId;
 
@@ -88,6 +92,7 @@ function createCabinetInstance(item: any) {
 				legType_direct_input: legType_direct_input,
 				cabinet_request: item.request,
 				handle_type: item.handleType,
+				cabinet_image_url: cabinetImageUrls,
 			});
 		case "하부장":
 			return new LowerCabinet({
@@ -105,6 +110,7 @@ function createCabinetInstance(item: any) {
 				legType_direct_input: legType_direct_input,
 				cabinet_request: item.request,
 				handle_type: item.handleType,
+				cabinet_image_url: cabinetImageUrls,
 			});
 		case "키큰장":
 			return new TallCabinet({
@@ -122,6 +128,7 @@ function createCabinetInstance(item: any) {
 				legType_direct_input: legType_direct_input,
 				cabinet_request: item.request,
 				handle_type: item.handleType,
+				cabinet_image_url: cabinetImageUrls,
 			});
 		case "오픈장": {
 			// robust: map riceRail/lowerDrawer ("추가"/"추가 안 함") to boolean
@@ -143,6 +150,7 @@ function createCabinetInstance(item: any) {
 				cabinet_request: item.request,
 				add_rice_cooker_rail: addRiceCookerRail,
 				add_bottom_drawer: addBottomDrawer,
+				cabinet_image_url: cabinetImageUrls,
 			});
 		}
 		case "플랩장":
@@ -170,16 +178,17 @@ function createCabinetInstance(item: any) {
 				handle_type: item.handleType,
 				absorber_type,
 				absorber_type_direct_input,
+				cabinet_image_url: cabinetImageUrls,
 			});
 		case "서랍장": {
 			let drawer_type: number;
 			let drawer_type_direct_input: string | undefined = undefined;
-			
+
 			console.log("🔍 Drawer type debugging:", {
 				drawer_type: item.drawer_type,
 				drawer_type_direct_input: item.drawer_type_direct_input
 			});
-			
+
 			// drawer_type이 이미 number인 경우 처리
 			if (typeof item.drawer_type === "number") {
 				drawer_type = item.drawer_type;
@@ -218,6 +227,7 @@ function createCabinetInstance(item: any) {
 				drawer_type_direct_input,
 				rail_type,
 				rail_type_direct_input: item.rail_type_direct_input,
+				cabinet_image_url: cabinetImageUrls,
 			});
 		}
 		default:
@@ -248,7 +258,7 @@ function ReportPageContent() {
 		return <div>로딩 중...</div>;
 	}
 
-	
+
 
 	// 주요 필드 콘솔 출력
 	console.log(
@@ -341,12 +351,17 @@ function ReportPageContent() {
 						router.push(`/cabinet/${item.category}`);
 					}}
 				/>
+
+				{/* 업로드된 이미지 표시 */}
+				<ImageCard images={item?.raw_images || []} />
+
 				<OrderSummaryCard
 					quantity={quantity}
 					unitPrice={unitPrice}
 					onIncrease={() => setQuantity(q => q + 1)}
 					onDecrease={() => setQuantity(q => Math.max(1, q - 1))}
 				/>
+				<PaymentNoticeCard />
 			</div>
 			<div id="cabinet-add-to-cart-button">
 				<BottomButton
@@ -361,8 +376,20 @@ function ReportPageContent() {
 							modal_name: null,
 						});
 						try {
+							// 이미지 업로드 처리
+							let cabinetImageUrls: string[] = [];
+							if (item?.raw_images && item.raw_images.length > 0) {
+								console.log('이미지 업로드 시작:', item.raw_images.length, '개');
+								const uploadUsecase = new SupabaseUploadImageUsecase();
+								cabinetImageUrls = await uploadUsecase.uploadImages(item.raw_images, "cabinets");
+								console.log('이미지 업로드 완료:', cabinetImageUrls);
+								console.log('cabinetImageUrls 타입:', typeof cabinetImageUrls, '길이:', cabinetImageUrls.length);
+							} else {
+								console.log('업로드할 이미지가 없습니다. item.raw_images:', item?.raw_images);
+							}
+
 							// 부분장 객체 생성
-							const cabinet = createCabinetInstance(item);
+							const cabinet = createCabinetInstance(item, cabinetImageUrls);
 							if (!cabinet) {
 								throw new Error("Cabinet instance could not be created.");
 							}
@@ -390,6 +417,15 @@ function ReportPageContent() {
 							const createdCabinet = await new CrudInteriorMaterialsUsecase(
 								new InteriorMaterialsSupabaseRepository<typeof cabinet>(tableName)
 							).create(cabinet);
+
+							console.log('생성된 Cabinet 객체:', createdCabinet);
+							console.log('Cabinet 객체의 모든 속성:', Object.keys(createdCabinet));
+
+							// 이미지 URL이 있다면 Cabinet 객체에 직접 추가
+							if (cabinetImageUrls.length > 0) {
+								(createdCabinet as any).cabinet_image_url = cabinetImageUrls;
+								console.log('이미지 URL을 Cabinet 객체에 추가:', cabinetImageUrls);
+							}
 
 							// cart, cartItems, setCartItems는 useCartStore에서 가져옴
 							if (!cart) throw new Error("장바구니 정보가 없습니다.");

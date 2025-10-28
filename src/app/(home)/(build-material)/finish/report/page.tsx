@@ -24,11 +24,14 @@ import { CartItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/
 import { CartItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/cartitem_supabase_repository";
 import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
 import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_repository";
+import { SupabaseUploadImageUsecase } from "@/DDD/usecase/upload_image_usecase";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import { trackClick, trackView } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 import { FinishType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import ImageCard from "@/components/Card/ImageCard";
+import PaymentNoticeCard from "@/components/PaymentNoticeCard";
 
 function ReportPageContent() {
     const router = useRouter();
@@ -94,6 +97,8 @@ function ReportPageContent() {
                         router.push(`/finish/${FINISH_CATEGORY_LIST.find(item => item.type === item?.type)?.slug}`);
                     }}
                 />
+                {/* 업로드된 이미지 표시 */}
+                <ImageCard images={item?.raw_images || []} />
                 <OrderSummaryCard
                     quantity={quantity}
                     unitPrice={unitPrice}
@@ -104,6 +109,7 @@ function ReportPageContent() {
                         setQuantity(q => Math.max(1, q - 1));
                     }}
                 />
+                <PaymentNoticeCard />
             </div>
             <div id="finish-add-to-cart-button">
                 <BottomButton
@@ -119,6 +125,14 @@ function ReportPageContent() {
                         });
                         console.log(item!);
                         try {
+                            // 이미지 업로드 처리 (문의 경우와 동일)
+                            let finishImageUrls: string[] = [];
+                            if (item.raw_images && item.raw_images.length > 0) {
+                                console.log('마감재 이미지 업로드 시작:', item.raw_images.length, '개');
+                                const uploadUsecase = new SupabaseUploadImageUsecase();
+                                finishImageUrls = await uploadUsecase.uploadImages(item.raw_images, "finish");
+                                console.log('마감재 이미지 업로드 완료:', finishImageUrls);
+                            }
 
                             // dooring-core-domain의 Finish 클래스를 사용하여 finish 객체 생성
                             const finish = new Finish({
@@ -132,6 +146,7 @@ function ReportPageContent() {
                                 finish_location: item.finish_location ?? undefined,
                                 finish_color_direct_input: item.finish_color_direct_input ?? undefined, // colorId가 없으면 원본 색상 문자열 사용
                                 finish_request: item.request ?? undefined,
+                                finish_image_url: finishImageUrls, // 업로드된 이미지 URL들
                             });
 
                             // Finish 객체를 Supabase에 저장

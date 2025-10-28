@@ -7,6 +7,7 @@ import Header from "@/components/Header/Header";
 import BottomButton from "@/components/BottomButton/BottomButton";
 import BoxedSelect from "@/components/Select/BoxedSelect";
 import BoxedInput from "@/components/Input/BoxedInput";
+import ImageUploadInput from "@/components/Input/ImageUploadInput";
 import Button from "@/components/Button/Button";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import SelectToggleButton from "@/components/Button/SelectToggleButton";
@@ -50,6 +51,13 @@ function OpenCabinetPageContent() {
 	const [cabinet_construct, setCabinetConstruct] = useState(item?.cabinet_construct ?? false);
 	const [request, setRequest] = useState(item?.request ?? "");
 	const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+	const [images, setImages] = useState<File[]>(item?.raw_images || []);
+	// 다리발: enum + 직접입력
+	// const [legType, setLegType] = useState<CabinetLegType | null>(
+	// 	item && Object.values(CabinetLegType).includes(item.legType) ? item.legType : null
+	// );
+	// const [legTypeDirectInput, setLegTypeDirectInput] = useState<string>(item?.legType_direct_input ?? null);
+	// const [isLegTypeSheetOpen, setIsLegTypeSheetOpen] = useState(false);
 
 	// 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
 	useEffect(() => {
@@ -250,6 +258,16 @@ function OpenCabinetPageContent() {
 					placeholder="제작 시 요청사항을 입력해주세요"
 					value={request}
 					onChange={e => setRequest(e.target.value)}
+				/>
+				<ImageUploadInput
+					label="이미지 첨부"
+					placeholder="이미지를 첨부해주세요"
+					value={images}
+					onChange={(newImages) => {
+						setImages(newImages);
+						updateItem({ raw_images: newImages });
+						console.log('이미지 업로드됨:', newImages.length, '개');
+					}}
 				/>
 			</div>
 			<div className="h-5" />

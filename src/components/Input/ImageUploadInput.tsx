@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useMemo } from "react";
 
 interface ImageUploadInputProps {
     label?: string;
@@ -39,40 +39,27 @@ const ImageUploadInput = React.forwardRef<HTMLInputElement, ImageUploadInputProp
         const [uploadedFiles, setUploadedFiles] = useState<File[]>(value);
         const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
         const inputRef = useRef<HTMLInputElement>(null);
-        const imageUrlsRef = useRef<string[]>([]);
 
         // value prop 변경 시 uploadedFiles 동기화
         React.useEffect(() => {
             setUploadedFiles(value);
-            // 기존 URL들 정리
-            Object.values(imageUrlsRef.current).forEach(url => {
-                if (url) URL.revokeObjectURL(url);
-            });
-            // 새로운 URL 캐시 초기화
-            imageUrlsRef.current = [];
         }, [value]);
+
+        // 이미지 URL들을 메모이제이션하여 성능 최적화
+        const imageUrls = useMemo(() => {
+            return uploadedFiles.map(file => URL.createObjectURL(file));
+        }, [uploadedFiles]);
 
         // 컴포넌트 언마운트 시 URL 정리
         React.useEffect(() => {
             return () => {
                 // 컴포넌트가 언마운트될 때 URL 정리
-                Object.values(imageUrlsRef.current).forEach(url => {
+                imageUrls.forEach(url => {
                     if (url) URL.revokeObjectURL(url);
                 });
             };
-        }, []);
+        }, [imageUrls]);
 
-        // 이미지 URL 생성 함수 (캐시 사용)
-        const createImageUrl = (file: File, index: number): string => {
-            // 이미 URL이 있으면 재사용
-            if (imageUrlsRef.current[index]) {
-                return imageUrlsRef.current[index];
-            }
-
-            const url = URL.createObjectURL(file);
-            imageUrlsRef.current[index] = url;
-            return url;
-        };
 
         const handleFileSelect = (files: FileList | null) => {
             if (!files) return;
@@ -146,12 +133,6 @@ const ImageUploadInput = React.forwardRef<HTMLInputElement, ImageUploadInputProp
         };
 
         const removeFile = (index: number) => {
-            // 해당 파일의 URL 정리
-            if (imageUrlsRef.current[index]) {
-                URL.revokeObjectURL(imageUrlsRef.current[index]);
-                delete imageUrlsRef.current[index];
-            }
-
             const newFiles = uploadedFiles.filter((_, i) => i !== index);
             setUploadedFiles(newFiles);
             onChange?.(newFiles);
@@ -235,7 +216,7 @@ const ImageUploadInput = React.forwardRef<HTMLInputElement, ImageUploadInputProp
                                         {/* 이미지 미리보기 */}
                                         <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
                                             <img
-                                                src={createImageUrl(file, index)}
+                                                src={imageUrls[index]}
                                                 alt={file.name}
                                                 className="w-full h-full object-cover cursor-pointer"
                                                 onClick={() => setSelectedImageIndex(index)}
@@ -273,7 +254,7 @@ const ImageUploadInput = React.forwardRef<HTMLInputElement, ImageUploadInputProp
                     >
                         <div className="relative max-w-[90vw] max-h-[90vh] p-4">
                             <img
-                                src={createImageUrl(uploadedFiles[selectedImageIndex], selectedImageIndex)}
+                                src={imageUrls[selectedImageIndex]}
                                 alt={uploadedFiles[selectedImageIndex].name}
                                 className="max-w-full max-h-full object-contain"
                                 onClick={(e) => e.stopPropagation()}
