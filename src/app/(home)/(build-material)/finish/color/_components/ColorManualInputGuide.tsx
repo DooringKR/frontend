@@ -12,7 +12,7 @@ const ColorManualInputGuide: React.FC<ColorManualInputGuideProps> = ({ selectedC
         <div
             className="flex flex-col items-start
              justify-center gap-3 rounded-[16px]
-             bg-gray-50 p-5 mx-5 mx-3 bg-[#FFF7ED] border border-[#FFD6A7]"
+             p-5 mx-5 mx-3 border border-[#FFD6A7] bg-[#FFF7ED]"
         // style={{ marginBottom: selectedColor ? "134px" : "88px" }}
         >
             <div className="gap-1">
