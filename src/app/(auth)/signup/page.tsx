@@ -5,8 +5,10 @@ import Header from "@/components/Header/Header";
 import { useState, useEffect, useRef } from "react";
 import UnderlinedInput from "@/components/Input/UnderlinedInput";
 import Button from "@/components/Button/Button";
+import SelectToggleButton from "@/components/Button/SelectToggleButton";
 import { BusinessType } from "dooring-core-domain/dist/enums/UserEnums";
 import BottomButton from "@/components/BottomButton/BottomButton";
+import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import router from "next/router";
 import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_repository";
 import { KakaoAuthSupabaseRepository } from "@/DDD/data/service/kakao_auth_supabase_repository";
@@ -18,10 +20,13 @@ import InitAmplitudeUnstable from "@/app/(client-helpers)/init-amplitude-unstabl
 import { trackClick, trackView, trackClickAndWait } from "@/services/analytics/amplitude";
 import { trackClickUnstable, trackViewUnstable, trackClickAndWaitUnstable } from "@/services/analytics/amplitude-unstable";
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
+import BoxedInput from "@/components/Input/BoxedInput";
+import BoxedSelect from "@/components/Select/BoxedSelect";
 
 export default function SignupPage() {
     const [phoneNumber, setPhoneNumber] = useState("");
     const [selectedBusinessType, setSelectedBusinessType] = useState<BusinessType | null>(null);
+    const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
     const phoneInputRef = useRef<HTMLInputElement>(null);
 
     // 전화번호 숫자만 추출하여 길이 체크
@@ -71,8 +76,13 @@ export default function SignupPage() {
     // 사업체 유형 선택 핸들러
     const handleBusinessTypeSelect = (type: BusinessType) => {
         setSelectedBusinessType(type);
-        // TODO: 회원가입 로직 실행
+        setIsBottomSheetOpen(false);
         console.log("선택된 사업체 유형:", type, "전화번호:", phoneNumber);
+    };
+
+    // 업체 유형 선택 버튼 클릭 핸들러
+    const handleSelectBusinessType = () => {
+        setIsBottomSheetOpen(true);
     };
 
     return (
@@ -96,38 +106,22 @@ export default function SignupPage() {
                 />
             </div>
 
-            {/* 전화번호 11자리 입력 시 사업체 유형 선택 버튼 표시 */}
+            {/* 전화번호 11자리 입력 시 업체 유형 선택 버튼 표시 */}
             {isValidLength && (
                 <div className="px-5 mt-8 gap-2 flex flex-col">
-                    <div className="text-gray-600 font-400 text-[14px]/[20px]">업체 유형</div>
-                    <div className="flex gap-2">
-                        <Button
-                            type={selectedBusinessType === BusinessType.INTERIOR ? "BrandInverse" : "OutlinedLarge"}
-                            text="인테리어 업체"
-                            onClick={() => {
-                                handleBusinessTypeSelect(BusinessType.INTERIOR)
-                                trackClick({
-                                    object_type: "button",
-                                    object_name: "interior",
-                                    current_page: getScreenName() ?? 'signup',
-                                    modal_name: null,
-                                });
-                            }}
-                        />
-                        <Button
-                            type={selectedBusinessType === BusinessType.FACTORY ? "BrandInverse" : "OutlinedLarge"}
-                            text="가구 공장"
-                            onClick={() => {
-                                handleBusinessTypeSelect(BusinessType.FACTORY)
-                                trackClick({
-                                    object_type: "button",
-                                    object_name: "factory",
-                                    current_page: getScreenName() ?? 'signup',
-                                    modal_name: null,
-                                });
-                            }}
-                        />
-                    </div>
+                    <BoxedSelect
+                        default_label="업체 유형을 선택해주세요"
+                        label="업체 유형"
+                        // options={[
+                        //     { value: BusinessType.INTERIOR, label: BusinessType.INTERIOR },
+                        //     { value: BusinessType.FACTORY, label: BusinessType.FACTORY },
+                        //     { value: BusinessType.CONSTRUCTION, label: BusinessType.CONSTRUCTION },
+                        //     { value: BusinessType.INDIVIDUAL_SALES, label: BusinessType.INDIVIDUAL_SALES },
+                        //     { value: BusinessType.ETC, label: BusinessType.ETC },
+                        // ]}
+                        value={selectedBusinessType ?? ""}
+                        onClick={handleSelectBusinessType}
+                    />
                 </div>
             )}
             {isValidLength && selectedBusinessType && <div className="fixed bottom-0 w-full max-w-[460px]">
@@ -148,9 +142,83 @@ export default function SignupPage() {
                     kakaoSignupUsecase.execute();
                 }} />
             </div>}
-        </div>
 
+            {/* 업체 유형 선택 BottomSheet */}
+            <BottomSheet
+                isOpen={isBottomSheetOpen}
+                title="업체 유형을 선택해주세요"
+                description="어떤 업체에서 오셨나요?"
+                onClose={() => setIsBottomSheetOpen(false)}
+                contentPadding="px-5 pb-5"
+            >
+                <div className="mt-4">
+                    <SelectToggleButton
+                        label={BusinessType.INTERIOR}
+                        checked={selectedBusinessType === BusinessType.INTERIOR}
+                        onClick={() => {
+                            handleBusinessTypeSelect(BusinessType.INTERIOR);
+                            trackClick({
+                                object_type: "button",
+                                object_name: "interior",
+                                current_page: getScreenName() ?? 'signup',
+                                modal_name: "business_type_selection",
+                            });
+                        }}
+                    />
+                    <SelectToggleButton
+                        label={BusinessType.FACTORY}
+                        checked={selectedBusinessType === BusinessType.FACTORY}
+                        onClick={() => {
+                            handleBusinessTypeSelect(BusinessType.FACTORY);
+                            trackClick({
+                                object_type: "button",
+                                object_name: "factory",
+                                current_page: getScreenName() ?? 'signup',
+                                modal_name: "business_type_selection",
+                            });
+                        }}
+                    />
+                    <SelectToggleButton
+                        label={BusinessType.CONSTRUCTION}
+                        checked={selectedBusinessType === BusinessType.CONSTRUCTION}
+                        onClick={() => {
+                            handleBusinessTypeSelect(BusinessType.CONSTRUCTION);
+                            trackClick({
+                                object_type: "button",
+                                object_name: "construction",
+                                current_page: getScreenName() ?? 'signup',
+                                modal_name: "business_type_selection",
+                            });
+                        }}
+                    />
+                    <SelectToggleButton
+                        label={BusinessType.INDIVIDUAL_SALES}
+                        checked={selectedBusinessType === BusinessType.INDIVIDUAL_SALES}
+                        onClick={() => {
+                            handleBusinessTypeSelect(BusinessType.INDIVIDUAL_SALES);
+                            trackClick({
+                                object_type: "button",
+                                object_name: "individual_sales",
+                                current_page: getScreenName() ?? 'signup',
+                                modal_name: "business_type_selection",
+                            });
+                        }}
+                    />
+                    <SelectToggleButton
+                        label={BusinessType.ETC}
+                        checked={selectedBusinessType === BusinessType.ETC}
+                        onClick={() => {
+                            handleBusinessTypeSelect(BusinessType.ETC);
+                            trackClick({
+                                object_type: "button",
+                                object_name: "etc",
+                                current_page: getScreenName() ?? 'signup',
+                                modal_name: "business_type_selection",
+                            });
+                        }}
+                    />
+                </div>
+            </BottomSheet>
+        </div>
     );
 }
-
-
