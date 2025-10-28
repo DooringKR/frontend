@@ -14,6 +14,7 @@ import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import Button from "@/components/Button/Button";
 import Header from "@/components/Header/Header";
+import ProgressBar from "@/components/Progress";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import ImageUploadInput from "@/components/Input/ImageUploadInput";
 
@@ -138,6 +139,7 @@ function FlapCabinetPageContent() {
         <div className="flex flex-col">
             <InitAmplitude />
             <TopNavigator />
+            <ProgressBar progress={80} />
             <Header title="플랩장 정보를 입력해주세요" />
             <div className="h-5" />
             <div className="flex flex-col gap-5 px-5">

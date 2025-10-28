@@ -6,6 +6,7 @@ import { Suspense, useEffect, useState } from "react";
 import BottomButton from "@/components/BottomButton/BottomButton";
 import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
 import Header from "@/components/Header/Header";
+import ProgressBar from "@/components/Progress";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
@@ -111,6 +112,7 @@ function ReportPageContent() {
     <div className="flex flex-col">
       <InitAmplitude />
       <TopNavigator />
+      <ProgressBar progress={100} />
       <Header
         size="Large"
         title={(() => {
