@@ -85,7 +85,7 @@ function AccessoryPageContent() {
     };
 
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col pt-[90px]">
             <InitAmplitude />
             <TopNavigator />
             <ProgressBar progress={60} />

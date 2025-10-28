@@ -54,7 +54,7 @@ export default function DeliveryRequestClientPage() {
     (delivery_method === DeliveryMethod.DIRECT_INPUT && tempCustomRequest.trim() === "") ||
     (delivery_method === DeliveryMethod.OPEN_GATE && tempPassword.trim() === "");
   return (
-    <div className="flex h-screen flex-col bg-white pb-5">
+    <div className="flex h-screen flex-col bg-white pb-5 pt-[60px]">
       <TopNavigator />
 
       <div className="flex-1 overflow-y-auto bg-white px-5 pb-36">

@@ -45,7 +45,7 @@ function ColorListPageContent() {
     }, []);
 
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col pt-[90px]">
             <TopNavigator />
             <ProgressBar progress={40} />
             <Header size="Large" title={`${item?.type} 색상을 선택해주세요`} />

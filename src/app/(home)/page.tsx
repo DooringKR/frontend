@@ -227,7 +227,7 @@ export default function Page() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-screen flex-col bg-white pt-[60px]">
       {/* Amplitude 초기화 (클라이언트 전용) */}
       <InitAmplitude />
       <TopNavigator page="/" cartItemCount={cartItemCount || 0} />

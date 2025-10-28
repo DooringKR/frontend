@@ -188,7 +188,7 @@ function DrawerCabinetPageContent() {
     const colorOptions = CABINET_COLOR_LIST.map(opt => ({ value: opt.name, label: formatColor(opt.name) }));
 
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col pt-[90px]">
             <InitAmplitude />
             <TopNavigator />
             <ProgressBar progress={80} />
