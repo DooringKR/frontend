@@ -19,7 +19,7 @@ export default async function LicenseDetailPage({ params }: { params: Promise<{ 
   
 
   return (
-    <div className="whitespace-pre-line text-[17px] font-400 leading-relaxed text-gray-500">
+    <div className="whitespace-pre-line text-[17px] font-400 leading-relaxed text-gray-500 pt-[60px]">
       <TopNavigator title={license.name} page={LICENSE_PAGE} />
       <InitAmplitude />
       <LicenseAnalyticsClient slug={slug} />

@@ -75,7 +75,7 @@ function UnavailableClientPage() {
     return `${hours}시 ${minutes}분`;
   };
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col pt-[60px]">
       <TopNavigator />
       <div className="mb- flex flex-grow flex-col justify-between p-5">
         <div className="flex flex-grow flex-col gap-5">

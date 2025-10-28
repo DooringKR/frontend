@@ -109,7 +109,7 @@ function ReportPageContent() {
   const unitPrice = 0; // 하드웨어 단가 계산 함수로 대체
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col pt-[90px]">
       <InitAmplitude />
       <TopNavigator />
       <ProgressBar progress={100} />

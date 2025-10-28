@@ -9,9 +9,8 @@ interface ProgressBarProps {
 
 export default function ProgressBar({ progress, className = '' }: ProgressBarProps) {
 
-  
   return (
-    <div className="w-full bg-white flex justify-center items-center px-5">
+    <div className="fixed top-[60px] z-40 w-full max-w-[460px] bg-white flex justify-center items-center px-5 py-3">
         <div className="flex-1 h-1.5 relative">
             <div className="w-full h-1.5 left-0 top-0 absolute bg-gray-100 rounded-sm" />
             <div 

@@ -47,7 +47,7 @@ function HardwareCategoryPage() {
   // const categories = categoryLists[type as keyof typeof categoryLists] || [];
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col pt-[90px]">
       <InitAmplitude />
       <TopNavigator />
       <ProgressBar progress={20} />

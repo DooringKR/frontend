@@ -77,7 +77,7 @@ function RailPageContent() {
 	// useEffect 불필요: 값은 모두 itemStore에서 직접 관리
 
 	return (
-		<div className="flex flex-col">
+		<div className="flex flex-col pt-[90px]">
 			<InitAmplitude />
 			<TopNavigator />
 			<ProgressBar progress={60} />
