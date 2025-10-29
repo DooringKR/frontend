@@ -28,16 +28,25 @@ import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_r
 import { SupabaseUploadImageUsecase } from "@/DDD/usecase/upload_image_usecase";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
-import { trackClick, trackView } from "@/services/analytics/amplitude";
+import { trackClick, trackView, trackAddToCart } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 import { FinishType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import ImageCard from "@/components/Card/ImageCard";
 import PaymentNoticeCard from "@/components/PaymentNoticeCard";
+import useCartItemStore from "@/store/cartItemStore";
+import { sortProductTypes, sortDetailProductTypes } from "@/utils/formatCartProductTypes";
+import { 
+  getProductTypesFromCartItems, 
+  getDetailProductTypesFromCartItems,
+  getTotalQuantityFromCartItems,
+  getTotalValueFromCartItems 
+} from "@/utils/getCartProductTypes";
 
 function ReportPageContent() {
     const router = useRouter();
     const { item } = useItemStore();
     const { cart, incrementCartCount } = useCartStore();
+    const cartItems = useCartItemStore((state) => state.cartItems);
 
     const [quantity, setQuantity] = useState(1);
 
@@ -156,6 +165,8 @@ function ReportPageContent() {
                                 new InteriorMaterialsSupabaseRepository<Finish>("Finish")
                             ).create(finish);
 
+                            const detailProductType = DetailProductType.FINISH;
+
                             // cartitem 생성
                             console.log(createdFinish);
 
@@ -166,7 +177,7 @@ function ReportPageContent() {
                             const cartItem = new CartItem({
                                 cart_id: cart!.id!, // 
                                 item_detail: createdFinish.id!, // interior_material_id (Finish 객체의 id 프로퍼티가 private이므로, 인덱싱으로 접근)
-                                detail_product_type: DetailProductType.FINISH, // quantity
+                                detail_product_type: detailProductType, // quantity
                                 item_count: quantity, // quantity
                                 unit_price: unitPrice, // unit_price (필요하다면 값 할당)
                             });
@@ -175,6 +186,25 @@ function ReportPageContent() {
                             ).create(cartItem);
 
                             console.log(createdCartItem);
+
+                            // Add to Cart 이벤트 전송 (CartItem 생성 성공 후)
+                            const cartQuantityTotalBefore = getTotalQuantityFromCartItems(cartItems);
+                            const cartQuantityTypeBefore = cartItems.length;
+                            const cartValueBefore = getTotalValueFromCartItems(cartItems);
+                            
+                            // 추가 후 상태 계산 (새 아이템 포함)
+                            const productTypesAfter = getProductTypesFromCartItems(cartItems, detailProductType);
+                            const detailProductTypesAfter = await getDetailProductTypesFromCartItems(cartItems, detailProductType, finish);
+                            
+                            await trackAddToCart({
+                                product_type: sortProductTypes(productTypesAfter),
+                                detail_product_type: sortDetailProductTypes(detailProductTypesAfter),
+                                quantity: quantity,
+                                price_unit: unitPrice,
+                                cart_quantity_total_before: cartQuantityTotalBefore,
+                                cart_quantity_type_before: cartQuantityTypeBefore,
+                                cart_value_before: cartValueBefore,
+                            });
 
                             // cart_count 증가 (전체 카트 객체 전달 없이)
                             const cartCountResponse = await new CrudCartUsecase(
