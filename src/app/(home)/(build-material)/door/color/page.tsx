@@ -49,13 +49,17 @@ function ColorListPageContent() {
             <TopNavigator />
             <ProgressBar progress={40} />
             <Header size="Large" title={`${item?.type} 색상을 선택해주세요`} />
-            <BoxedInput
+            <ColorManualInputGuide
+                selectedColor={item?.color || item?.door_color_direct_input || null}
+                onClick={() => setIsBottomSheetOpen(true)}
+            />
+            {/* <BoxedInput
                 type="text"
                 className={"px-5 py-3"}
                 placeholder="색상 이름으로 검색"
                 value={searchKeyword}
                 onChange={e => setSearchKeyword(e.target.value)}
-            />
+            /> */}
             <ColorSelectList
                 filteredColors={filteredColors}
                 selectedColor={item?.color ?? null}
@@ -66,10 +70,8 @@ function ColorListPageContent() {
                     });
                 }}
             />
-            <ColorManualInputGuide
-                selectedColor={item?.color || item?.door_color_direct_input || null}
-                onClick={() => setIsBottomSheetOpen(true)}
-            />
+            <div className="h-[150px]" />
+
             <ColorManualInputSheet
                 isOpen={isBottomSheetOpen}
                 onClose={() => setIsBottomSheetOpen(false)}
