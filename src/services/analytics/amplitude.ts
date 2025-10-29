@@ -19,6 +19,35 @@ export type ClickEventProps = {
   modal_name: string | null;
 };
 
+export type AddToCartEventProps = {
+  product_type: string[]; // 카트 내 모든 product_type 배열 (중복 제거, 정렬)
+  detail_product_type: string[]; // 카트 내 모든 detail_product_type 배열 (중복 제거, 정렬)
+  quantity: number; // 방금 추가한 아이템의 수량
+  price_unit: number; // 방금 추가한 아이템의 단가
+  cart_quantity_total_before: number; // 추가 전 카트 내 총 수량
+  cart_quantity_type_before: number; // 추가 전 카트 내 아이템 종류 개수
+  cart_value_before: number; // 추가 전 카트 내 총 금액
+};
+
+export type PurchaseEventProps = {
+  product_type: string[]; // 주문 내 모든 product_type 배열 (중복 제거, 정렬)
+  detail_product_type: string[]; // 주문 내 모든 detail_product_type 배열 (중복 제거, 정렬)
+  quantity_total: number; // 주문 내 아이템 개수의 총합
+  quantity_type: number; // 주문 내 아이템 배열의 길이
+  revenue_total: number; // 가구금액 + 배송비 - 할인총액
+  revenue_product: number; // 가구 금액
+  revenue_shipping: number; // 배송비
+  coupon: boolean; // 쿠폰 적용 여부
+  discount_total: number; // 할인 총액
+  reward_point: number; // 적립 금액
+  shipping_method: "배송" | "픽업"; // 배송 방법
+  shipping_year: number; // 배송/픽업 연도
+  shipping_month: number; // 배송/픽업 월
+  shipping_day: number; // 배송/픽업 일
+  shipping_hour: number; // 배송/픽업 시간
+  shipping_minute: number; // 배송/픽업 분
+};
+
 export const initAmplitude = async (
   apiKey: string,
   // Keep config loosely typed to avoid coupling with SDK internal types
@@ -302,7 +331,7 @@ export const trackClickAndWait = async (
   await new Promise((r) => setTimeout(r, options?.timeoutMs ?? 400));
 };
 
-// amplitude.ts에 추가
+// User ID 설정
 export const setAmplitudeUserId = (userId: string) => {
   if (initialized && amp) {
     amp.setUserId(userId);
@@ -312,4 +341,311 @@ export const setAmplitudeUserId = (userId: string) => {
   if (globalAmp && typeof globalAmp.setUserId === 'function') {
     globalAmp.setUserId(userId);
   }
+};
+
+// User Properties 설정
+export const setAmplitudeUserProperties = (properties: {
+  business_type?: string;
+  providers?: string;
+  [key: string]: any;
+}) => {
+  if (initialized && amp) {
+    try {
+      const identify = new amp.Identify();
+      Object.entries(properties).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          identify.set(key, value);
+        }
+      });
+      amp.identify(identify);
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'production') {
+        // eslint-disable-next-line no-console
+        console.warn('[Amplitude] identify failed:', err);
+      }
+    }
+  }
+  
+  // fallback to global
+  const globalAmp = getGlobalAmplitude();
+  if (globalAmp && typeof globalAmp.identify === 'function') {
+    try {
+      const identify = new globalAmp.Identify();
+      Object.entries(properties).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          identify.set(key, value);
+        }
+      });
+      globalAmp.identify(identify);
+    } catch {
+      // ignore
+    }
+  }
+};
+
+// Sign Up 이벤트 타입 정의
+export type SignupEventProps = {
+  business_type: string | null;
+  providers: string | null;
+};
+
+// Sign Up 이벤트 전송 (회원가입 성공 시)
+export const trackSignup = async (props: SignupEventProps) => {
+  const payload = encodeForAmplitude(normalize(props));
+
+  // Same guaranteed delivery as trackClickAndWait
+  if (initialized && amp) {
+    try {
+      amp.track('Sign Up', payload);
+      
+      if (typeof (amp as any).flush === 'function') {
+        try {
+          const flushResult = (amp as any).flush();
+          if (flushResult && typeof flushResult.then === 'function') {
+            await flushResult;
+          }
+          await new Promise((r) => setTimeout(r, 50));
+          return;
+        } catch (err) {
+          if (process.env.NODE_ENV !== 'production') {
+            // eslint-disable-next-line no-console
+            console.warn('[Amplitude] signup flush failed:', err);
+          }
+        }
+      }
+      
+      await new Promise((r) => setTimeout(r, 400));
+      return;
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'production') {
+        // eslint-disable-next-line no-console
+        console.warn('[Amplitude] signup track failed:', err);
+      }
+    }
+  }
+
+  const globalAmp = getGlobalAmplitude();
+  if (globalAmp) {
+    try {
+      globalAmp.track('Sign Up', payload);
+      if (typeof globalAmp.flush === 'function') {
+        try {
+          const flushResult = globalAmp.flush();
+          if (flushResult && typeof flushResult.then === 'function') {
+            await flushResult;
+          }
+        } catch {
+          // ignore
+        }
+      }
+      await new Promise((r) => setTimeout(r, 400));
+      return;
+    } catch {
+      // ignore
+    }
+  }
+
+  if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
+    const apiKey = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY;
+    if (apiKey) {
+      try {
+        const beaconPayload = {
+          api_key: apiKey,
+          events: [
+            {
+              event_type: 'Sign Up',
+              event_properties: payload,
+              time: Date.now(),
+            },
+          ],
+        };
+        const sent = navigator.sendBeacon(
+          'https://api2.amplitude.com/2/httpapi',
+          JSON.stringify(beaconPayload)
+        );
+        if (sent) {
+          return;
+        }
+      } catch {
+        // ignore beacon failure
+      }
+    }
+  }
+
+  preInitQueue.push({ name: 'Sign Up', props: payload });
+  await new Promise((r) => setTimeout(r, 400));
+};
+
+// Add to Cart 이벤트 전송 (장바구니에 아이템 추가 시)
+export const trackAddToCart = async (props: AddToCartEventProps) => {
+  const payload = encodeForAmplitude(normalize(props));
+
+  // Same guaranteed delivery as trackClickAndWait
+  if (initialized && amp) {
+    try {
+      amp.track('Add to Cart', payload);
+      
+      if (typeof (amp as any).flush === 'function') {
+        try {
+          const flushResult = (amp as any).flush();
+          if (flushResult && typeof flushResult.then === 'function') {
+            await flushResult;
+          }
+          await new Promise((r) => setTimeout(r, 50));
+          return;
+        } catch (err) {
+          if (process.env.NODE_ENV !== 'production') {
+            // eslint-disable-next-line no-console
+            console.warn('[Amplitude] add to cart flush failed:', err);
+          }
+        }
+      }
+      
+      await new Promise((r) => setTimeout(r, 400));
+      return;
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'production') {
+        // eslint-disable-next-line no-console
+        console.warn('[Amplitude] add to cart track failed:', err);
+      }
+    }
+  }
+
+  const globalAmp = getGlobalAmplitude();
+  if (globalAmp) {
+    try {
+      globalAmp.track('Add to Cart', payload);
+      if (typeof globalAmp.flush === 'function') {
+        try {
+          const flushResult = globalAmp.flush();
+          if (flushResult && typeof flushResult.then === 'function') {
+            await flushResult;
+          }
+        } catch {
+          // ignore
+        }
+      }
+      await new Promise((r) => setTimeout(r, 400));
+      return;
+    } catch {
+      // ignore
+    }
+  }
+
+  if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
+    const apiKey = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY;
+    if (apiKey) {
+      try {
+        const beaconPayload = {
+          api_key: apiKey,
+          events: [
+            {
+              event_type: 'Add to Cart',
+              event_properties: payload,
+              time: Date.now(),
+            },
+          ],
+        };
+        const sent = navigator.sendBeacon(
+          'https://api2.amplitude.com/2/httpapi',
+          JSON.stringify(beaconPayload)
+        );
+        if (sent) {
+          return;
+        }
+      } catch {
+        // ignore beacon failure
+      }
+    }
+  }
+
+  preInitQueue.push({ name: 'Add to Cart', props: payload });
+  await new Promise((r) => setTimeout(r, 400));
+};
+
+// Purchase 이벤트 전송 (주문 완료 시)
+export const trackPurchase = async (props: PurchaseEventProps) => {
+  const payload = encodeForAmplitude(normalize(props));
+
+  // Same guaranteed delivery pattern
+  if (initialized && amp) {
+    try {
+      amp.track('Purchase', payload);
+      
+      if (typeof (amp as any).flush === 'function') {
+        try {
+          const flushResult = (amp as any).flush();
+          if (flushResult && typeof flushResult.then === 'function') {
+            await flushResult;
+          }
+          await new Promise((r) => setTimeout(r, 50));
+          return;
+        } catch (err) {
+          if (process.env.NODE_ENV !== 'production') {
+            // eslint-disable-next-line no-console
+            console.warn('[Amplitude] purchase flush failed:', err);
+          }
+        }
+      }
+      
+      await new Promise((r) => setTimeout(r, 400));
+      return;
+    } catch (err) {
+      if (process.env.NODE_ENV !== 'production') {
+        // eslint-disable-next-line no-console
+        console.warn('[Amplitude] purchase track failed:', err);
+      }
+    }
+  }
+
+  const globalAmp = getGlobalAmplitude();
+  if (globalAmp) {
+    try {
+      globalAmp.track('Purchase', payload);
+      if (typeof globalAmp.flush === 'function') {
+        try {
+          const flushResult = globalAmp.flush();
+          if (flushResult && typeof flushResult.then === 'function') {
+            await flushResult;
+          }
+        } catch {
+          // ignore
+        }
+      }
+      await new Promise((r) => setTimeout(r, 400));
+      return;
+    } catch {
+      // ignore
+    }
+  }
+
+  if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
+    const apiKey = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY;
+    if (apiKey) {
+      try {
+        const beaconPayload = {
+          api_key: apiKey,
+          events: [
+            {
+              event_type: 'Purchase',
+              event_properties: payload,
+              time: Date.now(),
+            },
+          ],
+        };
+        const sent = navigator.sendBeacon(
+          'https://api2.amplitude.com/2/httpapi',
+          JSON.stringify(beaconPayload)
+        );
+        if (sent) {
+          return;
+        }
+      } catch {
+        // ignore beacon failure
+      }
+    }
+  }
+
+  preInitQueue.push({ name: 'Purchase', props: payload });
+  await new Promise((r) => setTimeout(r, 400));
 };
