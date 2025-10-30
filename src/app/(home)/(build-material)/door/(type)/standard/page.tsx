@@ -78,6 +78,7 @@ function StandardDoorPageContent() {
     const [images, setImages] = useState<File[]>(item?.raw_images || []);
     const [isDontKnowHingeCount, setIsDontKnowHingeCount] = useState(false);
     const [isDontKnowHingeDirection, setIsDontKnowHingeDirection] = useState(false);
+    const previousHingeDirectionRef = useRef<HingeDirection>(hinge_direction ?? HingeDirection.LEFT);
 
     // 페이지 진입 시 용도 및 장소 시트 자동 열기 (door_location이 없을 때만)
     useEffect(() => {
@@ -85,6 +86,16 @@ function StandardDoorPageContent() {
             setIsDoorLocationSheetOpen(true);
         }
     }, []);
+
+    // boringNum이 변경되면 hinge 배열 길이 맞추기
+    useEffect(() => {
+        if (boringNum && hinge.length !== boringNum) {
+            const newBoringSize = Array.from({ length: boringNum }, (_, i) =>
+                hinge && hinge[i] !== undefined ? hinge[i] : null,
+            );
+            setHinge(newBoringSize);
+        }
+    }, [boringNum]);
 
     // 유효성 검사 훅 사용
     const { widthError, heightError, boringError, isFormValid } = useDoorValidation({
@@ -251,7 +262,13 @@ function StandardDoorPageContent() {
                             <div className="flex justify-start items-center gap-2">
                                 <Checkbox 
                                     checked={isDontKnowHingeCount} 
-                                    onChange={setIsDontKnowHingeCount}
+                                    onChange={(checked) => {
+                                        setIsDontKnowHingeCount(checked);
+                                        if (checked) {
+                                            setHinge([null]);
+                                            updateItem({ hinge: [null] });
+                                        }
+                                    }}
                                 />
                                 <div className="text-center justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-6">모름</div>
                             </div>
@@ -297,7 +314,19 @@ function StandardDoorPageContent() {
                             <div className="flex justify-start items-center gap-2">
                                 <Checkbox 
                                     checked={isDontKnowHingeDirection} 
-                                    onChange={setIsDontKnowHingeDirection}
+                                    onChange={(checked) => {
+                                        setIsDontKnowHingeDirection(checked);
+                                        if (checked) {
+                                            // Save current direction before setting to UNKNOWN
+                                            if (hinge_direction !== HingeDirection.UNKNOWN) {
+                                                previousHingeDirectionRef.current = hinge_direction;
+                                            }
+                                            handleBoringDirectionChange(HingeDirection.UNKNOWN);
+                                        } else {
+                                            // Restore previous direction
+                                            handleBoringDirectionChange(previousHingeDirectionRef.current);
+                                        }
+                                    }}
                                 />
                                 <div className="text-center justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-6">모름</div>
                             </div>
@@ -414,7 +443,7 @@ function StandardDoorPageContent() {
                         type={"1button"}
                         button1Text={"다음"}
                         className="fixed bottom-0 w-full max-w-[460px]"
-                        button1Disabled={isFormValid() || !door_location}
+                        button1Disabled={isFormValid() || !door_location || !hinge_direction || !boringNum}
                         onButton1Click={() => {
                             trackClick({
                                 object_type: "button",
