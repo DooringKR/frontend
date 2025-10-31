@@ -26,6 +26,7 @@ import { Location } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import { trackClick, trackView } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
+import ProgressBar from "@/components/Progress/ProgressBar";
 
 
 // Hooks
@@ -144,9 +145,10 @@ function FlapDoorPageContent() {
     };
 
     return (
-        <div className="flex min-h-screen flex-col pt-[60px]">
+        <div className="flex min-h-screen flex-col pt-[90px]">
             <InitAmplitude />
             <TopNavigator />
+            <ProgressBar progress={80} />
             <Header
                 title={
                     "플랩문 정보를 입력해주세요"

@@ -173,9 +173,10 @@ function StandardDoorPageContent() {
     };
 
     return (
-        <div className="flex min-h-screen flex-col pt-[60px]">
+        <div className="flex min-h-screen flex-col pt-[90px]">
             <InitAmplitude />
             <TopNavigator />
+            <ProgressBar progress={80} />
             <Header
                 title={
                     "일반문 정보를 입력해주세요"
