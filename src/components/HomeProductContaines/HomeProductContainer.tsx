@@ -94,7 +94,7 @@ const HomeProductContainer: React.FC = () => {
   return (
     <div className="flex flex-col items-center gap-6 px-5">
       <InitAmplitude />
-      <div className="grid grid-cols-2 items-stretch justify-items-stretch gap-5 w-full h-full">
+      <div className="grid grid-cols-3 items-stretch justify-items-stretch gap-5 w-full h-full">
         {productList.map((item, idx) => (
           <HomeProductButton
             key={item.label}
