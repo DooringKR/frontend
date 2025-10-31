@@ -10,7 +10,7 @@ export default function ProductionCaseListCard() {
             <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-2">
                     <div className="w-full aspect-square cursor-pointer" onClick={() => {
-                        window.open("https://witty-sundae-3d1.notion.site/29db6a70ff398094b7f5d6b3ec247b10?source=copy_link", "_blank");
+                        window.open("https://dooring.notion.site/25-10-23-bar-29db6a70ff398094b7f5d6b3ec247b10?pvs=74", "_blank");
                     }}>
                         <img
                             src="/img/production-case/case1_thumbnail.png"
@@ -27,7 +27,7 @@ export default function ProductionCaseListCard() {
                 </div>
                 <div className="flex flex-col gap-2">
                     <div className="w-full aspect-square cursor-pointer" onClick={() => {
-                        window.open("https://witty-sundae-3d1.notion.site/29db6a70ff39804d8deff1de2bd52468?source=copy_link", "_blank");
+                        window.open("https://dooring.notion.site/25-06-29db6a70ff39804d8deff1de2bd52468?pvs=74", "_blank");
                     }}>
                         <img
                             src="/img/production-case/case2_thumbnail.png"
