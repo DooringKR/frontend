@@ -49,44 +49,46 @@ export function useFlapDoorValidation({
     // 보링 위치 유효성 검사 (플랩문만 - 가로 방향)
     useEffect(() => {
         if (boringSize.length > 0 && DoorWidth !== null) {
-            const [firstHinge, secondHinge, thirdHinge, fourthHinge] = boringSize;
-
             let errorMessage = "";
+
+            // null을 임시 값으로 치환
+            let firstHinge: number, secondHinge: number, thirdHinge: number, fourthHinge: number;
 
             // 플랩문 보링 검증 (가로 방향)
             switch (boringNum) {
                 case 2:
-                    if (firstHinge !== null && secondHinge !== null) {
-                        if (firstHinge + secondHinge >= DoorWidth) {
-                            errorMessage = "좌측 경첩과 우측 경첩의 합이 문 너비보다 작아야 합니다.";
-                        }
+                    firstHinge = boringSize[0] ?? 1;
+                    secondHinge = boringSize[1] ?? 1;
+                    
+                    if (firstHinge + secondHinge >= DoorWidth) {
+                        errorMessage = "좌측 경첩과 우측 경첩의 합이 문 너비보다 작아야 합니다.";
                     }
                     break;
 
                 case 3:
-                    if (firstHinge !== null && secondHinge !== null && thirdHinge !== null) {
-                        if (firstHinge >= secondHinge) {
-                            errorMessage = "좌측 경첩은 중간 경첩보다 작아야 합니다.";
-                        } else if (secondHinge + thirdHinge >= DoorWidth) {
-                            errorMessage = "중간 경첩과 우측 경첩의 합이 문 너비보다 작아야 합니다.";
-                        }
+                    firstHinge = boringSize[0] ?? 1;
+                    secondHinge = boringSize[1] ?? (firstHinge + 1);
+                    thirdHinge = boringSize[2] ?? 1;
+
+                    if (firstHinge >= secondHinge) {
+                        errorMessage = "좌측 경첩은 중간 경첩보다 작아야 합니다.";
+                    } else if (secondHinge + thirdHinge >= DoorWidth) {
+                        errorMessage = "중간 경첩과 우측 경첩의 합이 문 너비보다 작아야 합니다.";
                     }
                     break;
 
                 case 4:
-                    if (
-                        firstHinge !== null &&
-                        secondHinge !== null &&
-                        thirdHinge !== null &&
-                        fourthHinge !== null
-                    ) {
-                        if (firstHinge >= secondHinge) {
-                            errorMessage = "좌측 경첩은 중좌 경첩보다 작아야 합니다.";
-                        } else if (secondHinge + thirdHinge >= DoorWidth) {
-                            errorMessage = "중좌 경첩과 중우 경첩의 합이 문 너비보다 작아야 합니다.";
-                        } else if (thirdHinge <= fourthHinge) {
-                            errorMessage = "우측 경첩은 중우 경첩보다 작아야 합니다.";
-                        }
+                    firstHinge = boringSize[0] ?? 1;
+                    fourthHinge = boringSize[3] ?? 1;
+                    secondHinge = boringSize[1] ?? (firstHinge + 1);
+                    thirdHinge = boringSize[2] ?? (fourthHinge + 1);
+
+                    if (firstHinge >= secondHinge) {
+                        errorMessage = "좌측 경첩은 중좌 경첩보다 작아야 합니다.";
+                    } else if (secondHinge + thirdHinge >= DoorWidth) {
+                        errorMessage = "중좌 경첩과 중우 경첩의 합이 문 너비보다 작아야 합니다.";
+                    } else if (thirdHinge <= fourthHinge) {
+                        errorMessage = "우측 경첩은 중우 경첩보다 작아야 합니다.";
                     }
                     break;
             }
@@ -102,7 +104,6 @@ export function useFlapDoorValidation({
         return (
             DoorWidth === null ||
             DoorHeight === null ||
-            boringSize.some(v => v === null) ||
             !!widthError ||
             !!heightError ||
             !!boringError
