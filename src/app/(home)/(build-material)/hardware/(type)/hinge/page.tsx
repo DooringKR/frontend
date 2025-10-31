@@ -6,6 +6,7 @@ import React, { Suspense, useEffect, useRef } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import Header from "@/components/Header/Header";
+import ProgressBar from "@/components/Progress";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import BoxedSelect from "@/components/Select/BoxedSelect";
 import BoxedInput from "@/components/Input/BoxedInput";
@@ -78,9 +79,10 @@ function HingePageContent() {
 
   const isAnySheetOpen = isMadebySheetOpen || isThicknessSheetOpen || isAngleSheetOpen;
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col pt-[90px]">
       <InitAmplitude />
       <TopNavigator />
+      <ProgressBar progress={60} />
       <Header title={`${headerTitle} 정보를 입력해주세요`} />
       <div className="h-5" />
       <div className="flex flex-col gap-5 px-5">

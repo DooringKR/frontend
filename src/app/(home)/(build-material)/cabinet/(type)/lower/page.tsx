@@ -13,6 +13,7 @@ import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import Button from "@/components/Button/Button";
 import Header from "@/components/Header/Header";
+import ProgressBar from "@/components/Progress";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import ImageUploadInput from "@/components/Input/ImageUploadInput";
 
@@ -131,9 +132,10 @@ function LowerCabinetPageContent() {
     const colorOptions = CABINET_COLOR_LIST.map(opt => ({ value: opt.name, label: formatColor(opt.name) }));
 
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col pt-[90px]">
             <InitAmplitude />
             <TopNavigator />
+            <ProgressBar progress={80} />
             <Header title="하부장 정보를 입력해주세요" />
             <div className="h-5" />
             <div className="flex flex-col gap-5 px-5">

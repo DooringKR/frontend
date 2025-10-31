@@ -25,8 +25,15 @@ import { CrudCartItemUsecase } from "@/DDD/usecase/crud_cart_item_usecase";
 import { GenerateOrderEstimateUseCase } from "@/DDD/usecase/generate_order_estimate_usecase";
 import { EstimateExportEdgeFunctionAdapter } from "@/DDD/data/service/estimate_export_edge_function_adapter";
 import { getScreenName } from "@/utils/screenName";
-import { trackClick } from "@/services/analytics/amplitude";
+import { trackClick, trackPurchase } from "@/services/analytics/amplitude";
 import PaymentNoticeCard from "@/components/PaymentNoticeCard";
+import { 
+  getProductTypesFromCartItems, 
+  getDetailProductTypesFromCartItems,
+  getTotalQuantityFromCartItems,
+  getTotalValueFromCartItems 
+} from "@/utils/getCartProductTypes";
+import { sortProductTypes, sortDetailProductTypes } from "@/utils/formatCartProductTypes";
 
 
 export default function PickUpClientPage() {
@@ -113,23 +120,64 @@ export default function PickUpClientPage() {
         console.warn("⚠ 일부 장바구니 항목 삭제에 실패했습니다.");
       }
 
+      // 3. Purchase 이벤트 전송 (주문 생성 성공 후)
+      try {
+        const productTypes = getProductTypesFromCartItems(cartItems);
+        const detailProductTypes = await getDetailProductTypesFromCartItems(cartItems);
+        const quantityTotal = getTotalQuantityFromCartItems(cartItems);
+        const quantityType = cartItems.length;
+        const revenueProduct = getTotalValueFromCartItems(cartItems);
+        const revenueShipping = 0; // 현재는 0으로 하드코딩
+        const discountTotal = 0; // 현재는 0
+        const revenueTotal = revenueProduct + revenueShipping - discountTotal;
+        
+        // pickup_time에서 날짜/시간 추출
+        const pickupTime = order?.pickup_time ? new Date(order.pickup_time) : new Date();
+        const shippingYear = pickupTime.getFullYear();
+        const shippingMonth = pickupTime.getMonth() + 1; // 0-based이므로 +1
+        const shippingDay = pickupTime.getDate();
+        const shippingHour = pickupTime.getHours();
+        const shippingMinute = pickupTime.getMinutes();
 
-      // 3. 주문 정보 로컬스토리지에 저장 -> 직후 confirm 페이지에서 사용
+        await trackPurchase({
+          product_type: sortProductTypes(productTypes),
+          detail_product_type: sortDetailProductTypes(detailProductTypes),
+          quantity_total: quantityTotal,
+          quantity_type: quantityType,
+          revenue_total: revenueTotal,
+          revenue_product: revenueProduct,
+          revenue_shipping: revenueShipping,
+          coupon: false, // 현재는 false로 하드코딩
+          discount_total: discountTotal,
+          reward_point: 0, // 현재는 0
+          shipping_method: "픽업",
+          shipping_year: shippingYear,
+          shipping_month: shippingMonth,
+          shipping_day: shippingDay,
+          shipping_hour: shippingHour,
+          shipping_minute: shippingMinute,
+        });
+      } catch (error) {
+        console.error("Purchase 이벤트 전송 실패:", error);
+        // 이벤트 전송 실패는 주문 처리에 영향을 주지 않음
+      }
+
+      // 4. 주문 정보 로컬스토리지에 저장 -> 직후 confirm 페이지에서 사용
       localStorage.setItem("recentOrder", JSON.stringify({ order_id: response.data?.id, order, cartItems })); // 자동 덮어쓰기
 
 
 
-      // 4 Cart count 초기화 (cartItems 수만큼 감소시켜 0으로 만듦)
+      // 5 Cart count 초기화 (cartItems 수만큼 감소시켜 0으로 만듦)
       if (cart && cart.cart_count > 0) {
         decrementCartCount(cart.cart_count);
       }
 
-      // 5. 전역 상태 초기화
+      // 6. 전역 상태 초기화
       clearCartItems(); // CartItemStore 초기화
       useOrderStore.getState().clearOrder(); // OrderStore 초기화
 
 
-      // 6. 성공 페이지로 이동
+      // 7. 성공 페이지로 이동
       router.push("/order/pickup/confirm");
       // router.replace("/");
 
@@ -143,7 +191,7 @@ export default function PickUpClientPage() {
   };
 
   return (
-    <div>
+    <div className="pt-[60px]">
       <TopNavigator title="주문하기" />
       <div>
         <ReceiveOptionBar

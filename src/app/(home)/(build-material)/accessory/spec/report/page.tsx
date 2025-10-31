@@ -3,6 +3,7 @@
 import BottomButton from "@/components/BottomButton/BottomButton";
 import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
 import Header from "@/components/Header/Header";
+import ProgressBar from "@/components/Progress";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import PaymentNoticeCard from "@/components/PaymentNoticeCard";
@@ -24,13 +25,22 @@ import { CrudInteriorMaterialsUsecase } from "@/DDD/usecase/crud_interior_materi
 import { InteriorMaterialsSupabaseRepository } from "@/DDD/data/db/interior_materials_supabase_repository";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
-import { trackClick, trackView } from "@/services/analytics/amplitude";
+import { trackClick, trackView, trackAddToCart } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
+import useCartItemStore from "@/store/cartItemStore";
+import { sortProductTypes, sortDetailProductTypes } from "@/utils/formatCartProductTypes";
+import { 
+  getProductTypesFromCartItems, 
+  getDetailProductTypesFromCartItems,
+  getTotalQuantityFromCartItems,
+  getTotalValueFromCartItems 
+} from "@/utils/getCartProductTypes";
 
 function ReportPageContent() {
     const router = useRouter();
     const { item } = useItemStore();
     const { cart, incrementCartCount } = useCartStore();
+    const cartItems = useCartItemStore((state) => state.cartItems);
 
     const [quantity, setQuantity] = useState(1);
 
@@ -60,9 +70,10 @@ function ReportPageContent() {
     const categoryTitle = currentCategory?.type || item.type || "부속";
 
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col pt-[90px]">
             <InitAmplitude />
             <TopNavigator />
+            <ProgressBar progress={100} />
             <Header size="Large" title={`${categoryTitle} 주문 개수를 선택해주세요`} />
             <div className="flex flex-col gap-[20px] px-5 pb-[100px] pt-5">
                 <ShoppingCartCard
@@ -118,10 +129,12 @@ function ReportPageContent() {
                                 new InteriorMaterialsSupabaseRepository<Accessory>("Accessory")
                             ).create(accessory);
 
+                            const detailProductType = DetailProductType.ACCESSORY;
+                            
                             const cartItem = new CartItem({
                                 cart_id: cart!.id!,
                                 item_detail: createdAccessory.id!,
-                                detail_product_type: DetailProductType.ACCESSORY,
+                                detail_product_type: detailProductType,
                                 item_count: quantity,
                                 unit_price: unitPrice,
                             });
@@ -131,6 +144,25 @@ function ReportPageContent() {
                             ).create(cartItem);
 
                             console.log(createdCartItem);
+
+                            // Add to Cart 이벤트 전송 (CartItem 생성 성공 후)
+                            const cartQuantityTotalBefore = getTotalQuantityFromCartItems(cartItems);
+                            const cartQuantityTypeBefore = cartItems.length;
+                            const cartValueBefore = getTotalValueFromCartItems(cartItems);
+                            
+                            // 추가 후 상태 계산 (새 아이템 포함)
+                            const productTypesAfter = getProductTypesFromCartItems(cartItems, detailProductType);
+                            const detailProductTypesAfter = await getDetailProductTypesFromCartItems(cartItems, detailProductType, accessory);
+                            
+                            await trackAddToCart({
+                                product_type: sortProductTypes(productTypesAfter),
+                                detail_product_type: sortDetailProductTypes(detailProductTypesAfter),
+                                quantity: quantity,
+                                price_unit: unitPrice,
+                                cart_quantity_total_before: cartQuantityTotalBefore,
+                                cart_quantity_type_before: cartQuantityTypeBefore,
+                                cart_value_before: cartValueBefore,
+                            });
 
                             // cart_count 증가
                             const cartCountResponse = await new CrudCartUsecase(

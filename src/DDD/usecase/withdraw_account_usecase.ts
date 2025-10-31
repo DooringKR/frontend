@@ -15,7 +15,7 @@ export class WithdrawAccountUsecase {
                 .from("DeliveryOrder")
                 .select("id, order_status")
                 .eq("user_id", userId)
-                .in("order_status", ["주문신규", "검수완료", "결제완료"]);
+                .in("order_status", ["주문신규", "검수완료", "결제완료", "제작완료", "배송중",]);
 
             if (deliveryError) {
                 console.error("배송 주문 조회 오류:", deliveryError);
@@ -49,7 +49,7 @@ export class WithdrawAccountUsecase {
                 console.log(`진행 중인 주문: 배송 ${pendingDeliveryCount}건, 픽업 ${pendingPickupCount}건`);
                 return {
                     success: false,
-                    message: `진행 중인 주문이 ${totalPendingOrders}건 있어 탈퇴할 수 없습니다.\n주문 완료 후 다시 시도해주세요.`,
+                    message: `주문/제작/배송 중인 주문이 ${totalPendingOrders}건 있어 탈퇴할 수 없습니다.\n완료 후 다시 시도해주세요.`,
                 };
             }
 

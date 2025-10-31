@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Suspense, useEffect } from "react";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import Header from "@/components/Header/Header";
+import ProgressBar from "@/components/Progress";
 import Image from "next/image";
 import { CABINET_CATEGORY_LIST } from "@/constants/category";
 
@@ -33,9 +34,10 @@ function CabinetCategoryPage() {
     }, []);
 
 	return (
-		<div className="flex flex-col">
+		<div className="flex flex-col pt-[90px]">
 			<InitAmplitude />
 			<TopNavigator />
+			<ProgressBar progress={20} />
 			<Header size="Large" title="부분장을 선택해주세요" />
 			<div className="grid w-full grid-cols-2 gap-x-3 gap-y-[40px] px-5 pb-5 pt-10">
 				{cabinetCategories.map((category) => (

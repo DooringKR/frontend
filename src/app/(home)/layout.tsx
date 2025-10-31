@@ -1,6 +1,11 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
+import useBizClientStore from "@/store/bizClientStore";
+import { setAmplitudeUserId, setAmplitudeUserProperties } from "@/services/analytics/amplitude";
+import { supabase } from "@/lib/supabase";
+import { formatBusinessTypeToEnglish } from "@/utils/formatBusinessType";
 
 // const NAV_ITEMS = [
 //   { href: "/", label: "홈", key: "home" },
@@ -14,6 +19,31 @@ function Layout({
   children: React.ReactNode;
 }>) {
   const pathname = usePathname();
+  const bizClient = useBizClientStore((state) => state.bizClient);
+
+  // bizClient가 로드되면 Amplitude User ID 및 Properties 설정
+  useEffect(() => {
+    const setUserInfo = async () => {
+      if (bizClient?.id) {
+        // User ID 설정
+        setAmplitudeUserId(bizClient.id);
+        
+        // Supabase에서 provider 정보 가져오기
+        const { data: { user } } = await supabase.auth.getUser();
+        const provider = user?.app_metadata?.provider 
+          || user?.identities?.[0]?.provider 
+          || 'unknown';
+        
+        // User Properties 설정
+        setAmplitudeUserProperties({
+          business_type: formatBusinessTypeToEnglish(bizClient.business_type),
+          providers: provider,
+        });
+      }
+    };
+    
+    setUserInfo();
+  }, [bizClient?.id, bizClient?.business_type]);
 
   return (
     <div>

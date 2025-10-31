@@ -49,7 +49,7 @@ export default function ReceiveOptionClientPage() {
   };
 
   return (
-    <div>
+    <div className = "pt-[60px]">
       <TopNavigator />
       <div className="p-5">
         <h1 className="text-[23px] font-700">

@@ -26,7 +26,7 @@ export default function LicensePage() {
         });
     }, []);
   return (
-    <div>
+    <div className="pt-[60px]">
       <InitAmplitude />
       <TopNavigator title="오픈소스 라이선스" page={LICENSE_PAGE} />
       <LicenseList list={LICENSE_LIST} />

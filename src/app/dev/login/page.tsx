@@ -146,7 +146,7 @@ export default function DevLoginPage() {
             // 6. 개발자 모드 인증 완료
             setIsAuthenticated(true);
             setError("");
-            router.push("/dev/environment");
+            // router.push("/dev/environment");
             console.log("🔓 개발자 인증 성공 - 모든 데이터 로드 완료");
 
         } catch (error) {

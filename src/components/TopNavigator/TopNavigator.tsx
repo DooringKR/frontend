@@ -26,7 +26,7 @@ const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, cartItemCount 
   const router = useRouter();
   return (
     <div
-      className={`flex h-[60px] w-full flex-shrink-0 items-center justify-between gap-[12px] ${page === HOME_PAGE ? "pl-5 pr-2" : "px-5"
+      className={`fixed top-0 z-50 flex h-[60px] w-full max-w-[460px] flex-shrink-0 items-center justify-between gap-[12px] bg-white ${page === HOME_PAGE ? "pl-5 pr-2" : "px-5"
         }`}
     >
       {/* 좌측 버튼 */}

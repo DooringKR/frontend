@@ -1,12 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState, useRef } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import Button from "@/components/Button/Button";
 import Header from "@/components/Header/Header";
+import ProgressBar from "@/components/Progress";
 import BoxedInput from "@/components/Input/BoxedInput";
 import ImageUploadInput from "@/components/Input/ImageUploadInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";
@@ -37,12 +38,22 @@ function DrawerDoorPageContent() {
     const [door_location, setDoorLocation] = useState(item?.door_location ?? "");
     const [isDoorLocationSheetOpen, setIsDoorLocationSheetOpen] = useState(false);
     const [images, setImages] = useState<File[]>(item?.raw_images || []);
+    
+    // 가로 입력 필드 ref
+    const widthInputRef = useRef<HTMLInputElement>(null);
 
     // 유효성 검사 훅 사용
     const { widthError, heightError, isFormValid } = useDrawerDoorValidation({
         DoorWidth: doorWidth,
         DoorHeight: doorHeight,
     });
+
+    // 페이지 진입 시 용도 및 장소 시트 자동 열기 (door_location이 없을 때만)
+    useEffect(() => {
+        if (!door_location) {
+            setIsDoorLocationSheetOpen(true);
+        }
+    }, []);
 
     // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
     useEffect(() => {
@@ -76,6 +87,12 @@ function DrawerDoorPageContent() {
     const handleDoorLocationChange = (newLocation: string) => {
         setDoorLocation(newLocation);
         updateItem({ door_location: newLocation });
+        
+        // 용도 및 장소 선택 후 시트가 닫히면 가로 입력 필드로 포커스 이동
+        setIsDoorLocationSheetOpen(false);
+        setTimeout(() => {
+            widthInputRef.current?.focus();
+        }, 300); // 시트 닫히는 애니메이션 후 포커스 이동
     };
 
     const handleImagesChange = (newImages: File[]) => {
@@ -85,9 +102,10 @@ function DrawerDoorPageContent() {
     };
 
     return (
-        <div className="flex min-h-screen flex-col">
+        <div className="flex min-h-screen flex-col pt-[90px]">
             <InitAmplitude />
             <TopNavigator />
+            <ProgressBar progress={80} />
             <Header
                 title={
                     "서랍 마에다 정보를 입력해주세요"
@@ -101,32 +119,6 @@ function DrawerDoorPageContent() {
                     onClick={() => router.back()}
                     onChange={() => { }}
                     truncate={true}
-                />
-
-                {/* 서랍 폼 내용 */}
-                <BoxedInput
-                    type="number"
-                    label={<><span>가로 길이(mm)</span><span className="text-orange-500 ml-1">*</span></>}
-                    placeholder="가로 길이를 입력해주세요"
-                    value={doorWidth}
-                    onChange={e => {
-                        const value = e.target.value;
-                        handleDoorWidthChange(value ? Number(value) : null);
-                    }}
-                    error={!!widthError}
-                    helperText={widthError}
-                />
-                <BoxedInput
-                    type="number"
-                    label={<><span>세로 길이(mm)</span><span className="text-orange-500 ml-1">*</span></>}
-                    placeholder="세로 길이를 입력해주세요"
-                    value={doorHeight}
-                    onChange={e => {
-                        const value = e.target.value;
-                        handleDoorHeightChange(value ? Number(value) : null);
-                    }}
-                    error={!!heightError}
-                    helperText={heightError}
                 />
 
                 <BoxedSelect
@@ -143,6 +135,34 @@ function DrawerDoorPageContent() {
                     value={door_location}
                     onChange={handleDoorLocationChange}
                 />
+
+                {/* 서랍 폼 내용 */}
+                <BoxedInput
+                    ref={widthInputRef}
+                    type="number"
+                    label={<><span>가로 길이 (mm)</span><span className="text-orange-500 ml-1">*</span></>}
+                    placeholder="가로 길이를 입력해주세요"
+                    value={doorWidth}
+                    onChange={e => {
+                        const value = e.target.value;
+                        handleDoorWidthChange(value ? Number(value) : null);
+                    }}
+                    error={!!widthError}
+                    helperText={widthError}
+                />
+                <BoxedInput
+                    type="number"
+                    label={<><span>세로 길이 (mm)</span><span className="text-orange-500 ml-1">*</span></>}
+                    placeholder="세로 길이를 입력해주세요"
+                    value={doorHeight}
+                    onChange={e => {
+                        const value = e.target.value;
+                        handleDoorHeightChange(value ? Number(value) : null);
+                    }}
+                    error={!!heightError}
+                    helperText={heightError}
+                />
+
                 <BoxedInput
                     label="제작 시 요청사항"
                     placeholder="제작 시 요청사항 | 예) 시공도 필요해요, …"

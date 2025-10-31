@@ -18,6 +18,7 @@ import useCartStore from "@/store/cartStore";
 import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 
 import Footer from "./_components/Footer";
+import FactoryOwnershipCard from "./_components/FactoryOwnershipCard";
 import useBizClientStore from "@/store/bizClientStore";
 import { ReadBizClientUsecase } from "@/DDD/usecase/user/read_bizClient_usecase";
 import { BizClientSupabaseRepository } from "@/DDD/data/db/User/bizclient_supabase_repository";
@@ -32,6 +33,10 @@ import { supabase } from "@/lib/supabase";
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import { trackView } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+import HomeScreenPaymentNoticeCard from "@/components/PaymentNoticeCard/HomeScreenPaymentNoticeCard";
+import ProductLiabilityInsuranceCard from "./_components/ProductLiabilityInsuranceCard";
+import FaqCard from "./_components/FaqCard";
+import ProductionCaseListCard from "./_components/ProductionCaseListCard";
 
 export default function Page() {
   const router = useRouter();
@@ -104,15 +109,15 @@ export default function Page() {
 
   // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
   useEffect(() => {
-      // 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
-      setScreenName('home');
-      const prev = getPreviousScreenName();
-      trackView({
-          object_type: "screen",
-          object_name: null,
-          current_screen: typeof window !== 'undefined' ? window.screen_name ?? null : null,
-          previous_screen: prev,
-      });
+    // 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
+    setScreenName('home');
+    const prev = getPreviousScreenName();
+    trackView({
+      object_type: "screen",
+      object_name: null,
+      current_screen: typeof window !== 'undefined' ? window.screen_name ?? null : null,
+      previous_screen: prev,
+    });
   }, []);
 
   useEffect(() => {
@@ -227,15 +232,30 @@ export default function Page() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-screen flex-col bg-white pt-[60px]">
       {/* Amplitude 초기화 (클라이언트 전용) */}
       <InitAmplitude />
       <TopNavigator page="/" cartItemCount={cartItemCount || 0} />
       <Banner />
 
-      <main className="mb-[100px] mt-10 flex flex-grow flex-col gap-7">
+      <main className="mb-[40px] mt-10 flex flex-grow flex-col gap-7">
         <AddressIndicator {...addressIndicatorProps} />
         <HomeProductContainer />
+        <div className="px-5 pb-10">
+          <HomeScreenPaymentNoticeCard
+            className="w-full"
+          />
+        </div>
+        <div className="w-full h-5 bg-gray-100"></div>
+        <ProductionCaseListCard />
+        <div className="px-5">
+          <ProductLiabilityInsuranceCard />
+        </div>
+        {/* <div>주문 가이드 영상</div> */}
+        <div className="px-5">
+          <FactoryOwnershipCard />
+        </div>
+        <FaqCard />
       </main>
 
       <Footer />

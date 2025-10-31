@@ -29,6 +29,7 @@ function CustomerServicePage() {
   }, []);
   return (
     <>
+    <div className="pt-[60px]"></div>
       <TopNavigator page={CUSTOMER_SERVICE_PAGE} />
       <div className="flex min-h-screen flex-col">
         {/* Amplitude 초기화 (클라이언트 전용) */}

@@ -89,7 +89,7 @@ function MyPageClient() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col pt-[60px]">
       <TopNavigator title="전체" page={MY_PAGE} />
       <div className="flex flex-col px-5 pt-5">
         <div className="mb-5 flex flex-col gap-3">

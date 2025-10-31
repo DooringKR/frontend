@@ -29,10 +29,17 @@ import DeliveryAddressCard from "./_components/DeliveryAddressCard";
 import DeliveryRequestSelector from "./_components/DeliveryRequestSelector";
 import DeliveryScheduleSelector from "./_components/DeliveryScheduleSelector/DeliveryScheduleSelector";
 import RecipientPhoneNumber from "./_components/RecipientPhoneNumber";
-import { trackClick } from "@/services/analytics/amplitude";
+import { trackClick, trackPurchase } from "@/services/analytics/amplitude";
 import { getScreenName } from "@/utils/screenName";
 import BottomButton from "@/components/BottomButton/BottomButton";
 import PaymentNoticeCard from "@/components/PaymentNoticeCard";
+import { 
+  getProductTypesFromCartItems, 
+  getDetailProductTypesFromCartItems,
+  getTotalQuantityFromCartItems,
+  getTotalValueFromCartItems 
+} from "@/utils/getCartProductTypes";
+import { sortProductTypes, sortDetailProductTypes } from "@/utils/formatCartProductTypes";
 
 const CATEGORY_MAP: Record<string, string> = {
   door: "문짝",
@@ -157,7 +164,50 @@ function CheckOrderClientPage() {
         console.warn("⚠ 일부 장바구니 항목 삭제에 실패했습니다.");
       }
 
-      // 3. 주문 정보 로컬스토리지에 저장 -> 직후 confirm 페이지에서 사용
+      // 3. Purchase 이벤트 전송 (주문 생성 성공 후)
+      try {
+        const productTypes = getProductTypesFromCartItems(cartItems);
+        const detailProductTypes = await getDetailProductTypesFromCartItems(cartItems);
+        const quantityTotal = getTotalQuantityFromCartItems(cartItems);
+        const quantityType = cartItems.length;
+        const revenueProduct = getTotalValueFromCartItems(cartItems);
+        const revenueShipping = 0; // 현재는 0으로 하드코딩
+        const discountTotal = 0; // 현재는 0
+        const revenueTotal = revenueProduct + revenueShipping - discountTotal;
+        
+        // delivery_arrival_time에서 날짜/시간 추출
+        const deliveryTime = order?.delivery_arrival_time ? new Date(order.delivery_arrival_time) : new Date();
+        const shippingYear = deliveryTime.getFullYear();
+        const shippingMonth = deliveryTime.getMonth() + 1; // 0-based이므로 +1
+        const shippingDay = deliveryTime.getDate();
+        // is_today_delivery가 true면 18시 0분 고정, 아니면 실제 시간
+        const shippingHour = order?.is_today_delivery ? 18 : deliveryTime.getHours();
+        const shippingMinute = order?.is_today_delivery ? 0 : deliveryTime.getMinutes();
+
+        await trackPurchase({
+          product_type: sortProductTypes(productTypes),
+          detail_product_type: sortDetailProductTypes(detailProductTypes),
+          quantity_total: quantityTotal,
+          quantity_type: quantityType,
+          revenue_total: revenueTotal,
+          revenue_product: revenueProduct,
+          revenue_shipping: revenueShipping,
+          coupon: false, // 현재는 false로 하드코딩
+          discount_total: discountTotal,
+          reward_point: 0, // 현재는 0
+          shipping_method: "배송",
+          shipping_year: shippingYear,
+          shipping_month: shippingMonth,
+          shipping_day: shippingDay,
+          shipping_hour: shippingHour,
+          shipping_minute: shippingMinute,
+        });
+      } catch (error) {
+        console.error("Purchase 이벤트 전송 실패:", error);
+        // 이벤트 전송 실패는 주문 처리에 영향을 주지 않음
+      }
+
+      // 4. 주문 정보 로컬스토리지에 저장 -> 직후 confirm 페이지에서 사용
       // response.data.order_id, order, cartItems를 올바르게 객체로 저장
       localStorage.setItem(
         "recentOrder",
@@ -168,16 +218,16 @@ function CheckOrderClientPage() {
         }),
       ); // 자동 덮어쓰기
 
-      // 4 Cart count 초기화 (cartItems 수만큼 감소시켜 0으로 만듦)
+      // 5 Cart count 초기화 (cartItems 수만큼 감소시켜 0으로 만듦)
       if (cart && cart.cart_count > 0) {
         decrementCartCount(cart.cart_count);
       }
 
-      // 5. 전역 상태 초기화
+      // 6. 전역 상태 초기화
       clearCartItems(); // CartItemStore 초기화
       useOrderStore.getState().clearOrder(); // OrderStore 초기화
 
-      // 6. 성공 페이지로 이동
+      // 7. 성공 페이지로 이동
       router.push("/order/delivery/confirm");
     } catch (error) {
       console.error("주문 처리 중 오류 발생:", error);
@@ -194,7 +244,7 @@ function CheckOrderClientPage() {
       !order?.delivery_method_direct_input?.trim()) ||
     (order?.is_today_delivery === false && !order?.delivery_arrival_time);
   return (
-    <div className="flex min-h-screen flex-col justify-between">
+    <div className="flex min-h-screen flex-col justify-between pt-[60px]">
       <TopNavigator title="주문하기" />
       <ReceiveOptionBar
         icon={"/icons/truck.svg"}

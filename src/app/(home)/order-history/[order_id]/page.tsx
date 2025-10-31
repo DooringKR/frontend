@@ -95,7 +95,7 @@ export default function OrderDetailPage() {
   const isDelivery = (order as DeliveryOrder).delivery_arrival_time !== undefined;
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col pt-[60px]">
       <InitAmplitude />
       <TopNavigator title="상세 내역" page={isFromConfirm ? ORDER_HISTORY_FROM_CONFIRM : undefined} />
       <div className="flex flex-col pb-[60px]">

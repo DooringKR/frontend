@@ -1,4 +1,5 @@
 export const DOOR_COLOR_LIST = [
+  { id: 16, name: "MDF,, 18T, 필름 부착용 합판 (색깔 상관X)", image: "/img/color-new-list/film-attached-plywood.png" },
   { id: 1, name: "MDF, 한솔, 18T, 크림화이트", image: "/img/color-new-list/hansol-cream-white.png" },
   { id: 2, name: "MDF, 한솔, 18T, 퍼펙트화이트", image: "/img/color-new-list/hansol-perfect-white.png" },
   { id: 3, name: "MDF, 한솔, 18T, 새틴베이지", image: "/img/color-new-list/hansol-satin-beige.png" },
@@ -14,9 +15,9 @@ export const DOOR_COLOR_LIST = [
   { id: 13, name: "MDF, 한솔, 18T, 콘크리트화이트", image: "/img/color-new-list/hansol-concrete-white.png" },
   { id: 14, name: "MDF, 동화, 18T, 밀크화이트", image: "/img/color-new-list/dongwha-milk-white.png" },
   { id: 15, name: "MDF, 동화, 18T, 카본그레이", image: "/img/color-new-list/dongwha-carbon-gray.png" },
-  { id: 16, name: "MDF,, 18T, 필름 부착용 합판 (색깔 상관X)", image: "/img/color-new-list/film-attached-plywood.png" },
 ] as const;
 export const CABINET_COLOR_LIST = [
+  { id: 16, name: "MDF,, 18T, 필름 부착용 합판 (색깔 상관X)", image: "/img/color-new-list/film-attached-plywood.png" },
   { id: 1, name: "MDF, 한솔, 18T, 크림화이트", image: "/img/color-new-list/hansol-cream-white.png" },
   { id: 2, name: "MDF, 한솔, 18T, 퍼펙트화이트", image: "/img/color-new-list/hansol-perfect-white.png" },
   { id: 3, name: "MDF, 한솔, 18T, 새틴베이지", image: "/img/color-new-list/hansol-satin-beige.png" },
@@ -32,9 +33,9 @@ export const CABINET_COLOR_LIST = [
   { id: 13, name: "MDF, 한솔, 18T, 콘크리트화이트", image: "/img/color-new-list/hansol-concrete-white.png" },
   { id: 14, name: "MDF, 동화, 18T, 밀크화이트", image: "/img/color-new-list/dongwha-milk-white.png" },
   { id: 15, name: "MDF, 동화, 18T, 카본그레이", image: "/img/color-new-list/dongwha-carbon-gray.png" },
-  { id: 16, name: "MDF,, 18T, 필름 부착용 합판 (색깔 상관X)", image: "/img/color-new-list/film-attached-plywood.png" },
 ] as const;
 export const FINISH_COLOR_LIST = [
+  { id: 20, name: "MDF,, 18T, 필름 부착용 합판 (색깔 상관X)", image: "/img/color-new-list/film-attached-plywood.png" },
   { id: 1, name: "MDF, 한솔, 18T, 크림화이트", image: "/img/color-new-list/hansol-cream-white.png" },
   { id: 2, name: "MDF, 한솔, 18T, 퍼펙트화이트", image: "/img/color-new-list/hansol-perfect-white.png" },
   { id: 3, name: "MDF, 한솔, 18T, 새틴베이지", image: "/img/color-new-list/hansol-satin-beige.png" },
@@ -55,7 +56,6 @@ export const FINISH_COLOR_LIST = [
   { id: 17, name: "PB,, 15T, 헤링본", image: "/img/color-new-list/herringbone.png" },
   { id: 18, name: "PB, 동화, 3T 우라, 헤링본", image: "/img/color-new-list/herringbone.png" },
   { id: 19, name: "PB,, 15T, 헤링본 - 미백색", image: "/img/color-new-list/herringbone-off-white.png" },
-  { id: 20, name: "MDF,, 18T, 필름 부착용 합판 (색깔 상관X)", image: "/img/color-new-list/film-attached-plywood.png" },
 ] as const;
 
 

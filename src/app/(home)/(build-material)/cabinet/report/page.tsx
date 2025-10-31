@@ -4,6 +4,7 @@ import BottomButton from "@/components/BottomButton/BottomButton";
 import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
 import ImageCard from "@/components/Card/ImageCard";
 import Header from "@/components/Header/Header";
+import ProgressBar from "@/components/Progress";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
@@ -32,9 +33,18 @@ import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_r
 import { SupabaseUploadImageUsecase } from "@/DDD/usecase/upload_image_usecase";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
-import { trackClick, trackView } from "@/services/analytics/amplitude";
+import { trackClick, trackView, trackAddToCart } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 import PaymentNoticeCard from "@/components/PaymentNoticeCard";
+import useCartItemStore from "@/store/cartItemStore";
+import { ProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
+import { sortProductTypes, sortDetailProductTypes } from "@/utils/formatCartProductTypes";
+import { 
+  getProductTypesFromCartItems, 
+  getDetailProductTypesFromCartItems,
+  getTotalQuantityFromCartItems,
+  getTotalValueFromCartItems 
+} from "@/utils/getCartProductTypes";
 
 function createCabinetInstance(item: any, cabinetImageUrls: string[] = []) {
 
@@ -239,6 +249,7 @@ function ReportPageContent() {
 	const router = useRouter();
 	const { item } = useItemStore();
 	const { cart, incrementCartCount } = useCartStore();
+	const cartItems = useCartItemStore((state) => state.cartItems);
 	const [quantity, setQuantity] = useState(1);
 
 	// 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
@@ -254,11 +265,18 @@ function ReportPageContent() {
 		});
 	}, []);
 
+	// cabinet_behind_type 동기화 (렌더링 중 setState 방지)
+	useEffect(() => {
+		if (!item) return;
+		const cabinetBehindType = item.behindType || "우라홈";
+		if (item.cabinet_behind_type !== cabinetBehindType) {
+			useItemStore.getState().updateItem({ cabinet_behind_type: cabinetBehindType });
+		}
+	}, [item?.behindType, item?.cabinet_behind_type]);
+
 	if (!item || Object.keys(item).length === 0) {
 		return <div>로딩 중...</div>;
 	}
-
-
 
 	// 주요 필드 콘솔 출력
 	console.log(
@@ -274,14 +292,6 @@ function ReportPageContent() {
 		'item.legType:', item.legType ?? "",
 		'item.legType_direct_input:', item.legType_direct_input ?? "",
 	);
-
-	// Use behindType value as-is for DB (no mapping)
-	const cabinetBehindType = item.behindType || "우라홈"; // default
-	// Update item with the same Korean value for DB
-	if (item.cabinet_behind_type !== cabinetBehindType) {
-		useItemStore.getState().updateItem({ cabinet_behind_type: cabinetBehindType });
-		item.cabinet_behind_type = cabinetBehindType;
-	}
 
 	// 색상 id/name 변환
 	const colorObj = CABINET_COLOR_LIST.find(c => c.id === Number(item.color))
@@ -314,9 +324,10 @@ function ReportPageContent() {
 	const addBottomDrawer = item.lowerDrawer === "추가";
 
 	return (
-		<div className="flex flex-col">
+		<div className="flex flex-col pt-[90px]">
 			<InitAmplitude />
 			<TopNavigator />
+			<ProgressBar progress={100} />
 			<Header size="Large" title={`${item?.type ?? ""} 주문 개수를 선택해주세요`} />
 			<div className="flex flex-col gap-[20px] px-5 pb-[100px] pt-5">
 				<ShoppingCartCard
@@ -458,6 +469,7 @@ function ReportPageContent() {
 							if (!createdCabinet || !createdCabinet["id"]) {
 								throw new Error("Cabinet creation failed or missing ID.");
 							}
+							
 							const cartItem = new CartItem({
 								cart_id: cart!.id!,
 								item_detail: createdCabinet.id,
@@ -469,7 +481,24 @@ function ReportPageContent() {
 								new CartItemSupabaseRepository()
 							).create(cartItem);
 
-							// cart_count 증가
+						// Add to Cart 이벤트 전송 (CartItem 생성 성공 후)
+						const cartQuantityTotalBefore = getTotalQuantityFromCartItems(cartItems);
+						const cartQuantityTypeBefore = cartItems.length;
+						const cartValueBefore = getTotalValueFromCartItems(cartItems);
+						
+						// 추가 후 상태 계산 (새 아이템 포함)
+						const productTypesAfter = getProductTypesFromCartItems(cartItems, detailProductType);
+						const detailProductTypesAfter = await getDetailProductTypesFromCartItems(cartItems, detailProductType, item);
+						
+						await trackAddToCart({
+							product_type: sortProductTypes(productTypesAfter),
+							detail_product_type: sortDetailProductTypes(detailProductTypesAfter),
+							quantity: quantity,
+							price_unit: unitPrice,
+							cart_quantity_total_before: cartQuantityTotalBefore,
+							cart_quantity_type_before: cartQuantityTypeBefore,
+							cart_value_before: cartValueBefore,
+						});							// cart_count 증가
 							await new CrudCartUsecase(
 								new CartSupabaseRepository()
 							).incrementCartCount(cart.id!, quantity);

@@ -2,7 +2,7 @@
 
 import { DOOR_CATEGORY_LIST } from "@/constants/category";
 import { useRouter } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState, useRef } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
@@ -14,6 +14,8 @@ import BoxedSelect from "@/components/Select/BoxedSelect";
 import SelectToggleButton from "@/components/Button/SelectToggleButton";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import FlapDoorPreview from "@/components/DoorPreview/FlapDoorPreview";
+import Checkbox from "@/components/Checkbox/Checkbox";
+import ManWhiteIcon from "@/../public/icons/man_white";
 import formatLocation from "@/utils/formatLocation";
 import formatColor from "@/utils/formatColor";
 
@@ -38,22 +40,33 @@ function FlapDoorPageContent() {
     const [doorWidth, setDoorWidth] = useState<number | null>(item?.door_width ?? null);
     const [doorHeight, setDoorHeight] = useState<number | null>(item?.door_height ?? null);
 
-    // boringSize 초기값 설정
-    const [boringSize, setBoringSize] = useState<(number | null)[]>(item?.hinge ?? []);
+    // boringSize 초기값 설정 (hinge로 통일)
+    const [hinge, setHinge] = useState<(number | null)[]>(item?.hinge ?? []);
 
     const [request, setRequest] = useState(item?.door_request ?? "");
     const [door_location, setDoorLocation] = useState(item?.door_location ?? "");
     const [addOn_hinge, setAddOn_hinge] = useState(item?.addOn_hinge ?? false);
     const [isDoorLocationSheetOpen, setIsDoorLocationSheetOpen] = useState(false);
     const [images, setImages] = useState<File[]>(item?.raw_images || []);
+    const [isDontKnowHingeCount, setIsDontKnowHingeCount] = useState(false);
+    
+    // 가로 입력 필드 ref
+    const widthInputRef = useRef<HTMLInputElement>(null);
 
     // 유효성 검사 훅 사용
     const { widthError, heightError, boringError, isFormValid } = useFlapDoorValidation({
         DoorWidth: doorWidth,
         DoorHeight: doorHeight,
-        boringSize,
+        boringSize: hinge,
         boringNum,
     });
+
+    // 페이지 진입 시 용도 및 장소 시트 자동 열기 (door_location이 없을 때만)
+    useEffect(() => {
+        if (!door_location) {
+            setIsDoorLocationSheetOpen(true);
+        }
+    }, []);
 
     // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
     useEffect(() => {
@@ -68,22 +81,23 @@ function FlapDoorPageContent() {
         });
     }, []);
 
-    // boringNum이 바뀔 때 boringSize 길이 자동 조정
+    // boringNum이 변경되면 hinge 배열 길이 맞추기
     useEffect(() => {
-        // 기존 값을 유지하면서 새로운 길이에 맞게 조정
-        const newBoringSize = Array.from({ length: boringNum }, (_, i) =>
-            boringSize && boringSize[i] !== undefined ? boringSize[i] : null,
-        );
-        setBoringSize(newBoringSize);
+        if (boringNum && hinge.length !== boringNum) {
+            const newBoringSize = Array.from({ length: boringNum }, (_, i) =>
+                hinge && hinge[i] !== undefined ? hinge[i] : null,
+            );
+            setHinge(newBoringSize);
+        }
     }, [boringNum]);
 
     // 각 필드 변경 시 useItemStore에 저장
     const handleBoringNumChange = (newBoringNum: 2 | 3 | 4) => {
         setBoringNum(newBoringNum);
         const newBoringSize = Array.from({ length: newBoringNum }, (_, i) =>
-            boringSize && boringSize[i] !== undefined ? boringSize[i] : null,
+            hinge && hinge[i] !== undefined ? hinge[i] : null,
         );
-        setBoringSize(newBoringSize);
+        setHinge(newBoringSize);
         updateItem({ boringNum: newBoringNum, hinge: newBoringSize });
     };
 
@@ -98,7 +112,7 @@ function FlapDoorPageContent() {
     };
 
     const handleBoringSizeChange = (newBoringSize: (number | null)[]) => {
-        setBoringSize(newBoringSize);
+        setHinge(newBoringSize);
         updateItem({ hinge: newBoringSize });
     };
 
@@ -110,6 +124,12 @@ function FlapDoorPageContent() {
     const handleDoorLocationChange = (newLocation: string) => {
         setDoorLocation(newLocation);
         updateItem({ door_location: newLocation });
+        
+        // 용도 및 장소 선택 후 시트가 닫히면 가로 입력 필드로 포커스 이동
+        setIsDoorLocationSheetOpen(false);
+        setTimeout(() => {
+            widthInputRef.current?.focus();
+        }, 300); // 시트 닫히는 애니메이션 후 포커스 이동
     };
 
     const handleAddOnHingeChange = (newAddOnHinge: boolean) => {
@@ -124,7 +144,7 @@ function FlapDoorPageContent() {
     };
 
     return (
-        <div className="flex min-h-screen flex-col">
+        <div className="flex min-h-screen flex-col pt-[60px]">
             <InitAmplitude />
             <TopNavigator />
             <Header
@@ -142,63 +162,6 @@ function FlapDoorPageContent() {
                     truncate={true}
                 />
 
-                {/* 플랩문 폼 내용 */}
-                <BoxedInput
-                    type="number"
-                    label={<><span>가로 길이(mm)</span><span className="text-orange-500 ml-1">*</span></>}
-                    placeholder="가로 길이를 입력해주세요"
-                    value={doorWidth}
-                    onChange={e => {
-                        const value = e.target.value;
-                        handleDoorWidthChange(value ? Number(value) : null);
-                    }}
-                    error={!!widthError}
-                    helperText={widthError}
-                />
-                <BoxedInput
-                    type="number"
-                    label={<><span>세로 길이(mm)</span><span className="text-orange-500 ml-1">*</span></>}
-                    placeholder="세로 길이를 입력해주세요"
-                    value={doorHeight}
-                    onChange={e => {
-                        const value = e.target.value;
-                        handleDoorHeightChange(value ? Number(value) : null);
-                    }}
-                    error={!!heightError}
-                    helperText={heightError}
-                />
-                <div className="flex flex-col gap-2">
-                    <div className="w-full text-[14px] font-400 text-gray-600"> 경첩</div>
-                    <div className="flex flex-row gap-2">
-                        <Button
-                            type={boringNum == 2 ? "BrandInverse" : "GrayLarge"}
-                            text={"2개"}
-                            onClick={() => handleBoringNumChange(2)}
-                        />
-                        <Button
-                            type={boringNum == 3 ? "BrandInverse" : "GrayLarge"}
-                            text={"3개"}
-                            onClick={() => handleBoringNumChange(3)}
-                        />
-                        <Button
-                            type={boringNum == 4 ? "BrandInverse" : "GrayLarge"}
-                            text={"4개"}
-                            onClick={() => handleBoringNumChange(4)}
-                        />
-                    </div>
-                    {boringError && <div className="px-1 text-sm text-red-500">{boringError}</div>}
-                </div>
-                <div className="flex items-center justify-center pt-5">
-                    <FlapDoorPreview
-                        DoorWidth={doorWidth}
-                        DoorHeight={doorHeight}
-                        boringNum={boringNum}
-                        boringSize={boringSize}
-                        onChangeBoringSize={handleBoringSizeChange}
-                        doorColor={item?.color ?? ""}
-                    />
-                </div>
-
                 <BoxedSelect
                     default_label="용도 ∙ 장소"
                     label={<><span>용도 ∙ 장소</span><span className="text-orange-500 ml-1">*</span></>}
@@ -213,19 +176,128 @@ function FlapDoorPageContent() {
                     value={door_location}
                     onChange={handleDoorLocationChange}
                 />
-                <div className="flex flex-col gap-2">
-                    <div className="w-full text-[14px] font-400 text-gray-600">경첩 추가 선택</div>
-                    <div className="flex flex-row gap-2">
-                        <Button
-                            type={addOn_hinge ? "BrandInverse" : "GrayLarge"}
-                            text={"경첩도 받기"}
-                            onClick={() => handleAddOnHingeChange(true)}
+
+                {/* 플랩문 폼 내용 */}
+                <BoxedInput
+                    ref={widthInputRef}
+                    type="number"
+                    label={<><span>가로 길이 (mm)</span><span className="text-orange-500 ml-1">*</span></>}
+                    placeholder="가로 길이를 입력해주세요"
+                    value={doorWidth}
+                    onChange={e => {
+                        const value = e.target.value;
+                        handleDoorWidthChange(value ? Number(value) : null);
+                    }}
+                    error={!!widthError}
+                    helperText={widthError}
+                />
+                <BoxedInput
+                    type="number"
+                    label={<><span>세로 길이 (mm)</span><span className="text-orange-500 ml-1">*</span></>}
+                    placeholder="세로 길이를 입력해주세요"
+                    value={doorHeight}
+                    onChange={e => {
+                        const value = e.target.value;
+                        handleDoorHeightChange(value ? Number(value) : null);
+                    }}
+                    error={!!heightError}
+                    helperText={heightError}
+                />
+
+                {/* 세로 길이가 입력된 경우에만 경첩 섹션 표시 */}
+                {doorHeight && (
+                    <>
+                        <div className="w-full text-[14px] font-400 text-gray-600"> 경첩 개수</div>
+                        <div className="self-stretch inline-flex justify-center items-center gap-5">
+                            <div className="flex-1 flex justify-center items-center gap-2">
+                                <Button
+                                    type={!isDontKnowHingeCount && boringNum == 2 ? "BrandInverse" : "GrayLarge"}
+                                    text={"2개"}
+                                    onClick={() => !isDontKnowHingeCount && handleBoringNumChange(2)}
+                                    disabled={isDontKnowHingeCount}
+                                />
+                                <Button
+                                    type={!isDontKnowHingeCount && boringNum == 3 ? "BrandInverse" : "GrayLarge"}
+                                    text={"3개"}
+                                    onClick={() => !isDontKnowHingeCount && handleBoringNumChange(3)}
+                                    disabled={isDontKnowHingeCount}
+                                />
+                                <Button
+                                    type={!isDontKnowHingeCount && boringNum == 4 ? "BrandInverse" : "GrayLarge"}
+                                    text={"4개"}
+                                    onClick={() => !isDontKnowHingeCount && handleBoringNumChange(4)}
+                                    disabled={isDontKnowHingeCount}
+                                />  
+                            </div>
+                            <div className="flex justify-start items-center gap-2">
+                                <Checkbox 
+                                    checked={isDontKnowHingeCount} 
+                                    onChange={(checked) => {
+                                        setIsDontKnowHingeCount(checked);
+                                        if (checked) {
+                                            setHinge([null]);
+                                            updateItem({ hinge: [null] });
+                                        }
+                                    }}
+                                />
+                                <div className="text-center justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-6">모름</div>
+                            </div>
+                        </div>
+
+                        {boringError && <div className="px-1 text-sm text-red-500">{boringError}</div>}
+
+                        {!isDontKnowHingeCount && (
+                            <div>
+                                <div className="flex items-center justify-center pt-5">
+                                <FlapDoorPreview
+                                    DoorWidth={doorWidth}
+                                    DoorHeight={doorHeight}
+                                    boringNum={boringNum}
+                                    boringSize={hinge}
+                                    onChangeBoringSize={handleBoringSizeChange}
+                                    doorColor={item?.color ?? ""}
+                                />
+                                </div>
+
+                                <div className="w-full px-5 pt-3 flex flex-col justify-start items-center gap-2.5">
+                                    <div className="w-full px-4 py-3 bg-gray-50 rounded-2xl flex justify-center items-center gap-2">
+                                        <div className="w-9 h-9 relative bg-blue-100 rounded-xl flex items-center justify-center">
+                                            <ManWhiteIcon />
+                                        </div>
+                                        <div className="flex-1 inline-flex flex-col justify-start items-start">
+                                            <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">경첩 치수 모르면 입력하지 않아도 돼요</div>
+                                            <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">주문이 접수되면 상담으로 안내해드려요.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+
+                            
+                        )}
+                        {isDontKnowHingeCount && (
+                            <div className="w-full px-5 pt-3 flex flex-col justify-start items-center gap-2.5">
+                                <div className="w-full px-4 py-3 bg-gray-50 rounded-2xl flex justify-center items-center gap-2">
+                                    <div className="w-9 h-9 relative bg-blue-100 rounded-xl flex items-center justify-center">
+                                        <ManWhiteIcon />
+                                    </div>
+                                    <div className="flex-1 inline-flex flex-col justify-start items-start">
+                                        <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">경첩 개수 몰라도 괜찮아요</div>
+                                        <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">주문이 접수되면 상담으로 안내해드려요.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </>
+                )}
+                <div className="flex w-full flex-col gap-3">
+                    <div className="text-gray-600 text-sm font-medium">경첩 추가 선택</div>
+                    <div className="flex justify-start items-center gap-2">
+                        <Checkbox 
+                            checked={addOn_hinge} 
+                            onChange={(checked) => handleAddOnHingeChange(checked)}
                         />
-                        <Button
-                            type={addOn_hinge ? "GrayLarge" : "BrandInverse"}
-                            text={"필요 없어요"}
-                            onClick={() => handleAddOnHingeChange(false)}
-                        />
+                        <div className="text-center justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-6">경첩도 같이 받을래요</div>
                     </div>
                 </div>
                 <BoxedInput
@@ -248,7 +320,7 @@ function FlapDoorPageContent() {
                         type={"1button"}
                         button1Text={"다음"}
                         className="fixed bottom-0 w-full max-w-[460px]"
-                        button1Disabled={isFormValid() || !door_location}
+                        button1Disabled={isFormValid() || !door_location || !boringNum}
                         onButton1Click={() => {
                             trackClick({
                                 object_type: "button",

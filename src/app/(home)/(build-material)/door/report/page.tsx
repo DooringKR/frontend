@@ -4,6 +4,7 @@ import BottomButton from "@/components/BottomButton/BottomButton";
 import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
 import ImageCard from "@/components/Card/ImageCard";
 import Header from "@/components/Header/Header";
+import ProgressBar from "@/components/Progress";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import PaymentNoticeCard from "@/components/PaymentNoticeCard";
@@ -30,14 +31,23 @@ import { CrudInteriorMaterialsUsecase } from "@/DDD/usecase/crud_interior_materi
 import { SupabaseUploadImageUsecase } from "@/DDD/usecase/upload_image_usecase";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
-import { trackClick, trackView } from "@/services/analytics/amplitude";
+import { trackClick, trackView, trackAddToCart } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
+import useCartItemStore from "@/store/cartItemStore";
+import { sortProductTypes, sortDetailProductTypes } from "@/utils/formatCartProductTypes";
+import { 
+  getProductTypesFromCartItems, 
+  getDetailProductTypesFromCartItems,
+  getTotalQuantityFromCartItems,
+  getTotalValueFromCartItems 
+} from "@/utils/getCartProductTypes";
 
 
 function DoorReportPageContent() {
     const router = useRouter();
     const { item } = useItemStore();
     const { cart, incrementCartCount } = useCartStore();
+    const cartItems = useCartItemStore((state) => state.cartItems);
 
     const [quantity, setQuantity] = useState(1);
 
@@ -74,9 +84,10 @@ function DoorReportPageContent() {
     // 카테고리 정보 가져오기
 
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col pt-[90px]">
             <InitAmplitude />
             <TopNavigator />
+            <ProgressBar progress={100} />
             <Header size="Large" title={`${item.type} 주문 개수를 선택해주세요`} />
             <div className="flex flex-col gap-[20px] px-5 pb-[100px] pt-5">
                 <ShoppingCartCard
@@ -164,11 +175,13 @@ function DoorReportPageContent() {
                                 new InteriorMaterialsSupabaseRepository<Door>("Door")
                             ).create(door);
 
+                            const detailProductType = DetailProductType.DOOR;
+                            
                             // 문짝의 경우 별도의 모델 클래스가 없으므로 직접 CartItem에 저장
                             const cartItem = new CartItem({
                                 cart_id: cart!.id!,
                                 item_detail: createdDoor.id!, // 문짝은 별도의 interior_material_id가 없음
-                                detail_product_type: DetailProductType.DOOR,
+                                detail_product_type: detailProductType,
                                 item_count: quantity,
                                 unit_price: unitPrice,
                                 // 문짝 정보를 item_options에 저장
@@ -179,6 +192,25 @@ function DoorReportPageContent() {
                             ).create(cartItem);
 
                             console.log(createdCartItem);
+
+                            // Add to Cart 이벤트 전송 (CartItem 생성 성공 후)
+                            const cartQuantityTotalBefore = getTotalQuantityFromCartItems(cartItems);
+                            const cartQuantityTypeBefore = cartItems.length;
+                            const cartValueBefore = getTotalValueFromCartItems(cartItems);
+                            
+                            // 추가 후 상태 계산 (새 아이템 포함)
+                            const productTypesAfter = getProductTypesFromCartItems(cartItems, detailProductType);
+                            const detailProductTypesAfter = await getDetailProductTypesFromCartItems(cartItems, detailProductType, door);
+                            
+                            await trackAddToCart({
+                                product_type: sortProductTypes(productTypesAfter),
+                                detail_product_type: sortDetailProductTypes(detailProductTypesAfter),
+                                quantity: quantity,
+                                price_unit: unitPrice,
+                                cart_quantity_total_before: cartQuantityTotalBefore,
+                                cart_quantity_type_before: cartQuantityTypeBefore,
+                                cart_value_before: cartValueBefore,
+                            });
 
                             // // cart_count 증가
                             const cartCountResponse = await new CrudCartUsecase(
