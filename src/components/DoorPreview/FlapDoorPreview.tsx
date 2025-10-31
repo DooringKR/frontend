@@ -338,7 +338,6 @@ const FlapDoorPreview: React.FC<FlapDoorPreviewProps> = ({
                 onFocus={() => setFocusedBoringIndex(idx)}
                 onBlur={() => setFocusedBoringIndex(null)}
               />
-              <span className="ml-1 text-orange-500">*</span>
             </div>
           </div>
         ))}

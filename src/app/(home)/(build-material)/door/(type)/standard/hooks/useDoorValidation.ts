@@ -49,44 +49,45 @@ export function useDoorValidation({
   // 보링 위치 유효성 검사 (일반문만)
   useEffect(() => {
     if (hinge.length > 0 && DoorHeight !== null) {
-      const [firstHinge, secondHinge, thirdHinge, fourthHinge] = hinge;
-
       let errorMessage = "";
 
-      // 일반문 보링 검증
+      // null을 임시 값으로 치환
+      let firstHinge: number, secondHinge: number, thirdHinge: number, fourthHinge: number;
+
       switch (boringNum) {
         case 2:
-          if (firstHinge !== null && secondHinge !== null) {
-            if (firstHinge + secondHinge >= DoorHeight) {
-              errorMessage = "상단 경첩과 하단 경첩의 합이 문 높이보다 작아야 합니다.";
-            }
+          firstHinge = hinge[0] ?? 1;
+          secondHinge = hinge[1] ?? 1;
+          
+          if (firstHinge + secondHinge >= DoorHeight) {
+            errorMessage = "상단 경첩과 하단 경첩의 합이 문 높이보다 작아야 합니다.";
           }
           break;
 
         case 3:
-          if (firstHinge !== null && secondHinge !== null && thirdHinge !== null) {
-            if (firstHinge >= secondHinge) {
-              errorMessage = "상단 경첩은 중간 경첩보다 작아야 합니다.";
-            } else if (secondHinge + thirdHinge >= DoorHeight) {
-              errorMessage = "중간 경첩과 하단 경첩의 합이 문 높이보다 작아야 합니다.";
-            }
+          firstHinge = hinge[0] ?? 1;
+          secondHinge = hinge[1] ?? (firstHinge + 1);
+          thirdHinge = hinge[2] ?? 1;
+
+          if (firstHinge >= secondHinge) {
+            errorMessage = "상단 경첩은 중간 경첩보다 작아야 합니다.";
+          } else if (secondHinge + thirdHinge >= DoorHeight) {
+            errorMessage = "중간 경첩과 하단 경첩의 합이 문 높이보다 작아야 합니다.";
           }
           break;
 
         case 4:
-          if (
-            firstHinge !== null &&
-            secondHinge !== null &&
-            thirdHinge !== null &&
-            fourthHinge !== null
-          ) {
-            if (firstHinge >= secondHinge) {
-              errorMessage = "상단 경첩은 중상 경첩보다 작아야 합니다.";
-            } else if (secondHinge + thirdHinge >= DoorHeight) {
-              errorMessage = "중상 경첩과 중하 경첩의 합이 문 높이보다 작아야 합니다.";
-            } else if (thirdHinge <= fourthHinge) {
-              errorMessage = "하단 경첩은 중하 경첩보다 작아야 합니다.";
-            }
+          firstHinge = hinge[0] ?? 1;
+          fourthHinge = hinge[3] ?? 1;
+          secondHinge = hinge[1] ?? (firstHinge + 1);
+          thirdHinge = hinge[2] ?? (fourthHinge + 1);
+
+          if (firstHinge >= secondHinge) {
+            errorMessage = "상단 경첩은 중상 경첩보다 작아야 합니다.";
+          } else if (secondHinge + thirdHinge >= DoorHeight) {
+            errorMessage = "중상 경첩과 중하 경첩의 합이 문 높이보다 작아야 합니다.";
+          } else if (thirdHinge <= fourthHinge) {
+            errorMessage = "하단 경첩은 중하 경첩보다 작아야 합니다.";
           }
           break;
       }
@@ -102,7 +103,6 @@ export function useDoorValidation({
     return (
       DoorWidth === null ||
       DoorHeight === null ||
-      hinge.some(v => v === null) ||
       !!widthError ||
       !!heightError ||
       !!boringError

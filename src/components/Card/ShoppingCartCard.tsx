@@ -231,11 +231,24 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
             {type === "hardware" && thickness && <div>합판 두께 : {thickness}</div>}
             {type === "hardware" && angle && <div>각도 : {angle}</div>}
             {type === "hardware" && railDamping !== undefined && <div>레일 댐핑 : {railDamping ? "있음" : "없음"}</div>}
-            {hingeCount && <div>경첩 개수 : {hingeCount}개</div>}
-            {hingeDirection && <div>경첩 방향 : {hingeDirection}</div>}
-            {boring && (
+            {/* 경첩 개수: hinge 배열이 [null]이면 모름 상태 */}
+            {hingeCount !== undefined && hingeCount !== null && !(Array.isArray(boring) && boring.length === 1 && boring[0] === null) && (
+              <div>경첩 개수 : {hingeCount}개</div>
+            )}
+            {Array.isArray(boring) && boring.length === 1 && boring[0] === null && (
+              <div>경첩 개수 : 모름</div>
+            )}
+            {/* 경첩 방향: UNKNOWN이 아닐 때만 표시 */}
+            {hingeDirection && hingeDirection !== HingeDirection.UNKNOWN && (
+              <div>경첩 방향 : {hingeDirection}</div>
+            )}
+            {hingeDirection === HingeDirection.UNKNOWN && (
+              <div>경첩 방향 : 모름</div>
+            )}
+            {/* 보링 치수: 경첩 개수와 방향을 둘 다 알 때만 표시 */}
+            {Array.isArray(boring) && boring.length > 1 && hingeDirection !== HingeDirection.UNKNOWN && (
               <div>
-                보링 치수 : {Array.isArray(boring) ? boring.filter(Boolean).join(", ") : boring}
+                보링 치수 : {boring.map(val => val === null ? "모름" : val).join(", ")}
               </div>
             )}
             {/* robust: 쇼바 종류 값 있을 때만 출력 */}

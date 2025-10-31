@@ -69,7 +69,6 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
           onFocus={() => setFocusedBoringIndex(idx)}
           onBlur={() => setFocusedBoringIndex(null)}
         />
-        <span className="ml-1 text-orange-500">*</span>
       </div>
     </div>
   ));
