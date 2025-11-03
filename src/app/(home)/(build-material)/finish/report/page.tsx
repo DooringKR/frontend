@@ -1,7 +1,6 @@
 "use client";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
-import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
 import ShoppingCartCardNew from "@/components/Card/ShoppingCartCardNew";
 import Header from "@/components/Header/Header";
 import ProgressBar from "@/components/Progress";
@@ -92,32 +91,10 @@ function ReportPageContent() {
             <ProgressBar progress={100} />
             <Header size="Large" title={`마감재 주문 개수를 선택해주세요`} />
             <div className="flex flex-col gap-[20px] px-5 pb-[100px] pt-5">
-                <ShoppingCartCard
-                    type="finish"
-                    title={item?.type ?? ""}
-                    color={item?.color ? formatColor(item?.color ?? "") : "(직접입력) " + item?.finish_color_direct_input}
-                    edgeCount={item?.edgeCount ?? undefined}
-                    depth={item?.depth ? Number(item.depth) : undefined}
-                    height={item?.height ? Number(item.height) : undefined}
-                    depthIncrease={item?.depthIncrease ? Number(item.depthIncrease) : undefined}
-                    heightIncrease={item?.heightIncrease ? Number(item.heightIncrease) : undefined}
-                    location={item.finish_location ?? undefined}
-                    quantity={0}
-                    trashable={false}
-                    showQuantitySelector={false}
-                    request={item.request ?? undefined}
-                    onOptionClick={() => {
-                        router.push(`/finish/${FINISH_CATEGORY_LIST.find(item => item.type === item?.type)?.slug}`);
-                    }}
-                />
 
-                {/* NEW COMPONENT TEST */}
-                <div className="border-2 border-green-500 rounded-2xl">
-                    <div className="text-xs text-green-600 font-bold p-2">[NEW COMPONENT TEST - 마감재]</div>
-                    <ShoppingCartCardNew
+                <ShoppingCartCardNew
                         {...transformFinishToNewCardProps(item)}
                     />
-                </div>
                 
                 {/* 업로드된 이미지 표시 */}
                 <ImageCard images={item?.raw_images || []} />

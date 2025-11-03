@@ -129,7 +129,7 @@ export interface CabinetOpenDetails extends CabinetBaseDetails {
 }
 
 // 부속 상세 정보
-interface AccessoryDetails {
+export interface AccessoryDetails {
   manufacturer?: string;
   modelName?: string;
   size?: string;
@@ -138,7 +138,7 @@ interface AccessoryDetails {
 }
 
 // 하드웨어 공통 속성
-interface HardwareBaseDetails {
+export interface HardwareBaseDetails {
   manufacturer?: string;
   color?: string;
   size?: string;
@@ -147,19 +147,21 @@ interface HardwareBaseDetails {
 }
 
 // 경첩 상세 정보
-interface HardwareHingeDetails extends HardwareBaseDetails {
+export interface HardwareHingeDetails extends HardwareBaseDetails {
   thickness?: string;
   angle?: string;
 }
 
 // 레일 상세 정보
-interface HardwareRailDetails extends HardwareBaseDetails {
+export interface HardwareRailDetails extends HardwareBaseDetails {
+  railType?: string;
   railLength?: string;
   railDamping?: boolean;
 }
 
 // 피스 상세 정보
-interface HardwarePieceDetails extends HardwareBaseDetails {
+export interface HardwarePieceDetails extends HardwareBaseDetails {
+  // 피스는 color와 size만 사용
 }
 
 // 모든 Details 타입 Union
@@ -199,6 +201,7 @@ interface ShoppingCartCardNewProps {
   trashable: boolean;
   onDecrease?: () => void;
   onIncrease?: () => void;
+  onTrash?: () => void;
 }
 
 // ============================================================================
@@ -359,6 +362,7 @@ function renderHardwareDetails(data: HardwareBaseDetails & Partial<HardwareHinge
       {data.size && <DetailRow label="사이즈" value={data.size} />}
       {data.thickness && <DetailRow label="합판 두께" value={data.thickness} />}
       {data.angle && <DetailRow label="각도" value={data.angle} />}
+      {data.railType && <DetailRow label="레일 종류" value={data.railType} />}
       {data.railLength && <DetailRow label="레일 길이" value={data.railLength} />}
       {data.railDamping !== undefined && (
         <DetailRow label="레일 댐핑" value={data.railDamping ? "있음" : "없음"} />
@@ -405,6 +409,7 @@ const ShoppingCartCardNew: React.FC<ShoppingCartCardNewProps> = ({
   trashable,
   onDecrease,
   onIncrease,
+  onTrash,
 }) => {
   const renderDetails = detailRenderers[detailProductType];
 
@@ -481,6 +486,7 @@ const ShoppingCartCardNew: React.FC<ShoppingCartCardNewProps> = ({
             onDecrease={onDecrease}
             onIncrease={onIncrease}
             trashable={trashable}
+            onTrash={onTrash}
           />
         </div>
       )}

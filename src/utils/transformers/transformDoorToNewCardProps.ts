@@ -26,15 +26,9 @@ export interface DoorItem {
 }
 
 /**
- * Simplified transformer function - automatically detects type from item
- * Just pass the entire item object and it handles everything
+ * Transform door item to ShoppingCartCardNew props
  */
-export function transformDoorToNewCardProps(
-  item: DoorItem
-): {
-  detailProductType: DetailProductType;
-  details: ProductDetails;
-} {
+export function transformDoorToNewCardProps(item: DoorItem) {
   const doorType = item.type;
 
   // Map DoorType to DetailProductType (DoorType enum values are in Korean)
@@ -93,6 +87,18 @@ export function transformDoorToNewCardProps(
   const width = item.door_width ?? 0;
   const height = item.door_height ?? 0;
 
+  // Build common props
+  const commonProps = {
+    hasPreviewIcon: true,
+    hasPrice: false,
+    hasStepper: false,
+    price: 0,
+    quantity: 0,
+    trashable: false,
+    onDecrease: () => {},
+    onIncrease: () => {},
+  };
+
   // Build type-specific details
   if (doorType === DoorType.STANDARD) {
     const data: DoorStandardDetails = {
@@ -107,6 +113,7 @@ export function transformDoorToNewCardProps(
       request: item.door_request,
     };
     return { 
+      ...commonProps,
       detailProductType: "일반문" as const, 
       details: { type: "일반문" as const, data } 
     };
@@ -122,6 +129,7 @@ export function transformDoorToNewCardProps(
       request: item.door_request,
     };
     return { 
+      ...commonProps,
       detailProductType: "플랩문" as const, 
       details: { type: "플랩문" as const, data } 
     };
@@ -135,6 +143,7 @@ export function transformDoorToNewCardProps(
       request: item.door_request,
     };
     return { 
+      ...commonProps,
       detailProductType: "서랍 마에다" as const, 
       details: { type: "서랍 마에다" as const, data } 
     };

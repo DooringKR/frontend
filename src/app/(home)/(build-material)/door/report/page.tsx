@@ -1,7 +1,6 @@
 "use client";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
-import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
 import ShoppingCartCardNew from "@/components/Card/ShoppingCartCardNew";
 import ImageCard from "@/components/Card/ImageCard";
 import Header from "@/components/Header/Header";
@@ -83,9 +82,6 @@ function DoorReportPageContent() {
         item?.door_height ?? 0
     );
 
-    // Transform data for new card component (only once)
-    const newCardData = transformDoorToNewCardProps(item);
-
     // 카테고리 정보 가져오기
 
     return (
@@ -95,42 +91,11 @@ function DoorReportPageContent() {
             <ProgressBar progress={100} />
             <Header size="Large" title={`${item.type} 주문 개수를 선택해주세요`} />
             <div className="flex flex-col gap-[20px] px-5 pb-[100px] pt-5">
-                <ShoppingCartCard
-                    type="door"
-                    title={item.type}
-                    color={item?.color ? formatColor(item?.color ?? "") : "(직접입력) " + item?.door_color_direct_input}
-                    width={item?.door_width ?? undefined}
-                    height={item?.door_height ?? undefined}
-                    hingeCount={item?.hinge ? item.hinge.length : undefined}
-                    hingeDirection={item?.hinge_direction ?? undefined}
-                    boring={item?.hinge || undefined}
-                    boringCategory={item?.type as DoorType || undefined}
-                    quantity={0}
-                    trashable={false}
-                    showQuantitySelector={false}
-                    location={item?.door_location ?? undefined}
-                    addOn_hinge={item?.addOn_hinge ?? undefined}
-                    request={item?.door_request ?? undefined}
-                    onOptionClick={() => {
-                        router.push(`/door/${DOOR_CATEGORY_LIST.find(cat => cat.type === item.type)?.slug}`);
-                    }}
-                />
 
-                {/* NEW COMPONENT - Testing side by side */}
-                <div style={{ border: "2px solid blue", padding: "10px", marginTop: "10px" }}>
-                    <div style={{ color: "blue", fontWeight: "bold", marginBottom: "10px" }}>
-                        [NEW COMPONENT TEST]
-                    </div>
-                    <ShoppingCartCardNew
-                        hasPreviewIcon={true}
-                        hasPrice={false}
-                        hasStepper={false}
-                        detailProductType={newCardData.detailProductType}
-                        details={newCardData.details}
-                        quantity={quantity}
-                        trashable={false}
+                <ShoppingCartCardNew
+                        {...transformDoorToNewCardProps(item)}
                     />
-                </div>
+
 
                 {/* 업로드된 이미지 표시 */}
                 <ImageCard images={item?.raw_images || []} />

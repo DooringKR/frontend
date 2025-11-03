@@ -24,7 +24,7 @@ export interface CabinetItem {
   width?: number;
   height?: number;
   depth?: number;
-  bodyMaterial?: number | null;
+  bodyMaterial?: string | number | null;  // string(리포트 페이지) 또는 number(DB에서 조회)
   body_material_direct_input?: string | null;
   handleType?: string;
   finishType?: string; // behindType
@@ -87,11 +87,13 @@ export function transformCabinetToNewCardProps(item: CabinetItem) {
   // Format body material
   const bodyMaterialObj = typeof item.bodyMaterial === "number"
     ? BODY_MATERIAL_LIST.find(b => b.id === item.bodyMaterial)
+    : typeof item.bodyMaterial === "string"
+    ? BODY_MATERIAL_LIST.find(b => b.name === item.bodyMaterial)
     : undefined;
   
   const bodyMaterial = item.body_material_direct_input
     ? `(직접입력) ${item.body_material_direct_input}`
-    : bodyMaterialObj?.name;
+    : bodyMaterialObj?.name || (typeof item.bodyMaterial === "string" ? item.bodyMaterial : undefined);
 
 
   const drawerTypeObj = typeof item.drawer_type === "number"
