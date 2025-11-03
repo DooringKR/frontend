@@ -2,12 +2,14 @@
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
+import ShoppingCartCardNew from "@/components/Card/ShoppingCartCardNew";
 import ImageCard from "@/components/Card/ImageCard";
 import Header from "@/components/Header/Header";
 import ProgressBar from "@/components/Progress";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import PaymentNoticeCard from "@/components/PaymentNoticeCard";
+import { transformDoorToNewCardProps } from "@/utils/transformers/transformDoorToNewCardProps";
 
 import { DOOR_CATEGORY_LIST } from "@/constants/category";
 import useItemStore from "@/store/itemStore";
@@ -81,6 +83,9 @@ function DoorReportPageContent() {
         item?.door_height ?? 0
     );
 
+    // Transform data for new card component (only once)
+    const newCardData = transformDoorToNewCardProps(item);
+
     // 카테고리 정보 가져오기
 
     return (
@@ -110,6 +115,22 @@ function DoorReportPageContent() {
                         router.push(`/door/${DOOR_CATEGORY_LIST.find(cat => cat.type === item.type)?.slug}`);
                     }}
                 />
+
+                {/* NEW COMPONENT - Testing side by side */}
+                <div style={{ border: "2px solid blue", padding: "10px", marginTop: "10px" }}>
+                    <div style={{ color: "blue", fontWeight: "bold", marginBottom: "10px" }}>
+                        [NEW COMPONENT TEST]
+                    </div>
+                    <ShoppingCartCardNew
+                        hasPreviewIcon={true}
+                        hasPrice={false}
+                        hasStepper={false}
+                        detailProductType={newCardData.detailProductType}
+                        details={newCardData.details}
+                        quantity={quantity}
+                        trashable={false}
+                    />
+                </div>
 
                 {/* 업로드된 이미지 표시 */}
                 <ImageCard images={item?.raw_images || []} />

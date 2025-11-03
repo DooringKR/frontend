@@ -2,6 +2,7 @@
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
+import ShoppingCartCardNew from "@/components/Card/ShoppingCartCardNew";
 import Header from "@/components/Header/Header";
 import ProgressBar from "@/components/Progress";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
@@ -17,6 +18,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import formatColor from "@/utils/formatColor";
+import { transformFinishToNewCardProps } from "@/utils/transformers/transformFinishToNewCardProps";
 import { CrudCartItemUsecase } from "@/DDD/usecase/crud_cart_item_usecase";
 import { CrudInteriorMaterialsUsecase } from "@/DDD/usecase/crud_interior_materials_usecase";
 import useCartStore from "@/store/cartStore";
@@ -108,6 +110,15 @@ function ReportPageContent() {
                         router.push(`/finish/${FINISH_CATEGORY_LIST.find(item => item.type === item?.type)?.slug}`);
                     }}
                 />
+
+                {/* NEW COMPONENT TEST */}
+                <div className="border-2 border-green-500 rounded-2xl">
+                    <div className="text-xs text-green-600 font-bold p-2">[NEW COMPONENT TEST - 마감재]</div>
+                    <ShoppingCartCardNew
+                        {...transformFinishToNewCardProps(item)}
+                    />
+                </div>
+                
                 {/* 업로드된 이미지 표시 */}
                 <ImageCard images={item?.raw_images || []} />
                 <OrderSummaryCard

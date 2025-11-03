@@ -23,7 +23,8 @@ const DETAIL_PRODUCT_TYPE_ORDER = [
   "쿡탑",
   "후드",
   "경첩",
-  "레일 피스",
+  "레일",
+  "피스",
 ] as const;
 
 /**
