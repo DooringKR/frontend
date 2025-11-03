@@ -7,7 +7,7 @@ import BoringInputField from "../Input/BoringInputField";
 interface FlapDoorPreviewProps {
   DoorWidth: number | null; // 가로 길이, null 경우 입력 필요
   DoorHeight: number | null; // 세로 길이, null 경우 입력 필요
-  boringNum: 2 | 3 | 4; // 보어링 개수는 2, 3, 4 중 하나
+  boringNum: 2 | 3 | 4 | null; // 보어링 개수는 2, 3, 4 중 하나 또는 null
   boringSize: (number | null)[];
   onChangeBoringSize?: (sizes: (number | null)[]) => void;
   doorColor?: string; // 문짝 색깔 (선택적)
@@ -24,7 +24,7 @@ const FlapDoorPreview: React.FC<FlapDoorPreviewProps> = ({
   const [focusedBoringIndex, setFocusedBoringIndex] = React.useState<number | null>(null);
   // boringSize 변경 핸들러
   const handleBoringInputChange = (idx: number, value: number | null) => {
-    if (!onChangeBoringSize) return;
+    if (!onChangeBoringSize || boringNum === null) return;
 
     const currentBoringSize = boringSize || [];
 
@@ -33,7 +33,7 @@ const FlapDoorPreview: React.FC<FlapDoorPreviewProps> = ({
 
     // 배열 길이가 boringNum과 맞지 않으면 조정
     if (newSizes.length !== boringNum) {
-      const adjustedSizes = Array.from({ length: boringNum }, (_, i) => newSizes[i] ?? null);
+      const adjustedSizes = Array.from({ length: boringNum }, (_, i) => newSizes[i] ?? null) as (number | null)[];
       onChangeBoringSize(adjustedSizes);
     } else {
       onChangeBoringSize(newSizes);
@@ -42,8 +42,9 @@ const FlapDoorPreview: React.FC<FlapDoorPreviewProps> = ({
 
   // boringSize가 boringNum과 맞지 않을 때 조정
   const adjustedBoringSize = React.useMemo(() => {
+    if (boringNum === null) return [];
     if (!boringSize || boringSize.length !== boringNum) {
-      return Array.from({ length: boringNum }, (_, i) => boringSize?.[i] ?? null);
+      return Array.from({ length: boringNum }, (_, i) => boringSize?.[i] ?? null) as (number | null)[];
     }
     return boringSize;
   }, [boringSize, boringNum]);
@@ -99,7 +100,7 @@ const FlapDoorPreview: React.FC<FlapDoorPreviewProps> = ({
       )}
 
       {/* 보어링 위치 표시 */}
-      {Array.from({ length: boringNum }).map((_, index) => {
+      {boringNum !== null && Array.from({ length: boringNum }).map((_, index) => {
         // 플랩문은 보어링이 상단에 가로로 배열
         const startX = 30; // 시작 위치
         const endX = doorWidth - 30; // 끝 위치
@@ -323,7 +324,7 @@ const FlapDoorPreview: React.FC<FlapDoorPreviewProps> = ({
 
       {/* 보어링 입력 필드들 */}
       <div className="flex w-full min-w-[375px] flex-col gap-2">
-        {Array.from({ length: boringNum }, (_, idx) => (
+        {boringNum !== null && Array.from({ length: boringNum }, (_, idx) => (
           <div key={idx} className="flex flex-row items-center gap-3">
             {/* 번호 표시 */}
             <div className="flex h-5 w-5 items-center justify-center rounded bg-blue-500 text-[14px]/[20px] font-500 text-white">

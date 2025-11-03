@@ -36,8 +36,8 @@ function FlapDoorPageContent() {
     const item = useItemStore(state => state.item);
     const updateItem = useItemStore(state => state.updateItem);
 
-    // 초기값을 itemStore에서 읽어오기
-    const [boringNum, setBoringNum] = useState<2 | 3 | 4>(item?.boringNum || 2);
+    // 초기값을 itemStore에서 읽어오기 (기본값 없음)
+    const [boringNum, setBoringNum] = useState<2 | 3 | 4 | null>(item?.boringNum ?? null);
     const [doorWidth, setDoorWidth] = useState<number | null>(item?.door_width ?? null);
     const [doorHeight, setDoorHeight] = useState<number | null>(item?.door_height ?? null);
 
@@ -50,10 +50,10 @@ function FlapDoorPageContent() {
     const [isDoorLocationSheetOpen, setIsDoorLocationSheetOpen] = useState(false);
     const [images, setImages] = useState<File[]>(item?.raw_images || []);
     
-    // 체크박스 초기 상태: itemStore에 값이 있으면 해제(false), 없으면 모름(true)
+    // 체크박스 초기 상태: 명시적으로 [null]인 경우만 모름 체크
     const [isDontKnowHingeCount, setIsDontKnowHingeCount] = useState(() => {
-        // hinge 배열이 [null]이거나 없으면 모름 상태
-        return !item?.hinge || (item.hinge.length === 1 && item.hinge[0] === null);
+        // hinge 배열이 정확히 [null]인 경우만 모름 상태
+        return item?.hinge && item.hinge.length === 1 && item.hinge[0] === null;
     });
     
     // 가로 입력 필드 ref
@@ -89,7 +89,7 @@ function FlapDoorPageContent() {
 
     // boringNum이 변경되면 hinge 배열 길이 맞추기
     useEffect(() => {
-        if (boringNum && hinge.length !== boringNum) {
+        if (boringNum !== null && hinge.length !== boringNum) {
             const newBoringSize = Array.from({ length: boringNum }, (_, i) =>
                 hinge && hinge[i] !== undefined ? hinge[i] : null,
             );
@@ -98,13 +98,17 @@ function FlapDoorPageContent() {
     }, [boringNum]);
 
     // 각 필드 변경 시 useItemStore에 저장
-    const handleBoringNumChange = (newBoringNum: 2 | 3 | 4) => {
+    const handleBoringNumChange = (newBoringNum: 2 | 3 | 4 | null) => {
         setBoringNum(newBoringNum);
-        const newBoringSize = Array.from({ length: newBoringNum }, (_, i) =>
-            hinge && hinge[i] !== undefined ? hinge[i] : null,
-        );
-        setHinge(newBoringSize);
-        updateItem({ boringNum: newBoringNum, hinge: newBoringSize });
+        if (newBoringNum !== null) {
+            const newBoringSize = Array.from({ length: newBoringNum }, (_, i) =>
+                hinge && hinge[i] !== undefined ? hinge[i] : null,
+            );
+            setHinge(newBoringSize);
+            updateItem({ boringNum: newBoringNum, hinge: newBoringSize });
+        } else {
+            updateItem({ boringNum: null, hinge: [] });
+        }
     };
 
     const handleDoorWidthChange = (newWidth: number | null) => {
@@ -244,14 +248,13 @@ function FlapDoorPageContent() {
                                         if (checked) {
                                             // 모름 체크: hinge를 [null]로 설정
                                             setHinge([null]);
-                                            updateItem({ hinge: [null] });
+                                            setBoringNum(null);
+                                            updateItem({ hinge: [null], boringNum: null });
                                         } else {
-                                            // 모름 해제: 기본 경첩 개수(2개)로 초기화
-                                            const defaultBoringNum = 2;
-                                            setBoringNum(defaultBoringNum);
-                                            const newHinge = Array.from({ length: defaultBoringNum }, () => null);
-                                            setHinge(newHinge);
-                                            updateItem({ boringNum: defaultBoringNum, hinge: newHinge });
+                                            // 모름 해제: 선택 초기화 (사용자가 직접 선택해야 함)
+                                            setHinge([]);
+                                            setBoringNum(null);
+                                            updateItem({ hinge: [], boringNum: null });
                                         }
                                     }}
                                 />
@@ -261,7 +264,7 @@ function FlapDoorPageContent() {
 
                         {boringError && <div className="px-1 text-sm text-red-500">{boringError}</div>}
 
-                        {!isDontKnowHingeCount && (
+                        {!isDontKnowHingeCount && boringNum !== null && (
                             <div>
                                 <div className="flex items-center justify-center pt-5">
                                 <FlapDoorPreview
@@ -335,7 +338,7 @@ function FlapDoorPageContent() {
                         type={"1button"}
                         button1Text={"다음"}
                         className="fixed bottom-0 w-full max-w-[460px]"
-                        button1Disabled={isFormValid() || !door_location || !boringNum}
+                        button1Disabled={isFormValid() || !door_location}
                         onButton1Click={() => {
                             trackClick({
                                 object_type: "button",
