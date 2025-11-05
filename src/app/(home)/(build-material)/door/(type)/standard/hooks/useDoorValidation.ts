@@ -4,7 +4,8 @@ interface UseDoorValidationProps {
   DoorWidth: number | null;
   DoorHeight: number | null;
   hinge: (number | null)[];
-  boringNum: 2 | 3 | 4;
+  boringNum: 2 | 3 | 4 | null;
+  hingeDirection: any;  // HingeDirection | null
 }
 
 export function useDoorValidation({
@@ -12,6 +13,7 @@ export function useDoorValidation({
   DoorHeight,
   hinge,
   boringNum,
+  hingeDirection,
 }: UseDoorValidationProps) {
   const [widthError, setWidthError] = useState<string>("");
   const [heightError, setHeightError] = useState<string>("");
@@ -48,7 +50,7 @@ export function useDoorValidation({
 
   // 보링 위치 유효성 검사 (일반문만)
   useEffect(() => {
-    if (hinge.length > 0 && DoorHeight !== null) {
+    if (hinge.length > 0 && DoorHeight !== null && boringNum !== null) {
       let errorMessage = "";
 
       // null을 임시 값으로 치환
@@ -98,11 +100,19 @@ export function useDoorValidation({
     }
   }, [hinge, boringNum, DoorHeight]);
 
-  // 일반문 유효성 검사
+  // 일반문 유효성 검사 - 경첩 개수와 방향 필수
+  // 각각 독립적으로 "모름" 상태 확인
   const isFormValid = () => {
+    // 경첩 개수 "모름" 체크 상태 확인
+    const isDontKnowCount = hinge.length === 1 && hinge[0] === null;
+    // 경첩 방향 "모름" 체크 상태 확인 (UNKNOWN은 문자열 'UNKNOWN')
+    const isDontKnowDirection = hingeDirection === 'UNKNOWN';
+    
     return (
       DoorWidth === null ||
       DoorHeight === null ||
+      (!isDontKnowCount && boringNum === null) ||
+      (!isDontKnowDirection && hingeDirection === null) ||
       !!widthError ||
       !!heightError ||
       !!boringError

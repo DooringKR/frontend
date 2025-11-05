@@ -202,7 +202,7 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
           <div className="text-[17px] font-600 text-gray-800">{title}</div>
           <div className="flex flex-col text-[15px] font-400 text-gray-500">
             {type !== "hardware" && colorLabel && <div>색상 : {colorLabel}</div>}
-            {edgeCount && <div>엣지 면 수 : {edgeCount}</div>}
+            {type === "finish" && edgeCount && <div>엣지 면 수 : {edgeCount}</div>}
             {bodyMaterialLabel && <div>몸통 소재 및 두께 : {bodyMaterialLabel}</div>}
             {width && <div>너비 : {width}mm</div>}
             {depth && type === "finish" && <div>가로 : {depth}mm</div>}

@@ -26,6 +26,7 @@ import { Location } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import { trackClick, trackView } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
+import ProgressBar from "@/components/Progress/ProgressBar";
 
 
 // Hooks
@@ -35,8 +36,8 @@ function FlapDoorPageContent() {
     const item = useItemStore(state => state.item);
     const updateItem = useItemStore(state => state.updateItem);
 
-    // 초기값을 itemStore에서 읽어오기
-    const [boringNum, setBoringNum] = useState<2 | 3 | 4>(item?.boringNum || 2);
+    // 초기값을 itemStore에서 읽어오기 (기본값 없음)
+    const [boringNum, setBoringNum] = useState<2 | 3 | 4 | null>(item?.boringNum ?? null);
     const [doorWidth, setDoorWidth] = useState<number | null>(item?.door_width ?? null);
     const [doorHeight, setDoorHeight] = useState<number | null>(item?.door_height ?? null);
 
@@ -48,7 +49,12 @@ function FlapDoorPageContent() {
     const [addOn_hinge, setAddOn_hinge] = useState(item?.addOn_hinge ?? false);
     const [isDoorLocationSheetOpen, setIsDoorLocationSheetOpen] = useState(false);
     const [images, setImages] = useState<File[]>(item?.raw_images || []);
-    const [isDontKnowHingeCount, setIsDontKnowHingeCount] = useState(false);
+    
+    // 체크박스 초기 상태: 명시적으로 [null]인 경우만 모름 체크
+    const [isDontKnowHingeCount, setIsDontKnowHingeCount] = useState(() => {
+        // hinge 배열이 정확히 [null]인 경우만 모름 상태
+        return item?.hinge && item.hinge.length === 1 && item.hinge[0] === null;
+    });
     
     // 가로 입력 필드 ref
     const widthInputRef = useRef<HTMLInputElement>(null);
@@ -83,7 +89,7 @@ function FlapDoorPageContent() {
 
     // boringNum이 변경되면 hinge 배열 길이 맞추기
     useEffect(() => {
-        if (boringNum && hinge.length !== boringNum) {
+        if (boringNum !== null && hinge.length !== boringNum) {
             const newBoringSize = Array.from({ length: boringNum }, (_, i) =>
                 hinge && hinge[i] !== undefined ? hinge[i] : null,
             );
@@ -92,13 +98,17 @@ function FlapDoorPageContent() {
     }, [boringNum]);
 
     // 각 필드 변경 시 useItemStore에 저장
-    const handleBoringNumChange = (newBoringNum: 2 | 3 | 4) => {
+    const handleBoringNumChange = (newBoringNum: 2 | 3 | 4 | null) => {
         setBoringNum(newBoringNum);
-        const newBoringSize = Array.from({ length: newBoringNum }, (_, i) =>
-            hinge && hinge[i] !== undefined ? hinge[i] : null,
-        );
-        setHinge(newBoringSize);
-        updateItem({ boringNum: newBoringNum, hinge: newBoringSize });
+        if (newBoringNum !== null) {
+            const newBoringSize = Array.from({ length: newBoringNum }, (_, i) =>
+                hinge && hinge[i] !== undefined ? hinge[i] : null,
+            );
+            setHinge(newBoringSize);
+            updateItem({ boringNum: newBoringNum, hinge: newBoringSize });
+        } else {
+            updateItem({ boringNum: null, hinge: [] });
+        }
     };
 
     const handleDoorWidthChange = (newWidth: number | null) => {
@@ -144,9 +154,10 @@ function FlapDoorPageContent() {
     };
 
     return (
-        <div className="flex min-h-screen flex-col pt-[60px]">
+        <div className="flex min-h-screen flex-col pt-[90px]">
             <InitAmplitude />
             <TopNavigator />
+            <ProgressBar progress={80} />
             <Header
                 title={
                     "플랩문 정보를 입력해주세요"
@@ -235,8 +246,15 @@ function FlapDoorPageContent() {
                                     onChange={(checked) => {
                                         setIsDontKnowHingeCount(checked);
                                         if (checked) {
+                                            // 모름 체크: hinge를 [null]로 설정
                                             setHinge([null]);
-                                            updateItem({ hinge: [null] });
+                                            setBoringNum(null);
+                                            updateItem({ hinge: [null], boringNum: null });
+                                        } else {
+                                            // 모름 해제: 선택 초기화 (사용자가 직접 선택해야 함)
+                                            setHinge([]);
+                                            setBoringNum(null);
+                                            updateItem({ hinge: [], boringNum: null });
                                         }
                                     }}
                                 />
@@ -246,7 +264,7 @@ function FlapDoorPageContent() {
 
                         {boringError && <div className="px-1 text-sm text-red-500">{boringError}</div>}
 
-                        {!isDontKnowHingeCount && (
+                        {!isDontKnowHingeCount && boringNum !== null && (
                             <div>
                                 <div className="flex items-center justify-center pt-5">
                                 <FlapDoorPreview
@@ -320,7 +338,7 @@ function FlapDoorPageContent() {
                         type={"1button"}
                         button1Text={"다음"}
                         className="fixed bottom-0 w-full max-w-[460px]"
-                        button1Disabled={isFormValid() || !door_location || !boringNum}
+                        button1Disabled={isFormValid() || !door_location}
                         onButton1Click={() => {
                             trackClick({
                                 object_type: "button",

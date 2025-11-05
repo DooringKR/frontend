@@ -1,12 +1,13 @@
 "use client";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
-import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
+import ShoppingCartCardNew from "@/components/Card/ShoppingCartCardNew";
 import Header from "@/components/Header/Header";
 import ProgressBar from "@/components/Progress";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import PaymentNoticeCard from "@/components/PaymentNoticeCard";
+import { transformAccessoryToNewCardProps } from "@/utils/transformers/transformAccessoryToNewCardProps";
 
 import { ACCESSORY_CATEGORY_LIST } from "@/constants/category";
 import useItemStore from "@/store/itemStore";
@@ -76,19 +77,17 @@ function ReportPageContent() {
             <ProgressBar progress={100} />
             <Header size="Large" title={`${categoryTitle} 주문 개수를 선택해주세요`} />
             <div className="flex flex-col gap-[20px] px-5 pb-[100px] pt-5">
-                <ShoppingCartCard
-                    type="accessory"
-                    title={categoryTitle}
-                    manufacturer={item?.accessory_madeby ?? ""}
-                    modelName={item?.accessory_model ?? ""}
-                    quantity={0}
-                    trashable={false}
-                    showQuantitySelector={false}
-                    request={item.request ?? undefined}
-                    onOptionClick={() => {
-                        router.push(`/accessory/spec`);
-                    }}
-                />
+
+                <ShoppingCartCardNew {...transformAccessoryToNewCardProps(item)} />
+                
+                {/* 새로운 쇼핑카트 컴포넌트 테스트 */}
+                <div style={{ border: "3px solid red", padding: "10px", borderRadius: "8px" }}>
+                    <div style={{ fontSize: "12px", color: "red", marginBottom: "10px", fontWeight: "bold" }}>
+                        [테스트] 새로운 부속 카드 컴포넌트
+                    </div>
+                    
+                </div>
+                
                 <OrderSummaryCard
                     quantity={quantity}
                     unitPrice={unitPrice}

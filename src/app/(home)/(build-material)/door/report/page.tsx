@@ -1,13 +1,14 @@
 "use client";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
-import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
+import ShoppingCartCardNew from "@/components/Card/ShoppingCartCardNew";
 import ImageCard from "@/components/Card/ImageCard";
 import Header from "@/components/Header/Header";
 import ProgressBar from "@/components/Progress";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import PaymentNoticeCard from "@/components/PaymentNoticeCard";
+import { transformDoorToNewCardProps } from "@/utils/transformers/transformDoorToNewCardProps";
 
 import { DOOR_CATEGORY_LIST } from "@/constants/category";
 import useItemStore from "@/store/itemStore";
@@ -90,26 +91,11 @@ function DoorReportPageContent() {
             <ProgressBar progress={100} />
             <Header size="Large" title={`${item.type} 주문 개수를 선택해주세요`} />
             <div className="flex flex-col gap-[20px] px-5 pb-[100px] pt-5">
-                <ShoppingCartCard
-                    type="door"
-                    title={item.type}
-                    color={item?.color ? formatColor(item?.color ?? "") : "(직접입력) " + item?.door_color_direct_input}
-                    width={item?.door_width ?? undefined}
-                    height={item?.door_height ?? undefined}
-                    hingeCount={item?.hinge ? item.hinge.length : undefined}
-                    hingeDirection={item?.hinge_direction ?? undefined}
-                    boring={item?.hinge || undefined}
-                    boringCategory={item?.type as DoorType || undefined}
-                    quantity={0}
-                    trashable={false}
-                    showQuantitySelector={false}
-                    location={item?.door_location ?? undefined}
-                    addOn_hinge={item?.addOn_hinge ?? undefined}
-                    request={item?.door_request ?? undefined}
-                    onOptionClick={() => {
-                        router.push(`/door/${DOOR_CATEGORY_LIST.find(cat => cat.type === item.type)?.slug}`);
-                    }}
-                />
+
+                <ShoppingCartCardNew
+                        {...transformDoorToNewCardProps(item)}
+                    />
+
 
                 {/* 업로드된 이미지 표시 */}
                 <ImageCard images={item?.raw_images || []} />
