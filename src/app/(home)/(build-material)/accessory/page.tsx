@@ -63,7 +63,7 @@ function DoorCategoryPage() {
                                 category: ProductType.ACCESSORY,
                                 type: category.type as AccessoryType,
                             });
-                            router.push(`/accessory/spec`);
+                            router.push(`/accessory/${category.slug}`);
                         }}
                     >
                         <div className="relative aspect-square w-full">

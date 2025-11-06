@@ -80,14 +80,6 @@ function ReportPageContent() {
 
                 <ShoppingCartCardNew {...transformAccessoryToNewCardProps(item)} />
                 
-                {/* 새로운 쇼핑카트 컴포넌트 테스트 */}
-                <div style={{ border: "3px solid red", padding: "10px", borderRadius: "8px" }}>
-                    <div style={{ fontSize: "12px", color: "red", marginBottom: "10px", fontWeight: "bold" }}>
-                        [테스트] 새로운 부속 카드 컴포넌트
-                    </div>
-                    
-                </div>
-                
                 <OrderSummaryCard
                     quantity={quantity}
                     unitPrice={unitPrice}
