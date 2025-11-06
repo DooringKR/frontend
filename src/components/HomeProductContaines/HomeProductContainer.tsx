@@ -95,7 +95,6 @@ const HomeProductContainer: React.FC = () => {
   return (
     <div className="flex flex-col items-center gap-6 px-5">
       <InitAmplitude />
-      <OrderGuideCard onClick={() => window.open("https://dooring.notion.site/2a3b6a70ff3980cbb38dddab4b4f1a1c?pvs=74", "_blank")} />
       <div className="grid grid-cols-3 items-stretch justify-items-stretch gap-5 w-full h-full">
         {productList.map((item, idx) => (
           <HomeProductButton
@@ -108,6 +107,7 @@ const HomeProductContainer: React.FC = () => {
           />
         ))}
       </div>
+      <OrderGuideCard onClick={() => window.open("https://dooring.notion.site/2a3b6a70ff3980cbb38dddab4b4f1a1c?pvs=74", "_blank")} />
     </div>
   );
 };
