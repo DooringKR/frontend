@@ -44,11 +44,8 @@ function FlapDoorPageContent() {
     // boringSize 초기값 설정 (hinge로 통일)
     const [hinge, setHinge] = useState<(number | null)[]>(item?.hinge ?? []);
 
-    const [request, setRequest] = useState(item?.door_request ?? "");
     const [door_location, setDoorLocation] = useState(item?.door_location ?? "");
-    const [addOn_hinge, setAddOn_hinge] = useState(item?.addOn_hinge ?? false);
     const [isDoorLocationSheetOpen, setIsDoorLocationSheetOpen] = useState(false);
-    const [images, setImages] = useState<File[]>(item?.raw_images || []);
     
     // 체크박스 초기 상태: 명시적으로 [null]인 경우만 모름 체크
     const [isDontKnowHingeCount, setIsDontKnowHingeCount] = useState(() => {
@@ -126,11 +123,6 @@ function FlapDoorPageContent() {
         updateItem({ hinge: newBoringSize });
     };
 
-    const handleRequestChange = (newRequest: string) => {
-        setRequest(newRequest);
-        updateItem({ door_request: newRequest });
-    };
-
     const handleDoorLocationChange = (newLocation: string) => {
         setDoorLocation(newLocation);
         updateItem({ door_location: newLocation });
@@ -140,17 +132,6 @@ function FlapDoorPageContent() {
         setTimeout(() => {
             widthInputRef.current?.focus();
         }, 300); // 시트 닫히는 애니메이션 후 포커스 이동
-    };
-
-    const handleAddOnHingeChange = (newAddOnHinge: boolean) => {
-        setAddOn_hinge(newAddOnHinge);
-        updateItem({ addOn_hinge: newAddOnHinge });
-    };
-
-    const handleImagesChange = (newImages: File[]) => {
-        setImages(newImages);
-        updateItem({ raw_images: newImages });
-        console.log('이미지 업로드됨:', newImages.length, '개');
     };
 
     return (
@@ -308,28 +289,6 @@ function FlapDoorPageContent() {
                         )}
                     </>
                 )}
-                <div className="flex w-full flex-col gap-3">
-                    <div className="text-gray-600 text-sm font-medium">경첩 추가 선택</div>
-                    <div className="flex justify-start items-center gap-2">
-                        <Checkbox 
-                            checked={addOn_hinge} 
-                            onChange={(checked) => handleAddOnHingeChange(checked)}
-                        />
-                        <div className="text-center justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-6">경첩도 같이 받을래요</div>
-                    </div>
-                </div>
-                <BoxedInput
-                    label="제작 시 요청사항"
-                    placeholder="제작 시 요청사항 | 예) 시공도 필요해요, …"
-                    value={request}
-                    onChange={e => handleRequestChange(e.target.value)}
-                />
-                <ImageUploadInput
-                    label="이미지 첨부"
-                    placeholder="이미지를 첨부해주세요"
-                    value={images}
-                    onChange={handleImagesChange}
-                />
             </div>
             <div className="h-[100px]"></div>
             {!isDoorLocationSheetOpen &&
@@ -346,7 +305,7 @@ function FlapDoorPageContent() {
                                 current_page: getScreenName(),
                                 modal_name: null,
                             });
-                            router.push("/door/report");
+                            router.push("/door/flap/additional");
                         }}
                     />
                 </div>

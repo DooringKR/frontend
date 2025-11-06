@@ -66,11 +66,8 @@ function StandardDoorPageContent() {
     // boringSize 초기값 설정
     const [hinge, setHinge] = useState<(number | null)[]>(item?.hinge ?? []);
 
-    const [door_request, setDoorRequest] = useState(item?.door_request ?? "");
     const [door_location, setDoorLocation] = useState(item?.door_location ?? "");
-    const [addOn_hinge, setAddOn_hinge] = useState(item?.addOn_hinge ?? false);
     const [isDoorLocationSheetOpen, setIsDoorLocationSheetOpen] = useState(false);
-    const [images, setImages] = useState<File[]>(item?.raw_images || []);
     
     // 체크박스 초기 상태: 명시적으로 UNKNOWN이거나 [null]인 경우만 모름 체크
     const [isDontKnowHingeCount, setIsDontKnowHingeCount] = useState(() => {
@@ -154,11 +151,6 @@ function StandardDoorPageContent() {
         updateItem({ hinge: newBoringSize });
     };
 
-    const handleRequestChange = (newRequest: string) => {
-        setDoorRequest(newRequest);
-        updateItem({ door_request: newRequest });
-    };
-
     const handleDoorLocationChange = (newLocation: string) => {
         setDoorLocation(newLocation);
         updateItem({ door_location: newLocation });
@@ -170,22 +162,11 @@ function StandardDoorPageContent() {
         }, 300); // 시트 닫히는 애니메이션 후 포커스 이동
     };
 
-    const handleImagesChange = (newImages: File[]) => {
-        setImages(newImages);
-        updateItem({ raw_images: newImages });
-        console.log('이미지 업로드됨:', newImages.length, '개');
-    };
-
-    const handleAddOnHingeChange = (newAddOnHinge: boolean) => {
-        setAddOn_hinge(newAddOnHinge);
-        updateItem({ addOn_hinge: newAddOnHinge });
-    };
-
     return (
         <div className="flex min-h-screen flex-col pt-[90px]">
             <InitAmplitude />
             <TopNavigator />
-            <ProgressBar progress={80} />
+            <ProgressBar progress={60} />
             <Header
                 title={
                     "일반문 정보를 입력해주세요"
@@ -290,27 +271,6 @@ function StandardDoorPageContent() {
                                 <div className="text-center justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-6">모름</div>
                             </div>
                         </div>
-                        {/* <div className="flex flex-col gap-2">
-                            <div className="w-full text-[14px] font-400 text-gray-600"> 경첩</div>
-                            <div className="flex flex-row gap-2">
-                                <Button
-                                    type={boringNum == 2 ? "BrandInverse" : "GrayLarge"}
-                                    text={"2개"}
-                                    onClick={() => handleBoringNumChange(2)}
-                                />
-                                <Button
-                                    type={boringNum == 3 ? "BrandInverse" : "GrayLarge"}
-                                    text={"3개"}
-                                    onClick={() => handleBoringNumChange(3)}
-                                />
-                                <Button
-                                    type={boringNum == 4 ? "BrandInverse" : "GrayLarge"}
-                                    text={"4개"}
-                                    onClick={() => handleBoringNumChange(4)}
-                                />
-                            </div>
-                            {boringError && <div className="px-1 text-sm text-red-500">{boringError}</div>}
-                        </div> */}
 
                         <div className="w-full text-[14px] font-400 text-gray-600"> 경첩 방향</div>
                         <div className="self-stretch inline-flex justify-center items-center gap-5">
@@ -427,28 +387,6 @@ function StandardDoorPageContent() {
                         
                     </>
                 )}
-                <BoxedInput
-                    label="제작 시 요청사항"
-                    placeholder="제작 시 요청사항 | 예) 시공도 필요해요, …"
-                    value={door_request}
-                    onChange={e => handleRequestChange(e.target.value)}
-                />
-
-                <div className="w-full text-[14px] font-400 text-gray-600"> 추가선택</div>
-
-                <div className="flex justify-start items-center gap-2">
-                    <Checkbox 
-                        checked={addOn_hinge} 
-                        onChange={handleAddOnHingeChange}
-                    />
-                    <div className="text-center justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-6">경첩도 같이 받을래요</div>
-                </div>
-                <ImageUploadInput
-                    label="이미지 첨부"
-                    placeholder="이미지를 첨부해주세요"
-                    value={images}
-                    onChange={handleImagesChange}
-                />
             </div>
             <div className="h-[100px]"></div>
             {!isDoorLocationSheetOpen &&
@@ -465,7 +403,7 @@ function StandardDoorPageContent() {
                                 current_page: getScreenName(),
                                 modal_name: null,
                             });
-                            router.push("/door/report");
+                            router.push("/door/standard/additional");
                         }}
                     />
                 </div>

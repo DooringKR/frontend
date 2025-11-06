@@ -34,10 +34,8 @@ function DrawerDoorPageContent() {
     const [doorWidth, setDoorWidth] = useState<number | null>(item?.door_width ?? null);
     const [doorHeight, setDoorHeight] = useState<number | null>(item?.door_height ?? null);
 
-    const [request, setRequest] = useState(item?.door_request ?? "");
     const [door_location, setDoorLocation] = useState(item?.door_location ?? "");
     const [isDoorLocationSheetOpen, setIsDoorLocationSheetOpen] = useState(false);
-    const [images, setImages] = useState<File[]>(item?.raw_images || []);
     
     // 가로 입력 필드 ref
     const widthInputRef = useRef<HTMLInputElement>(null);
@@ -79,11 +77,6 @@ function DrawerDoorPageContent() {
         updateItem({ door_height: newHeight });
     };
 
-    const handleRequestChange = (newRequest: string) => {
-        setRequest(newRequest);
-        updateItem({ door_request: newRequest });
-    };
-
     const handleDoorLocationChange = (newLocation: string) => {
         setDoorLocation(newLocation);
         updateItem({ door_location: newLocation });
@@ -95,17 +88,11 @@ function DrawerDoorPageContent() {
         }, 300); // 시트 닫히는 애니메이션 후 포커스 이동
     };
 
-    const handleImagesChange = (newImages: File[]) => {
-        setImages(newImages);
-        updateItem({ raw_images: newImages });
-        console.log('이미지 업로드됨:', newImages.length, '개');
-    };
-
     return (
         <div className="flex min-h-screen flex-col pt-[90px]">
             <InitAmplitude />
             <TopNavigator />
-            <ProgressBar progress={80} />
+            <ProgressBar progress={60} />
             <Header
                 title={
                     "서랍 마에다 정보를 입력해주세요"
@@ -162,19 +149,6 @@ function DrawerDoorPageContent() {
                     error={!!heightError}
                     helperText={heightError}
                 />
-
-                <BoxedInput
-                    label="제작 시 요청사항"
-                    placeholder="제작 시 요청사항 | 예) 시공도 필요해요, …"
-                    value={request}
-                    onChange={e => handleRequestChange(e.target.value)}
-                />
-                <ImageUploadInput
-                    label="이미지 첨부"
-                    placeholder="이미지를 첨부해주세요"
-                    value={images}
-                    onChange={handleImagesChange}
-                />
             </div>
             <div className="h-[100px]"></div>
             {!isDoorLocationSheetOpen &&
@@ -191,7 +165,7 @@ function DrawerDoorPageContent() {
                                 current_page: getScreenName(),
                                 modal_name: null,
                             });
-                            router.push("/door/report");
+                            router.push("/door/drawer/additional");
                         }}
                     />
                 </div>
