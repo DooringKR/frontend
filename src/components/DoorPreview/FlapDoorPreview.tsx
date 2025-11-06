@@ -73,7 +73,7 @@ const FlapDoorPreview: React.FC<FlapDoorPreviewProps> = ({
         height: `${doorHeight}px`,
         position: "relative",
         borderRadius: "8px",
-        border: "2px solid #E5E7EB",
+        // border: "2px solid #E5E7EB",
         overflow: "visible",
       }}
     >
@@ -85,7 +85,7 @@ const FlapDoorPreview: React.FC<FlapDoorPreviewProps> = ({
           fill
           style={{
             objectFit: "cover",
-            borderRadius: "6px",
+            borderRadius: "8px",
           }}
         />
       ) : (
@@ -94,7 +94,7 @@ const FlapDoorPreview: React.FC<FlapDoorPreviewProps> = ({
             width: "100%",
             height: "100%",
             backgroundColor: doorColor || "#F9FAFB",
-            borderRadius: "6px",
+            borderRadius: "8px",
           }}
         />
       )}
