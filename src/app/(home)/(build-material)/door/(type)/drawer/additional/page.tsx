@@ -9,6 +9,7 @@ import ProgressBar from "@/components/Progress";
 import BoxedInput from "@/components/Input/BoxedInput";
 import ImageUploadInput from "@/components/Input/ImageUploadInput";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import Checkbox from "@/components/Checkbox";
 
 import useItemStore from "@/store/itemStore";
 
@@ -35,6 +36,7 @@ function DrawerDoorAdditionalPageContent() {
     }, []);
 
     const [door_request, setDoorRequest] = useState(item?.door_request ?? "");
+    const [door_construct, setDoorConstruct] = useState(item?.door_construct ?? false);
     const [images, setImages] = useState<File[]>(item?.raw_images || []);
 
     const handleRequestChange = (newRequest: string) => {
@@ -46,6 +48,11 @@ function DrawerDoorAdditionalPageContent() {
         setImages(newImages);
         updateItem({ raw_images: newImages });
         console.log('이미지 업로드됨:', newImages.length, '개');
+    };
+
+    const handleDoorConstructChange = (newDoorConstruct: boolean) => {
+        setDoorConstruct(newDoorConstruct);
+        updateItem({ door_construct: newDoorConstruct });
     };
 
     return (
@@ -61,10 +68,20 @@ function DrawerDoorAdditionalPageContent() {
             <div className="flex flex-1 flex-col gap-5 px-5">
                 <BoxedInput
                     label="제작 시 요청사항"
-                    placeholder="제작 시 요청사항 | 예) 시공도 필요해요, …"
+                    placeholder="제작 시 요청사항을 입력해주세요"
                     value={door_request}
                     onChange={e => handleRequestChange(e.target.value)}
                 />
+
+                <div className="w-full text-[14px] font-400 text-gray-600"> 추가선택</div>
+
+                <div className="flex justify-start items-center gap-2">
+                    <Checkbox 
+                        checked={door_construct} 
+                        onChange={handleDoorConstructChange}
+                    />
+                    <div className="text-center justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-6">시공도 필요해요</div>
+                </div>
                 
                 <ImageUploadInput
                     label="이미지 첨부"

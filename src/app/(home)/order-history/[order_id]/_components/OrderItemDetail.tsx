@@ -151,12 +151,17 @@ export default function OrderItemDetail({ item }: OrderItemDetailProps) {
                 용도 ∙ 장소: {formatLocation(item.materialDetails.door_location)}
               </p>
             )}
-            {item.materialDetails.addOn_hinge && (
-              <p className="text-[15px]/[22px] font-400 text-gray-600">
-                경첩 추가 선택 :{" "}
-                {item.materialDetails.addOn_hinge ? "경첩도 받기" : "필요 없어요"}
-              </p>
-            )}
+            {(item.materialDetails.addOn_hinge !== undefined || item.materialDetails.door_construct !== undefined) && (() => {
+              const options: string[] = [];
+              if (item.materialDetails.addOn_hinge) options.push("경첩도 같이 받을래요");
+              if (item.materialDetails.door_construct) options.push("시공도 필요해요");
+              const displayValue = options.length > 0 ? options.join(", ") : "없음";
+              return (
+                <p className="text-[15px]/[22px] font-400 text-gray-600">
+                  추가 선택 : {displayValue}
+                </p>
+              );
+            })()}
           </>
         );
       }

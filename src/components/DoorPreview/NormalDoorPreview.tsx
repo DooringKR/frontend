@@ -110,6 +110,7 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
       : null;
 
     return (
+
       <div
         style={{
           width: `${doorWidth}px`,
@@ -302,6 +303,7 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
           }}
         />
       </div>
+
     );
   })();
 
