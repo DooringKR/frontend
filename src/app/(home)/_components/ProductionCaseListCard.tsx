@@ -2,7 +2,7 @@ import { Chip } from "@/components/Chip/Chip";
 
 export default function ProductionCaseListCard() {
     return (
-        <div className="px-5 py-[80px] flex flex-col gap-3">
+        <div className="px-5 py-[40px] flex flex-col gap-3">
             <div className="flex flex-col gap-1">
                 <div className="text-[20px]/[28px] font-700 text-gray-800">실제 제작 사례</div>
                 <div className="text-[16px]/[22px] font-400 text-gray-500">고객 사례 레퍼런스를 확인해보세요.</div>
