@@ -311,7 +311,7 @@ function StandardDoorPageContent() {
                         {/* 분기 1: 경첩 개수도 알고 방향도 아는 경우 (기본 케이스) */}
                         {!isDontKnowHingeCount && !isDontKnowHingeDirection && boringNum !== null && hinge_direction !== null && (
                             <div>
-                                <div className="flex items-center justify-center pt-5">
+                                <div className="w-full flex items-center justify-center px-5 pt-5">
                                 <NormalDoorPreview
                                     DoorWidth={door_width}
                                     DoorHeight={door_height}

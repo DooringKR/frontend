@@ -23,6 +23,7 @@ export interface DoorItem {
   addOn_hinge?: boolean;
   door_request?: string;
   raw_images?: string[];
+  door_construct?: boolean;
 }
 
 /**
@@ -109,6 +110,7 @@ export function transformDoorToNewCardProps(item: DoorItem) {
       hingeDirection,
       boringDimensions,
       location: item.door_location,
+      doorConstruct: item.door_construct,
       addOnHinge: item.addOn_hinge,
       request: item.door_request,
     };
@@ -125,6 +127,7 @@ export function transformDoorToNewCardProps(item: DoorItem) {
       hingeCount,
       boringDimensions,
       location: item.door_location,
+      doorConstruct: item.door_construct,
       addOnHinge: item.addOn_hinge,
       request: item.door_request,
     };
@@ -140,6 +143,7 @@ export function transformDoorToNewCardProps(item: DoorItem) {
       width,
       height,
       location: item.door_location,
+      doorConstruct: item.door_construct,
       request: item.door_request,
     };
     return { 
