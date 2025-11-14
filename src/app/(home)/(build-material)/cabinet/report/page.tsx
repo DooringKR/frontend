@@ -1,7 +1,7 @@
 "use client";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
-import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
+import ShoppingCartCardNew from "@/components/Card/ShoppingCartCardNew";
 import ImageCard from "@/components/Card/ImageCard";
 import Header from "@/components/Header/Header";
 import ProgressBar from "@/components/Progress";
@@ -21,6 +21,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import formatColor from "@/utils/formatColor";
+import { transformCabinetToNewCardProps } from "@/utils/transformers/transformCabinetToNewCardProps";
 import { CrudCartItemUsecase } from "@/DDD/usecase/crud_cart_item_usecase";
 import { CrudInteriorMaterialsUsecase } from "@/DDD/usecase/crud_interior_materials_usecase";
 import useCartStore from "@/store/cartStore";
@@ -330,37 +331,9 @@ function ReportPageContent() {
 			<ProgressBar progress={100} />
 			<Header size="Large" title={`${item?.type ?? ""} 주문 개수를 선택해주세요`} />
 			<div className="flex flex-col gap-[20px] px-5 pb-[100px] pt-5">
-				<ShoppingCartCard
-					type="cabinet"
-					title={item?.type ?? ""}
-					color={item?.color ? formatColor(item?.color ?? "") : "(직접입력) " + item?.cabinet_color_direct_input}
-					depth={item?.depth ? Number(item.depth) : undefined}
-					height={item?.height ? Number(item.height) : undefined}
-					width={item?.width ? Number(item.width) : undefined}
-					bodyMaterial={bodyMaterialName}
-					body_material_direct_input={item.body_material_direct_input}
-					absorberType={item.absorber_type !== undefined ? String(item.absorber_type) : undefined}
-					absorber_type_direct_input={item.absorber_type_direct_input}
-					handleType={item?.handleType ?? undefined}
-					behindType={item?.finishType ?? undefined}
-					drawerType={item?.drawer_type ?? undefined}
-					drawer_type_direct_input={item?.drawer_type_direct_input ? "(직접입력) " + item.drawer_type_direct_input : undefined}
-					railType={item?.rail_type ?? undefined}
-					rail_type_direct_input={item?.rail_type_direct_input ? "(직접입력) " + item.rail_type_direct_input : undefined}
-					location={item.cabinet_location ?? undefined}
-					cabinet_construct={item.cabinet_construct ?? undefined}
-					legType={item.legType ?? undefined}
-					legType_direct_input={item.legType_direct_input ?? undefined}
-					// 오픈장만 표시
-					addRiceCookerRail={item.type === "오픈장" ? addRiceCookerRail : undefined}
-					addBottomDrawer={item.type === "오픈장" ? addBottomDrawer : undefined}
-					quantity={0}
-					trashable={false}
-					showQuantitySelector={false}
-					request={item.request ?? undefined}
-					onOptionClick={() => {
-						router.push(`/cabinet/${item.category}`);
-					}}
+
+				<ShoppingCartCardNew
+					{...transformCabinetToNewCardProps(item)}
 				/>
 
 				{/* 업로드된 이미지 표시 */}

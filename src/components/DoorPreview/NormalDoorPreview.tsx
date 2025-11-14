@@ -110,13 +110,14 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
       : null;
 
     return (
+
       <div
         style={{
           width: `${doorWidth}px`,
           height: `${doorHeight}px`,
           position: "relative",
           borderRadius: "8px",
-          border: "2px solid #E5E7EB",
+          // border: "2px solid #E5E7EB",
           overflow: "visible",
         }}
       >
@@ -128,7 +129,7 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
             fill
             style={{
               objectFit: "cover",
-              borderRadius: "6px",
+              borderRadius: "8px",
             }}
           />
         ) : (
@@ -137,7 +138,7 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
               width: "100%",
               height: "100%",
               backgroundColor: doorColor || "#F9FAFB",
-              borderRadius: "6px",
+              borderRadius: "8px",
             }}
           />
         )}
@@ -302,6 +303,7 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
           }}
         />
       </div>
+
     );
   })();
 

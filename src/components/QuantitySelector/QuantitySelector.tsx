@@ -8,6 +8,7 @@ interface QuantitySelectorProps {
     quantity: number;
     onDecrease?: () => void;
     onIncrease?: () => void;
+    onTrash?: () => void;
 }
 
 const QuantitySelector: React.FC<QuantitySelectorProps> = ({
@@ -15,6 +16,7 @@ const QuantitySelector: React.FC<QuantitySelectorProps> = ({
     quantity,
     onDecrease,
     onIncrease,
+    onTrash,
 }) => {
     return (
         <div className="flex items-center bg-white">
@@ -27,7 +29,7 @@ const QuantitySelector: React.FC<QuantitySelectorProps> = ({
                     (e.currentTarget.style.background = "linear-gradient(90deg, #F3F4F6 0%, #FFF 100%)")
                 }
                 onMouseLeave={e => (e.currentTarget.style.background = "")}
-                onClick={onDecrease}
+                onClick={trashable && quantity === 1 && onTrash ? onTrash : onDecrease}
                 aria-label="수량 감소"
             >
                 {trashable && quantity === 1 ? (

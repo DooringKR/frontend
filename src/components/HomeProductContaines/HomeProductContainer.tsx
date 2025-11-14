@@ -13,6 +13,7 @@ import {
 } from "@/store/singleCartStore";
 
 import HomeProductButton from "./HomeProductButton";
+import OrderGuideCard from "./OrderGuideCard";
 import AttachedIcon from "./Icons/Attached";
 import CustomOrderIcon from "./Icons/CustomOrder";
 import DoorIcon from "./Icons/Door";
@@ -106,6 +107,7 @@ const HomeProductContainer: React.FC = () => {
           />
         ))}
       </div>
+      <OrderGuideCard onClick={() => window.open("https://dooring.notion.site/2a3b6a70ff3980cbb38dddab4b4f1a1c?pvs=74", "_blank")} />
     </div>
   );
 };

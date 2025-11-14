@@ -35,7 +35,36 @@ export default function OrderItemDetail({ item }: OrderItemDetailProps) {
     switch (item.detail_product_type) {
       case DetailProductType.DOOR: {
         const hinge = item?.materialDetails?.hinge;
-        const hingeCount = Array.isArray(hinge) ? hinge.length : undefined;
+        
+        // 경첩 개수 처리: ShoppingCartCardNew와 동일한 방식
+        let hingeCount: number | "모름" | undefined;
+        if (!hinge) {
+          hingeCount = undefined;
+        } else if (Array.isArray(hinge) && hinge.length === 1 && hinge[0] === null) {
+          hingeCount = "모름";
+        } else if (Array.isArray(hinge)) {
+          hingeCount = hinge.length;
+        }
+
+        // 경첩 방향 처리: ShoppingCartCardNew와 동일한 방식
+        let hingeDirection: "좌경" | "우경" | "모름" | undefined;
+        if (item.materialDetails.hinge_direction === "LEFT") {
+          hingeDirection = "좌경";
+        } else if (item.materialDetails.hinge_direction === "RIGHT") {
+          hingeDirection = "우경";
+        } else if (item.materialDetails.hinge_direction === "UNKNOWN") {
+          hingeDirection = "모름";
+        } else {
+          hingeDirection = item.materialDetails.hinge_direction as any;
+        }
+
+        // 보링 치수 처리: 경첩 개수와 방향을 둘 다 알 때만 표시
+        let boringDimensions: (number | "모름")[] | undefined;
+        if (Array.isArray(hinge) && 
+            hinge.length > 1 && 
+            item.materialDetails.hinge_direction !== "UNKNOWN") {
+          boringDimensions = hinge.map(val => val === null ? "모름" : val);
+        }
 
         // 이미지 URL 처리 - materialDetails에서 가져오기
         let imageArray: string[] = [];
@@ -97,17 +126,19 @@ export default function OrderItemDetail({ item }: OrderItemDetailProps) {
               {item.materialDetails.door_height ? item.materialDetails.door_height.toLocaleString() : "-"}
               mm
             </p>
-            <p className="text-[15px]/[22px] font-400 text-gray-600">
-              경첩 개수 : {hingeCount ?? "-"}개
-            </p>
-            {Array.isArray(hinge) && hinge.length > 0 && (
+            {hingeCount !== undefined && (
               <p className="text-[15px]/[22px] font-400 text-gray-600">
-                경첩 위치 : {hinge.filter(Boolean).join(", ")}
+                경첩 개수 : {hingeCount === "모름" ? "모름" : `${hingeCount}개`}
               </p>
             )}
-            {item.materialDetails.hinge_direction && (
+            {hingeDirection && (
               <p className="text-[15px]/[22px] font-400 text-gray-600">
-                경첩 방향 : {item.materialDetails.hinge_direction}
+                경첩 방향 : {hingeDirection}
+              </p>
+            )}
+            {boringDimensions && boringDimensions.length > 0 && (
+              <p className="text-[15px]/[22px] font-400 text-gray-600">
+                경첩 위치 : {boringDimensions.join(", ")}
               </p>
             )}
             {item.materialDetails.door_request && (
@@ -120,12 +151,17 @@ export default function OrderItemDetail({ item }: OrderItemDetailProps) {
                 용도 ∙ 장소: {formatLocation(item.materialDetails.door_location)}
               </p>
             )}
-            {item.materialDetails.addOn_hinge && (
-              <p className="text-[15px]/[22px] font-400 text-gray-600">
-                경첩 추가 선택 :{" "}
-                {item.materialDetails.addOn_hinge ? "경첩도 받기" : "필요 없어요"}
-              </p>
-            )}
+            {(item.materialDetails.addOn_hinge !== undefined || item.materialDetails.door_construct !== undefined) && (() => {
+              const options: string[] = [];
+              if (item.materialDetails.addOn_hinge) options.push("경첩도 같이 받을래요");
+              if (item.materialDetails.door_construct) options.push("시공도 필요해요");
+              const displayValue = options.length > 0 ? options.join(", ") : "없음";
+              return (
+                <p className="text-[15px]/[22px] font-400 text-gray-600">
+                  추가 선택 : {displayValue}
+                </p>
+              );
+            })()}
           </>
         );
       }

@@ -1,6 +1,4 @@
 "use client";
-
-import { DOOR_COLOR_LIST, CABINET_COLOR_LIST, FINISH_COLOR_LIST } from "@/constants/colorList";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { CrudInteriorMaterialsUsecase } from "@/DDD/usecase/crud_interior_materials_usecase";
@@ -15,23 +13,20 @@ import { Piece } from "dooring-core-domain/dist/models/InteriorMaterials/Hardwar
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import Button from "@/components/Button/Button";
-import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
+
+import ShoppingCartCardNew from "@/components/Card/ShoppingCartCardNew";
 import PriceSummaryCard from "@/components/PriceCheckCard/PriceSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import { transformCartItemToNewCardProps } from "@/utils/transformers/transformCartItemToNewCardProps";
 
 import useCartStore from "@/store/cartStore";
 import useCartItemStore from "@/store/cartItemStore";
-// import { formatBoringDirection } from "@/utils/formatBoring";
-// import formatColor from "@/utils/formatColor";
-// import { getCategoryLabel } from "@/utils/getCategoryLabel";
 import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 import { CartItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/CartItem";
 import { ReadCartItemsUsecase } from "@/DDD/usecase/read_cart_items_usecase";
 import { UpdateCartItemCountUsecase } from "@/DDD/usecase/update_cart_item_count_usecase";
 import { CartItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/cartitem_supabase_repository";
-import { CABINET_DRAWER_TYPE_LIST } from "@/constants/cabinetdrawertype";
 import { useOrderStore } from "@/store/orderStore";
-import formatColor from "@/utils/formatColor";
 import { track } from "@amplitude/analytics-browser";
 import { trackClick } from "@/services/analytics/amplitude";
 import { getScreenName } from "@/utils/screenName";
@@ -260,189 +255,22 @@ export default function CartClient() {
           <div className="mb-4 flex flex-col gap-3">
             {cartItemDetails.map(({ cartItem, detail }, i) => {
               if (!cartItem) return null;
+              
               const category = cartItem.detail_product_type;
               const key = `${category}-${i}`;
-              const commonProps = {
-                trashable: true,
-                onIncrease: () => handleCountChange(category, i, (cartItem.item_count ?? 0) + 1),
-                onDecrease: () => handleCountChange(category, i, (cartItem.item_count ?? 0) - 1),
-                onRemove: () => { if (cartItem.id) handleCountChange(category, i, 0); },
-              };
+              const cardProps = transformCartItemToNewCardProps(cartItem, detail);
+              
+              if (!cardProps) return null;
 
-              // DOOR
-              if (category === DetailProductType.DOOR && detail) {
-                const colorName = DOOR_COLOR_LIST.find(c => c.id === detail.door_color)?.name || detail.door_color;
-                return (
-                  <ShoppingCartCard
-                    key={key}
-                    type="door"
-                    totalPrice={cartItem.unit_price * cartItem.item_count}
-                    title={category || "일반문"}
-                    color={formatColor(colorName) || "(직접입력) " + (detail.door_color_direct_input || "")}
-                    width={Number(detail.door_width)}
-                    height={Number(detail.door_height)}
-                    hingeCount={detail.hinge?.length > 0 ? detail.hinge.length : undefined}
-                    hingeDirection={detail.hinge_direction}
-                    boring={detail.hinge}
-                    location={detail.door_location ?? ""}
-                    quantity={cartItem.item_count}
-                    showQuantitySelector={true}
-                    addOn_hinge={detail.addOn_hinge ?? undefined}
-                    request={detail.door_request ?? undefined}
-                    images_url={detail.door_image_url as string[] | undefined}
-                    {...commonProps}
-                  />
-                );
-              }
-              // FINISH
-              if (category === DetailProductType.FINISH && detail) {
-                const colorName = FINISH_COLOR_LIST.find(c => c.id === detail.finish_color)?.name || detail.finish_color;
-                return (
-                  <ShoppingCartCard
-                    key={key}
-                    type="finish"
-                    totalPrice={cartItem.unit_price * cartItem.item_count}
-                    title={category || "마감재"}
-                    color={formatColor(colorName) || "(직접입력) " + (detail.finish_color_direct_input || "")}
-                    edgeCount={detail.finish_edge_count ?? undefined}
-                    depth={detail.finish_base_depth}
-                    depthIncrease={detail.finish_additional_depth ?? undefined}
-                    height={detail.finish_base_height}
-                    heightIncrease={detail.finish_additional_height ?? undefined}
-                    request={detail.finish_request ?? undefined}
-                    location={detail.finish_location ?? ""}
-                    quantity={cartItem.item_count}
-                    showQuantitySelector={true}
-                    images_url={detail.finish_image_url as string[] | undefined}
-                    {...commonProps}
-                  />
-                );
-              }
-              // CABINET
-              if ((category === DetailProductType.UPPERCABINET || category === DetailProductType.LOWERCABINET || category === DetailProductType.TALLCABINET || category === DetailProductType.FLAPCABINET || category === DetailProductType.DRAWERCABINET || category === DetailProductType.OPENCABINET) && detail) {
-                const colorName = CABINET_COLOR_LIST.find(c => c.id === detail.cabinet_color)?.name || detail.cabinet_color;
-                const behindTypeEnum = detail.behind_type ?? detail.cabinet_behind_type ?? "";
-                const behindTypeLabel =
-                  behindTypeEnum === "URAHOME" ? "우라홈" :
-                    behindTypeEnum === "MAK_URA" ? "막우라" :
-                      behindTypeEnum;
-                // robust: 서랍장 직접입력 지원
-                let drawerTypeLabel = "";
-                if (category === DetailProductType.DRAWERCABINET) {
-                  if (detail.drawer_type === 4 && detail.drawer_type_direct_input) {
-                    drawerTypeLabel = "(직접입력) " + detail.drawer_type_direct_input;
-                  } else {
-                    const found = CABINET_DRAWER_TYPE_LIST.find(opt => opt.id === detail.drawer_type);
-                    drawerTypeLabel = found ? found.name : (detail.drawer_type ?? "");
-                  }
-                } else {
-                  drawerTypeLabel = detail.drawer_type ?? "";
-                }
-                // 오픈장: robust 밥솥 레일/하부장 추가 여부
-                const addRiceCookerRail = category === DetailProductType.OPENCABINET ? detail.add_rice_cooker_rail : undefined;
-                const addBottomDrawer = category === DetailProductType.OPENCABINET ? detail.add_bottom_drawer : undefined;
-                return (
-                  <ShoppingCartCard
-                    key={key}
-                    type="cabinet"
-                    totalPrice={cartItem.unit_price * cartItem.item_count}
-                    title={category || "부분장"}
-                    color={formatColor(colorName) || "(직접입력) " + (detail.cabinet_color_direct_input || "")}
-                    width={Number(detail.cabinet_width ?? 0)}
-                    height={Number(detail.cabinet_height ?? 0)}
-                    depth={Number(detail.cabinet_depth ?? 0)}
-                    bodyMaterial={detail.cabinet_body_material ?? ""}
-                    body_material_direct_input={detail.cabinet_body_material_direct_input ? "(직접입력) " + detail.cabinet_body_material_direct_input : ""}
-                    absorberType={detail.absorber_type ?? ""}
-                    absorber_type_direct_input={detail.absorber_type_direct_input ? "(직접입력) " + detail.absorber_type_direct_input : ""}
-                    handleType={detail.handle_type ?? ""}
-                    behindType={behindTypeLabel}
-                    drawerType={drawerTypeLabel}
-                    railType={detail.rail_type ?? detail.rail_type_direct_input ? "(직접입력) " + detail.rail_type_direct_input : ""}
-                    request={detail.cabinet_request ?? ""}
-                    location={detail.cabinet_location ?? ""}
-                    quantity={cartItem.item_count ?? 0}
-                    showQuantitySelector={true}
-                    cabinet_construct={detail.cabinet_construct ?? undefined}
-                    legType={detail.legType ?? undefined}
-                    legType_direct_input={detail.legType_direct_input ?? undefined}
-                    addRiceCookerRail={addRiceCookerRail}
-                    addBottomDrawer={addBottomDrawer}
-                    images_url={detail.cabinet_image_url as string[] | undefined}
-                    {...commonProps}
-                  />
-                );
-              }
-              // ACCESSORY
-              if (category === DetailProductType.ACCESSORY && detail) {
-                return (
-                  <ShoppingCartCard
-                    key={key}
-                    type="accessory"
-                    title={category || "부속"}
-                    manufacturer={detail.accessory_madeby}
-                    modelName={detail.accessory_model}
-                    quantity={cartItem.item_count}
-                    request={detail.accessory_request ?? undefined}
-                    showQuantitySelector={true}
-                    {...commonProps}
-                  />
-                );
-              }
-              // HARDWARE (HINGE, RAIL, PIECE)
-              if ((category === DetailProductType.HINGE || category === DetailProductType.RAIL || category === DetailProductType.PIECE) && detail) {
-                // HINGE: manufacturer, thickness, angle (직접입력 robust, report page 방식)
-                let manufacturer = "";
-                let thickness = "";
-                let angle = "";
-                let color = "";
-                if (category === DetailProductType.HINGE) {
-                  manufacturer = detail.hinge_madeby_direct_input ? "(직접입력) " + detail.hinge_madeby_direct_input : (detail.hinge_madeby ?? "");
-                  thickness = detail.hinge_thickness_direct_input ? "(직접입력) " + detail.hinge_thickness_direct_input : (detail.hinge_thickness ?? "");
-                  angle = detail.hinge_angle_direct_input ? "(직접입력) " + detail.hinge_angle_direct_input : (detail.hinge_angle ?? "");
-                  color = detail.hinge_color ?? "";
-                }
-                // RAIL: manufacturer, railType, railLength, railDamping (직접입력 robust, report page 방식)
-                let railManufacturer = "";
-                let railType = "";
-                let railLength = "";
-                let railDamping = undefined;
-                if (category === DetailProductType.RAIL) {
-                  railManufacturer = detail.rail_madeby_direct_input ? "(직접입력) " + detail.rail_madeby_direct_input : (detail.rail_madeby ?? "");
-                  railType = detail.rail_type_direct_input ? "(직접입력) " + detail.rail_type_direct_input : (detail.rail_type ?? "");
-                  railLength = detail.rail_length_direct_input ? "(직접입력) " + detail.rail_length_direct_input : (detail.rail_length ?? "");
-                  railDamping = detail.rail_damping ?? undefined;
-                  color = detail.rail_color ?? "";
-                }
-                // PIECE: manufacturer, size, color (직접입력 robust, report page 방식)
-                let pieceManufacturer = "";
-                let pieceSize = "";
-                if (category === DetailProductType.PIECE) {
-                  pieceManufacturer = detail.piece_madeby_direct_input ? detail.piece_madeby_direct_input : (detail.piece_madeby ?? "");
-                  pieceSize = detail.piece_size_direct_input ? detail.piece_size_direct_input : (detail.piece_size ?? "");
-                  color = detail.piece_color ?? "";
-                }
-                return (
-                  <ShoppingCartCard
-                    key={key}
-                    type="hardware"
-                    title={category || "하드웨어"}
-                    request={detail.hardware_request ?? ""}
-                    quantity={cartItem.item_count}
-                    showQuantitySelector={true}
-                    manufacturer={manufacturer || railManufacturer || pieceManufacturer}
-                    thickness={thickness}
-                    angle={angle}
-                    railType={railType}
-                    railLength={railLength}
-                    railDamping={railDamping}
-                    size={pieceSize}
-                    color={color}
-                    {...commonProps}
-                  />
-                );
-              }
-              return null;
+              return (
+                <ShoppingCartCardNew
+                  key={key}
+                  {...cardProps}
+                  onIncrease={() => handleCountChange(category, i, (cartItem.item_count ?? 0) + 1)}
+                  onDecrease={() => handleCountChange(category, i, (cartItem.item_count ?? 0) - 1)}
+                  onTrash={() => { if (cartItem.id) handleCountChange(category, i, 0); }}
+                />
+              );
             })}
           </div>
 

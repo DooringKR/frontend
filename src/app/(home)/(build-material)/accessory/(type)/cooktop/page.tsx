@@ -50,7 +50,7 @@ function AccessoryPageContent() {
     // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
     useEffect(() => {
         // 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
-        setScreenName('accessory_spec');
+        setScreenName('accessory_cooktop');
         const prev = getPreviousScreenName();
         trackView({
             object_type: "screen",
@@ -127,7 +127,7 @@ function AccessoryPageContent() {
                             current_page: getScreenName(),
                             modal_name: null,
                         });
-                        router.push(`/accessory/spec/report`);
+                        router.push(`/accessory/report`);
                     }}
                 />
             </div>

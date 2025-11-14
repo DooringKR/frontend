@@ -19,6 +19,7 @@ const DOOR_COLOR_LIST: ColorItem[] = [
   { id: 13, name: "MDF, 한솔, 18T, 콘크리트화이트" },
   { id: 14, name: "MDF, 동화, 18T, 밀크화이트" },
   { id: 15, name: "MDF, 동화, 18T, 카본그레이" },
+  { id: 16, name: "MDF,, 18T, 필름 부착용 합판 (색깔 상관X)" },
 ];
 
 const CABINET_COLOR_LIST: ColorItem[] = [
@@ -37,6 +38,7 @@ const CABINET_COLOR_LIST: ColorItem[] = [
   { id: 13, name: "MDF, 한솔, 18T, 콘크리트화이트" },
   { id: 14, name: "MDF, 동화, 18T, 밀크화이트" },
   { id: 15, name: "MDF, 동화, 18T, 카본그레이" },
+  { id: 16, name: "MDF,, 18T, 필름 부착용 합판 (색깔 상관X)" }
 ];
 
 const FINISH_COLOR_LIST: ColorItem[] = [
@@ -60,6 +62,7 @@ const FINISH_COLOR_LIST: ColorItem[] = [
   { id: 17, name: "PB,, 15T, 헤링본" },
   { id: 18, name: "PB, 동화, 3T 우라, 헤링본" },
   { id: 19, name: "PB,, 15T, 헤링본 - 미백색" },
+  { id: 20, name: "MDF,, 18T, 필름 부착용 합판 (색깔 상관X)" },
 ];
 
 function findName(list: ColorItem[], id: number | string | null | undefined): string | undefined {

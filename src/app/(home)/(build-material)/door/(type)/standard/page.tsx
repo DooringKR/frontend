@@ -40,10 +40,10 @@ function StandardDoorPageContent() {
     // 가로 입력 필드 ref
     const widthInputRef = useRef<HTMLInputElement>(null);
 
-    // 초기값을 itemStore에서 읽어오기
-    const [boringNum, setBoringNum] = useState<2 | 3 | 4>(item?.boringNum || 2);
-    const [hinge_direction, setHingeDirection] = useState<HingeDirection>(
-        (item?.hinge_direction as HingeDirection) || HingeDirection.LEFT,
+    // 초기값을 itemStore에서 읽어오기 (기본값 없음)
+    const [boringNum, setBoringNum] = useState<2 | 3 | 4 | null>(item?.boringNum ?? null);
+    const [hinge_direction, setHingeDirection] = useState<HingeDirection | null>(
+        (item?.hinge_direction as HingeDirection) ?? null,
     );
 
     // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
@@ -59,26 +59,25 @@ function StandardDoorPageContent() {
         });
     }, []);
 
-    // 초기 hinge_direction 설정 (itemStore에 없으면 좌경으로 설정)
-    useEffect(() => {
-        if (!item?.hinge_direction) {
-            updateItem({ hinge_direction: HingeDirection.LEFT });
-        }
-    }, [item?.hinge_direction, updateItem]);
+    // 기본값 설정 제거 - 사용자가 명시적으로 선택해야 함
     const [door_width, setDoorWidth] = useState<number | null>(item?.door_width ?? null);
     const [door_height, setDoorHeight] = useState<number | null>(item?.door_height ?? null);
 
     // boringSize 초기값 설정
     const [hinge, setHinge] = useState<(number | null)[]>(item?.hinge ?? []);
 
-    const [door_request, setDoorRequest] = useState(item?.door_request ?? "");
     const [door_location, setDoorLocation] = useState(item?.door_location ?? "");
-    const [addOn_hinge, setAddOn_hinge] = useState(item?.addOn_hinge ?? false);
     const [isDoorLocationSheetOpen, setIsDoorLocationSheetOpen] = useState(false);
-    const [images, setImages] = useState<File[]>(item?.raw_images || []);
-    const [isDontKnowHingeCount, setIsDontKnowHingeCount] = useState(false);
-    const [isDontKnowHingeDirection, setIsDontKnowHingeDirection] = useState(false);
-    const previousHingeDirectionRef = useRef<HingeDirection>(hinge_direction ?? HingeDirection.LEFT);
+    
+    // 체크박스 초기 상태: 명시적으로 UNKNOWN이거나 [null]인 경우만 모름 체크
+    const [isDontKnowHingeCount, setIsDontKnowHingeCount] = useState(() => {
+        // hinge 배열이 정확히 [null]인 경우만 모름 상태
+        return item?.hinge && item.hinge.length === 1 && item.hinge[0] === null;
+    });
+    const [isDontKnowHingeDirection, setIsDontKnowHingeDirection] = useState(() => {
+        // hinge_direction이 명시적으로 UNKNOWN인 경우만 모름 상태
+        return item?.hinge_direction === HingeDirection.UNKNOWN;
+    });
 
     // 페이지 진입 시 용도 및 장소 시트 자동 열기 (door_location이 없을 때만)
     useEffect(() => {
@@ -89,7 +88,7 @@ function StandardDoorPageContent() {
 
     // boringNum이 변경되면 hinge 배열 길이 맞추기
     useEffect(() => {
-        if (boringNum && hinge.length !== boringNum) {
+        if (boringNum !== null && hinge.length !== boringNum) {
             const newBoringSize = Array.from({ length: boringNum }, (_, i) =>
                 hinge && hinge[i] !== undefined ? hinge[i] : null,
             );
@@ -103,29 +102,36 @@ function StandardDoorPageContent() {
         DoorHeight: door_height,
         hinge,
         boringNum,
+        hingeDirection: hinge_direction,
     });
 
     // boringNum이 바뀔 때 boringSize 길이 자동 조정
     useEffect(() => {
-        // 기존 값을 유지하면서 새로운 길이에 맞게 조정
-        const newBoringSize = Array.from({ length: boringNum }, (_, i) =>
-            hinge && hinge[i] !== undefined ? hinge[i] : null,
-        );
-        setHinge(newBoringSize);
+        if (boringNum !== null) {
+            // 기존 값을 유지하면서 새로운 길이에 맞게 조정
+            const newBoringSize = Array.from({ length: boringNum }, (_, i) =>
+                hinge && hinge[i] !== undefined ? hinge[i] : null,
+            );
+            setHinge(newBoringSize);
+        }
     }, [boringNum]);
 
 
     // 각 필드 변경 시 useItemStore에 저장
-    const handleBoringNumChange = (newBoringNum: 2 | 3 | 4) => {
+    const handleBoringNumChange = (newBoringNum: 2 | 3 | 4 | null) => {
         setBoringNum(newBoringNum);
-        const newBoringSize = Array.from({ length: newBoringNum }, (_, i) =>
-            hinge && hinge[i] !== undefined ? hinge[i] : null,
-        );
-        setHinge(newBoringSize);
-        updateItem({ boringNum: newBoringNum, hinge: newBoringSize });
+        if (newBoringNum !== null) {
+            const newBoringSize = Array.from({ length: newBoringNum }, (_, i) =>
+                hinge && hinge[i] !== undefined ? hinge[i] : null,
+            );
+            setHinge(newBoringSize);
+            updateItem({ boringNum: newBoringNum, hinge: newBoringSize });
+        } else {
+            updateItem({ boringNum: null, hinge: [] });
+        }
     };
 
-    const handleBoringDirectionChange = (newBoringDirection: HingeDirection) => {
+    const handleBoringDirectionChange = (newBoringDirection: HingeDirection | null) => {
         setHingeDirection(newBoringDirection);
         updateItem({ hinge_direction: newBoringDirection });
     };
@@ -145,11 +151,6 @@ function StandardDoorPageContent() {
         updateItem({ hinge: newBoringSize });
     };
 
-    const handleRequestChange = (newRequest: string) => {
-        setDoorRequest(newRequest);
-        updateItem({ door_request: newRequest });
-    };
-
     const handleDoorLocationChange = (newLocation: string) => {
         setDoorLocation(newLocation);
         updateItem({ door_location: newLocation });
@@ -161,21 +162,11 @@ function StandardDoorPageContent() {
         }, 300); // 시트 닫히는 애니메이션 후 포커스 이동
     };
 
-    const handleImagesChange = (newImages: File[]) => {
-        setImages(newImages);
-        updateItem({ raw_images: newImages });
-        console.log('이미지 업로드됨:', newImages.length, '개');
-    };
-
-    const handleAddOnHingeChange = (newAddOnHinge: boolean) => {
-        setAddOn_hinge(newAddOnHinge);
-        updateItem({ addOn_hinge: newAddOnHinge });
-    };
-
     return (
-        <div className="flex min-h-screen flex-col pt-[60px]">
+        <div className="flex min-h-screen flex-col pt-[90px]">
             <InitAmplitude />
             <TopNavigator />
+            <ProgressBar progress={60} />
             <Header
                 title={
                     "일반문 정보를 입력해주세요"
@@ -265,35 +256,21 @@ function StandardDoorPageContent() {
                                     onChange={(checked) => {
                                         setIsDontKnowHingeCount(checked);
                                         if (checked) {
+                                            // 모름 체크: hinge를 [null]로 설정
                                             setHinge([null]);
-                                            updateItem({ hinge: [null] });
+                                            setBoringNum(null);
+                                            updateItem({ hinge: [null], boringNum: null });
+                                        } else {
+                                            // 모름 해제: 선택 초기화 (사용자가 직접 선택해야 함)
+                                            setHinge([]);
+                                            setBoringNum(null);
+                                            updateItem({ hinge: [], boringNum: null });
                                         }
                                     }}
                                 />
                                 <div className="text-center justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-6">모름</div>
                             </div>
                         </div>
-                        {/* <div className="flex flex-col gap-2">
-                            <div className="w-full text-[14px] font-400 text-gray-600"> 경첩</div>
-                            <div className="flex flex-row gap-2">
-                                <Button
-                                    type={boringNum == 2 ? "BrandInverse" : "GrayLarge"}
-                                    text={"2개"}
-                                    onClick={() => handleBoringNumChange(2)}
-                                />
-                                <Button
-                                    type={boringNum == 3 ? "BrandInverse" : "GrayLarge"}
-                                    text={"3개"}
-                                    onClick={() => handleBoringNumChange(3)}
-                                />
-                                <Button
-                                    type={boringNum == 4 ? "BrandInverse" : "GrayLarge"}
-                                    text={"4개"}
-                                    onClick={() => handleBoringNumChange(4)}
-                                />
-                            </div>
-                            {boringError && <div className="px-1 text-sm text-red-500">{boringError}</div>}
-                        </div> */}
 
                         <div className="w-full text-[14px] font-400 text-gray-600"> 경첩 방향</div>
                         <div className="self-stretch inline-flex justify-center items-center gap-5">
@@ -317,14 +294,11 @@ function StandardDoorPageContent() {
                                     onChange={(checked) => {
                                         setIsDontKnowHingeDirection(checked);
                                         if (checked) {
-                                            // Save current direction before setting to UNKNOWN
-                                            if (hinge_direction !== HingeDirection.UNKNOWN) {
-                                                previousHingeDirectionRef.current = hinge_direction;
-                                            }
+                                            // 모름 체크: UNKNOWN으로 설정
                                             handleBoringDirectionChange(HingeDirection.UNKNOWN);
                                         } else {
-                                            // Restore previous direction
-                                            handleBoringDirectionChange(previousHingeDirectionRef.current);
+                                            // 모름 해제: 선택 초기화 (사용자가 직접 선택해야 함)
+                                            handleBoringDirectionChange(null);
                                         }
                                     }}
                                 />
@@ -335,9 +309,9 @@ function StandardDoorPageContent() {
                         {boringError && <div className="px-1 text-sm text-red-500">{boringError}</div>}
 
                         {/* 분기 1: 경첩 개수도 알고 방향도 아는 경우 (기본 케이스) */}
-                        {!isDontKnowHingeCount && !isDontKnowHingeDirection && (
+                        {!isDontKnowHingeCount && !isDontKnowHingeDirection && boringNum !== null && hinge_direction !== null && (
                             <div>
-                                <div className="flex items-center justify-center pt-5">
+                                <div className="w-full flex items-center justify-center px-5 pt-5">
                                 <NormalDoorPreview
                                     DoorWidth={door_width}
                                     DoorHeight={door_height}
@@ -413,28 +387,6 @@ function StandardDoorPageContent() {
                         
                     </>
                 )}
-                <BoxedInput
-                    label="제작 시 요청사항"
-                    placeholder="제작 시 요청사항 | 예) 시공도 필요해요, …"
-                    value={door_request}
-                    onChange={e => handleRequestChange(e.target.value)}
-                />
-
-                <div className="w-full text-[14px] font-400 text-gray-600"> 추가선택</div>
-
-                <div className="flex justify-start items-center gap-2">
-                    <Checkbox 
-                        checked={addOn_hinge} 
-                        onChange={handleAddOnHingeChange}
-                    />
-                    <div className="text-center justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-6">경첩도 같이 받을래요</div>
-                </div>
-                <ImageUploadInput
-                    label="이미지 첨부"
-                    placeholder="이미지를 첨부해주세요"
-                    value={images}
-                    onChange={handleImagesChange}
-                />
             </div>
             <div className="h-[100px]"></div>
             {!isDoorLocationSheetOpen &&
@@ -443,7 +395,7 @@ function StandardDoorPageContent() {
                         type={"1button"}
                         button1Text={"다음"}
                         className="fixed bottom-0 w-full max-w-[460px]"
-                        button1Disabled={isFormValid() || !door_location || !hinge_direction || !boringNum}
+                        button1Disabled={isFormValid() || !door_location}
                         onButton1Click={() => {
                             trackClick({
                                 object_type: "button",
@@ -451,7 +403,7 @@ function StandardDoorPageContent() {
                                 current_page: getScreenName(),
                                 modal_name: null,
                             });
-                            router.push("/door/report");
+                            router.push("/door/standard/additional");
                         }}
                     />
                 </div>

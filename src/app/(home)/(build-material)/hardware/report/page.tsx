@@ -4,11 +4,12 @@ import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
-import ShoppingCartCard from "@/components/Card/ShoppingCartCard";
+import ShoppingCartCardNew from "@/components/Card/ShoppingCartCardNew";
 import Header from "@/components/Header/Header";
 import ProgressBar from "@/components/Progress";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import { transformHardwareToNewCardProps } from "@/utils/transformers/transformHardwareToNewCardProps";
 
 import { HardwareType, RailType, RailLength } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import { HardwareMadeBy, HingeThickness, HingeAngle } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
@@ -130,34 +131,9 @@ function ReportPageContent() {
         })()}
       />
       <div className="flex flex-col gap-[20px] px-5 pb-[100px] pt-5">
-        <ShoppingCartCard
-          type="hardware"
-          title={item?.type ?? ""}
-          manufacturer={(() => {
-            if (item?.madeby === HardwareMadeBy.DIRECT_INPUT) return "(직접입력) " + (item?.madebyInput || "");
-            return item?.madeby ?? "";
-          })()}
-          thickness={(() => {
-            if (item?.thickness === HingeThickness.DIRECT_INPUT) return "(직접입력) " + (item?.thicknessInput || "");
-            return item?.thickness ?? "";
-          })()}
-          angle={(() => {
-            if (item?.angle === HingeAngle.DIRECT_INPUT) return "(직접입력) " + (item?.angleInput || "");
-            return item?.angle ?? "";
-          })()}
-          railType={item?.railType === RailType.DIRECT_INPUT ? "(직접입력) " + (item?.railTypeInput || "") : item?.railType ?? ""}
-          railLength={item?.railLength === RailLength.DIRECT_INPUT ? "(직접입력) " + (item?.railLengthInput || "") : item?.railLength ?? ""}
-          color={item?.color ?? ""}
-          size={item?.size ?? ""}
-          railDamping={item?.railType === RailType.BALL ? item?.railDamping ?? "" : undefined}
-          request={item?.request ?? undefined}
-          quantity={0}
-          trashable={false}
-          showQuantitySelector={false}
-          onOptionClick={() => {
-            router.push(`/hardware/${item?.type ?? "hinge"}`);
-          }}
-        />
+
+        <ShoppingCartCardNew {...transformHardwareToNewCardProps(item)} />
+        
         <OrderSummaryCard
           quantity={quantity}
           unitPrice={unitPrice}

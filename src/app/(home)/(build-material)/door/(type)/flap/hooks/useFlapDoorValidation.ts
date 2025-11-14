@@ -4,7 +4,7 @@ interface UseFlapDoorValidationProps {
     DoorWidth: number | null;
     DoorHeight: number | null;
     boringSize: (number | null)[];
-    boringNum: 2 | 3 | 4;
+    boringNum: 2 | 3 | 4 | null;
 }
 
 export function useFlapDoorValidation({
@@ -48,7 +48,7 @@ export function useFlapDoorValidation({
 
     // 보링 위치 유효성 검사 (플랩문만 - 가로 방향)
     useEffect(() => {
-        if (boringSize.length > 0 && DoorWidth !== null) {
+        if (boringNum !== null && boringSize.length > 0 && DoorWidth !== null) {
             let errorMessage = "";
 
             // null을 임시 값으로 치환
@@ -100,10 +100,15 @@ export function useFlapDoorValidation({
     }, [boringSize, boringNum, DoorWidth]);
 
     // 플랩문 유효성 검사
+    // "모름" 상태(boringSize가 [null])는 유효한 것으로 간주
     const isFormValid = () => {
+        // "모름" 체크 상태 확인
+        const isDontKnow = boringSize.length === 1 && boringSize[0] === null;
+        
         return (
             DoorWidth === null ||
             DoorHeight === null ||
+            (!isDontKnow && boringNum === null) ||
             !!widthError ||
             !!heightError ||
             !!boringError
