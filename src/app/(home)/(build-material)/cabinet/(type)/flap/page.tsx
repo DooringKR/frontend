@@ -349,9 +349,10 @@ function FlapCabinetPageContent() {
                 {/* 요청사항 */}
                 <BoxedInput
                     label="제작 시 요청사항"
-                    placeholder="제작 시 요청사항을 입력해주세요"
+                    placeholder="예) 한쪽에 EP마감이 들어가요, 걸레받이 넣어주세요 등"
                     value={request}
                     onChange={e => setRequest(e.target.value)}
+                    placeholderClassName="placeholder-gray-500"
                 />
                 <ImageUploadInput
                     label="이미지 첨부"
