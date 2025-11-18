@@ -13,6 +13,7 @@ interface BoxedInputProps {
   disabled?: boolean;
   onClick?: () => void;
   className?: string | null;
+  placeholderClassName?: string;
 }
 
 // React.forwardRef를 사용하여 ref 전달 가능하게 변경
@@ -30,6 +31,7 @@ const BoxedInput = React.forwardRef<HTMLInputElement, BoxedInputProps>(
       disabled,
       onClick,
       className,
+      placeholderClassName = "placeholder-gray-300",
     },
     ref
   ) => {
@@ -85,7 +87,7 @@ const BoxedInput = React.forwardRef<HTMLInputElement, BoxedInputProps>(
             } `}
         >
           <input
-            className="w-full text-[17px] font-400 text-gray-700 placeholder-gray-300 focus:outline-none"
+            className={`w-full text-[17px] font-400 text-gray-700 ${placeholderClassName} focus:outline-none`}
             placeholder={placeholder}
             value={inputValue ?? ""}
             onChange={handleInputChange}
