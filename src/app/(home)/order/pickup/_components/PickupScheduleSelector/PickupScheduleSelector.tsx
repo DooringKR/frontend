@@ -4,6 +4,7 @@ import { usePickupDate } from "./_hooks/usePickupDate";
 import PickupDateTimeSelector from "./_components/PickupDateTimeSelector";
 import { useOrderStore } from "@/store/orderStore";
 import { useEffect } from "react";
+import OrderProcessCard from "@/components/OrderProcessCard";
 
 export default function PickupScheduleSelector() {
     const { formatSelectedDate } = usePickupDate();
@@ -22,6 +23,7 @@ export default function PickupScheduleSelector() {
         <section className="flex flex-col gap-3">
             <h2 className="text-xl font-600">픽업일정 선택</h2>
 
+            {/* 기존 구현 */}
             <div className="flex cursor-pointer flex-col gap-1 rounded-xl border-2 border-gray-800 px-5 py-4">
                 <div className="flex justify-between">
                     <span className="text-[17px] font-600">원하는 날짜 픽업</span>
@@ -40,6 +42,26 @@ export default function PickupScheduleSelector() {
                     }}
                 />
             </div>
+
+            {/* OrderProcessCard 구현 */}
+            <OrderProcessCard
+                title="원하는 날짜 픽업"
+                descriptionLine1={
+                    order?.pickup_time
+                        ? `${formatSelectedDate(order.pickup_time)} 원하는 시간 픽업`
+                        : "날짜를 선택해주세요 원하는 시간 픽업"
+                }
+                trailing="primary"
+                trailingText=""
+                showLeadingIcon={false}
+                showSamedaydeliverySticker={false}
+                showDescriptionLine2={false}
+                showTrailing={false}
+                showBottom={true}
+                state="activated"
+                bottomLabel="희망 픽업 일정"
+                className="mt-3"
+            />
         </section>
     );
 }

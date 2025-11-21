@@ -40,6 +40,7 @@ import {
   getTotalValueFromCartItems 
 } from "@/utils/getCartProductTypes";
 import { sortProductTypes, sortDetailProductTypes } from "@/utils/formatCartProductTypes";
+import OrderProcessCard from "@/components/OrderProcessCard";
 
 const CATEGORY_MAP: Record<string, string> = {
   door: "문짝",
@@ -255,7 +256,7 @@ function CheckOrderClientPage() {
       <div className="flex-grow px-5">
         <div className="flex flex-col gap-3 py-5">
           <h2 className="text-xl font-600 text-gray-800">주소 확인</h2>
-          <DeliveryAddressCard
+          {/* <DeliveryAddressCard
             address={{ address1: order?.road_address!, address2: order?.detail_address! }}
             setAddress={(address: { address1: string; address2: string }) => {
               updateOrder({
@@ -263,6 +264,19 @@ function CheckOrderClientPage() {
                 detail_address: address.address2,
               });
             }}
+          /> */}
+          
+          {/* OrderProcessCard로 표현한 주소 입력 예시 */}
+          <OrderProcessCard
+            title="배송 주소"
+            descriptionLine1={order?.road_address || "도로명 주소를 입력해주세요"}
+            descriptionLine2={order?.detail_address || "상세 주소를 입력해주세요"}
+            trailing="secondary"
+            showLeadingIcon={false}
+            showSamedaydeliverySticker={false}
+            showBottom={false}
+            state="enabled"
+            onClick={() => router.push("/order/delivery/address")}
           />
         </div>
 
