@@ -51,7 +51,7 @@ export default function TodayDeliveryOption({
     return (
         <>
             {/* 기존 구현 */}
-            <div
+            {/* <div
                 onClick={handleClick}
                 className={`flex cursor-pointer flex-col gap-1 rounded-xl border px-5 py-4 
                 ${order?.is_today_delivery === true ? "border-2 border-gray-800" : "border-gray-300"}
@@ -81,7 +81,7 @@ export default function TodayDeliveryOption({
                             : `오늘 ${formatDeliveryTimeRange(expectedArrivalMinutes)} 도착 예정`
                         : "오늘 배송이 불가능해요."}
                 </p>
-            </div>
+            </div> */}
 
             {/* OrderProcessCard 구현 */}
             <OrderProcessCard

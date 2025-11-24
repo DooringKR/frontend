@@ -18,7 +18,7 @@ export default function RecipientPhoneNumber() {
   return (
     <>
       {/* 기존 구현 */}
-      <div className="rounded-xl border border-gray-200 px-5 py-4">
+      {/* <div className="rounded-xl border border-gray-200 px-5 py-4">
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-1">
             <p className="text-[17px] font-600">받는 분 휴대폰 번호</p>
@@ -28,7 +28,7 @@ export default function RecipientPhoneNumber() {
             <img src={"/icons/chevron-right.svg"} alt="오른쪽 화살표" />
           </button>
         </div>
-      </div>
+      </div> */}
 
       {/* OrderProcessCard 구현 */}
       <OrderProcessCard

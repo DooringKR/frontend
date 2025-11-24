@@ -39,7 +39,7 @@ export default function DeliveryRequestSelector() {
   return (
     <>
       {/* 기존 구현 */}
-      <div className="flex items-center justify-between rounded-xl border border-gray-200 px-5 py-4">
+      {/* <div className="flex items-center justify-between rounded-xl border border-gray-200 px-5 py-4">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <p className="text-[17px] font-600">배송 시 요청사항</p>
@@ -68,7 +68,7 @@ export default function DeliveryRequestSelector() {
           <span className="text-[15px] font-500 text-blue-500">요청 선택</span>
           <img src={"/icons/chevron-right.svg"} alt="오른쪽 화살표" />
         </button>
-      </div>
+      </div> */}
 
       {/* OrderProcessCard 구현 */}
       <OrderProcessCard

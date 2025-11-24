@@ -20,6 +20,7 @@ interface OrderProcessCardProps {
   descriptionLine2?: string;
   trailingText?: string;
   bottomLabel?: string;
+  bottomContent?: React.ReactNode; // 커스텀 bottom 컨텐츠
   dateValue?: string;
   timeValue?: string;
   onDateChange?: (date: string) => void;
@@ -43,6 +44,7 @@ const OrderProcessCard: React.FC<OrderProcessCardProps> = ({
   descriptionLine2 = '디스크립션 라인 2',
   trailingText = '트레일링',
   bottomLabel = '희망 픽업 일정',
+  bottomContent, // 커스텀 컨텐츠
   dateValue = '',
   timeValue = '',
   onDateChange,
@@ -157,24 +159,34 @@ const OrderProcessCard: React.FC<OrderProcessCardProps> = ({
 
       {/* Bottom Section */}
       {showBottom && (
-        <div className="w-full flex flex-col justify-center items-center gap-1">
-          <div className="self-stretch justify-start text-blue-500 text-xs font-medium font-['Pretendard'] leading-4">{bottomLabel}</div>
-          <div className="self-stretch inline-flex justify-center items-center gap-2">
-            <BoxedInput
-              type="text"
-              placeholder="날짜"
-              value={dateValue}
-              onChange={(e) => onDateChange?.(e.target.value)}
-              className="flex-1"
-            />
-            <BoxedInput
-              type="text"
-              placeholder="시간"
-              value={timeValue}
-              onChange={(e) => onTimeChange?.(e.target.value)}
-              className="flex-1"
-            />
-          </div>
+        <div className="w-full flex flex-col justify-center items-start gap-1">
+          {bottomLabel && (
+            <div className="self-stretch justify-start text-blue-500 text-xs font-medium font-['Pretendard'] leading-4">{bottomLabel}</div>
+          )}
+          {bottomContent ? (
+            // 커스텀 컨텐츠가 있으면 그것을 렌더링
+            <div className="w-full">
+              {bottomContent}
+            </div>
+          ) : (
+            // 기본 BoxedInput 렌더링
+            <div className="self-stretch inline-flex justify-center items-center gap-2">
+              <BoxedInput
+                type="text"
+                placeholder="날짜"
+                value={dateValue}
+                onChange={(e) => onDateChange?.(e.target.value)}
+                className="flex-1"
+              />
+              <BoxedInput
+                type="text"
+                placeholder="시간"
+                value={timeValue}
+                onChange={(e) => onTimeChange?.(e.target.value)}
+                className="flex-1"
+              />
+            </div>
+          )}
         </div>
       )}
     </div>

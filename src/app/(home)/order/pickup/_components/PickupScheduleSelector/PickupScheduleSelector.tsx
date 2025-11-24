@@ -24,7 +24,7 @@ export default function PickupScheduleSelector() {
             <h2 className="text-xl font-600">픽업일정 선택</h2>
 
             {/* 기존 구현 */}
-            <div className="flex cursor-pointer flex-col gap-1 rounded-xl border-2 border-gray-800 px-5 py-4">
+            {/* <div className="flex cursor-pointer flex-col gap-1 rounded-xl border-2 border-gray-800 px-5 py-4">
                 <div className="flex justify-between">
                     <span className="text-[17px] font-600">원하는 날짜 픽업</span>
                 </div>
@@ -41,7 +41,7 @@ export default function PickupScheduleSelector() {
                         return formatSelectedDate(new Date(dateString));
                     }}
                 />
-            </div>
+            </div> */}
 
             {/* OrderProcessCard 구현 */}
             <OrderProcessCard
@@ -59,7 +59,14 @@ export default function PickupScheduleSelector() {
                 showTrailing={false}
                 showBottom={true}
                 state="activated"
-                bottomLabel="희망 픽업 일정"
+                bottomLabel=""
+                bottomContent={
+                    <PickupDateTimeSelector
+                        formatSelectedDate={(dateString: string) => {
+                            return formatSelectedDate(new Date(dateString));
+                        }}
+                    />
+                }
                 className="mt-3"
             />
         </section>

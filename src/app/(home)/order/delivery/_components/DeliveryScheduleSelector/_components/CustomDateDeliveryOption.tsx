@@ -39,7 +39,7 @@ export default function CustomDateDeliveryOption({
     return (
         <>
             {/* 기존 구현 */}
-            <div
+            {/* <div
                 onClick={handleClick}
                 className={`flex cursor-pointer flex-col gap-1 rounded-xl border px-5 py-4 ${order?.is_today_delivery === false ? "border-2 border-gray-800" : "border-gray-300"
                     }`}
@@ -73,7 +73,7 @@ export default function CustomDateDeliveryOption({
                     isTodayDeliveryAvailable={isTodayDeliveryAvailable}
                 />
             )}
-        </div>
+        </div> */}
 
         {/* OrderProcessCard 구현 */}
         <OrderProcessCard
@@ -89,9 +89,13 @@ export default function CustomDateDeliveryOption({
             state={getState()}
             onClick={handleClick}
             className="mt-3"
-            bottomLabel="희망 배송 일정"
-            dateValue=""
-            timeValue=""
+            bottomLabel=""
+            bottomContent={
+                <DateTimeSelector
+                    formatSelectedDate={formatSelectedDate}
+                    isTodayDeliveryAvailable={isTodayDeliveryAvailable}
+                />
+            }
         />
         </>
     );
