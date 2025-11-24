@@ -26,8 +26,6 @@ function RootLayout({
   return (
     <html lang="ko">
       <head>
-        <meta name="google-site-verification" content="ZV1WAsAAkTcqy3EbtsBAWVsxBDz_6ff2pNqQ8jAzHrE" />
-        <meta name="naver-site-verification" content="188c9c116cb55c8e512a401b3542a85820470369" />
         <title>바로가구: 현장에서 필요한 가구, 오늘배송</title>
         <meta name="title" content="바로가구: 현장에서 필요한 가구, 오늘배송" />
         <meta name="description" content="가구 문짝 ∙ 가구 마감재 ∙ 부분장 ∙ 가구 부속 ∙ 가구 하드웨어 | 모바일로 쉽고 편리하게 주문하고, 정확한 맞춤 가구를 오늘배송 받으세요." />
