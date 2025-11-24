@@ -257,14 +257,14 @@ function LoginPageContent() {
                         로그인 시{" "}
                         <span
                             className="text-blue-500 underline cursor-pointer hover:text-blue-600"
-                            onClick={() => window.open("https://dooring.notion.site/terms-of-use", "_blank")}
+                            onClick={() => window.open("https://dooring.notion.site/barogagu-terms-of-use", "_blank")}
                         >
                             서비스 이용약관
                         </span>
                         {" "}및{" "}
                         <span
                             className="text-blue-500 underline cursor-pointer hover:text-blue-600"
-                            onClick={() => window.open("https://dooring.notion.site/privacy", "_blank")}
+                            onClick={() => window.open("https://dooring.notion.site/barogagu-privacy", "_blank")}
                         >
                             개인정보처리방침
                         </span>
