@@ -21,12 +21,12 @@ export default function DateTimeSelector({
 
     return (
         <div className="flex flex-col gap-2">
-            <div className="mt-3 flex items-center">
+            {/* <div className="mt-3 flex items-center">
                 <span className="text-sm font-400 text-gray-800">
                     {order?.delivery_arrival_time ? formatSelectedDate(order.delivery_arrival_time) : "날짜 미선택"}{" "}
                     <span className="text-sm font-400 text-gray-600">희망배송시간</span>
                 </span>
-            </div>
+            </div> */}
 
             <div
                 onClick={() => setIsDateModalOpen(true)}

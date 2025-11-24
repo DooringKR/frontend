@@ -19,12 +19,12 @@ export default function PickupDateTimeSelector({
 
     return (
         <div className="flex flex-col gap-2">
-            <div className="mt-3 flex items-center">
+            {/* <div className="mt-3 flex items-center">
                 <span className="text-sm font-400 text-gray-800">
                     {order?.pickup_time ? formatSelectedDate(order.pickup_time) : "날짜 미선택"}{" "}
                     <span className="text-sm font-400 text-gray-600">희망픽업시간</span>
                 </span>
-            </div>
+            </div> */}
 
             <div
                 onClick={() => setIsDateModalOpen(true)}
