@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import BoxedInput from '@/components/Input/BoxedInput';
 
-type OrderProcessCardState = 'enabled' | 'emphasized' | 'activated' | 'errored' | 'disabled' | 'hovered';
+type OrderProcessCardState = 'enabled' | 'emphasized' | 'activated' | 'errored' | 'disabled';
 type OrderProcessCardTrailing = 'primary' | 'secondary';
 type OrderProcessCardIcon = 'box' | 'file' | 'headset' | 'kakaoTalk' | 'phone' | 'truck';
 
@@ -54,9 +54,6 @@ const OrderProcessCard: React.FC<OrderProcessCardProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   
-  // Determine actual state (hover overrides passed state)
-  const actualState = isHovered ? 'hovered' : state;
-  
   // 아이콘 렌더링 함수
   const renderIcon = () => {
     const iconProps = {
@@ -77,37 +74,51 @@ const OrderProcessCard: React.FC<OrderProcessCardProps> = ({
       />
     );
   };
-  // State에 따른 스타일 매핑
-  const getStateStyles = () => {
-    switch (actualState) {
-      case 'hovered':
-        return 'bg-gray-50 outline outline-1 outline-offset-[-1px] outline-gray-200';
-      case 'emphasized':
-        return 'bg-white outline outline-2 outline-offset-[-2px] outline-blue-200';
-      case 'activated':
-        return 'bg-white outline outline-2 outline-offset-[-2px] outline-gray-600';
-      case 'errored':
-        return 'bg-white outline outline-2 outline-offset-[-2px] outline-red-300';
+  
+  // State에 따른 배경 색상
+  const getBackgroundColor = () => {
+    if (isHovered) return 'bg-gray-50';
+    
+    switch (state) {
       case 'disabled':
-        return 'bg-gray-50 outline outline-1 outline-offset-[-1px] outline-gray-200';
+        return 'bg-gray-50';
+      case 'emphasized':
+      case 'activated':
+      case 'errored':
       case 'enabled':
       default:
-        return 'bg-white outline outline-1 outline-offset-[-1px] outline-gray-200';
+        return 'bg-white';
+    }
+  };
+  
+  // State에 따른 outline 스타일
+  const getOutlineStyles = () => {
+    switch (state) {
+      case 'emphasized':
+        return 'outline outline-2 outline-offset-[-2px] outline-blue-200';
+      case 'activated':
+        return 'outline outline-2 outline-offset-[-2px] outline-gray-600';
+      case 'errored':
+        return 'outline outline-2 outline-offset-[-2px] outline-red-300';
+      case 'disabled':
+      case 'enabled':
+      default:
+        return 'outline outline-1 outline-offset-[-1px] outline-gray-200';
     }
   };
 
   // State에 따른 텍스트 색상
   const getTitleColor = () => {
-    return actualState === 'disabled' ? 'text-gray-400' : 'text-gray-700';
+    return state === 'disabled' ? 'text-gray-400' : 'text-gray-700';
   };
 
   const getDescriptionColor = () => {
-    return actualState === 'disabled' ? 'text-gray-400' : 'text-gray-500';
+    return state === 'disabled' ? 'text-gray-400' : 'text-gray-500';
   };
 
   return (
     <div 
-      className={`w-full px-4 py-3.5 rounded-2xl flex flex-col justify-center items-center gap-3 ${onClick ? 'cursor-pointer' : ''} ${getStateStyles()} ${className}`}
+      className={`w-full px-4 py-3.5 rounded-2xl flex flex-col justify-center items-center gap-3 ${onClick ? 'cursor-pointer' : ''} ${getBackgroundColor()} ${getOutlineStyles()} ${className}`}
       onMouseEnter={() => onClick && setIsHovered(true)}
       onMouseLeave={() => onClick && setIsHovered(false)}
       onClick={onClick}
