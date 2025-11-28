@@ -18,30 +18,23 @@ export default function PickupDateTimeSelector({
     const [isDateModalOpen, setIsDateModalOpen] = useState(false);
 
     return (
-        <div className="flex flex-col gap-2">
-            <div className="mt-3 flex items-center">
-                <span className="text-sm font-400 text-gray-800">
-                    {order?.pickup_time ? formatSelectedDate(order.pickup_time) : "날짜 미선택"}{" "}
-                    <span className="text-sm font-400 text-gray-600">희망픽업시간</span>
-                </span>
-            </div>
-
+        <div className="flex items-center gap-2">
             <div
                 onClick={() => setIsDateModalOpen(true)}
-                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-lg cursor-pointer"
+                className="flex-1 rounded-xl border border-gray-200 bg-white px-4 py-3 text-lg cursor-pointer"
             >
                 {order?.pickup_time
                     ? formatSelectedDate(order.pickup_time)
-                    : "날짜를 선택해주세요"}
+                    : "날짜"}
             </div>
 
             <div
                 onClick={() => setIsTimeModalOpen(true)}
-                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-lg cursor-pointer"
+                className="flex-1 rounded-xl border border-gray-200 bg-white px-4 py-3 text-lg cursor-pointer"
             >
                 {order?.pickup_time
                     ? order?.pickup_time.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })
-                    : "-- : --"}
+                    : "시간"}
             </div>
 
             <Modal isOpen={isDateModalOpen} onClose={() => setIsDateModalOpen(false)}>
