@@ -67,6 +67,13 @@ const BoxedInput = React.forwardRef<HTMLInputElement, BoxedInputProps>(
       }
     };
 
+    // number 타입 input에서 스크롤로 숫자 변경 방지
+    const handleWheel = (e: React.WheelEvent<HTMLInputElement>) => {
+      if (type === "number") {
+        e.currentTarget.blur();
+      }
+    };
+
     // ref 우선순위: 외부 ref → 내부 ref
     const mergedRef = (node: HTMLInputElement) => {
       if (typeof ref === "function") {
@@ -99,6 +106,7 @@ const BoxedInput = React.forwardRef<HTMLInputElement, BoxedInputProps>(
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             onClick={onClick}
+            onWheel={handleWheel}
           />
           {isFocused && (
             <button
