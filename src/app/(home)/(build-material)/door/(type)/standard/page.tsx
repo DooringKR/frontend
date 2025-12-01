@@ -387,7 +387,7 @@ function StandardDoorPageContent() {
                                         <ManWhiteIcon />
                                     </div>
                                     <div className="flex-1 inline-flex flex-col justify-start items-start">
-                                        <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">보링 개수, 방향 몰라도 괜찮아요</div>
+                                        <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">경첩 방향, 보링 개수 몰라도 괜찮아요</div>
                                         <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">주문이 접수되면 상담으로 안내해드려요.</div>
                                     </div>
                                 </div>
