@@ -210,6 +210,11 @@ function StandardDoorPageContent() {
                     }}
                     error={!!widthError}
                     helperText={widthError}
+                    inputGuide={{
+                        text: "가로 스끼(문틈) 값을 빼고 입력해주세요.",
+                        state: "default",
+                        color: "text-emerald-500"
+                    }}
                 />
                 <BoxedInput
                     type="number"
@@ -222,6 +227,11 @@ function StandardDoorPageContent() {
                     }}
                     error={!!heightError}
                     helperText={heightError}
+                    inputGuide={{
+                        text: "세로 스끼(문틈) 값을 빼고 입력해주세요.",
+                        state: "default",
+                        color: "text-emerald-500"
+                    }}
                 />
 
                 {/* 세로 길이가 입력된 경우에만 경첩 관련 컴포넌트 표시 */}
