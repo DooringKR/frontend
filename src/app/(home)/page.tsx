@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 
 import AddressIndicator from "@/components/AddressIndicator/AddressIndicator";
-import Banner from "@/components/Banner/Banner";
 import BottomNavigation from "@/components/BottomNavigation/BottomNavigation";
 import HomeProductContainer from "@/components/HomeProductContaines/HomeProductContainer";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
@@ -13,6 +12,7 @@ import useCartItemStore from "@/store/cartItemStore";
 
 import Footer from "./_components/Footer";
 import FactoryOwnershipCard from "./_components/FactoryOwnershipCard";
+import HomeBanner from "./_components/HomeBanner";
 import HomeScreenPaymentNoticeCard from "@/components/PaymentNoticeCard/HomeScreenPaymentNoticeCard";
 import ProductLiabilityInsuranceCard from "./_components/ProductLiabilityInsuranceCard";
 import FaqCard from "./_components/FaqCard";
@@ -64,7 +64,7 @@ export default function Page() {
       {/* Amplitude 초기화 (클라이언트 전용) */}
       <InitAmplitude />
       <TopNavigator page="/" cartItemCount={cartItemCount || 0} />
-      <Banner />
+      <HomeBanner />
 
       <main className="mb-[40px] mt-10 flex flex-grow flex-col gap-7">
         <AddressIndicator {...addressIndicatorProps} />

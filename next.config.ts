@@ -10,6 +10,14 @@ const withPWA = require("next-pwa")({
 
 const baseConfig: NextConfig = {
   reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.supabase.co',
+      },
+    ],
+  },
   async rewrites() {
     return [
       {
