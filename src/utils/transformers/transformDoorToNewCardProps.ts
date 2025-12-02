@@ -1,4 +1,4 @@
-import { DoorType, HingeDirection } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import { DoorType, HingeDirection, HingeThickness } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import type { 
   DetailProductType, 
   ProductDetails,
@@ -21,6 +21,7 @@ export interface DoorItem {
   hinge_direction?: HingeDirection;
   door_location?: string;
   addOn_hinge?: boolean;
+  hinge_thickness?: HingeThickness | null;
   door_request?: string;
   raw_images?: string[];
   door_construct?: boolean;
@@ -112,6 +113,7 @@ export function transformDoorToNewCardProps(item: DoorItem) {
       location: item.door_location,
       doorConstruct: item.door_construct,
       addOnHinge: item.addOn_hinge,
+      hingeThickness: item.addOn_hinge && item.hinge_thickness ? item.hinge_thickness : undefined,
       request: item.door_request,
     };
     return { 
@@ -129,6 +131,7 @@ export function transformDoorToNewCardProps(item: DoorItem) {
       location: item.door_location,
       doorConstruct: item.door_construct,
       addOnHinge: item.addOn_hinge,
+      hingeThickness: item.addOn_hinge && item.hinge_thickness ? item.hinge_thickness : undefined,
       request: item.door_request,
     };
     return { 

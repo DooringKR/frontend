@@ -153,7 +153,12 @@ export default function OrderItemDetail({ item }: OrderItemDetailProps) {
             )}
             {(item.materialDetails.addOn_hinge !== undefined || item.materialDetails.door_construct !== undefined) && (() => {
               const options: string[] = [];
-              if (item.materialDetails.addOn_hinge) options.push("경첩도 같이 받을래요");
+              if (item.materialDetails.addOn_hinge) {
+                const hingeText = item.materialDetails.hinge_thickness 
+                  ? `경첩도 같이 받을래요(${item.materialDetails.hinge_thickness})`
+                  : "경첩도 같이 받을래요";
+                options.push(hingeText);
+              }
               if (item.materialDetails.door_construct) options.push("시공도 필요해요");
               const displayValue = options.length > 0 ? options.join(", ") : "없음";
               return (

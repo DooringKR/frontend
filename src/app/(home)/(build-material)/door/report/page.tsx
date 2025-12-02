@@ -152,6 +152,7 @@ function DoorReportPageContent() {
                                 door_location: item.door_location ?? undefined,
                                 door_request: item.door_request ?? undefined,
                                 addOn_hinge: item.addOn_hinge ?? false,
+                                hinge_thickness: item.hinge_thickness ?? undefined,
                                 door_image_url: doorImageUrls, // 업로드된 이미지 URL들
                                 door_construct: item.door_construct ?? false,
                             });

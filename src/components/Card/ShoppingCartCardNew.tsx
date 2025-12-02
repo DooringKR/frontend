@@ -41,6 +41,7 @@ export interface DoorStandardDetails {
   location?: string;
   doorConstruct?: boolean;
   addOnHinge?: boolean;
+  hingeThickness?: string; // HingeThickness enum 값 ("15T", "18T", "모름")
   request?: string;
   images?: string[];
 }
@@ -55,6 +56,7 @@ export interface DoorFlapDetails {
   location?: string;
   doorConstruct?: boolean;
   addOnHinge?: boolean;
+  hingeThickness?: string; // HingeThickness enum 값 ("15T", "18T", "모름")
   request?: string;
   images?: string[];
 }
@@ -235,7 +237,12 @@ function renderDoorStandardDetails(data: DoorStandardDetails) {
       {data.location && <DetailRow label="용도 ∙ 장소" value={data.location} />}
       {(data.addOnHinge !== undefined || data.doorConstruct !== undefined) && (() => {
         const options: string[] = [];
-        if (data.addOnHinge) options.push("경첩도 같이 받을래요");
+        if (data.addOnHinge) {
+          const hingeText = data.hingeThickness 
+            ? `경첩도 같이 받을래요(${data.hingeThickness})`
+            : "경첩도 같이 받을래요";
+          options.push(hingeText);
+        }
         if (data.doorConstruct) options.push("시공도 필요해요");
         return <DetailRow label="추가 선택" value={options.length > 0 ? options.join(", ") : "없음"} />;
       })()}
@@ -262,7 +269,12 @@ function renderDoorFlapDetails(data: DoorFlapDetails) {
       {data.location && <DetailRow label="용도 ∙ 장소" value={data.location} />}
       {(data.addOnHinge !== undefined || data.doorConstruct !== undefined) && (() => {
         const options: string[] = [];
-        if (data.addOnHinge) options.push("경첩도 같이 받을래요");
+        if (data.addOnHinge) {
+          const hingeText = data.hingeThickness 
+            ? `경첩도 같이 받을래요(${data.hingeThickness})`
+            : "경첩도 같이 받을래요";
+          options.push(hingeText);
+        }
         if (data.doorConstruct) options.push("시공도 필요해요");
         return <DetailRow label="추가 선택" value={options.length > 0 ? options.join(", ") : "없음"} />;
       })()}
