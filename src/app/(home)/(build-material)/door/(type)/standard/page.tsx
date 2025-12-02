@@ -210,6 +210,11 @@ function StandardDoorPageContent() {
                     }}
                     error={!!widthError}
                     helperText={widthError}
+                    inputGuide={{
+                        text: "가로 스끼(문틈) 값을 빼고 입력해주세요.",
+                        state: "default",
+                        color: "text-emerald-500"
+                    }}
                 />
                 <BoxedInput
                     type="number"
@@ -222,13 +227,18 @@ function StandardDoorPageContent() {
                     }}
                     error={!!heightError}
                     helperText={heightError}
+                    inputGuide={{
+                        text: "세로 스끼(문틈) 값을 빼고 입력해주세요.",
+                        state: "default",
+                        color: "text-emerald-500"
+                    }}
                 />
 
                 {/* 세로 길이가 입력된 경우에만 경첩 관련 컴포넌트 표시 */}
                 {door_height !== null && door_height > 0 && (
 
                     <>
-                        <div className="w-full text-[14px] font-400 text-gray-600"> 경첩 개수</div>
+                        <div className="w-full text-[14px] font-400 text-gray-600"> 보링(경첩 구멍) 개수</div>
                         <div className="self-stretch inline-flex justify-center items-center gap-5">
                             <div className="flex-1 flex justify-center items-center gap-2">
                                 <Button
@@ -347,7 +357,7 @@ function StandardDoorPageContent() {
                                         <ManWhiteIcon />
                                     </div>
                                     <div className="flex-1 inline-flex flex-col justify-start items-start">
-                                        <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">경첩 개수 몰라도 괜찮아요</div>
+                                        <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">보링 개수 몰라도 괜찮아요</div>
                                         <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">주문이 접수되면 상담으로 안내해드려요.</div>
                                     </div>
                                 </div>
@@ -377,7 +387,7 @@ function StandardDoorPageContent() {
                                         <ManWhiteIcon />
                                     </div>
                                     <div className="flex-1 inline-flex flex-col justify-start items-start">
-                                        <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">경첩 개수, 방향 몰라도 괜찮아요</div>
+                                        <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">경첩 방향, 보링 개수 몰라도 괜찮아요</div>
                                         <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">주문이 접수되면 상담으로 안내해드려요.</div>
                                     </div>
                                 </div>

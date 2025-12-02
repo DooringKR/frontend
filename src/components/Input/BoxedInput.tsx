@@ -1,5 +1,6 @@
 import InputClear from "public/icons/InputClear";
 import React, { useRef, useState } from "react";
+import InputGuide from "./InputGuide";
 
 interface BoxedInputProps {
   label?: React.ReactNode;
@@ -14,6 +15,11 @@ interface BoxedInputProps {
   onClick?: () => void;
   className?: string | null;
   placeholderClassName?: string;
+  inputGuide?: {
+    text: string;
+    state?: 'default' | 'errored';
+    color?: string;
+  };
 }
 
 // React.forwardRef를 사용하여 ref 전달 가능하게 변경
@@ -32,6 +38,7 @@ const BoxedInput = React.forwardRef<HTMLInputElement, BoxedInputProps>(
       onClick,
       className,
       placeholderClassName = "placeholder-gray-300",
+      inputGuide,
     },
     ref
   ) => {
@@ -121,6 +128,7 @@ const BoxedInput = React.forwardRef<HTMLInputElement, BoxedInputProps>(
           )}
         </div>
         {error && <div className="text-[15px] font-400 text-red-500">{helperText}</div>}
+        {inputGuide && <InputGuide text={inputGuide.text} state={inputGuide.state} color={inputGuide.color} />}
       </div>
     );
   }
