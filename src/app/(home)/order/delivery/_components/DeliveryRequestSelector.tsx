@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useOrderStore } from "@/store/orderStore";
 import OrderProcessCard from "@/components/OrderProcessCard";
 
-export default function DeliveryRequestSelector() {
+export default function DeliveryRequestSelector({ hasValidationFailed, isLoading }: { hasValidationFailed?: boolean; isLoading?: boolean }) {
   const router = useRouter();
   const delivery_method = useOrderStore(state => state.order?.delivery_method);
   const delivery_method_direct_input = useOrderStore(
@@ -30,9 +30,14 @@ export default function DeliveryRequestSelector() {
   };
 
   const getState = () => {
-    if (!delivery_method) return 'errored';
-    if (delivery_method === DeliveryMethod.OPEN_GATE && !gate_password?.trim()) return 'errored';
-    if (delivery_method === DeliveryMethod.DIRECT_INPUT && !delivery_method_direct_input?.trim()) return 'errored';
+    if (isLoading) return 'disabled';
+    
+    const isInvalid = !delivery_method ||
+      (delivery_method === DeliveryMethod.OPEN_GATE && !gate_password?.trim()) ||
+      (delivery_method === DeliveryMethod.DIRECT_INPUT && !delivery_method_direct_input?.trim());
+    
+    if (isInvalid && hasValidationFailed) return 'errored';
+    if (isInvalid) return 'emphasized';
     return 'enabled';
   };
 
@@ -83,7 +88,7 @@ export default function DeliveryRequestSelector() {
         showTrailing={true}
         showBottom={false}
         state={getState()}
-        onClick={() => router.push("/order/delivery/receive-request")}
+        onClick={() => !isLoading && router.push("/order/delivery/receive-request")}
         className="mt-3"
       />
     </>

@@ -5,11 +5,15 @@ import OrderProcessCard from "@/components/OrderProcessCard";
 interface CustomDateDeliveryOptionProps {
     formatSelectedDate: (dateString: string) => string;
     isTodayDeliveryAvailable: boolean;
+    hasValidationFailed?: boolean;
+    isLoading?: boolean;
 }
 
 export default function CustomDateDeliveryOption({
     formatSelectedDate,
     isTodayDeliveryAvailable,
+    hasValidationFailed,
+    isLoading,
 }: CustomDateDeliveryOptionProps) {
     const order = useOrderStore(state => state.order);
     const updateOrder = useOrderStore(state => state.updateOrder);
@@ -33,14 +37,20 @@ export default function CustomDateDeliveryOption({
     };
 
     const getState = () => {
-        return order?.is_today_delivery === false ? 'activated' : 'enabled';
+        if (isLoading) return 'disabled';
+        if (order?.is_today_delivery === false) {
+            // 원하는 날짜 선택했지만 시간이 없고 검증 시도한 경우
+            if (!order?.delivery_arrival_time && hasValidationFailed) return 'errored';
+            return 'activated';
+        }
+        return 'enabled';
     };
 
     return (
         <>
             {/* 기존 구현 */}
             {/* <div
-                onClick={handleClick}
+                onClick={!isLoading ? handleClick : undefined}
                 className={`flex cursor-pointer flex-col gap-1 rounded-xl border px-5 py-4 ${order?.is_today_delivery === false ? "border-2 border-gray-800" : "border-gray-300"
                     }`}
             >

@@ -39,6 +39,7 @@ import { sortProductTypes, sortDetailProductTypes } from "@/utils/formatCartProd
 export default function PickUpClientPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [hasValidationFailed, setHasValidationFailed] = useState(false);
 
   // Store에서 필요한 데이터 가져오기
   const updateOrder = useOrderStore(state => state.updateOrder);
@@ -65,8 +66,6 @@ export default function PickUpClientPage() {
     updateOrder(pickupOrderData);
   }, []);
 
-  const isDisabled = !order?.recipient_phone || !order?.vehicle_type || !order?.pickup_time;
-
   const handleSubmit = async () => {
     trackClick({
       object_type: "button",
@@ -74,7 +73,39 @@ export default function PickUpClientPage() {
       current_page: getScreenName(),
       modal_name: null,
     });
+
+    // 휴대폰 번호 검증
+    if (!order?.recipient_phone?.trim()) {
+      setHasValidationFailed(true);
+      const phoneElement = document.querySelector('[data-component="recipient-phone"]');
+      if (phoneElement) {
+        phoneElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
+    // 차량 유형 검증
+    if (!order?.vehicle_type) {
+      setHasValidationFailed(true);
+      const vehicleElement = document.querySelector('[data-component="pickup-vehicle"]');
+      if (vehicleElement) {
+        vehicleElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
+    // 픽업 시간 검증
+    if (!order?.pickup_time) {
+      setHasValidationFailed(true);
+      const scheduleElement = document.querySelector('[data-component="pickup-schedule"]');
+      if (scheduleElement) {
+        scheduleElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
     setIsLoading(true);
+    setHasValidationFailed(false);
 
     try {
       // 1. 주문 생성
@@ -203,11 +234,17 @@ export default function PickUpClientPage() {
         />
         <div className="flex flex-col gap-3 p-5">
           <h1 className="text-xl font-600">픽업정보 확인</h1>
-          <RecipientPhoneNumber />
-          <PickUpVehicleSelector />
+          <div data-component="recipient-phone">
+            <RecipientPhoneNumber hasValidationFailed={hasValidationFailed} isLoading={isLoading} />
+          </div>
+          <div data-component="pickup-vehicle">
+            <PickUpVehicleSelector hasValidationFailed={hasValidationFailed} isLoading={isLoading} />
+          </div>
         </div>
         <div className="px-5">
-          <PickupScheduleSelector />
+          <div data-component="pickup-schedule">
+            <PickupScheduleSelector hasValidationFailed={hasValidationFailed} isLoading={isLoading} />
+          </div>
         </div>
         <div className="px-5">
           <div className="flex flex-col gap-1">
@@ -224,7 +261,7 @@ export default function PickUpClientPage() {
           type={"1button"}
           button1Text={isLoading ? "주문 요청 중..." : "주문 접수하기"}
           className={`fixed bottom-0 w-full max-w-[460px] `}
-          button1Disabled={isDisabled || isLoading}
+          button1Disabled={isLoading}
           onButton1Click={handleSubmit}
         />
       </div>

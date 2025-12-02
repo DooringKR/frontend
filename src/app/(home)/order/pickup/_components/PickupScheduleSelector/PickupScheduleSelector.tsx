@@ -6,7 +6,7 @@ import { useOrderStore } from "@/store/orderStore";
 import { useEffect } from "react";
 import OrderProcessCard from "@/components/OrderProcessCard";
 
-export default function PickupScheduleSelector() {
+export default function PickupScheduleSelector({ hasValidationFailed, isLoading }: { hasValidationFailed?: boolean; isLoading?: boolean }) {
     const { formatSelectedDate } = usePickupDate();
     const order = useOrderStore(state => state.order);
     const updateOrder = useOrderStore(state => state.updateOrder);
@@ -18,6 +18,15 @@ export default function PickupScheduleSelector() {
             updateOrder({ pickup_time: now });
         }
     }, []);
+
+    const getState = () => {
+        if (isLoading) return 'disabled';
+        
+        const isInvalid = !order?.pickup_time;
+        if (isInvalid && hasValidationFailed) return 'errored';
+        if (isInvalid) return 'emphasized';
+        return 'activated'; // 픽업 스케줄은 선택되면 활성화 상태로 표시
+    };
 
     return (
         <section className="flex flex-col gap-3">
@@ -58,7 +67,7 @@ export default function PickupScheduleSelector() {
                 showDescriptionLine2={false}
                 showTrailing={false}
                 showBottom={true}
-                state="activated"
+                state={getState()}
                 bottomLabel=""
                 bottomContent={
                     <PickupDateTimeSelector
