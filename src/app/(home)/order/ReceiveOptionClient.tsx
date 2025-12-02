@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import OrderProcessCard from "@/components/OrderProcessCard/OrderProcessCard";
 
 import ReceiveOptionCard from "./_components/ReceiveOptionCard";
 import { useOrderStore } from "@/store/orderStore";
@@ -59,22 +60,40 @@ export default function ReceiveOptionClientPage() {
         </h1>
         <div className="flex w-full flex-col gap-3 py-5">
           <div id="receive-option-delivery-card" className="w-full">
-            <ReceiveOptionCard
-              icon={"/icons/truck.svg"}
-              alt={"트럭 아이콘"}
-              title={"배송"}
-              description={"입력한 주소로 배송해드려요."}
-              onClick={() => handleSelect("DELIVERY")}
-            />
+            <div className="mt-3">
+              <OrderProcessCard
+                state="enabled"
+                trailing="secondary"
+                icon="truck"
+                iconSize={32}
+                showLeadingIcon={true}
+                showSamedaydeliverySticker={false}
+                showDescriptionLine2={false}
+                showTrailing={false}
+                showBottom={false}
+                title="배송"
+                descriptionLine1="입력한 주소로 배송해드려요."
+                onClick={() => handleSelect("DELIVERY")}
+              />
+            </div>
           </div>
           <div id="receive-option-pickup-card" className="w-full">
-            <ReceiveOptionCard
-              icon={"/icons/parcel.svg"}
-              alt={"소포 아이콘"}
-              title={"직접 픽업"}
-              description={"공장에서 포장한 상품을 직접 픽업하세요."}
-              onClick={() => handleSelect("PICK_UP")}
-            />
+            <div className="mt-3">
+              <OrderProcessCard
+                state="enabled"
+                trailing="secondary"
+                icon="box"
+                iconSize={32}
+                showLeadingIcon={true}
+                showSamedaydeliverySticker={false}
+                showDescriptionLine2={false}
+                showTrailing={false}
+                showBottom={false}
+                title="직접 픽업"
+                descriptionLine1="공장에서 포장한 상품을 직접 픽업하세요."
+                onClick={() => handleSelect("PICK_UP")}
+              />
+            </div>
           </div>
 
         </div>
