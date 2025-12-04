@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { MY_PAGE } from "@/constants/pageName";
 import { useRouter } from "next/navigation";
 import HeadphonesIcon from "public/icons/Headphones";
@@ -29,68 +29,6 @@ function MyPageClient() {
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isWithdrawing, setIsWithdrawing] = useState(false);
-
-  // 카카오 API로 전화번호 가져오기
-  useEffect(() => {
-    const fetchKakaoPhoneNumber = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-
-        if (!session) {
-          console.log('세션이 없습니다.');
-          return;
-        }
-
-        const kakaoToken = session.provider_token;
-
-        if (kakaoToken) {
-          // 카카오 API 직접 호출
-          const response = await fetch('https://kapi.kakao.com/v2/user/me', {
-            headers: { Authorization: `Bearer ${kakaoToken}` }
-          });
-
-          if (!response.ok) {
-            console.error('카카오 API 호출 실패:', response.status, response.statusText);
-            return;
-          }
-
-          const kakaoData = await response.json();
-          const phoneNumber = kakaoData.kakao_account?.phone_number;
-
-          console.log('카카오에서 받은 전화번호:', phoneNumber);
-
-          if (phoneNumber) {
-            // 전화번호 형식 변환 (카카오는 +82-10-1234-5678 형식으로 올 수 있음)
-            const cleanPhoneNumber = phoneNumber.replace(/[^0-9]/g, '').replace(/^82/, '0');
-            console.log('정리된 전화번호:', cleanPhoneNumber);
-
-            // // Supabase auth의 user_metadata에 전화번호 저장
-            // const { error: updateError } = await supabase.auth.updateUser({
-            //   data: {
-            //     phone_number: cleanPhoneNumber,
-            //   }
-            // });
-
-            // if (updateError) {
-            //   console.error('전화번호 저장 실패:', updateError);
-            // } else {
-            //   console.log('✅ Supabase auth에 전화번호 저장 완료:', cleanPhoneNumber);
-            // }
-          } else {
-            console.log('⚠️ 카카오 계정에서 전화번호를 찾을 수 없습니다.');
-          }
-        } else {
-          console.log('카카오 토큰이 없습니다.');
-        }
-      } catch (error) {
-        console.error('카카오 전화번호 가져오기 오류:', error);
-      }
-    };
-
-    if (bizClient) {
-      fetchKakaoPhoneNumber();
-    }
-  }, [bizClient]);
 
   if (!bizClient) {
     return <div>로그인이 필요합니다</div>;

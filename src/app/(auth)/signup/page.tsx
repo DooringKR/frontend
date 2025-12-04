@@ -22,11 +22,14 @@ import { trackClickUnstable, trackViewUnstable, trackClickAndWaitUnstable } from
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 import BoxedInput from "@/components/Input/BoxedInput";
 import BoxedSelect from "@/components/Select/BoxedSelect";
+import { supabase } from "@/lib/supabase";
+import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 
 export default function SignupPage() {
     const [phoneNumber, setPhoneNumber] = useState("");
     const [selectedBusinessType, setSelectedBusinessType] = useState<BusinessType | null>(null);
     const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+    const [isLoadingPhoneNumber, setIsLoadingPhoneNumber] = useState(true);
     const phoneInputRef = useRef<HTMLInputElement>(null);
 
     // 전화번호 숫자만 추출하여 길이 체크
@@ -45,6 +48,62 @@ export default function SignupPage() {
             current_screen: typeof window !== 'undefined' ? window.screen_name ?? null : null,
             previous_screen: prev,
         });
+    }, []);
+
+    // 카카오 API로 전화번호 가져오기
+    useEffect(() => {
+        const fetchKakaoPhoneNumber = async () => {
+            try {
+                setIsLoadingPhoneNumber(true);
+                const { data: { session } } = await supabase.auth.getSession();
+
+                if (!session) {
+                    console.log('세션이 없습니다.');
+                    setIsLoadingPhoneNumber(false);
+                    return;
+                }
+
+                const kakaoToken = session.provider_token;
+
+                if (kakaoToken) {
+                    // 카카오 API 직접 호출
+                    const response = await fetch('https://kapi.kakao.com/v2/user/me', {
+                        headers: { Authorization: `Bearer ${kakaoToken}` }
+                    });
+
+                    if (!response.ok) {
+                        console.error('카카오 API 호출 실패:', response.status, response.statusText);
+                        setIsLoadingPhoneNumber(false);
+                        return;
+                    }
+
+                    const kakaoData = await response.json();
+                    const kakaoPhoneNumber = kakaoData.kakao_account?.phone_number;
+
+                    console.log('카카오에서 받은 전화번호:', kakaoPhoneNumber);
+
+                    if (kakaoPhoneNumber) {
+                        // 전화번호 형식 변환 (카카오는 +82-10-1234-5678 형식으로 올 수 있음)
+                        const cleanPhoneNumber = kakaoPhoneNumber.replace(/[^0-9]/g, '').replace(/^82/, '0');
+                        console.log('정리된 전화번호:', cleanPhoneNumber);
+
+                        // 전화번호를 상태에 설정 (자동 포맷팅)
+                        const formatted = formatPhoneNumber(cleanPhoneNumber);
+                        setPhoneNumber(formatted);
+                    } else {
+                        console.log('⚠️ 카카오 계정에서 전화번호를 찾을 수 없습니다.');
+                    }
+                } else {
+                    console.log('카카오 토큰이 없습니다.');
+                }
+            } catch (error) {
+                console.error('카카오 전화번호 가져오기 오류:', error);
+            } finally {
+                setIsLoadingPhoneNumber(false);
+            }
+        };
+
+        fetchKakaoPhoneNumber();
     }, []);
 
     // 화면 진입 시 포커스, 11자리 입력 완료 시 포커스 해제
@@ -97,12 +156,13 @@ export default function SignupPage() {
                 <UnderlinedInput
                     ref={phoneInputRef}
                     label="휴대폰 번호"
-                    placeholder="010-1234-5678"
+                    placeholder={isLoadingPhoneNumber ? "카카오에서 전화번호를 가져오는 중..." : "010-1234-5678"}
                     value={phoneNumber}
                     type="tel"
                     error={showError}
                     helperText={helperText}
                     onChange={setPhoneNumber}
+                    disabled={isLoadingPhoneNumber || (phoneNumber.length > 0 && isValidLength)}
                 />
             </div>
 
