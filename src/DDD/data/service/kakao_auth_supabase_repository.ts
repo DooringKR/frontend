@@ -23,12 +23,14 @@ const getRedirectUrl = (type: 'signup' | 'login' | 'check'): string => {
 export class KakaoAuthSupabaseRepository implements KakaoAuthRepository {
     async signup(): Promise<Response> {
         try {
-            const redirectUrl = getRedirectUrl('signup');
+            // const redirectUrl = getRedirectUrl('signup');
+            const redirectUrl = 'https://baro-git-dev-dooring.vercel.app/auth/callback?type=signup';
 
             const supabaseResponse = await supabase.auth.signInWithOAuth({
                 provider: 'kakao',
                 options: {
-                    redirectTo: redirectUrl
+                    redirectTo: redirectUrl,
+                    scopes: 'phone_number',
                 }
             });
 
@@ -56,30 +58,30 @@ export class KakaoAuthSupabaseRepository implements KakaoAuthRepository {
         }
     }
 
-    async login(): Promise<Response> {
-        const redirectUrl = getRedirectUrl('login');
+    // async login(): Promise<Response> {
+    //     const redirectUrl = getRedirectUrl('login');
 
-        const { data, error } = await supabase.auth.signInWithOAuth({
-            provider: 'kakao',
-            options: {
-                redirectTo: redirectUrl
-            }
-        });
+    //     const { data, error } = await supabase.auth.signInWithOAuth({
+    //         provider: 'kakao',
+    //         options: {
+    //             redirectTo: redirectUrl
+    //         }
+    //     });
 
-        if (error) {
-            return {
-                success: false,
-                data: undefined as any,
-                message: error.message,
-            };
-        }
+    //     if (error) {
+    //         return {
+    //             success: false,
+    //             data: undefined as any,
+    //             message: error.message,
+    //         };
+    //     }
 
-        return {
-            success: true,
-            message: "카카오 로그인 성공",
-            data: data as any,
-        };
-    }
+    //     return {
+    //         success: true,
+    //         message: "카카오 로그인 성공",
+    //         data: data as any,
+    //     };
+    // }
 
     // 별도 메서드로 OAuth 콜백 후 사용자 정보 처리
     async getUserInfo(): Promise<Response> {
@@ -128,12 +130,14 @@ export class KakaoAuthSupabaseRepository implements KakaoAuthRepository {
     // uid로 bizClient 확인 후 분기처리를 위한 OAuth 시작
     async checkAndLogin(): Promise<Response> {
         try {
-            const redirectUrl = getRedirectUrl('check');
+            // const redirectUrl = getRedirectUrl('check');
+            const redirectUrl = 'https://baro-git-dev-dooring.vercel.app/auth/callback?type=check';
 
             const supabaseResponse = await supabase.auth.signInWithOAuth({
                 provider: 'kakao',
                 options: {
-                    redirectTo: redirectUrl
+                    redirectTo: redirectUrl,
+                    scopes: 'phone_number',
                 }
             });
 

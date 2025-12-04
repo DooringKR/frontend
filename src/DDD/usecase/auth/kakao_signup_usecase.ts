@@ -6,7 +6,6 @@ import { BizClient } from "dooring-core-domain/dist/models/User/BizClient";
 import { Response } from "@/DDD/data/response";
 import { Cart } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Cart";
 import useSignupStore from "@/store/signupStore";
-import { KakaoLoginUsecase } from "./kakao_login_usecase";
 
 export class KakaoSignupUsecase {
     constructor(

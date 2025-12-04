@@ -10,7 +10,6 @@ import { CartSupabaseRepository } from '@/DDD/data/db/CartNOrder/cart_supabase_r
 import { KakaoSignupUsecase } from '@/DDD/usecase/auth/kakao_signup_usecase';
 import useSignupStore from '@/store/signupStore';
 import { BusinessType } from 'dooring-core-domain/dist/enums/UserEnums';
-import { KakaoLoginUsecase } from '@/DDD/usecase/auth/kakao_login_usecase';
 import { ReadBizClientUsecase } from '@/DDD/usecase/user/read_bizClient_usecase';
 import useBizClientStore from '@/store/bizClientStore';
 import useCartStore from '@/store/cartStore';
@@ -62,30 +61,30 @@ function AuthCallbackContent() {
                             console.log('📡 API 응답 상태:', result);
                             console.log('📡 API 응답:', result);
                             console.log('✅ 회원가입 성공, 스토어에 데이터 저장 후 홈으로 이동');
-                            
+
                             // 1. 스토어 업데이트
                             useBizClientStore.setState({ bizClient: result.data.bizClient });
                             useCartStore.setState({ cart: result.data.cart });
-                            
+
                             // 2. Amplitude User ID 설정
                             setAmplitudeUserId(result.data.bizClient.id);
-                            
+
                             // 3. Supabase에서 provider 정보 가져오기
                             const { data: { user } } = await supabase.auth.getUser();
                             const provider = user?.app_metadata?.provider || user?.identities?.[0]?.provider || 'unknown';
-                            
+
                             // 4. Amplitude User Properties 설정
                             setAmplitudeUserProperties({
                                 business_type: formatBusinessTypeToEnglish(result.data.bizClient.business_type),
                                 providers: provider,
                             });
-                            
+
                             // 5. Signup 이벤트 전송
                             await trackSignup({
                                 business_type: formatBusinessTypeToEnglish(result.data.bizClient.business_type),
                                 providers: provider,
                             });
-                            
+
                             useSignupStore.setState({ businessType: null, phoneNumber: null });
                             console.log('🔄 / (홈) 페이지로 이동 시작');
                             router.push('/');
@@ -160,15 +159,6 @@ function AuthCallbackContent() {
                     console.log('🔄 check 타입 세션 확인 시작...');
                     const { data, error } = await supabase.auth.getSession();
 
-                    if (data && data.session) {
-                        console.log('✅ 세션 존재 - 사용자 ID:', data.session.user.id);
-                    } else if (data && !data.session) {
-                        console.log('ℹ️ 세션 없음 - data는 있지만 session이 null');
-                    } else if (!data) {
-                        console.log('❌ data 자체가 null/undefined');
-                    }
-
-
                     if (error) {
                         console.error('Auth callback error:', error);
                         router.push('/start?error=auth_failed');
@@ -183,38 +173,35 @@ function AuthCallbackContent() {
 
                         if (bizClientResponse.success && bizClientResponse.data) {
                             // bizClient가 존재하면 로그인 처리
-                            console.log('✅ bizClient 존재함 - 로그인 처리');
                             const readCartUsecase = new CrudCartUsecase(new CartSupabaseRepository());
                             const cart = await readCartUsecase.findById(data.session.user.id);
-                            console.log('📡 Cart 조회 결과:', cart);
 
                             // 1. 스토어 업데이트
                             useBizClientStore.setState({ bizClient: bizClientResponse.data });
                             useCartStore.setState({ cart: cart! });
-                            
+
                             // 2. Amplitude User ID 설정
                             setAmplitudeUserId(bizClientResponse.data.id);
-                            
+
                             // 3. Supabase에서 provider 정보 가져오기
-                            const provider = data.session.user.app_metadata?.provider 
-                                || data.session.user.identities?.[0]?.provider 
+                            const provider = data.session.user.app_metadata?.provider
+                                || data.session.user.identities?.[0]?.provider
                                 || 'unknown';
-                            
+
                             // 4. Amplitude User Properties 설정 (로그인 시에도 최신 정보 유지)
                             setAmplitudeUserProperties({
                                 business_type: formatBusinessTypeToEnglish(bizClientResponse.data.business_type),
                                 providers: provider,
                             });
-                            
+
                             router.push('/');
                         } else {
                             // bizClient가 존재하지 않으면 회원가입 페이지로
-                            console.log('❌ bizClient 존재하지 않음 - 회원가입 필요');
                             router.push('/signup');
                         }
                     } else {
                         console.log('❌ 세션이 없음, 회원가입 페이지로 이동');
-                        //이건 사파리에서 이 로직으로 실행돼서 여기다가 추가할게요. 위에있지만..
+                        //이건 사파리에서 이 로직으로 실행돼서 여기다가 추가할게요.
                         router.push('/signup');
                     }
                 } catch (error) {
