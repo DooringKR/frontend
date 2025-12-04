@@ -83,13 +83,29 @@ export default function SignupPage() {
                     console.log('카카오에서 받은 전화번호:', kakaoPhoneNumber);
 
                     if (kakaoPhoneNumber) {
+                        console.log('🔍 원본 카카오 전화번호:', kakaoPhoneNumber);
+
                         // 전화번호 형식 변환 (카카오는 +82-10-1234-5678 형식으로 올 수 있음)
-                        const cleanPhoneNumber = kakaoPhoneNumber.replace(/[^0-9]/g, '').replace(/^82/, '0');
-                        console.log('정리된 전화번호:', cleanPhoneNumber);
+                        let cleanPhoneNumber = kakaoPhoneNumber.replace(/[^0-9]/g, '');
+                        console.log('🔍 숫자만 추출:', cleanPhoneNumber);
+
+                        // 82로 시작하면 0으로 변환
+                        if (cleanPhoneNumber.startsWith('82')) {
+                            cleanPhoneNumber = '0' + cleanPhoneNumber.slice(2);
+                        }
+                        console.log('🔍 82 제거 후:', cleanPhoneNumber);
 
                         // 전화번호를 상태에 설정 (자동 포맷팅)
                         const formatted = formatPhoneNumber(cleanPhoneNumber);
+                        console.log('🔍 포맷팅된 전화번호:', formatted);
+                        console.log('🔍 phoneNumber 상태 업데이트 전:', phoneNumber);
+
                         setPhoneNumber(formatted);
+
+                        // 상태 업데이트 확인을 위한 추가 로그
+                        setTimeout(() => {
+                            console.log('🔍 phoneNumber 상태 업데이트 후:', phoneNumber);
+                        }, 100);
                     } else {
                         console.log('⚠️ 카카오 계정에서 전화번호를 찾을 수 없습니다.');
                     }
