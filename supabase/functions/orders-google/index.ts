@@ -197,6 +197,7 @@ Deno.serve(async (req) => {
           door_height: material.door_height ?? material.height ?? undefined,
           hinge_count: material.hinge_count ?? material.hinge?.hingeCount ?? undefined,
           hinge_direction: material.hinge_direction ?? material.hinge?.hingePosition ?? undefined,
+          is_pair_door: material.is_pair_door ?? undefined,
           note: material.door_request ?? material.doorRequest ?? material.note ?? undefined,
         });
       }
