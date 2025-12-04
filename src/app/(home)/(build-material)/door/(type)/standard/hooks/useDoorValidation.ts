@@ -6,6 +6,7 @@ interface UseDoorValidationProps {
   hinge: (number | null)[];
   boringNum: 2 | 3 | 4 | null;
   hingeDirection: any;  // HingeDirection | null
+  isPairDoor?: boolean; // 양문 여부 추가
 }
 
 export function useDoorValidation({
@@ -14,6 +15,7 @@ export function useDoorValidation({
   hinge,
   boringNum,
   hingeDirection,
+  isPairDoor = false,
 }: UseDoorValidationProps) {
   const [widthError, setWidthError] = useState<string>("");
   const [heightError, setHeightError] = useState<string>("");
@@ -100,7 +102,7 @@ export function useDoorValidation({
     }
   }, [hinge, boringNum, DoorHeight]);
 
-  // 일반문 유효성 검사 - 경첩 개수와 방향 필수
+  // 일반문 유효성 검사 - 경첩 개수와 방향 필수 (양문은 경첩 방향 제외)
   // 각각 독립적으로 "모름" 상태 확인
   const isFormValid = () => {
     // 경첩 개수 "모름" 체크 상태 확인
@@ -112,7 +114,7 @@ export function useDoorValidation({
       DoorWidth === null ||
       DoorHeight === null ||
       (!isDontKnowCount && boringNum === null) ||
-      (!isDontKnowDirection && hingeDirection === null) ||
+      (!isPairDoor && !isDontKnowDirection && hingeDirection === null) || // 양문이 아닐 때만 경첩 방향 필수
       !!widthError ||
       !!heightError ||
       !!boringError

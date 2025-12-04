@@ -44,6 +44,7 @@ export interface DoorStandardDetails {
   hingeThickness?: string; // HingeThickness enum 값 ("15T", "18T", "모름")
   request?: string;
   images?: string[];
+  is_pair_door?: boolean;
 }
 
 // 플랩문 상세 정보
@@ -230,7 +231,7 @@ function renderDoorStandardDetails(data: DoorStandardDetails) {
           value={data.hingeCount === "모름" ? "모름" : `${data.hingeCount}개`}
         />
       )}
-      {data.hingeDirection && <DetailRow label="경첩 방향" value={data.hingeDirection} />}
+      {data.hingeDirection && !data.is_pair_door && <DetailRow label="경첩 방향" value={data.hingeDirection} />}
       {data.boringDimensions && data.boringDimensions.length > 0 && (
         <DetailRow label="보링 치수" value={data.boringDimensions.join(", ")} />
       )}
@@ -438,12 +439,17 @@ const ShoppingCartCardNew: React.FC<ShoppingCartCardNewProps> = ({
       {/* 상품 정보 */}
       <div className="flex justify-between gap-[20px]">
         <div className="flex flex-col gap-2">
-          <div className="text-[17px] font-600 text-gray-800">{detailProductType}</div>
+          <div className="text-[17px] font-600 text-gray-800">
+            {detailProductType === "일반문" && (details.data as DoorStandardDetails).is_pair_door 
+              ? "일반문 (양문 세트)" 
+              : detailProductType}
+          </div>
           <div className="flex flex-col text-[15px] font-400 text-gray-500">
             {renderDetails(details.data)}
           </div>
         </div>
         {/* 프리뷰는 경첩 개수와 방향을 모두 알 때만 표시 (입력 화면과 동일) */}
+        {/* TODO: 프리뷰 이미지 임시 주석 처리 
         {hasPreviewIcon && 
          detailProductType === "일반문" && 
          (details.data as DoorStandardDetails).hingeCount &&
@@ -489,6 +495,7 @@ const ShoppingCartCardNew: React.FC<ShoppingCartCardNewProps> = ({
             }
           />
         )}
+        */}
       </div>
 
       {/* 총 금액 */}

@@ -25,6 +25,7 @@ export interface DoorItem {
   door_request?: string;
   raw_images?: string[];
   door_construct?: boolean;
+  is_pair_door?: boolean;
 }
 
 /**
@@ -115,6 +116,7 @@ export function transformDoorToNewCardProps(item: DoorItem) {
       addOnHinge: item.addOn_hinge,
       hingeThickness: item.addOn_hinge && item.hinge_thickness ? item.hinge_thickness : undefined,
       request: item.door_request,
+      is_pair_door: item.is_pair_door,
     };
     return { 
       ...commonProps,

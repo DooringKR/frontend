@@ -79,7 +79,8 @@ function DoorReportPageContent() {
     const unitPrice = calculateUnitDoorPrice(
         item?.color ?? "",
         item?.door_width ?? 0,
-        item?.door_height ?? 0
+        item?.door_height ?? 0,
+        item?.is_pair_door ?? false
     );
 
     // 카테고리 정보 가져오기
@@ -155,6 +156,7 @@ function DoorReportPageContent() {
                                 hinge_thickness: item.hinge_thickness ?? undefined,
                                 door_image_url: doorImageUrls, // 업로드된 이미지 URL들
                                 door_construct: item.door_construct ?? false,
+                                is_pair_door: item.is_pair_door ?? false,
                             });
 
                             console.log(door);
