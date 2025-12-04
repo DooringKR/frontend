@@ -23,8 +23,8 @@ const getRedirectUrl = (type: 'signup' | 'login' | 'check'): string => {
 export class KakaoAuthSupabaseRepository implements KakaoAuthRepository {
     async signup(): Promise<Response> {
         try {
-            // const redirectUrl = getRedirectUrl('signup');
-            const redirectUrl = 'https://baro-git-dev-dooring.vercel.app/auth/callback?type=signup';
+            const redirectUrl = getRedirectUrl('signup');
+            // const redirectUrl = 'https://baro-git-dev-dooring.vercel.app/auth/callback?type=signup';
 
             const supabaseResponse = await supabase.auth.signInWithOAuth({
                 provider: 'kakao',
@@ -130,8 +130,8 @@ export class KakaoAuthSupabaseRepository implements KakaoAuthRepository {
     // uid로 bizClient 확인 후 분기처리를 위한 OAuth 시작
     async checkAndLogin(): Promise<Response> {
         try {
-            // const redirectUrl = getRedirectUrl('check');
-            const redirectUrl = 'https://baro-git-dev-dooring.vercel.app/auth/callback?type=check';
+            const redirectUrl = getRedirectUrl('check');
+            // const redirectUrl = 'https://baro-git-dev-dooring.vercel.app/auth/callback?type=check';
 
             const supabaseResponse = await supabase.auth.signInWithOAuth({
                 provider: 'kakao',
