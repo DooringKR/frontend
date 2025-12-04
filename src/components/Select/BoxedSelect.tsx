@@ -1,5 +1,5 @@
 import ChevronDown from "public/icons/chevron_down";
-import React, { useState } from "react";
+import React, { useState, forwardRef } from "react";
 
 interface BoxedSelectProps {
   default_label?: string;
@@ -12,7 +12,7 @@ interface BoxedSelectProps {
   truncate?: boolean; // 텍스트 잘림 여부
 }
 
-const BoxedSelect: React.FC<BoxedSelectProps> = ({
+const BoxedSelect = forwardRef<HTMLButtonElement, BoxedSelectProps>(({
   default_label,
   label,
   options,
@@ -21,7 +21,7 @@ const BoxedSelect: React.FC<BoxedSelectProps> = ({
   onClick,
   error,
   truncate = false,
-}) => {
+}, ref) => {
   const [isFocused, setIsFocused] = useState(false);
 
   return (
@@ -33,6 +33,7 @@ const BoxedSelect: React.FC<BoxedSelectProps> = ({
         {label}
       </div>
       <button
+        ref={ref}
         className={`flex w-full items-center
           justify-between rounded-[12px]
            border transition-colors focus:outline-none
@@ -57,6 +58,8 @@ const BoxedSelect: React.FC<BoxedSelectProps> = ({
       {error && <span className="text-[15px] font-400 text-red-500">{error}</span>}
     </div>
   );
-};
+});
+
+BoxedSelect.displayName = 'BoxedSelect';
 
 export default BoxedSelect;

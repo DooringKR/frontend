@@ -1,5 +1,5 @@
 import InputClear from "public/icons/InputClear";
-import React, { forwardRef, useRef, useState } from "react";
+import React, { forwardRef, useRef, useState, useEffect } from "react";
 import { FieldError } from "react-hook-form";
 
 interface UnderlinedInputProps {
@@ -32,6 +32,11 @@ const UnderlinedInput = forwardRef<HTMLInputElement, UnderlinedInputProps>(
         const [inputValue, setInputValue] = useState(value);
         const [isFocused, setIsFocused] = useState(false);
         const inputRef = useRef<HTMLInputElement>(null); // input 요소에 대한 ref 추가
+
+        // value prop이 변경되면 inputValue도 동기화
+        useEffect(() => {
+            setInputValue(value);
+        }, [value]);
 
         //활성화된 상태면 에러를 그대로 사용, 비활성화상태는? 이 코드 필요한지 모르겠지만 일단 남겨둠
         const effectiveError = disabled ? undefined : error;
