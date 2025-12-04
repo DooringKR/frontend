@@ -31,6 +31,7 @@ export default function SignupPage() {
     const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
     const [isLoadingPhoneNumber, setIsLoadingPhoneNumber] = useState(true);
     const phoneInputRef = useRef<HTMLInputElement>(null);
+    const businessTypeSelectRef = useRef<HTMLButtonElement>(null);
 
     // 전화번호 숫자만 추출하여 길이 체크
     const getNumbersOnly = (phone: string) => phone.replace(/[^0-9]/g, '');
@@ -134,10 +135,23 @@ export default function SignupPage() {
         return () => clearTimeout(timer);
     }, []);
 
-    // 11자리 입력 완료 시 포커스 해제
+    // 11자리 입력 완료 시 포커스 해제 및 업체 유형 선택으로 포커스 이동
     useEffect(() => {
-        if (isValidLength && phoneInputRef.current) {
-            phoneInputRef.current.blur();
+        if (isValidLength) {
+            // 전화번호 입력 필드 포커스 해제
+            if (phoneInputRef.current) {
+                phoneInputRef.current.blur();
+            }
+
+            // 업체 유형 선택 버튼으로 포커스 이동
+            // 약간의 지연을 두어 DOM 업데이트 후 포커스 이동
+            const timer = setTimeout(() => {
+                if (businessTypeSelectRef.current) {
+                    businessTypeSelectRef.current.focus();
+                }
+            }, 100);
+
+            return () => clearTimeout(timer);
         }
     }, [isValidLength]);
     const hasInput = phoneNumber.length > 0;
@@ -186,6 +200,7 @@ export default function SignupPage() {
             {isValidLength && (
                 <div className="px-5 mt-8 gap-2 flex flex-col">
                     <BoxedSelect
+                        ref={businessTypeSelectRef}
                         default_label="업체 유형을 선택해주세요"
                         label="업체 유형"
                         // options={[
