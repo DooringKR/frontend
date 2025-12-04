@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 
 import FloatingButton from "@/components/FloatingButton";
+import { isMaintenanceMode } from "@/lib/utils";
 
 import "./globals.css";
 
@@ -23,6 +24,27 @@ function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // 점검 모드 체크
+  if (isMaintenanceMode()) {
+    return (
+      <html lang="ko">
+        <head>
+          <title>서비스 점검 중 - 바로가구</title>
+          <meta name="description" content="서비스 점검 중입니다. 잠시 후 다시 이용해주세요." />
+        </head>
+        <body className="min-h-screen bg-gray-100">
+          <div className="mx-auto min-h-screen max-w-[460px] bg-white shadow-[0_0_20px_0_rgba(3,7,18,0.10)]">
+            <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+              <h1 className="text-4xl font-bold text-gray-800 mb-4">서비스 점검 중</h1>
+              <p className="text-xl text-gray-600 mb-8">15분 후 재접속 부탁드립니다.</p>
+              <div className="text-sm text-gray-500">Dooring 팀</div>
+            </div>
+          </div>
+        </body>
+      </html>
+    );
+  }
+
   return (
     <html lang="ko">
       <head>
