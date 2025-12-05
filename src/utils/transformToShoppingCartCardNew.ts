@@ -23,6 +23,7 @@ export interface DoorItem {
   addOn_hinge?: boolean;
   door_request?: string;
   raw_images?: string[];
+  is_pair_door?: boolean;
 }
 
 /**
@@ -105,6 +106,7 @@ export function transformDoorToNewCardProps(
       location: item.door_location,
       addOnHinge: item.addOn_hinge,
       request: item.door_request,
+      is_pair_door: item.is_pair_door,
     };
     return { 
       detailProductType: "일반문" as const, 

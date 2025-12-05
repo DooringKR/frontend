@@ -14,6 +14,7 @@ import BoxedSelect from "@/components/Select/BoxedSelect";
 import SelectToggleButton from "@/components/Button/SelectToggleButton";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import NormalDoorPreview from "@/components/DoorPreview/NormalDoorPreview";
+import PairDoorPreview from "@/components/DoorPreview/PairDoorPreview";
 import SegmentedControl from "@/components/SegmentedControl/SegmentedControl";
 import Checkbox from "@/components/Checkbox";
 import ManWhiteIcon from "@/../public/icons/man_white";
@@ -44,6 +45,11 @@ function StandardDoorPageContent() {
     const [boringNum, setBoringNum] = useState<2 | 3 | 4 | null>(item?.boringNum ?? null);
     const [hinge_direction, setHingeDirection] = useState<HingeDirection | null>(
         (item?.hinge_direction as HingeDirection) ?? null,
+    );
+    
+    // 양문/단문 선택 상태 관리
+    const [selectedDoorType, setSelectedDoorType] = useState<'pair' | 'single' | null>(
+        item?.is_pair_door === true ? 'pair' : item?.is_pair_door === false ? 'single' : null
     );
 
     // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
@@ -103,6 +109,7 @@ function StandardDoorPageContent() {
         hinge,
         boringNum,
         hingeDirection: hinge_direction,
+        isPairDoor: selectedDoorType === 'pair',
     });
 
     // boringNum이 바뀔 때 boringSize 길이 자동 조정
@@ -196,207 +203,343 @@ function StandardDoorPageContent() {
                     value={door_location}
                     onChange={handleDoorLocationChange}
                 />
+                <div className="flex flex-row gap-2">
+                    <Button
+                        type="OutlinedLarge"
+                        text=""
+                        description="양문 한번에 주문"
+                        iconSrc="/img/door-pair/pair.png"
+                        iconWidth={160}
+                        iconHeight={100}
+                        className={selectedDoorType === 'pair' ? '!border-2 !border-brand-500 !bg-brand-50 focus:outline-none focus:ring-0' : 'focus:outline-none focus:ring-0'}
+                        onClick={() => {
+                            setSelectedDoorType('pair');
+                            // 양문 선택 시 hingeDirection을 null로 설정 (양문은 경첩 방향이 없음)
+                            setHingeDirection(null);
+                            updateItem({ is_pair_door: true, hinge_direction: null });
+                            // 양문 전용 플로우로 분기
+                        }}
+                    />
+                    <Button
+                        type="OutlinedLarge"
+                        text=""
+                        description="한쪽 문만 주문"
+                        iconSrc="/img/door-pair/single.png"
+                        iconWidth={160}
+                        iconHeight={100}
+                        className={selectedDoorType === 'single' ? '!border-2 !border-brand-500 !bg-brand-50 focus:outline-none focus:ring-0' : 'focus:outline-none focus:ring-0'}
+                        onClick={() => {
+                            setSelectedDoorType('single');
+                            updateItem({ is_pair_door: false });
+                            // 기존 단문 플로우 유지
+                        }}
+                    />
+                </div>
 
                 {/* 표준문 폼 내용 */}
-                <BoxedInput
-                    ref={widthInputRef}
-                    type="number"
-                    label={<><span>가로 길이 (mm)</span><span className="text-orange-500 ml-1">*</span></>}
-                    placeholder="가로 길이를 입력해주세요"
-                    value={door_width}
-                    onChange={e => {
-                        const value = e.target.value;
-                        handleDoorWidthChange(value ? Number(value) : null);
-                    }}
-                    error={!!widthError}
-                    helperText={widthError}
-                    inputGuide={{
-                        text: "가로 스끼(문틈) 값을 빼고 입력해주세요.",
-                        state: "default",
-                        color: "text-emerald-500"
-                    }}
-                />
-                <BoxedInput
-                    type="number"
-                    label={<><span>세로 길이 (mm)</span><span className="text-orange-500 ml-1">*</span></>}
-                    placeholder="세로 길이를 입력해주세요"
-                    value={door_height}
-                    onChange={e => {
-                        const value = e.target.value;
-                        handleDoorHeightChange(value ? Number(value) : null);
-                    }}
-                    error={!!heightError}
-                    helperText={heightError}
-                    inputGuide={{
-                        text: "세로 스끼(문틈) 값을 빼고 입력해주세요.",
-                        state: "default",
-                        color: "text-emerald-500"
-                    }}
-                />
-
-                {/* 세로 길이가 입력된 경우에만 경첩 관련 컴포넌트 표시 */}
-                {door_height !== null && door_height > 0 && (
-
+                {selectedDoorType === 'single' && (
                     <>
-                        <div className="w-full text-[14px] font-400 text-gray-600"> 보링(경첩 구멍) 개수</div>
-                        <div className="self-stretch inline-flex justify-center items-center gap-5">
-                            <div className="flex-1 flex justify-center items-center gap-2">
-                                <Button
-                                    type={!isDontKnowHingeCount && boringNum == 2 ? "BrandInverse" : "GrayLarge"}
-                                    text={"2개"}
-                                    onClick={() => !isDontKnowHingeCount && handleBoringNumChange(2)}
-                                    disabled={isDontKnowHingeCount}
-                                />
-                                <Button
-                                    type={!isDontKnowHingeCount && boringNum == 3 ? "BrandInverse" : "GrayLarge"}
-                                    text={"3개"}
-                                    onClick={() => !isDontKnowHingeCount && handleBoringNumChange(3)}
-                                    disabled={isDontKnowHingeCount}
-                                />
-                                <Button
-                                    type={!isDontKnowHingeCount && boringNum == 4 ? "BrandInverse" : "GrayLarge"}
-                                    text={"4개"}
-                                    onClick={() => !isDontKnowHingeCount && handleBoringNumChange(4)}
-                                    disabled={isDontKnowHingeCount}
-                                />  
-                            </div>
-                            <div className="flex justify-start items-center gap-2">
-                                <Checkbox 
-                                    checked={isDontKnowHingeCount} 
-                                    onChange={(checked) => {
-                                        setIsDontKnowHingeCount(checked);
-                                        if (checked) {
-                                            // 모름 체크: hinge를 [null]로 설정
-                                            setHinge([null]);
-                                            setBoringNum(null);
-                                            updateItem({ hinge: [null], boringNum: null });
-                                        } else {
-                                            // 모름 해제: 선택 초기화 (사용자가 직접 선택해야 함)
-                                            setHinge([]);
-                                            setBoringNum(null);
-                                            updateItem({ hinge: [], boringNum: null });
-                                        }
-                                    }}
-                                />
-                                <div className="text-center justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-6">모름</div>
-                            </div>
-                        </div>
+                        {/* 단문 폼 - 기존 코드 */}
+                        <BoxedInput
+                            ref={widthInputRef}
+                            type="number"
+                            label={<><span>가로 길이 (mm)</span><span className="text-orange-500 ml-1">*</span></>}
+                            placeholder="가로 길이를 입력해주세요"
+                            value={door_width}
+                            onChange={e => {
+                                const value = e.target.value;
+                                handleDoorWidthChange(value ? Number(value) : null);
+                            }}
+                            error={!!widthError}
+                            helperText={widthError}
+                            inputGuide={{
+                                text: "가로 스끼(문틈) 값을 빼고 입력해주세요.",
+                                state: "default",
+                                color: "text-emerald-500"
+                            }}
+                        />
+                        <BoxedInput
+                            type="number"
+                            label={<><span>세로 길이 (mm)</span><span className="text-orange-500 ml-1">*</span></>}
+                            placeholder="세로 길이를 입력해주세요"
+                            value={door_height}
+                            onChange={e => {
+                                const value = e.target.value;
+                                handleDoorHeightChange(value ? Number(value) : null);
+                            }}
+                            error={!!heightError}
+                            helperText={heightError}
+                            inputGuide={{
+                                text: "세로 스끼(문틈) 값을 빼고 입력해주세요.",
+                                state: "default",
+                                color: "text-emerald-500"
+                            }}
+                        />
 
-                        <div className="w-full text-[14px] font-400 text-gray-600"> 경첩 방향</div>
-                        <div className="self-stretch inline-flex justify-center items-center gap-5">
-                            <div className="flex-1 flex justify-center items-center gap-2">
-                                <Button
-                                    type={!isDontKnowHingeDirection && hinge_direction === HingeDirection.LEFT ? "BrandInverse" : "GrayLarge"}
-                                    text={"좌경첩"}
-                                    onClick={() => !isDontKnowHingeDirection && handleBoringDirectionChange(HingeDirection.LEFT)}
-                                    disabled={isDontKnowHingeDirection}
-                                />
-                                <Button
-                                    type={!isDontKnowHingeDirection && hinge_direction === HingeDirection.RIGHT ? "BrandInverse" : "GrayLarge"}
-                                    text={"우경첩"}
-                                    onClick={() => !isDontKnowHingeDirection && handleBoringDirectionChange(HingeDirection.RIGHT)}
-                                    disabled={isDontKnowHingeDirection}
-                                />
-                            </div>
-                            <div className="flex justify-start items-center gap-2">
-                                <Checkbox 
-                                    checked={isDontKnowHingeDirection} 
-                                    onChange={(checked) => {
-                                        setIsDontKnowHingeDirection(checked);
-                                        if (checked) {
-                                            // 모름 체크: UNKNOWN으로 설정
-                                            handleBoringDirectionChange(HingeDirection.UNKNOWN);
-                                        } else {
-                                            // 모름 해제: 선택 초기화 (사용자가 직접 선택해야 함)
-                                            handleBoringDirectionChange(null);
-                                        }
-                                    }}
-                                />
-                                <div className="text-center justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-6">모름</div>
-                            </div>
-
-                        </div>
-                        {boringError && <div className="px-1 text-sm text-red-500">{boringError}</div>}
-
-                        {/* 분기 1: 경첩 개수도 알고 방향도 아는 경우 (기본 케이스) */}
-                        {!isDontKnowHingeCount && !isDontKnowHingeDirection && boringNum !== null && hinge_direction !== null && (
-                            <div>
-                                <div className="w-full flex items-center justify-center px-5 pt-5">
-                                <NormalDoorPreview
-                                    DoorWidth={door_width}
-                                    DoorHeight={door_height}
-                                    boringDirection={hinge_direction}
-                                    boringNum={boringNum}
-                                    boringSize={hinge}
-                                    onChangeBoringSize={handleBoringSizeChange}
-                                    doorColor={item?.color ?? ""}
-                                />
+                        {/* 세로 길이가 입력된 경우에만 경첩 관련 컴포넌트 표시 */}
+                        {door_height !== null && door_height > 0 && (
+                            <>
+                                <div className="w-full text-[14px] font-400 text-gray-600"> 보링(경첩 구멍) 개수</div>
+                                <div className="self-stretch inline-flex justify-center items-center gap-5">
+                                    <div className="flex-1 grid grid-cols-3 gap-2">
+                                        <Button
+                                            type={!isDontKnowHingeCount && boringNum == 2 ? "BrandInverse" : "GrayLarge"}
+                                            text={"2개"}
+                                            onClick={() => !isDontKnowHingeCount && handleBoringNumChange(2)}
+                                            disabled={isDontKnowHingeCount}
+                                        />
+                                        <Button
+                                            type={!isDontKnowHingeCount && boringNum == 3 ? "BrandInverse" : "GrayLarge"}
+                                            text={"3개"}
+                                            onClick={() => !isDontKnowHingeCount && handleBoringNumChange(3)}
+                                            disabled={isDontKnowHingeCount}
+                                        />
+                                        <Button
+                                            type={!isDontKnowHingeCount && boringNum == 4 ? "BrandInverse" : "GrayLarge"}
+                                            text={"4개"}
+                                            onClick={() => !isDontKnowHingeCount && handleBoringNumChange(4)}
+                                            disabled={isDontKnowHingeCount}
+                                        />  
+                                    </div>
+                                    <div className="flex justify-start items-center gap-2">
+                                        <Checkbox 
+                                            checked={isDontKnowHingeCount} 
+                                            onChange={(checked) => {
+                                                setIsDontKnowHingeCount(checked);
+                                                if (checked) {
+                                                    // 모름 체크: hinge를 [null]로 설정
+                                                    setHinge([null]);
+                                                    setBoringNum(null);
+                                                    updateItem({ hinge: [null], boringNum: null });
+                                                } else {
+                                                    // 모름 해제: 선택 초기화 (사용자가 직접 선택해야 함)
+                                                    setHinge([]);
+                                                    setBoringNum(null);
+                                                    updateItem({ hinge: [], boringNum: null });
+                                                }
+                                            }}
+                                        />
+                                        <div className="text-center justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-6">모름</div>
+                                    </div>
                                 </div>
 
-                                <div className="w-full px-5 pt-3 flex flex-col justify-start items-center gap-2.5">
-                                    <div className="w-full px-4 py-3 bg-gray-50 rounded-2xl flex justify-center items-center gap-2">
-                                        <div className="w-9 h-9 relative bg-blue-100 rounded-xl flex items-center justify-center">
-                                            <ManWhiteIcon />
+                                <div className="w-full text-[14px] font-400 text-gray-600"> 경첩 방향</div>
+                                <div className="self-stretch inline-flex justify-center items-center gap-5">
+                                    <div className="flex-1 grid grid-cols-2 gap-2">
+                                        <Button
+                                            type={!isDontKnowHingeDirection && hinge_direction === HingeDirection.LEFT ? "BrandInverse" : "GrayLarge"}
+                                            text={"좌경첩"}
+                                            onClick={() => !isDontKnowHingeDirection && handleBoringDirectionChange(HingeDirection.LEFT)}
+                                            disabled={isDontKnowHingeDirection}
+                                        />
+                                        <Button
+                                            type={!isDontKnowHingeDirection && hinge_direction === HingeDirection.RIGHT ? "BrandInverse" : "GrayLarge"}
+                                            text={"우경첩"}
+                                            onClick={() => !isDontKnowHingeDirection && handleBoringDirectionChange(HingeDirection.RIGHT)}
+                                            disabled={isDontKnowHingeDirection}
+                                        />
+                                    </div>
+                                    <div className="flex justify-start items-center gap-2">
+                                        <Checkbox 
+                                            checked={isDontKnowHingeDirection} 
+                                            onChange={(checked) => {
+                                                setIsDontKnowHingeDirection(checked);
+                                                if (checked) {
+                                                    // 모름 체크: UNKNOWN으로 설정
+                                                    handleBoringDirectionChange(HingeDirection.UNKNOWN);
+                                                } else {
+                                                    // 모름 해제: 선택 초기화 (사용자가 직접 선택해야 함)
+                                                    handleBoringDirectionChange(null);
+                                                }
+                                            }}
+                                        />
+                                        <div className="text-center justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-6">모름</div>
+                                    </div>
+                                </div>
+                                {boringError && <div className="px-1 text-sm text-red-500">{boringError}</div>}
+
+                                {/* 분기 1: 경첩 개수도 알고 방향도 아는 경우 (기본 케이스) */}
+                                {!isDontKnowHingeCount && !isDontKnowHingeDirection && boringNum !== null && hinge_direction !== null && (
+                                    <div>
+                                        <div className="w-full flex items-center justify-center pt-5">
+                                            <NormalDoorPreview
+                                                DoorWidth={door_width}
+                                                DoorHeight={door_height}
+                                                boringDirection={hinge_direction}
+                                                boringNum={boringNum}
+                                                boringSize={hinge}
+                                                onChangeBoringSize={handleBoringSizeChange}
+                                                doorColor={item?.color ?? ""}
+                                            />
                                         </div>
-                                        <div className="flex-1 inline-flex flex-col justify-start items-start">
-                                            <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">경첩 치수 모르면 입력하지 않아도 돼요</div>
-                                            <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">주문이 접수되면 상담으로 안내해드려요.</div>
+
+                                        <div className="w-full px-5 pt-3 flex flex-col justify-start items-center gap-2.5">
+                                            <div className="w-full px-4 py-3 bg-gray-50 rounded-2xl flex justify-center items-center gap-2">
+                                                <div className="w-9 h-9 relative bg-blue-100 rounded-xl flex items-center justify-center">
+                                                    <ManWhiteIcon />
+                                                </div>
+                                                <div className="flex-1 inline-flex flex-col justify-start items-start">
+                                                    <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">경첩 치수 모르면 입력하지 않아도 돼요</div>
+                                                    <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">주문이 접수되면 상담으로 안내해드려요.</div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            
+                                )}
 
+                                {/* 분기 2: 경첩 개수만 모르는 경우 */}
+                                {isDontKnowHingeCount && !isDontKnowHingeDirection && (
+                                    <div className="w-full px-5 pt-3 flex flex-col justify-start items-center gap-2.5">
+                                        <div className="w-full px-4 py-3 bg-gray-50 rounded-2xl flex justify-center items-center gap-2">
+                                            <div className="w-9 h-9 relative bg-blue-100 rounded-xl flex items-center justify-center">
+                                                <ManWhiteIcon />
+                                            </div>
+                                            <div className="flex-1 inline-flex flex-col justify-start items-start">
+                                                <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">보링 개수 몰라도 괜찮아요</div>
+                                                <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">주문이 접수되면 상담으로 안내해드려요.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </>
                         )}
-
-                        {/* 분기 2: 경첩 개수만 모르는 경우 */}
-                        {isDontKnowHingeCount && !isDontKnowHingeDirection && (
-                            <div className="w-full px-5 pt-3 flex flex-col justify-start items-center gap-2.5">
-                                <div className="w-full px-4 py-3 bg-gray-50 rounded-2xl flex justify-center items-center gap-2">
-                                    <div className="w-9 h-9 relative bg-blue-100 rounded-xl flex items-center justify-center">
-                                        <ManWhiteIcon />
-                                    </div>
-                                    <div className="flex-1 inline-flex flex-col justify-start items-start">
-                                        <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">보링 개수 몰라도 괜찮아요</div>
-                                        <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">주문이 접수되면 상담으로 안내해드려요.</div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* 분기 3: 경첩 방향만 모르는 경우 */}
-                        {!isDontKnowHingeCount && isDontKnowHingeDirection && (
-                            <div className="w-full px-5 pt-3 flex flex-col justify-start items-center gap-2.5">
-                                <div className="w-full px-4 py-3 bg-gray-50 rounded-2xl flex justify-center items-center gap-2">
-                                    <div className="w-9 h-9 relative bg-blue-100 rounded-xl flex items-center justify-center">
-                                        <ManWhiteIcon />
-                                    </div>
-                                    <div className="flex-1 inline-flex flex-col justify-start items-start">
-                                        <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">경첩 방향 몰라도 괜찮아요</div>
-                                        <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">주문이 접수되면 상담으로 안내해드려요.</div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* 분기 4: 경첩 개수도 방향도 모르는 경우 */}
-                        {isDontKnowHingeCount && isDontKnowHingeDirection && (
-                            <div className="w-full px-5 pt-3 flex flex-col justify-start items-center gap-2.5">
-                                <div className="w-full px-4 py-3 bg-gray-50 rounded-2xl flex justify-center items-center gap-2">
-                                    <div className="w-9 h-9 relative bg-blue-100 rounded-xl flex items-center justify-center">
-                                        <ManWhiteIcon />
-                                    </div>
-                                    <div className="flex-1 inline-flex flex-col justify-start items-start">
-                                        <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">경첩 방향, 보링 개수 몰라도 괜찮아요</div>
-                                        <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">주문이 접수되면 상담으로 안내해드려요.</div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                        
-                        
                     </>
                 )}
+
+                {selectedDoorType === 'pair' && (
+                    <>
+                        {/* 양문 폼 - 새로 개발 */}
+                        <BoxedInput
+                            ref={widthInputRef}
+                            type="number"
+                            label={<><span>가로 길이 (mm)</span><span className="text-orange-500 ml-1">*</span></>}
+                            placeholder="가로 길이를 입력해주세요"
+                            value={door_width}
+                            onChange={e => {
+                                const value = e.target.value;
+                                handleDoorWidthChange(value ? Number(value) : null);
+                            }}
+                            error={!!widthError}
+                            helperText={widthError}
+                            inputGuide={{
+                                text: "가로 스끼(문틈) 값을 빼고 입력해주세요.",
+                                state: "default",
+                                color: "text-emerald-500"
+                            }}
+                        />
+                        <BoxedInput
+                            type="number"
+                            label={<><span>세로 길이 (mm)</span><span className="text-orange-500 ml-1">*</span></>}
+                            placeholder="세로 길이를 입력해주세요"
+                            value={door_height}
+                            onChange={e => {
+                                const value = e.target.value;
+                                handleDoorHeightChange(value ? Number(value) : null);
+                            }}
+                            error={!!heightError}
+                            helperText={heightError}
+                            inputGuide={{
+                                text: "세로 스끼(문틈) 값을 빼고 입력해주세요.",
+                                state: "default",
+                                color: "text-emerald-500"
+                            }}
+                        />
+
+                        {/* 세로 길이가 입력된 경우에만 경첩 관련 컴포넌트 표시 (경첩 방향 제외) */}
+                        {door_height !== null && door_height > 0 && (
+                            <>
+                                <div className="w-full text-[14px] font-400 text-gray-600"> 보링(경첩 구멍) 개수</div>
+                                <div className="self-stretch inline-flex justify-center items-center gap-5">
+                                    <div className="flex-1 grid grid-cols-3 gap-2">
+                                        <Button
+                                            type={!isDontKnowHingeCount && boringNum == 2 ? "BrandInverse" : "GrayLarge"}
+                                            text={"2개"}
+                                            onClick={() => !isDontKnowHingeCount && handleBoringNumChange(2)}
+                                            disabled={isDontKnowHingeCount}
+                                        />
+                                        <Button
+                                            type={!isDontKnowHingeCount && boringNum == 3 ? "BrandInverse" : "GrayLarge"}
+                                            text={"3개"}
+                                            onClick={() => !isDontKnowHingeCount && handleBoringNumChange(3)}
+                                            disabled={isDontKnowHingeCount}
+                                        />
+                                        <Button
+                                            type={!isDontKnowHingeCount && boringNum == 4 ? "BrandInverse" : "GrayLarge"}
+                                            text={"4개"}
+                                            onClick={() => !isDontKnowHingeCount && handleBoringNumChange(4)}
+                                            disabled={isDontKnowHingeCount}
+                                        />  
+                                    </div>
+                                    <div className="flex justify-start items-center gap-2">
+                                        <Checkbox 
+                                            checked={isDontKnowHingeCount} 
+                                            onChange={(checked) => {
+                                                setIsDontKnowHingeCount(checked);
+                                                if (checked) {
+                                                    // 모름 체크: hinge를 [null]로 설정
+                                                    setHinge([null]);
+                                                    setBoringNum(null);
+                                                    updateItem({ hinge: [null], boringNum: null });
+                                                } else {
+                                                    // 모름 해제: 선택 초기화 (사용자가 직접 선택해야 함)
+                                                    setHinge([]);
+                                                    setBoringNum(null);
+                                                    updateItem({ hinge: [], boringNum: null });
+                                                }
+                                            }}
+                                        />
+                                        <div className="text-center justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-6">모름</div>
+                                    </div>
+                                </div>
+                                {boringError && <div className="px-1 text-sm text-red-500">{boringError}</div>}
+
+                                {/* 양문 프리뷰 - 경첩 개수를 아는 경우 */}
+                                {!isDontKnowHingeCount && boringNum !== null && (
+                                    <div>
+                                        <div className="w-full flex items-center justify-center pt-5">
+                                            <PairDoorPreview
+                                                DoorWidth={door_width}
+                                                DoorHeight={door_height}
+                                                boringNum={boringNum}
+                                                boringSize={hinge}
+                                                onChangeBoringSize={handleBoringSizeChange}
+                                                doorColor={item?.color ?? ""}
+                                            />
+                                        </div>
+
+                                        <div className="w-full px-5 pt-3 flex flex-col justify-start items-center gap-2.5">
+                                            <div className="w-full px-4 py-3 bg-gray-50 rounded-2xl flex justify-center items-center gap-2">
+                                                <div className="w-9 h-9 relative bg-blue-100 rounded-xl flex items-center justify-center">
+                                                    <ManWhiteIcon />
+                                                </div>
+                                                <div className="flex-1 inline-flex flex-col justify-start items-start">
+                                                    <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">경첩 치수 모르면 입력하지 않아도 돼요</div>
+                                                    <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">주문이 접수되면 상담으로 안내해드려요.</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* 경첩 개수만 모르는 경우 */}
+                                {isDontKnowHingeCount && (
+                                    <div className="w-full px-5 pt-3 flex flex-col justify-start items-center gap-2.5">
+                                        <div className="w-full px-4 py-3 bg-gray-50 rounded-2xl flex justify-center items-center gap-2">
+                                            <div className="w-9 h-9 relative bg-blue-100 rounded-xl flex items-center justify-center">
+                                                <ManWhiteIcon />
+                                            </div>
+                                            <div className="flex-1 inline-flex flex-col justify-start items-start">
+                                                <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">보링 개수 몰라도 괜찮아요</div>
+                                                <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">주문이 접수되면 상담으로 안내해드려요.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </>
+                )}
+
             </div>
             <div className="h-[100px]"></div>
             {!isDoorLocationSheetOpen &&
@@ -466,7 +609,7 @@ function DoorLocationSheet({
                                 onClick={() => onChange(option.value)}
                             />
                         ))}
-                        <div className="p-5">
+                        {/* <div className="p-5">
                             <Button
                                 type="Brand"
                                 text="다음"
@@ -474,7 +617,8 @@ function DoorLocationSheet({
                                     onClose();
                                 }}
                             />
-                        </div>
+                        </div> */}
+                        <div className="pb-5" />
                     </div>
                 </div>
             }

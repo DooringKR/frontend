@@ -5,11 +5,15 @@ import OrderProcessCard from "@/components/OrderProcessCard";
 interface TodayDeliveryOptionProps {
     expectedArrivalMinutes: number | null;
     isTodayDeliveryAvailable: boolean;
+    hasValidationFailed?: boolean;
+    isLoading?: boolean;
 }
 
 export default function TodayDeliveryOption({
     expectedArrivalMinutes,
     isTodayDeliveryAvailable,
+    hasValidationFailed,
+    isLoading,
 }: TodayDeliveryOptionProps) {
     const order = useOrderStore(state => state.order);
     const updateOrder = useOrderStore(state => state.updateOrder);
@@ -33,7 +37,10 @@ export default function TodayDeliveryOption({
     };
 
     const getDescriptionLine1 = () => {
-        if (!isTodayDeliveryAvailable || expectedArrivalMinutes === null) {
+        if (expectedArrivalMinutes === null) {
+            return "계산 중...";
+        }
+        if (!isTodayDeliveryAvailable) {
             return "오늘 배송이 불가능해요.";
         }
         if (order?.is_today_delivery === true) {
@@ -43,8 +50,11 @@ export default function TodayDeliveryOption({
     };
 
     const getState = () => {
+        if (isLoading) return 'disabled';
+        if (expectedArrivalMinutes === null) return 'enabled'; // 계산 중일 때
         if (!isTodayDeliveryAvailable) return 'disabled';
         if (order?.is_today_delivery === true) return 'activated';
+        
         return 'enabled';
     };
 
@@ -95,7 +105,7 @@ export default function TodayDeliveryOption({
                 showTrailing={isTodayDeliveryAvailable && expectedArrivalMinutes !== null}
                 showBottom={false}
                 state={getState()}
-                onClick={isTodayDeliveryAvailable ? handleClick : undefined}
+                onClick={isTodayDeliveryAvailable && !isLoading ? handleClick : undefined}
                 className="mt-3"
             />
         </>

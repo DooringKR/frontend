@@ -6,6 +6,8 @@ import Image from "next/image";
 interface CheckboxProps {
   checked: boolean;
   onChange?: (checked: boolean) => void;
+  variant?: 'square' | 'circle' | 'ghost';
+  size?: 'medium' | 'large';
   disabled?: boolean;
   className?: string;
   name?: string;
@@ -16,6 +18,8 @@ interface CheckboxProps {
  * 
  * @param checked - 체크 상태
  * @param onChange - 체크 상태 변경 핸들러
+ * @param variant - 체크박스 모양 ('square' | 'circle' | 'ghost')
+ * @param size - 체크박스 크기 ('medium' | 'large')
  * @param disabled - 비활성화 상태 (선택)
  * @param className - 추가 CSS 클래스
  * @param name - input name 속성
@@ -23,11 +27,33 @@ interface CheckboxProps {
 export default function Checkbox({
   checked,
   onChange,
+  variant = 'square',
+  size = 'medium',
   disabled = false,
   className = "",
   name,
 }: CheckboxProps) {
   const [isHovered, setIsHovered] = useState(false);
+
+  // 크기별 설정
+  const sizeConfig = {
+    medium: { container: 'w-5 h-5', iconSize: 20 },
+    large: { container: 'w-7 h-7', iconSize: 28 }
+  };
+
+  // 아이콘 경로 생성
+  const getIconPath = () => {
+    const variantMap = {
+      square: 'Square',
+      circle: 'Circle', 
+      ghost: 'Check Only'
+    };
+    
+    const state = disabled ? 'Disabled' : (isHovered ? 'Hovered' : 'Enabled');
+    const isCheckedStr = checked ? 'True' : 'False';
+    
+    return `/icons/Checkbox/Variant=${variantMap[variant]}, Size=Medium, State=${state}, Is Checked=${isCheckedStr}.svg`;
+  };
 
   const handleClick = () => {
     if (disabled) return;
@@ -49,46 +75,21 @@ export default function Checkbox({
       tabIndex={disabled ? -1 : 0}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={() => !disabled && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={`
-        w-5 h-5 rounded cursor-pointer transition-colors
-        ${disabled ? "opacity-50 cursor-not-allowed" : ""}
+        ${sizeConfig[size].container} cursor-pointer transition-colors
+        ${disabled ? "cursor-not-allowed" : ""}
         ${className}
       `.trim()}
     >
-      {checked ? (
-        // 체크된 상태
-        <div className="relative w-full h-full">
-          {isHovered && !disabled ? (
-            // Hovered 상태 - blue-600
-            <Image
-              src="/icons/Is Checked=True, State=Hovered.svg"
-              alt="checked-hovered"
-              width={20}
-              height={20}
-              className="w-full h-full"
-            />
-          ) : (
-            // Enabled 상태 - blue-500
-            <Image
-              src="/icons/Is Checked=True, State=Enabled.svg"
-              alt="checked"
-              width={20}
-              height={20}
-              className="w-full h-full"
-            />
-          )}
-        </div>
-      ) : (
-        // 체크되지 않은 상태
-        <div
-          className={`
-            w-full h-full rounded border-[1.5px] bg-white transition-colors
-            ${isHovered && !disabled ? "border-blue-200" : "border-gray-200"}
-          `.trim()}
-        />
-      )}
+      <Image
+        src={getIconPath()}
+        alt={checked ? "checked" : "unchecked"}
+        width={sizeConfig[size].iconSize}
+        height={sizeConfig[size].iconSize}
+        className="w-full h-full"
+      />
       
       {/* 숨겨진 실제 input (폼 제출용) */}
       <input

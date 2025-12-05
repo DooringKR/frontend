@@ -41,8 +41,10 @@ export interface DoorStandardDetails {
   location?: string;
   doorConstruct?: boolean;
   addOnHinge?: boolean;
+  hingeThickness?: string; // HingeThickness enum 값 ("15T", "18T", "모름")
   request?: string;
   images?: string[];
+  is_pair_door?: boolean;
 }
 
 // 플랩문 상세 정보
@@ -55,6 +57,7 @@ export interface DoorFlapDetails {
   location?: string;
   doorConstruct?: boolean;
   addOnHinge?: boolean;
+  hingeThickness?: string; // HingeThickness enum 값 ("15T", "18T", "모름")
   request?: string;
   images?: string[];
 }
@@ -228,14 +231,19 @@ function renderDoorStandardDetails(data: DoorStandardDetails) {
           value={data.hingeCount === "모름" ? "모름" : `${data.hingeCount}개`}
         />
       )}
-      {data.hingeDirection && <DetailRow label="경첩 방향" value={data.hingeDirection} />}
+      {data.hingeDirection && !data.is_pair_door && <DetailRow label="경첩 방향" value={data.hingeDirection} />}
       {data.boringDimensions && data.boringDimensions.length > 0 && (
         <DetailRow label="보링 치수" value={data.boringDimensions.join(", ")} />
       )}
       {data.location && <DetailRow label="용도 ∙ 장소" value={data.location} />}
       {(data.addOnHinge !== undefined || data.doorConstruct !== undefined) && (() => {
         const options: string[] = [];
-        if (data.addOnHinge) options.push("경첩도 같이 받을래요");
+        if (data.addOnHinge) {
+          const hingeText = data.hingeThickness 
+            ? `경첩도 같이 받을래요(${data.hingeThickness})`
+            : "경첩도 같이 받을래요";
+          options.push(hingeText);
+        }
         if (data.doorConstruct) options.push("시공도 필요해요");
         return <DetailRow label="추가 선택" value={options.length > 0 ? options.join(", ") : "없음"} />;
       })()}
@@ -262,7 +270,12 @@ function renderDoorFlapDetails(data: DoorFlapDetails) {
       {data.location && <DetailRow label="용도 ∙ 장소" value={data.location} />}
       {(data.addOnHinge !== undefined || data.doorConstruct !== undefined) && (() => {
         const options: string[] = [];
-        if (data.addOnHinge) options.push("경첩도 같이 받을래요");
+        if (data.addOnHinge) {
+          const hingeText = data.hingeThickness 
+            ? `경첩도 같이 받을래요(${data.hingeThickness})`
+            : "경첩도 같이 받을래요";
+          options.push(hingeText);
+        }
         if (data.doorConstruct) options.push("시공도 필요해요");
         return <DetailRow label="추가 선택" value={options.length > 0 ? options.join(", ") : "없음"} />;
       })()}
@@ -426,12 +439,17 @@ const ShoppingCartCardNew: React.FC<ShoppingCartCardNewProps> = ({
       {/* 상품 정보 */}
       <div className="flex justify-between gap-[20px]">
         <div className="flex flex-col gap-2">
-          <div className="text-[17px] font-600 text-gray-800">{detailProductType}</div>
+          <div className="text-[17px] font-600 text-gray-800">
+            {detailProductType === "일반문" && (details.data as DoorStandardDetails).is_pair_door 
+              ? "일반문 (양문 세트)" 
+              : detailProductType}
+          </div>
           <div className="flex flex-col text-[15px] font-400 text-gray-500">
             {renderDetails(details.data)}
           </div>
         </div>
         {/* 프리뷰는 경첩 개수와 방향을 모두 알 때만 표시 (입력 화면과 동일) */}
+        {/* TODO: 프리뷰 이미지 임시 주석 처리 
         {hasPreviewIcon && 
          detailProductType === "일반문" && 
          (details.data as DoorStandardDetails).hingeCount &&
@@ -477,6 +495,7 @@ const ShoppingCartCardNew: React.FC<ShoppingCartCardNewProps> = ({
             }
           />
         )}
+        */}
       </div>
 
       {/* 총 금액 */}

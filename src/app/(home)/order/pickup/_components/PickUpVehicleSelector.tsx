@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useOrderStore } from "@/store/orderStore";
 import OrderProcessCard from "@/components/OrderProcessCard";
 
-export default function PickUpVehicleSelector() {
+export default function PickUpVehicleSelector({ hasValidationFailed, isLoading }: { hasValidationFailed?: boolean; isLoading?: boolean }) {
   const router = useRouter();
   const order = useOrderStore.getState().order;
 
@@ -18,7 +18,18 @@ export default function PickUpVehicleSelector() {
   };
 
   const getState = () => {
-    return order?.vehicle_type ? 'enabled' : 'errored';
+    if (isLoading) return 'disabled';
+    
+    const isInvalid = !order?.vehicle_type;
+    if (isInvalid && hasValidationFailed) return 'errored';
+    if (isInvalid) return 'emphasized';
+    return 'enabled';
+  };
+
+  const handleClick = () => {
+    if (!isLoading) {
+      router.push("/order/pickup/vehicle");
+    }
   };
 
   return (
@@ -53,7 +64,7 @@ export default function PickUpVehicleSelector() {
       showTrailing={true}
       showBottom={false}
       state={getState()}
-      onClick={() => router.push("/order/pickup/vehicle")}
+      onClick={handleClick}
       className="mt-3"
     />
     </>

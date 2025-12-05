@@ -26,7 +26,8 @@ var CABINET_TYPE_ID_MAP = {
   3: 'DRAWER',
   4: 'OPEN',
   5: 'FLAP',
-  6: 'DIRECT_INPUT'
+  6: 'TALL',
+  7: 'DIRECT_INPUT'
 };
 
 // Some body material / accessory / hardware direct-input sentinel key
@@ -62,12 +63,21 @@ function normalizeTypeViaMap(value, idMap) {
   return String(value);
 }
 
-function resolveDoorType(rawType, directInput) {
+function resolveDoorType(rawType, directInput, isPairDoor) {
   var t = normalizeTypeViaMap(rawType, DOOR_TYPE_ID_MAP);
+  var baseDisplay = getDoorType(t) || t;
+  
   if (t === 'DIRECT_INPUT') {
     return { key: 'DIRECT_INPUT', display: '(직접 입력) ' + (directInput || '') };
   }
-  return { key: t, display: getDoorType(t) || t };
+  
+  // 양문인 경우 "(양문 세트)" 추가
+  var display = baseDisplay;
+  if (isPairDoor) {
+    display += ' (양문 세트)';
+  }
+  
+  return { key: t, display: display };
 }
 
 function resolveCabinetType(rawType, directInput) {
@@ -107,11 +117,29 @@ function doPost(e) {
   // Normalize order_items to array to avoid runtime errors
   var orderItems = Array.isArray(data.order_items) ? data.order_items : [];
 
-  // 날짜 포맷 변환
+  // 날짜/파일명 구성
   var dateObj = new Date(data.created_at);
-  var formattedDate = Utilities.formatDate(dateObj, 'Asia/Seoul', 'yyyyMMdd_HHmm');
-  var fileName = 'receipt_' + data.recipient_phone + '_' + formattedDate;
+  var formattedDate = Utilities.formatDate(dateObj, 'Asia/Seoul', 'yyMMdd');
+  var deliveryText = String(data.delivery_type).toUpperCase() === 'DELIVERY' ? '배송' : '픽업';
+  var firstCategory = (orderItems.length > 0)
+    ? toKoreanBroadType(orderItems[0].product_type)
+    : '항목';
+  var others = Math.max((data.order_items ? data.order_items.length : 0), 0);
+
+  var fileName = formattedDate + ' ' + deliveryText + ' 견적서 (' + firstCategory + ' 등 ' + others + '개)';
+
+  // 1) 스프레드시트 생성
   var ss = SpreadsheetApp.create(fileName);
+
+  // 2) 생성된 파일을 지정 폴더로 이동
+  var folderId = '1_spts4Zsgohfk7Zs7rFegbAE6n741JD4'; // 폴더 URL의 마지막 ID
+  var file = DriveApp.getFileById(ss.getId());
+  var folder = DriveApp.getFolderById(folderId);
+
+  // 폴더에 추가하고 루트에서 제거(루트에 남지 않도록)
+  folder.addFile(file);
+  DriveApp.getRootFolder().removeFile(file);
+
 
   var sheet = ss.getActiveSheet();
   sheet.setName('receipt');
@@ -469,7 +497,7 @@ function doPost(e) {
 
 function addDoorItem(sheet, startRow, startCol, orderItem) {
   var opts = orderItem.item_options || {};
-  var doorTypeResolved = resolveDoorType(opts.door_type, opts.door_type_direct_input);
+  var doorTypeResolved = resolveDoorType(opts.door_type, opts.door_type_direct_input, opts.is_pair_door);
   var width = opts.door_width || opts.width || '';
   var height = opts.door_height || opts.height || '';
   var doorTypeStr = doorTypeResolved.display + ' (W ' + width + ' x H ' + height + ')';
@@ -630,6 +658,7 @@ function getCabinetType(type) {
   if (type === 'FLAP') return '플랩장';
   if (type === 'DRAWER') return '서랍장';
   if (type === 'UPPER') return '상부장';
+  if (type === 'TALL') return '키큰장';
   if (type === 'OPEN') return '오픈장';
   return type;
 }
@@ -681,5 +710,16 @@ function normalizeProductType(pt) {
   // Detail cabinet variants
   if (p.indexOf('CABINET') !== -1) return 'CABINET';
   return p; // fallback
+}
+
+// Map normalized broad product type to Korean label for titles
+function toKoreanBroadType(pt) {
+  var t = normalizeProductType(pt);
+  if (t === 'DOOR') return '가구 도어';
+  if (t === 'FINISH') return '가구 마감재';
+  if (t === 'ACCESSORY') return '가구 부속';
+  if (t === 'HARDWARE') return '가구 하드웨어';
+  if (t === 'CABINET') return '부분장';
+  return String(pt || '항목');
 }
 

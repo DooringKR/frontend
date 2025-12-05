@@ -8,6 +8,7 @@ type OrderProcessCardIcon = 'box' | 'file' | 'headset' | 'kakaoTalk' | 'phone' |
 interface OrderProcessCardProps {
   state?: OrderProcessCardState;
   trailing?: OrderProcessCardTrailing;
+  trailingColor?: string; // trailing 텍스트 색상 (기본값: text-blue-500)
   icon?: OrderProcessCardIcon;
   iconSize?: 24 | 32;
   showLeadingIcon?: boolean;
@@ -32,6 +33,7 @@ interface OrderProcessCardProps {
 const OrderProcessCard: React.FC<OrderProcessCardProps> = ({
   state = 'enabled',
   trailing = 'primary',
+  trailingColor = 'text-blue-500',
   icon = 'truck',
   iconSize = 32,
   showLeadingIcon = true,
@@ -155,10 +157,10 @@ const OrderProcessCard: React.FC<OrderProcessCardProps> = ({
         {showTrailing && (
           <div data-color="Blue" data-has-text={trailing === 'primary' ? 'True' : 'False'} className="h-5 flex justify-end items-center gap-1">
             {trailing === 'primary' && (
-              <div className="justify-start text-blue-500 text-sm font-medium font-['Pretendard'] leading-5">{trailingText}</div>
+              <div className={`justify-start ${trailingColor} text-sm font-medium font-['Pretendard'] leading-5`}>{trailingText}</div>
             )}
             <img 
-              src="/icons/Vector.svg" 
+              src={trailingColor?.includes('gray') ? "/icons/Vector_gray.svg" : "/icons/Vector.svg"}
               alt="arrow" 
               width={6}
               height={12}

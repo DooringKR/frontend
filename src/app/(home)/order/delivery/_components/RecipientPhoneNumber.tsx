@@ -7,12 +7,24 @@ import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 import { useOrderStore } from "@/store/orderStore";
 import OrderProcessCard from "@/components/OrderProcessCard";
 
-export default function RecipientPhoneNumber() {
+export default function RecipientPhoneNumber({ hasValidationFailed, isLoading }: { hasValidationFailed?: boolean; isLoading?: boolean }) {
   const router = useRouter();
   //보여주는 순서 => 주문 정보에 있는 번호 -> 비즈클라이언트에 있는 번호 -> 빈 번호
   const recipientPhoneNumber = useOrderStore.getState().order?.recipient_phone || useBizClient.getState().getPhoneNumber() || "";
+  
+  const getState = () => {
+    if (isLoading) return 'disabled';
+    
+    const isInvalid = !recipientPhoneNumber?.trim();
+    if (isInvalid && hasValidationFailed) return 'errored';
+    if (isInvalid) return 'emphasized';
+    return 'enabled';
+  };
+  
   const handleClick = () => {
-    router.push("/order/delivery/phone");
+    if (!isLoading) {
+      router.push("/order/delivery/phone");
+    }
   };
 
   return (
@@ -40,7 +52,7 @@ export default function RecipientPhoneNumber() {
         showDescriptionLine2={false}
         showTrailing={true}
         showBottom={false}
-        state="enabled"
+        state={getState()}
         onClick={handleClick}
         className="mt-3"
       />

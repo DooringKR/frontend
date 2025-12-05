@@ -9,7 +9,7 @@ const MARGIN = 0.2;
 /**
  * 문짝 가격 계산
  */
-export function calculateUnitDoorPrice(color: string, width: number, height: number) {
+export function calculateUnitDoorPrice(color: string, width: number, height: number, isPairDoor: boolean = false) {
   const originalPrice = calculateOriginalPrice(color);
   const split = calculateSplit(width, height);
 
@@ -20,9 +20,10 @@ export function calculateUnitDoorPrice(color: string, width: number, height: num
   // const finalPrice = Math.ceil(unitPrice / 100) * 100;
 
   // 천원 단위에서 올림 (0911 추가)
-  const finalPrice = Math.ceil(unitPrice / 1000) * 1000;
+  const basePrice = Math.ceil(unitPrice / 1000) * 1000;
 
-  return finalPrice;
+  // 양문인 경우 2배 가격 (세트 상품 가격)
+  return isPairDoor ? basePrice * 2 : basePrice;
 }
 
 /**
