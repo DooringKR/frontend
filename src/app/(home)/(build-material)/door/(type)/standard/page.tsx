@@ -208,7 +208,7 @@ function StandardDoorPageContent() {
                         type="OutlinedLarge"
                         text=""
                         description="양문 한번에 주문"
-                        iconSrc="/img/door-pair/pair.png"
+                        iconSrc="/img/door-pair/pair.svg"
                         iconWidth={160}
                         iconHeight={100}
                         className={selectedDoorType === 'pair' ? '!border-2 !border-brand-500 !bg-brand-50 focus:outline-none focus:ring-0' : 'focus:outline-none focus:ring-0'}
@@ -224,7 +224,7 @@ function StandardDoorPageContent() {
                         type="OutlinedLarge"
                         text=""
                         description="한쪽 문만 주문"
-                        iconSrc="/img/door-pair/single.png"
+                        iconSrc="/img/door-pair/single.svg"
                         iconWidth={160}
                         iconHeight={100}
                         className={selectedDoorType === 'single' ? '!border-2 !border-brand-500 !bg-brand-50 focus:outline-none focus:ring-0' : 'focus:outline-none focus:ring-0'}
