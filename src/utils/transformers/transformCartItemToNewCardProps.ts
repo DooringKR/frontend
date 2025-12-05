@@ -33,8 +33,10 @@ export function transformCartItemToNewCardProps(cartItem: CartItem, detail: any)
       door_location: detail.door_location,
       door_construct: detail.door_construct,
       addOn_hinge: detail.addOn_hinge,
+      hinge_thickness: detail.hinge_thickness,
       door_request: detail.door_request,
       raw_images: detail.door_image_url,
+      is_pair_door: detail.is_pair_door,
     };
     return {
       ...transformDoorToNewCardProps(doorItem),

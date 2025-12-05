@@ -1,8 +1,9 @@
 import Image from "next/image";
-import React from "react";
+import React, { useRef, useEffect, useState } from "react";
 
 import { DOOR_COLOR_LIST } from "../../constants/colorList";
 import BoringInputField from "../Input/BoringInputField";
+import { Chip } from "../Chip/Chip";
 import { HingeDirection } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 interface NormalDoorPreviewProps {
@@ -24,10 +25,38 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
   onChangeBoringSize,
   doorColor,
 }) => {
+  // 컨테이너 너비 측정을 위한 ref와 state
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(375); // 기본값
+
+  // 컨테이너 너비 측정
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.offsetWidth);
+      }
+    };
+
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
+
   // 현재 포커스된 보어링 입력 필드 인덱스
   const [focusedBoringIndex, setFocusedBoringIndex] = React.useState<number | null>(null);
-  // 보어링 input의 높이 계산
-  const boringHeight = 260 / boringNum;
+  
+  // 동적 컨테이너 높이 먼저 계산
+  const fixedWidth = containerWidth / 3;
+  const actualWidth = DoorWidth || 600;
+  const actualHeight = DoorHeight || 1200;
+  const heightRatio = actualHeight / actualWidth;
+  const calculatedHeight = fixedWidth * heightRatio;
+  const minHeight = fixedWidth * 1.5;
+  const maxHeight = fixedWidth * 2.0;
+  const containerHeight = Math.max(minHeight, Math.min(calculatedHeight, maxHeight));
+  
+  // 보어링 input의 높이를 동적 컨테이너 높이 기준으로 계산
+  const boringHeight = containerHeight / boringNum;
 
   // boringSize 변경 핸들러
   const handleBoringInputChange = (idx: number, value: number | null) => {
@@ -54,55 +83,47 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
     return boringSize;
   }, [boringSize, boringNum]);
 
-  // 보어링 input 배열 생성
-  const boringInputs = Array.from({ length: boringNum }).map((_, idx) => (
-    <div
-      key={idx}
-      style={{ height: `${boringHeight}px` }} // style로 직접 높이 지정
-      className="relative flex items-center justify-center"
-    >
-      <div className="max-w-[125px] flex items-center">
-        <BoringInputField
-          placeholder="보링(mm)"
-          value={adjustedBoringSize[idx] ?? null}
-          onChange={value => handleBoringInputChange(idx, value)}
-          onFocus={() => setFocusedBoringIndex(idx)}
-          onBlur={() => setFocusedBoringIndex(null)}
-        />
+  // 보링 input 배열 생성 - 보링 원 위치와 일치
+  const boringInputs = Array.from({ length: boringNum }).map((_, idx) => {
+    // 보링 원과 동일한 위치 계산
+    const startY = 30;
+    const endY = containerHeight - 30;
+    const y = startY + idx * ((endY - startY) / (boringNum - 1));
+    
+    return (
+      <div
+        key={idx}
+        style={{ 
+          position: "absolute",
+          top: `${y - 20}px`, // 입력 필드 중심을 보링 원과 맞춤
+          width: "100%",
+          display: "flex",
+          justifyContent: "center"
+        }}
+        className="relative flex items-center justify-center"
+      >
+        <div className="flex items-center w-full">
+          <BoringInputField
+            placeholder="보링(mm)"
+            value={adjustedBoringSize[idx] ?? null}
+            onChange={value => handleBoringInputChange(idx, value)}
+            onFocus={() => setFocusedBoringIndex(idx)}
+            onBlur={() => setFocusedBoringIndex(null)}
+          />
+        </div>
       </div>
-    </div>
-  ));
+    );
+  });
 
-  // input height
+  // input height (세로 길이는 더 이상 옆에 표시하지 않음)
   // Todo: boringDirection에 따라 좌우 정렬 달라져야 함
-  const inputHeight = (
-    <div className={`flex h-full flex-col items-center justify-center`}>
-      <div className="w-full text-center text-[17px]">
-        {DoorHeight !== undefined && DoorHeight !== null && DoorHeight !== 0 ? (
-          <span className="font-500 text-gray-800">{DoorHeight}mm</span>
-        ) : (
-          <span className="font-600 text-gray-300">입력 필요</span>
-        )}
-      </div>
-      <div className="text-center text-[14px] font-500 text-gray-400">세로</div>
-    </div>
-  );
+  const inputHeight = null; // 사용하지 않음
 
   // Next.js Image로 문짝 미리보기 그리기
   const DoorImage = (() => {
-    // 세로 길이 고정
-    const fixedHeight = 260;
-
-    // 실제 문짝 크기 (입력값이 없으면 기본값 사용)
-    const actualWidth = DoorWidth || 600;
-    const actualHeight = DoorHeight || 1200;
-
-    // 비율 계산 (가로/세로)
-    const widthRatio = actualWidth / actualHeight;
-
-    // 가로 길이 계산 (세로 고정 기준)
-    const doorWidth = Math.min(fixedHeight * widthRatio, 200); // 최대 200px로 제한
-    const doorHeight = fixedHeight;
+    // 실제 컨테이너 너비에서 가로 길이 계산
+    const fixedWidth = containerWidth / 3; // 1/3 영역
+    const doorWidth = fixedWidth;
 
     // doorColor에 해당하는 이미지 URL 찾기
     const colorImage = doorColor
@@ -113,14 +134,26 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
 
       <div
         style={{
-          width: `${doorWidth}px`,
-          height: `${doorHeight}px`,
+          width: "100%",
+          height: `${containerHeight}px`, // 외부에서 계산한 containerHeight 사용
           position: "relative",
-          borderRadius: "8px",
-          // border: "2px solid #E5E7EB",
           overflow: "visible",
+          display: "flex",
+          alignItems: "flex-start", // 상단 정렬로 변경
+          justifyContent: "center",
+          maxWidth: "100%",
         }}
       >
+        <div
+          style={{
+            width: `${Math.max(doorWidth, 60)}px`,
+            maxWidth: "100%",
+            height: `${containerHeight}px`,
+            position: "relative",
+            overflow: "visible",
+            minWidth: "60px",
+          }}
+        >
         {/* 문짝 배경 이미지 또는 색상 */}
         {colorImage ? (
           <Image
@@ -129,7 +162,6 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
             fill
             style={{
               objectFit: "cover",
-              borderRadius: "8px",
             }}
           />
         ) : (
@@ -137,8 +169,8 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
             style={{
               width: "100%",
               height: "100%",
-              backgroundColor: doorColor || "#F9FAFB",
-              borderRadius: "8px",
+              backgroundColor: doorColor || "#E5E7EB",
+              border: "2px solid #111827", // border-gray-900
             }}
           />
         )}
@@ -150,7 +182,7 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
           const centerX = boringDirection === HingeDirection.LEFT ? boringOffset : doorWidth - boringOffset;
 
           const startY = 30;
-          const endY = doorHeight - 30;
+          const endY = containerHeight - 30;
           const y = startY + index * ((endY - startY) / (boringNum - 1));
 
           const isFocused = focusedBoringIndex === index;
@@ -201,7 +233,7 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
                     width: "2px",
                     height:
                       index === boringNum - 1 || (boringNum === 4 && index === 2)
-                        ? `${doorHeight - y - 10}px`
+                        ? `${containerHeight - y - 10}px`
                         : `${y - 10}px`, // 맨 아래 보링과 4개일 때 3번째는 아래쪽으로, 나머지는 위쪽으로
                     background:
                       index === boringNum - 1 || (boringNum === 4 && index === 2)
@@ -297,48 +329,65 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
             left: 0,
             right: 0,
             bottom: 0,
-            border: "1px solid #D1D5DB",
-            borderRadius: "8px",
+            border: "2px solid #111827", // border-2 border-gray-900
             pointerEvents: "none",
           }}
         />
+        </div>
       </div>
 
     );
   })();
 
-  // 동적 너비 계산
-  const doorContainerWidth = Math.min(260 * ((DoorWidth || 600) / (DoorHeight || 1200)), 200);
 
-  // 방향에 따라 순서 결정
+
+  // 방향에 따른 3컬럼 구조 결정
   const mainRow =
     boringDirection === HingeDirection.LEFT ? (
       <>
-        <div className="flex w-[125px] flex-col pr-[12px]">{boringInputs}</div>
-        <div style={{ width: `${doorContainerWidth}px` }}>{DoorImage}</div>
-        <div className="flex w-[125px] items-end pl-[12px]">{inputHeight}</div>
+        {/* 좌경첩: 보링 입력 | 이미지 | 빈 곳 */}
+        <div className="relative flex items-start justify-center pr-3">
+          {boringInputs}
+        </div>
+        <div className="flex items-start justify-center">{DoorImage}</div>
+        <div className="flex items-start justify-center"></div>
       </>
     ) : (
       <>
-        <div className="flex w-[125px] items-start pr-[12px]">{inputHeight}</div>
-        <div style={{ width: `${doorContainerWidth}px` }}>{DoorImage}</div>
-        <div className="flex w-[125px] flex-col pl-[12px]">{boringInputs}</div>
+        {/* 우경첩: 빈 곳 | 이미지 | 보링 입력 */}
+        <div className="flex items-start justify-center"></div>
+        <div className="flex items-start justify-center">{DoorImage}</div>
+        <div className="relative flex items-start justify-center pl-3">
+          {boringInputs}
+        </div>
       </>
     );
 
   return (
-    <div className="flex w-[375px] flex-col items-center justify-center">
-      <div className="flex h-[260px] w-full">{mainRow}</div>
-      {/* input width */}
-      <div className="flex w-full flex-col justify-center pt-3">
-        <div className="w-full text-center text-[17px]">
-          {DoorWidth !== undefined && DoorWidth !== null && DoorWidth !== 0 ? (
-            <span className="font-500 text-gray-800">{DoorWidth}mm</span>
-          ) : (
-            <span className="font-600 text-gray-300">입력 필요</span>
-          )}
+    <div ref={containerRef} className="flex w-full flex-col items-center justify-center">
+      <div className="grid grid-cols-3 w-full" style={{ height: `${containerHeight}px` }}>{mainRow}</div>
+      {/* 가로/세로 길이를 이미지 아래에 Chip으로 표시 */}
+      <div className="flex w-full justify-center pt-3 gap-4">
+        <div className="flex items-center gap-2">
+          <Chip text="가로" color="gray" weight="weak" />
+          <div className="text-[17px]">
+            {DoorWidth !== undefined && DoorWidth !== null && DoorWidth !== 0 ? (
+              <span className="font-500 text-gray-800">{DoorWidth}</span>
+            ) : (
+              <span className="font-600 text-gray-300">입력 필요</span>
+            )}
+          </div>
         </div>
-        <div className="text-center text-[14px] font-500 text-gray-400">가로</div>
+        <div className="flex items-center gap-2">
+          <Chip text="세로" color="gray" weight="weak" />
+          <div className="text-[17px]">
+            {DoorHeight !== undefined && DoorHeight !== null && DoorHeight !== 0 ? (
+              <span className="font-500 text-gray-800">{DoorHeight}</span>
+            ) : (
+              <span className="font-600 text-gray-300">입력 필요</span>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

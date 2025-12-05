@@ -40,6 +40,7 @@ import {
   getTotalValueFromCartItems 
 } from "@/utils/getCartProductTypes";
 import { sortProductTypes, sortDetailProductTypes } from "@/utils/formatCartProductTypes";
+import OrderProcessCard from "@/components/OrderProcessCard";
 
 const CATEGORY_MAP: Record<string, string> = {
   door: "문짝",
@@ -53,6 +54,7 @@ function CheckOrderClientPage() {
   const router = useRouter();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [hasValidationFailed, setHasValidationFailed] = useState(false);
 
   // Cart 관련 상태
   const cart = useCartStore(state => state.cart);
@@ -109,16 +111,49 @@ function CheckOrderClientPage() {
 
     // 주소 입력 검증
     if (!order?.road_address?.trim()) {
-      alert("배송 주소를 입력해주세요.");
+      setHasValidationFailed(true);
+      const addressElement = document.querySelector('[data-component="delivery-address"]');
+      if (addressElement) {
+        addressElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
       return;
     }
 
     if (!order?.detail_address?.trim()) {
-      alert("상세 주소를 입력해주세요.");
+      setHasValidationFailed(true);
+      const addressElement = document.querySelector('[data-component="delivery-address"]');
+      if (addressElement) {
+        addressElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
+    // 배송 요청사항 검증
+    const isRequestInvalid = !order?.delivery_method ||
+      (order?.delivery_method === DeliveryMethod.OPEN_GATE && !order?.gate_password?.trim()) ||
+      (order?.delivery_method === DeliveryMethod.DIRECT_INPUT && !order?.delivery_method_direct_input?.trim());
+    
+    if (isRequestInvalid) {
+      setHasValidationFailed(true);
+      const requestElement = document.querySelector('[data-component="delivery-request"]');
+      if (requestElement) {
+        requestElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
+    // 배송 일정 검증
+    if (order?.is_today_delivery === false && !order?.delivery_arrival_time) {
+      setHasValidationFailed(true);
+      const scheduleElement = document.querySelector('[data-component="delivery-schedule"]');
+      if (scheduleElement) {
+        scheduleElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
       return;
     }
 
     setIsLoading(true);
+    setHasValidationFailed(false); // 로딩 시작과 동시에 검증 실패 상태 초기화
 
     try {
       // 1. 주문 생성 (CreateOrderUsecase 사용)
@@ -237,12 +272,7 @@ function CheckOrderClientPage() {
     }
   };
 
-  const isRequestInvalid =
-    !order?.delivery_method ||
-    (order?.delivery_method === DeliveryMethod.OPEN_GATE && !order?.gate_password?.trim()) ||
-    (order?.delivery_method === DeliveryMethod.DIRECT_INPUT &&
-      !order?.delivery_method_direct_input?.trim()) ||
-    (order?.is_today_delivery === false && !order?.delivery_arrival_time);
+
   return (
     <div className="flex min-h-screen flex-col justify-between pt-[60px]">
       <TopNavigator title="주문하기" />
@@ -255,7 +285,7 @@ function CheckOrderClientPage() {
       <div className="flex-grow px-5">
         <div className="flex flex-col gap-3 py-5">
           <h2 className="text-xl font-600 text-gray-800">주소 확인</h2>
-          <DeliveryAddressCard
+          {/* <DeliveryAddressCard
             address={{ address1: order?.road_address!, address2: order?.detail_address! }}
             setAddress={(address: { address1: string; address2: string }) => {
               updateOrder({
@@ -263,15 +293,42 @@ function CheckOrderClientPage() {
                 detail_address: address.address2,
               });
             }}
-          />
+          /> */}
+          
+          {/* OrderProcessCard로 표현한 주소 입력 예시 */}
+          <div data-component="delivery-address">
+            <OrderProcessCard
+              title="배송 주소"
+              descriptionLine1={order?.road_address || "도로명 주소를 입력해주세요"}
+              descriptionLine2={order?.detail_address || "상세 주소를 입력해주세요"}
+              trailing="secondary"
+              trailingColor="text-gray-400"
+              showLeadingIcon={false}
+              showSamedaydeliverySticker={false}
+              showBottom={false}
+              state={
+                isLoading ? 'disabled' :
+                (!order?.road_address?.trim() || !order?.detail_address?.trim()) && hasValidationFailed
+                  ? 'errored'
+                  : (!order?.road_address?.trim() || !order?.detail_address?.trim())
+                  ? 'emphasized'
+                  : 'enabled'
+              }
+              onClick={() => !isLoading && router.push("/order/delivery/address")}
+            />
+          </div>
         </div>
 
-        <DeliveryScheduleSelector />
+        <div data-component="delivery-schedule">
+          <DeliveryScheduleSelector hasValidationFailed={hasValidationFailed} isLoading={isLoading} />
+        </div>
 
         <section className="flex flex-col gap-3 py-5">
           <h2 className="text-xl font-600 text-gray-800">배송정보 확인</h2>
-          <RecipientPhoneNumber />
-          <DeliveryRequestSelector />
+          <RecipientPhoneNumber hasValidationFailed={hasValidationFailed} isLoading={isLoading} />
+          <div data-component="delivery-request">
+            <DeliveryRequestSelector hasValidationFailed={hasValidationFailed} isLoading={isLoading} />
+          </div>
         </section>
 
         <div className="flex flex-col gap-1">
@@ -279,17 +336,19 @@ function CheckOrderClientPage() {
           <PaymentNoticeCard />
         </div>
       </div>
+            
       <div className="h-[150px]"></div>
-      <div id="delivery-order-button" className="fixed bottom-0 w-full max-w-[460px] p-5">
+      <div id ="delivery-order-button">
         <BottomButton
           type={"1button"}
           button1Text={isLoading ? "주문 요청 중..." : "주문 접수하기"}
-          className="w-full"
-          button1Disabled={isRequestInvalid || isLoading}
+          className="fixed bottom-0 w-full max-w-[460px]"
+          button1Disabled={isLoading}
           onButton1Click={handleOrderSubmit}
-        >
-        </BottomButton>
+        />
+
       </div>
+
     </div>
   );
 }

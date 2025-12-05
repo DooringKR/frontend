@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState, useRef } from "react";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import Header from "@/components/Header/Header";
@@ -10,6 +10,9 @@ import BoxedInput from "@/components/Input/BoxedInput";
 import ImageUploadInput from "@/components/Input/ImageUploadInput";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import Checkbox from "@/components/Checkbox";
+import SelectableOptionCard from "@/components/SelectableOptionCard";
+
+import { HingeThickness } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 import useItemStore from "@/store/itemStore";
 
@@ -39,6 +42,13 @@ function StandardDoorAdditionalPageContent() {
     const [addOn_hinge, setAddOn_hinge] = useState(item?.addOn_hinge ?? false);
     const [door_construct, setDoorConstruct] = useState(item?.door_construct ?? false);
     const [images, setImages] = useState<File[]>(item?.raw_images || []);
+    
+    // 몸통 두께 선택을 위한 상태 (단일 선택)
+    const [selectedThickness, setSelectedThickness] = useState<HingeThickness | null>(item?.hinge_thickness ?? null);
+    
+    // 검증 관련 상태
+    const [hasValidationFailed, setHasValidationFailed] = useState(false);
+    const thicknessRef = useRef<HTMLDivElement>(null);
 
     const handleRequestChange = (newRequest: string) => {
         setDoorRequest(newRequest);
@@ -54,11 +64,52 @@ function StandardDoorAdditionalPageContent() {
     const handleAddOnHingeChange = (newAddOnHinge: boolean) => {
         setAddOn_hinge(newAddOnHinge);
         updateItem({ addOn_hinge: newAddOnHinge });
+        
+        // 경첩 선택 해제시 두께 선택도 초기화
+        if (!newAddOnHinge) {
+            setSelectedThickness(null);
+            updateItem({ hinge_thickness: null });
+        }
     };
 
     const handleDoorConstructChange = (newDoorConstruct: boolean) => {
         setDoorConstruct(newDoorConstruct);
         updateItem({ door_construct: newDoorConstruct });
+    };
+
+    const handleThicknessChange = (thickness: HingeThickness) => {
+        const newValue = selectedThickness === thickness ? null : thickness;
+        setSelectedThickness(newValue);
+        updateItem({ hinge_thickness: newValue });
+        // 에러 상태 초기화
+        if (hasValidationFailed && newValue !== null) {
+            setHasValidationFailed(false);
+        }
+    };
+
+    const validateAndProceed = () => {
+        // 경첩을 선택했는데 두께를 선택하지 않은 경우
+        if (addOn_hinge && !selectedThickness) {
+            setHasValidationFailed(true);
+            // 해당 영역으로 스크롤
+            setTimeout(() => {
+                thicknessRef.current?.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+            }, 100);
+            return;
+        }
+        
+        // 검증 통과시 다음 페이지로 이동
+        setHasValidationFailed(false);
+        trackClick({
+            object_type: "button",
+            object_name: "confirm",
+            current_page: getScreenName(),
+            modal_name: null,
+        });
+        router.push("/door/report");
     };
 
     return (
@@ -81,21 +132,61 @@ function StandardDoorAdditionalPageContent() {
 
                 <div className="w-full text-[14px] font-400 text-gray-600"> 추가선택</div>
 
-
-                <div className="flex justify-start items-center gap-2">
-                    <Checkbox 
-                        checked={addOn_hinge} 
+                <div className={`w-full rounded-2xl outline outline-1 outline-offset-[-1px] outline-gray-200 inline-flex flex-col justify-start items-start overflow-hidden`}>
+                    
+                        <SelectableOptionCard   
+                            title="경첩도 같이 받을래요"
+                            showImage={true}
+                            imageUrl="/img/hardware-category/hinge.png"
+                            showChip={true}
+                            chipText="인기"
+                            chipColor="yellow"
+                            showExpandableContent={true}
+                            expandableContent={
+                            <div className="w-full" onClick={(e) => e.stopPropagation()}>
+                                <div className="w-full justify-start text-gray-500 text-sm font-normal font-['Pretendard'] leading-5">몸통 두께</div>
+                                <div className="w-full inline-flex justify-center items-center">
+                                    {[
+                                        {value: HingeThickness.FIFTEEN, label: '15T'}, 
+                                        {value: HingeThickness.EIGHTEEN, label: '18T'}, 
+                                        {value: HingeThickness.UNKNOWN, label: '모름'}
+                                    ].map(({value, label}) => (
+                                        <div key={value} className="flex-1 h-10 flex justify-start items-center gap-2">
+                                            <Checkbox
+                                                variant="circle"
+                                                checked={selectedThickness === value}
+                                                onChange={() => handleThicknessChange(value)}
+                                            />
+                                            <div className="flex-1 justify-start text-gray-500 text-base font-medium font-['Pretendard'] leading-5">{label}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                                {/* 에러 메시지 */}
+                                {hasValidationFailed && addOn_hinge && !selectedThickness && (
+                                    <div className="mt-2 text-red-500 text-sm font-medium font-['Pretendard']">
+                                        몸통 두께를 선택해주세요
+                                    </div>
+                                )}
+                            </div>
+                        }
+                        checked={addOn_hinge}
                         onChange={handleAddOnHingeChange}
-                    />
-                    <div className="text-center justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-6">경첩도 같이 받을래요</div>
-                </div>
-                
-                <div className="flex justify-start items-center gap-2">
-                    <Checkbox 
-                        checked={door_construct} 
+                        className="mb-4"
+                        />
+                    
+                    
+                    <div className="self-stretch h-px bg-gray-100" />
+
+                    <SelectableOptionCard
+                        title="시공도 필요해요"
+                        description="세부 내용은 상담으로 안내해드려요."
+                        showImage={true}
+                        imageUrl="/img/door_construction.png"
+                        showChip={false}
+                        showExpandableContent={false}
+                        checked={door_construct}
                         onChange={handleDoorConstructChange}
                     />
-                    <div className="text-center justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-6">시공도 필요해요</div>
                 </div>
 
                 <div className="w-full pt-2 inline-flex flex-col justify-start items-center gap-2.5">
@@ -122,15 +213,7 @@ function StandardDoorAdditionalPageContent() {
                     button1Text={"다음"}
                     className="fixed bottom-0 w-full max-w-[460px]"
                     button1Disabled={false}
-                    onButton1Click={() => {
-                        trackClick({
-                            object_type: "button",
-                            object_name: "confirm",
-                            current_page: getScreenName(),
-                            modal_name: null,
-                        });
-                        router.push("/door/report");
-                    }}
+                    onButton1Click={validateAndProceed}
                 />
             </div>
 

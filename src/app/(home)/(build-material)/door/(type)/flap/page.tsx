@@ -199,7 +199,7 @@ function FlapDoorPageContent() {
                 {/* 세로 길이가 입력된 경우에만 경첩 섹션 표시 */}
                 {doorHeight && (
                     <>
-                        <div className="w-full text-[14px] font-400 text-gray-600"> 경첩 개수</div>
+                        <div className="w-full text-[14px] font-400 text-gray-600"> 보링(경첩 구멍) 개수</div>
                         <div className="self-stretch inline-flex justify-center items-center gap-5">
                             <div className="flex-1 flex justify-center items-center gap-2">
                                 <Button
@@ -281,7 +281,7 @@ function FlapDoorPageContent() {
                                         <ManWhiteIcon />
                                     </div>
                                     <div className="flex-1 inline-flex flex-col justify-start items-start">
-                                        <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">경첩 개수 몰라도 괜찮아요</div>
+                                        <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">보링 개수 몰라도 괜찮아요</div>
                                         <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">주문이 접수되면 상담으로 안내해드려요.</div>
                                     </div>
                                 </div>

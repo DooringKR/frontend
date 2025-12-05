@@ -5,7 +5,7 @@ import { useDeliveryDate } from "./_hooks/useDeliveryDate";
 import TodayDeliveryOption from "./_components/TodayDeliveryOption";
 import CustomDateDeliveryOption from "./_components/CustomDateDeliveryOption";
 
-export default function DeliveryScheduleSelector() {
+export default function DeliveryScheduleSelector({ hasValidationFailed, isLoading }: { hasValidationFailed?: boolean; isLoading?: boolean }) {
   const { expectedArrivalMinutes, isTodayDeliveryAvailable } = useDeliverySchedule();
   const { formatSelectedDate } = useDeliveryDate();
 
@@ -16,11 +16,15 @@ export default function DeliveryScheduleSelector() {
       <TodayDeliveryOption
         expectedArrivalMinutes={expectedArrivalMinutes}
         isTodayDeliveryAvailable={isTodayDeliveryAvailable}
+        hasValidationFailed={hasValidationFailed}
+        isLoading={isLoading}
       />
 
       <CustomDateDeliveryOption
         formatSelectedDate={formatSelectedDate}
         isTodayDeliveryAvailable={isTodayDeliveryAvailable}
+        hasValidationFailed={hasValidationFailed}
+        isLoading={isLoading}
       />
     </section>
   );

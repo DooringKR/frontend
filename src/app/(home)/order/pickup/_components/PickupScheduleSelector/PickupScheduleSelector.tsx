@@ -4,8 +4,9 @@ import { usePickupDate } from "./_hooks/usePickupDate";
 import PickupDateTimeSelector from "./_components/PickupDateTimeSelector";
 import { useOrderStore } from "@/store/orderStore";
 import { useEffect } from "react";
+import OrderProcessCard from "@/components/OrderProcessCard";
 
-export default function PickupScheduleSelector() {
+export default function PickupScheduleSelector({ hasValidationFailed, isLoading }: { hasValidationFailed?: boolean; isLoading?: boolean }) {
     const { formatSelectedDate } = usePickupDate();
     const order = useOrderStore(state => state.order);
     const updateOrder = useOrderStore(state => state.updateOrder);
@@ -18,11 +19,21 @@ export default function PickupScheduleSelector() {
         }
     }, []);
 
+    const getState = () => {
+        if (isLoading) return 'disabled';
+        
+        const isInvalid = !order?.pickup_time;
+        if (isInvalid && hasValidationFailed) return 'errored';
+        if (isInvalid) return 'emphasized';
+        return 'activated'; // 픽업 스케줄은 선택되면 활성화 상태로 표시
+    };
+
     return (
         <section className="flex flex-col gap-3">
             <h2 className="text-xl font-600">픽업일정 선택</h2>
 
-            <div className="flex cursor-pointer flex-col gap-1 rounded-xl border-2 border-gray-800 px-5 py-4">
+            {/* 기존 구현 */}
+            {/* <div className="flex cursor-pointer flex-col gap-1 rounded-xl border-2 border-gray-800 px-5 py-4">
                 <div className="flex justify-between">
                     <span className="text-[17px] font-600">원하는 날짜 픽업</span>
                 </div>
@@ -39,7 +50,34 @@ export default function PickupScheduleSelector() {
                         return formatSelectedDate(new Date(dateString));
                     }}
                 />
-            </div>
+            </div> */}
+
+            {/* OrderProcessCard 구현 */}
+            <OrderProcessCard
+                title="원하는 날짜 픽업"
+                descriptionLine1={
+                    order?.pickup_time
+                        ? `${formatSelectedDate(order.pickup_time)} 원하는 시간 픽업`
+                        : "날짜를 선택해주세요 원하는 시간 픽업"
+                }
+                trailing="primary"
+                trailingText=""
+                showLeadingIcon={false}
+                showSamedaydeliverySticker={false}
+                showDescriptionLine2={false}
+                showTrailing={false}
+                showBottom={true}
+                state={getState()}
+                bottomLabel=""
+                bottomContent={
+                    <PickupDateTimeSelector
+                        formatSelectedDate={(dateString: string) => {
+                            return formatSelectedDate(new Date(dateString));
+                        }}
+                    />
+                }
+                className="mt-3"
+            />
         </section>
     );
 }
