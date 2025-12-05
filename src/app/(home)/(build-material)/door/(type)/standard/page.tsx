@@ -6,6 +6,7 @@ import { Suspense, useEffect, useState, useRef } from "react";
 import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import Button from "@/components/Button/Button";
+import ImageButton from "@/components/Button/ImageButton";
 import Header from "@/components/Header/Header";
 import ProgressBar from "@/components/Progress";
 import BoxedInput from "@/components/Input/BoxedInput";
@@ -205,14 +206,11 @@ function StandardDoorPageContent() {
                     onChange={handleDoorLocationChange}
                 />
                 <div className="flex flex-row gap-2">
-                    <Button
-                        type="OutlinedLarge"
-                        text=""
+                    <ImageButton
+                        imageSrc="/img/door-pair/pair.svg"
+                        imageAlt="양문"
                         description="양문 한번에 주문"
-                        iconSrc="/img/door-pair/pair.svg"
-                        iconWidth={160}
-                        iconHeight={100}
-                        className={selectedDoorType === 'pair' ? '!border-2 !border-brand-500 !bg-brand-50 focus:outline-none focus:ring-0' : 'focus:outline-none focus:ring-0'}
+                        selected={selectedDoorType === 'pair'}
                         onClick={() => {
                             setSelectedDoorType('pair');
                             // 양문 선택 시 hingeDirection을 null로 설정 (양문은 경첩 방향이 없음)
@@ -220,20 +218,23 @@ function StandardDoorPageContent() {
                             updateItem({ is_pair_door: true, hinge_direction: null });
                             // 양문 전용 플로우로 분기
                         }}
+                        className="flex-1"
+                        imageWidth={160}
+                        imageHeight={100}
                     />
-                    <Button
-                        type="OutlinedLarge"
-                        text=""
+                    <ImageButton
+                        imageSrc="/img/door-pair/single.svg"
+                        imageAlt="단일문"
                         description="한쪽 문만 주문"
-                        iconSrc="/img/door-pair/single.svg"
-                        iconWidth={160}
-                        iconHeight={100}
-                        className={selectedDoorType === 'single' ? '!border-2 !border-brand-500 !bg-brand-50 focus:outline-none focus:ring-0' : 'focus:outline-none focus:ring-0'}
+                        selected={selectedDoorType === 'single'}
                         onClick={() => {
                             setSelectedDoorType('single');
                             updateItem({ is_pair_door: false });
                             // 기존 단문 플로우 유지
                         }}
+                        className="flex-1"
+                        imageWidth={160}
+                        imageHeight={100}
                     />
                 </div>
 
