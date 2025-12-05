@@ -102,7 +102,7 @@ const PairDoorPreview: React.FC<PairDoorPreviewProps> = ({
         }}
         className="relative flex items-center justify-center"
       >
-        <div className="flex items-center w-full">
+        <div className="flex items-center w-full pl-3">
           <BoringInputField
             placeholder="보링(mm)"
             value={adjustedBoringSize[idx] ?? null}

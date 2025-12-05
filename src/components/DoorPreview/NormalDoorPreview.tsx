@@ -102,7 +102,7 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
         }}
         className="relative flex items-center justify-center"
       >
-        <div className="max-w-[100px] flex items-center">
+        <div className="flex items-center w-full">
           <BoringInputField
             placeholder="보링(mm)"
             value={adjustedBoringSize[idx] ?? null}
@@ -346,7 +346,7 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
     boringDirection === HingeDirection.LEFT ? (
       <>
         {/* 좌경첩: 보링 입력 | 이미지 | 빈 곳 */}
-        <div className="relative flex items-start justify-center">
+        <div className="relative flex items-start justify-center pr-3">
           {boringInputs}
         </div>
         <div className="flex items-start justify-center">{DoorImage}</div>
@@ -357,7 +357,7 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
         {/* 우경첩: 빈 곳 | 이미지 | 보링 입력 */}
         <div className="flex items-start justify-center"></div>
         <div className="flex items-start justify-center">{DoorImage}</div>
-        <div className="relative flex items-start justify-center">
+        <div className="relative flex items-start justify-center pl-3">
           {boringInputs}
         </div>
       </>
