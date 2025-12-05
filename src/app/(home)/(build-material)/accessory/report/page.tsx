@@ -30,11 +30,11 @@ import { trackClick, trackView, trackAddToCart } from "@/services/analytics/ampl
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 import useCartItemStore from "@/store/cartItemStore";
 import { sortProductTypes, sortDetailProductTypes } from "@/utils/formatCartProductTypes";
-import { 
-  getProductTypesFromCartItems, 
-  getDetailProductTypesFromCartItems,
-  getTotalQuantityFromCartItems,
-  getTotalValueFromCartItems 
+import {
+    getProductTypesFromCartItems,
+    getDetailProductTypesFromCartItems,
+    getTotalQuantityFromCartItems,
+    getTotalValueFromCartItems
 } from "@/utils/getCartProductTypes";
 
 function ReportPageContent() {
@@ -44,6 +44,7 @@ function ReportPageContent() {
     const cartItems = useCartItemStore((state) => state.cartItems);
 
     const [quantity, setQuantity] = useState(1);
+    const [isLoading, setIsLoading] = useState(false);
 
     // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
     useEffect(() => {
@@ -79,7 +80,7 @@ function ReportPageContent() {
             <div className="flex flex-col gap-[20px] px-5 pb-[100px] pt-5">
 
                 <ShoppingCartCardNew {...transformAccessoryToNewCardProps(item)} />
-                
+
                 <OrderSummaryCard
                     quantity={quantity}
                     unitPrice={unitPrice}
@@ -97,9 +98,14 @@ function ReportPageContent() {
             <div id="accessory-add-to-cart-button">
                 <BottomButton
                     type={"1button"}
-                    button1Text={"장바구니 담기"}
+                    button1Text={isLoading ? "처리 중..." : "장바구니 담기"}
                     className="fixed bottom-0 w-full max-w-[460px]"
+                    button1Disabled={isLoading}
                     onButton1Click={async () => {
+                        // 이미 로딩 중이면 중복 클릭 방지
+                        if (isLoading) return;
+
+                        setIsLoading(true);
                         trackClick({
                             object_type: "button",
                             object_name: "add_to_cart",
@@ -121,7 +127,7 @@ function ReportPageContent() {
                             ).create(accessory);
 
                             const detailProductType = DetailProductType.ACCESSORY;
-                            
+
                             const cartItem = new CartItem({
                                 cart_id: cart!.id!,
                                 item_detail: createdAccessory.id!,
@@ -140,11 +146,11 @@ function ReportPageContent() {
                             const cartQuantityTotalBefore = getTotalQuantityFromCartItems(cartItems);
                             const cartQuantityTypeBefore = cartItems.length;
                             const cartValueBefore = getTotalValueFromCartItems(cartItems);
-                            
+
                             // 추가 후 상태 계산 (새 아이템 포함)
                             const productTypesAfter = getProductTypesFromCartItems(cartItems, detailProductType);
                             const detailProductTypesAfter = await getDetailProductTypesFromCartItems(cartItems, detailProductType, accessory);
-                            
+
                             await trackAddToCart({
                                 product_type: sortProductTypes(productTypesAfter),
                                 detail_product_type: sortDetailProductTypes(detailProductTypesAfter),
@@ -171,6 +177,7 @@ function ReportPageContent() {
                             router.replace("/cart");
                         } catch (error: any) {
                             console.error("장바구니 담기 실패:", error);
+                            setIsLoading(false);
                         }
                     }}
                 />

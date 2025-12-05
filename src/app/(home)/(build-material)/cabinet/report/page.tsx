@@ -40,11 +40,11 @@ import PaymentNoticeCard from "@/components/PaymentNoticeCard";
 import useCartItemStore from "@/store/cartItemStore";
 import { ProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 import { sortProductTypes, sortDetailProductTypes } from "@/utils/formatCartProductTypes";
-import { 
-  getProductTypesFromCartItems, 
-  getDetailProductTypesFromCartItems,
-  getTotalQuantityFromCartItems,
-  getTotalValueFromCartItems 
+import {
+	getProductTypesFromCartItems,
+	getDetailProductTypesFromCartItems,
+	getTotalQuantityFromCartItems,
+	getTotalValueFromCartItems
 } from "@/utils/getCartProductTypes";
 
 function createCabinetInstance(item: any, cabinetImageUrls: string[] = []) {
@@ -252,6 +252,7 @@ function ReportPageContent() {
 	const { cart, incrementCartCount } = useCartStore();
 	const cartItems = useCartItemStore((state) => state.cartItems);
 	const [quantity, setQuantity] = useState(1);
+	const [isLoading, setIsLoading] = useState(false);
 
 	// 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
 	useEffect(() => {
@@ -350,9 +351,14 @@ function ReportPageContent() {
 			<div id="cabinet-add-to-cart-button">
 				<BottomButton
 					type={"1button"}
-					button1Text={"장바구니 담기"}
+					button1Text={isLoading ? "처리 중..." : "장바구니 담기"}
 					className="fixed bottom-0 w-full max-w-[460px]"
+					button1Disabled={isLoading}
 					onButton1Click={async () => {
+						// 이미 로딩 중이면 중복 클릭 방지
+						if (isLoading) return;
+
+						setIsLoading(true);
 						trackClick({
 							object_type: "button",
 							object_name: "add_to_cart",
@@ -442,7 +448,7 @@ function ReportPageContent() {
 							if (!createdCabinet || !createdCabinet["id"]) {
 								throw new Error("Cabinet creation failed or missing ID.");
 							}
-							
+
 							const cartItem = new CartItem({
 								cart_id: cart!.id!,
 								item_detail: createdCabinet.id,
@@ -454,24 +460,24 @@ function ReportPageContent() {
 								new CartItemSupabaseRepository()
 							).create(cartItem);
 
-						// Add to Cart 이벤트 전송 (CartItem 생성 성공 후)
-						const cartQuantityTotalBefore = getTotalQuantityFromCartItems(cartItems);
-						const cartQuantityTypeBefore = cartItems.length;
-						const cartValueBefore = getTotalValueFromCartItems(cartItems);
-						
-						// 추가 후 상태 계산 (새 아이템 포함)
-						const productTypesAfter = getProductTypesFromCartItems(cartItems, detailProductType);
-						const detailProductTypesAfter = await getDetailProductTypesFromCartItems(cartItems, detailProductType, item);
-						
-						await trackAddToCart({
-							product_type: sortProductTypes(productTypesAfter),
-							detail_product_type: sortDetailProductTypes(detailProductTypesAfter),
-							quantity: quantity,
-							price_unit: unitPrice,
-							cart_quantity_total_before: cartQuantityTotalBefore,
-							cart_quantity_type_before: cartQuantityTypeBefore,
-							cart_value_before: cartValueBefore,
-						});							// cart_count 증가
+							// Add to Cart 이벤트 전송 (CartItem 생성 성공 후)
+							const cartQuantityTotalBefore = getTotalQuantityFromCartItems(cartItems);
+							const cartQuantityTypeBefore = cartItems.length;
+							const cartValueBefore = getTotalValueFromCartItems(cartItems);
+
+							// 추가 후 상태 계산 (새 아이템 포함)
+							const productTypesAfter = getProductTypesFromCartItems(cartItems, detailProductType);
+							const detailProductTypesAfter = await getDetailProductTypesFromCartItems(cartItems, detailProductType, item);
+
+							await trackAddToCart({
+								product_type: sortProductTypes(productTypesAfter),
+								detail_product_type: sortDetailProductTypes(detailProductTypesAfter),
+								quantity: quantity,
+								price_unit: unitPrice,
+								cart_quantity_total_before: cartQuantityTotalBefore,
+								cart_quantity_type_before: cartQuantityTypeBefore,
+								cart_value_before: cartValueBefore,
+							});							// cart_count 증가
 							await new CrudCartUsecase(
 								new CartSupabaseRepository()
 							).incrementCartCount(cart.id!, quantity);
@@ -481,6 +487,7 @@ function ReportPageContent() {
 							router.replace("/cart");
 						} catch (error: any) {
 							console.error("장바구니 담기 실패:", error);
+							setIsLoading(false);
 						}
 					}}
 				/>
