@@ -6,6 +6,7 @@ import { Suspense, useEffect, useState, useRef } from "react";
 import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
 import Button from "@/components/Button/Button";
+import ImageButton from "@/components/Button/ImageButton";
 import Header from "@/components/Header/Header";
 import ProgressBar from "@/components/Progress";
 import BoxedInput from "@/components/Input/BoxedInput";
@@ -17,7 +18,8 @@ import NormalDoorPreview from "@/components/DoorPreview/NormalDoorPreview";
 import PairDoorPreview from "@/components/DoorPreview/PairDoorPreview";
 import SegmentedControl from "@/components/SegmentedControl/SegmentedControl";
 import Checkbox from "@/components/Checkbox";
-import ManWhiteIcon from "@/../public/icons/man_white";
+import ManWhiteIcon from "public/icons/man_white";
+import InputGuide from "@/components/Input/InputGuide";
 
 import formatLocation from "@/utils/formatLocation";
 import formatColor from "@/utils/formatColor";
@@ -204,14 +206,11 @@ function StandardDoorPageContent() {
                     onChange={handleDoorLocationChange}
                 />
                 <div className="flex flex-row gap-2">
-                    <Button
-                        type="OutlinedLarge"
-                        text=""
+                    <ImageButton
+                        imageSrc="/img/door-pair/pair.svg"
+                        imageAlt="양문"
                         description="양문 한번에 주문"
-                        iconSrc="/img/door-pair/pair.png"
-                        iconWidth={160}
-                        iconHeight={100}
-                        className={selectedDoorType === 'pair' ? '!border-2 !border-brand-500 !bg-brand-50 focus:outline-none focus:ring-0' : 'focus:outline-none focus:ring-0'}
+                        selected={selectedDoorType === 'pair'}
                         onClick={() => {
                             setSelectedDoorType('pair');
                             // 양문 선택 시 hingeDirection을 null로 설정 (양문은 경첩 방향이 없음)
@@ -219,20 +218,23 @@ function StandardDoorPageContent() {
                             updateItem({ is_pair_door: true, hinge_direction: null });
                             // 양문 전용 플로우로 분기
                         }}
+                        className="flex-1"
+                        imageWidth={160}
+                        imageHeight={100}
                     />
-                    <Button
-                        type="OutlinedLarge"
-                        text=""
+                    <ImageButton
+                        imageSrc="/img/door-pair/single.svg"
+                        imageAlt="단일문"
                         description="한쪽 문만 주문"
-                        iconSrc="/img/door-pair/single.png"
-                        iconWidth={160}
-                        iconHeight={100}
-                        className={selectedDoorType === 'single' ? '!border-2 !border-brand-500 !bg-brand-50 focus:outline-none focus:ring-0' : 'focus:outline-none focus:ring-0'}
+                        selected={selectedDoorType === 'single'}
                         onClick={() => {
                             setSelectedDoorType('single');
                             updateItem({ is_pair_door: false });
                             // 기존 단문 플로우 유지
                         }}
+                        className="flex-1"
+                        imageWidth={160}
+                        imageHeight={100}
                     />
                 </div>
 
@@ -373,17 +375,20 @@ function StandardDoorPageContent() {
                                             />
                                         </div>
 
-                                        <div className="w-full px-5 pt-3 flex flex-col justify-start items-center gap-2.5">
-                                            <div className="w-full px-4 py-3 bg-gray-50 rounded-2xl flex justify-center items-center gap-2">
-                                                <div className="w-9 h-9 relative bg-blue-100 rounded-xl flex items-center justify-center">
-                                                    <ManWhiteIcon />
-                                                </div>
-                                                <div className="flex-1 inline-flex flex-col justify-start items-start">
-                                                    <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">경첩 치수 모르면 입력하지 않아도 돼요</div>
-                                                    <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">주문이 접수되면 상담으로 안내해드려요.</div>
+                                        {/* 보링 치수 안내 메시지 - hinge 배열에 null이 없으면 표시하지 않음 */}
+                                        {hinge.some(h => h === null || h === undefined) && (
+                                            <div className="w-full px-5 pt-3 flex flex-col justify-start items-center gap-2.5">
+                                                <div className="w-full px-4 py-3 bg-gray-50 rounded-2xl flex justify-center items-center gap-2">
+                                                    <div className="w-9 h-9 relative bg-blue-100 rounded-xl flex items-center justify-center">
+                                                        <ManWhiteIcon />
+                                                    </div>
+                                                    <div className="flex-1 inline-flex flex-col justify-start items-start">
+                                                        <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">경첩 치수 모르면 입력하지 않아도 돼요</div>
+                                                        <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">주문이 접수되면 상담으로 안내해드려요.</div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        )}
                                     </div>
                                 )}
 
@@ -421,12 +426,18 @@ function StandardDoorPageContent() {
                             }}
                             error={!!widthError}
                             helperText={widthError}
-                            inputGuide={{
-                                text: "가로 스끼(문틈) 값을 빼고 입력해주세요.",
-                                state: "default",
-                                color: "text-emerald-500"
-                            }}
                         />
+                        {/* 양문 전용 안내 메시지들 */}
+                        <div className="flex flex-col gap-1 -mt-2">
+                            <InputGuide 
+                                text="• 한쪽 문을 기준으로 입력해주세요." 
+                                color="text-gray-600" 
+                            />
+                            <InputGuide 
+                                text="• 가로 스끼(문틈) 값을 빼고 입력해주세요." 
+                                color="text-emerald-500" 
+                            />
+                        </div>
                         <BoxedInput
                             type="number"
                             label={<><span>세로 길이 (mm)</span><span className="text-orange-500 ml-1">*</span></>}
@@ -507,17 +518,20 @@ function StandardDoorPageContent() {
                                             />
                                         </div>
 
-                                        <div className="w-full px-5 pt-3 flex flex-col justify-start items-center gap-2.5">
-                                            <div className="w-full px-4 py-3 bg-gray-50 rounded-2xl flex justify-center items-center gap-2">
-                                                <div className="w-9 h-9 relative bg-blue-100 rounded-xl flex items-center justify-center">
-                                                    <ManWhiteIcon />
-                                                </div>
-                                                <div className="flex-1 inline-flex flex-col justify-start items-start">
-                                                    <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">경첩 치수 모르면 입력하지 않아도 돼요</div>
-                                                    <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">주문이 접수되면 상담으로 안내해드려요.</div>
+                                        {/* 보링 치수 안내 메시지 - hinge 배열에 null이 없으면 표시하지 않음 */}
+                                        {hinge.some(h => h === null || h === undefined) && (
+                                            <div className="w-full px-5 pt-3 flex flex-col justify-start items-center gap-2.5">
+                                                <div className="w-full px-4 py-3 bg-gray-50 rounded-2xl flex justify-center items-center gap-2">
+                                                    <div className="w-9 h-9 relative bg-blue-100 rounded-xl flex items-center justify-center">
+                                                        <ManWhiteIcon />
+                                                    </div>
+                                                    <div className="flex-1 inline-flex flex-col justify-start items-start">
+                                                        <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">경첩 치수 모르면 입력하지 않아도 돼요</div>
+                                                        <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">주문이 접수되면 상담으로 안내해드려요.</div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        )}
                                     </div>
                                 )}
 

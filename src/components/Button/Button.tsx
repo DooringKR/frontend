@@ -1,36 +1,18 @@
 import React from "react";
-import Image from "next/image";
 
 interface IconProps {
   icon?: React.ReactNode;
-  iconSrc?: string; // 이미지 아이콘을 위한 src 추가
-  iconWidth?: number; // 이미지 너비 설정
-  iconHeight?: number; // 이미지 높이 설정
-  useOriginalSize?: boolean; // 원본 크기 사용 여부
 }
 
 interface ButtonProps extends IconProps {
   type: "Brand" | "GrayLarge" | "OutlinedLarge" | "BrandInverse" | "GrayMedium" | "OutlinedMedium";
   text: string;
-  description?: string; // description 속성 추가
   onClick?: () => void;
   disabled?: boolean;
   className?: string;
 }
 
-const Button: React.FC<ButtonProps> = ({ 
-  type, 
-  text, 
-  description, 
-  onClick, 
-  disabled, 
-  icon, 
-  iconSrc, 
-  iconWidth = 24, 
-  iconHeight = 24, 
-  useOriginalSize = false,
-  className
-}) => {
+const Button: React.FC<ButtonProps> = ({ type, text, onClick, disabled, icon, className }) => {
   const getClassName = () => {
     switch (type) {
       case "Brand":
@@ -81,43 +63,20 @@ const Button: React.FC<ButtonProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center">
-      <button
-        className={`button ${getClassName()} flex items-center justify-center w-full ${className || ""}`}
-        onClick={onClick}
-        disabled={disabled}
-      >
-        <div className="flex items-center justify-center gap-1">
-          {iconSrc && (
-            <Image 
-              src={iconSrc} 
-              alt={text || "button-icon"}
-              width={useOriginalSize ? 200 : iconWidth}
-              height={useOriginalSize ? 200 : iconHeight}
-              className={`${disabled ? "opacity-30" : ""}`}
-              style={{ 
-                width: useOriginalSize ? 'auto' : `${iconWidth}px`, 
-                height: useOriginalSize ? 'auto' : `${iconHeight}px`,
-                maxWidth: useOriginalSize ? '200px' : `${iconWidth}px`,
-                maxHeight: useOriginalSize ? '200px' : `${iconHeight}px`
-              }}
-              unoptimized={true}
-            />
-          )}
-          {!iconSrc && icon && (
-            <span className={`icon-left ${disabled ? "text-gray-300" : "text-gray-700"}`}>
-              {icon}
-            </span>
-          )}
-          {text && text}
-        </div>
-      </button>
-      {description && (
-        <div className={`mt-2 text-sm text-center ${disabled ? "text-gray-300" : "text-gray-600"}`}>
-          {description}
-        </div>
-      )}
-    </div>
+    <button
+      className={`button ${getClassName()} flex items-center justify-center ${className || "w-full"}`}
+      onClick={onClick}
+      disabled={disabled}
+    >
+      <div className="flex items-center justify-center gap-1">
+        {icon && (
+          <span className={`icon-left ${disabled ? "text-gray-300" : "text-gray-700"}`}>
+            {icon}
+          </span>
+        )}
+        {text}
+      </div>
+    </button>
   );
 };
 

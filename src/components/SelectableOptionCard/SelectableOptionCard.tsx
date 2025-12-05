@@ -54,8 +54,15 @@ export default function SelectableOptionCard({
     }
   };
 
+  const handleCardClick = () => {
+    handleCheckboxChange(!checked);
+  };
+
   return (
-      <div className="self-stretch px-4 pt-2 pb-4 bg-white flex flex-col justify-center items-start gap-2 overflow-hidden">
+      <div 
+        className={`self-stretch px-4 pt-2 pb-4 bg-white flex flex-col justify-center items-start gap-2 overflow-hidden cursor-pointer transition-colors hover:bg-gray-50 ${className}`}
+        onClick={handleCardClick}
+      >
         <div className="self-stretch inline-flex justify-start items-center gap-2">
           {/* 이미지 */}
           {showImage && imageUrl && (

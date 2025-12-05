@@ -36,6 +36,7 @@ export function transformCartItemToNewCardProps(cartItem: CartItem, detail: any)
       hinge_thickness: detail.hinge_thickness,
       door_request: detail.door_request,
       raw_images: detail.door_image_url,
+      is_pair_door: detail.is_pair_door,
     };
     return {
       ...transformDoorToNewCardProps(doorItem),
