@@ -17,7 +17,8 @@ import NormalDoorPreview from "@/components/DoorPreview/NormalDoorPreview";
 import PairDoorPreview from "@/components/DoorPreview/PairDoorPreview";
 import SegmentedControl from "@/components/SegmentedControl/SegmentedControl";
 import Checkbox from "@/components/Checkbox";
-import ManWhiteIcon from "@/../public/icons/man_white";
+import ManWhiteIcon from "public/icons/man_white";
+import InputGuide from "@/components/Input/InputGuide";
 
 import formatLocation from "@/utils/formatLocation";
 import formatColor from "@/utils/formatColor";
@@ -421,12 +422,18 @@ function StandardDoorPageContent() {
                             }}
                             error={!!widthError}
                             helperText={widthError}
-                            inputGuide={{
-                                text: "가로 스끼(문틈) 값을 빼고 입력해주세요.",
-                                state: "default",
-                                color: "text-emerald-500"
-                            }}
                         />
+                        {/* 양문 전용 안내 메시지들 */}
+                        <div className="flex flex-col gap-1 -mt-2">
+                            <InputGuide 
+                                text="• 한쪽 문을 기준으로 입력해주세요." 
+                                color="text-gray-600" 
+                            />
+                            <InputGuide 
+                                text="• 가로 스끼(문틈) 값을 빼고 입력해주세요." 
+                                color="text-emerald-500" 
+                            />
+                        </div>
                         <BoxedInput
                             type="number"
                             label={<><span>세로 길이 (mm)</span><span className="text-orange-500 ml-1">*</span></>}
