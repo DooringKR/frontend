@@ -4,7 +4,7 @@
 import { getPricingColorName } from "./colorMapping";
 
 // 마진율 (0%)
-const MARGIN = 0.2;
+const MARGIN = 0.65;
 
 /**
  * 문짝 가격 계산
