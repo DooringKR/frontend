@@ -3,7 +3,7 @@
 
 import { getPricingColorName } from "./colorMapping";
 
-// 마진율 (0%)
+// 마진율 (65%)
 const MARGIN = 0.65;
 
 /**
