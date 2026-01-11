@@ -1,8 +1,8 @@
 import { FinishType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import { getPricingColorName } from "./colorMapping";
 
-// 마진율 (20%)
-const MARGIN = 0.2;
+// 마진율 (65%)
+const MARGIN = 0.65;
 
 /**
  * 마감재 단위 가격 계산
