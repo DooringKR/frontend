@@ -43,11 +43,11 @@ function OpenCabinetPageContent() {
 	// 손잡이 위치에 하부장 추가 여부
 	const [lowerDrawer, setLowerDrawer] = useState(item?.lowerDrawer ?? "");
 	const [isLowerDrawerSheetOpen, setIsLowerDrawerSheetOpen] = useState(false);
-	// robust: enum 기반 상태 관리
-	const cabinetBehindTypeDefault = Object.values(CabinetBehindType)[0];
-	const [finishType, setFinishType] = useState<CabinetBehindType | "">(
-		item && Object.values(CabinetBehindType).includes(item.finishType) ? item.finishType : cabinetBehindTypeDefault
-	);
+	// CabinetBehindType의 첫 번째 값(우라홈) 사용
+    const cabinetBehindTypeDefault = Object.values(CabinetBehindType)[1];
+    const [behindType, setBehindType] = useState<CabinetBehindType | "">(
+        item && Object.values(CabinetBehindType).includes(item.behindType) ? item.behindType : cabinetBehindTypeDefault
+    );
 	// 시공 필요 여부
 	const [cabinet_construct, setCabinetConstruct] = useState(item?.cabinet_construct ?? false);
 	const [request, setRequest] = useState(item?.request ?? "");
@@ -82,7 +82,7 @@ function OpenCabinetPageContent() {
 	React.useEffect(() => { updateItem({ body_material_direct_input: bodyMaterialDirectInput }); }, [bodyMaterialDirectInput]);
 	React.useEffect(() => { updateItem({ riceRail }); }, [riceRail]);
 	React.useEffect(() => { updateItem({ lowerDrawer }); }, [lowerDrawer]);
-	React.useEffect(() => { updateItem({ finishType }); }, [finishType]);
+	React.useEffect(() => { updateItem({ behindType }); }, [behindType]);
 	React.useEffect(() => { updateItem({ cabinet_construct }); }, [cabinet_construct]);
 	React.useEffect(() => { updateItem({ request }); }, [request]);
 	// React.useEffect(() => { updateItem({ legType }); }, [legType]);
@@ -99,7 +99,7 @@ function OpenCabinetPageContent() {
 		(bodyMaterial === null && !bodyMaterialDirectInput) ||
 		!riceRail ||
 		!lowerDrawer ||
-		!finishType ||
+		!behindType ||
 		(cabinet_construct === null);
 	// (legType === null && !legTypeDirectInput);
 
@@ -220,23 +220,23 @@ function OpenCabinetPageContent() {
 					</div>
 				</div>
 
-				{/* 마감 robust (enum) */}
-				<div className="flex flex-col gap-2">
-					<div className="text-[14px]/[20px] font-400 text-gray-600">
-						마감 방식
-						<span className="text-orange-500 ml-1">*</span>
-					</div>
-					<div className="flex w-full gap-2">
-						{Object.values(CabinetBehindType).map(opt => (
-							<Button
-								key={opt}
-								type={finishType === opt ? "BrandInverse" : "GrayLarge"}
-								text={opt === cabinetBehindTypeDefault ? "일반 (우라홈)" : opt}
-								onClick={() => setFinishType(opt)}
-							/>
-						))}
-					</div>
-				</div>
+				{/* 뒷판 robust (enum) */}
+                <div className="flex flex-col gap-2">
+                    <div className="text-[14px]/[20px] font-400 text-gray-600">
+                        마감 방식
+                        <span className="text-orange-500 ml-1">*</span>
+                    </div>
+                    <div className="flex w-full gap-2">
+                        {Object.values(CabinetBehindType).reverse().map(opt => (
+                            <Button
+                                key={opt}
+                                type={behindType === opt ? "BrandInverse" : "GrayLarge"}
+                                text={opt === cabinetBehindTypeDefault ? "일반 (우라홈)" : opt}
+                                onClick={() => setBehindType(opt)}
+                            />
+                        ))}
+                    </div>
+                </div>
 				{/* 시공 필요 여부 */}
 				<div className="flex flex-col gap-2">
 					<div className="w-full text-[14px] font-400 text-gray-600">시공 필요 여부</div>
