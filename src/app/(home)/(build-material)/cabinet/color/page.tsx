@@ -1,6 +1,6 @@
 "use client";
 
-import { CABINET_COLOR_LIST } from "@/constants/colorList";
+import { CABINET_COLOR_LIST, OPEN_CABINET_BODY_MATERIAL_LIST } from "@/constants/colorList";
 import { CABINET_CATEGORY_LIST } from "@/constants/category";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
@@ -26,7 +26,8 @@ function CabinetColorListPageContent() {
 	const updateItem = useItemStore(state => state.updateItem);
 	const [searchKeyword, setSearchKeyword] = useState("");
 	const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-	const colorList = CABINET_COLOR_LIST;
+	const isOpenCabinet = item?.type === "오픈장";
+	const colorList = isOpenCabinet ? OPEN_CABINET_BODY_MATERIAL_LIST : CABINET_COLOR_LIST;
 	const filteredColors = colorList.filter(c =>
 		c.name.toLowerCase().includes(searchKeyword.toLowerCase()),
 	);
