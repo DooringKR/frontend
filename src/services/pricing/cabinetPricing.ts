@@ -53,7 +53,12 @@ export function calculateUnitCabinetPrice(
     // 만원 단위로 올림 처리 (432,400원 → 440,000원)
     const roundedUnitPrice = Math.ceil(unitPrice / 10000) * 10000;
 
-    return roundedUnitPrice;
+    if (category === DetailProductType.TALLCABINET) {
+      return roundedUnitPrice * 2;
+    } else {
+      return roundedUnitPrice;
+    }
+
   } else if (category === DetailProductType.UPPERCABINET) {
     if (1 <= depth && depth <= 350) {
       cabinet_depth_price = 150;
