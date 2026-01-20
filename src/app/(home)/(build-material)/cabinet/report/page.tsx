@@ -8,7 +8,7 @@ import ProgressBar from "@/components/Progress";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
-import { CABINET_COLOR_LIST } from "@/constants/colorList";
+import { CABINET_COLOR_LIST, OPEN_CABINET_BODY_MATERIAL_LIST } from "@/constants/colorList";
 import { ABSORBER_TYPE_LIST } from "@/constants/absorbertype";
 import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
 import { InteriorMaterialsSupabaseRepository } from "@/DDD/data/db/interior_materials_supabase_repository";
@@ -52,8 +52,10 @@ function createCabinetInstance(item: any, cabinetImageUrls: string[] = []) {
 	console.log("Creating cabinet instance for item:", item);
 	console.log("cabinetImageUrls received:", cabinetImageUrls);
 	// 색상 id 변환 (DB 저장용) + 직접입력 처리
-	const colorObj = CABINET_COLOR_LIST.find(c => c.id === Number(item.color))
-		|| CABINET_COLOR_LIST.find(c => c.name === item.color);
+	// 오픈장은 별도의 색상(바디 소재 기반) 리스트를 사용
+	const colorSourceList = item.type === "오픈장" ? OPEN_CABINET_BODY_MATERIAL_LIST : CABINET_COLOR_LIST;
+	const colorObj = colorSourceList.find(c => c.id === Number(item.color))
+		|| colorSourceList.find(c => c.name === item.color);
 	const colorId: number | null = colorObj ? colorObj.id : null; // null when direct input or not found
 	const cabinet_color_direct_input: string | undefined = (typeof item.cabinet_color_direct_input === 'string' && item.cabinet_color_direct_input.trim() !== '')
 		? item.cabinet_color_direct_input
@@ -63,7 +65,7 @@ function createCabinetInstance(item: any, cabinetImageUrls: string[] = []) {
 
 	// robust body material logic
 	// If bodyMaterial is a number, use it. If direct input, set enum and string.
-	let cabinet_body_material: number = 0;
+	let cabinet_body_material: number | undefined = undefined;
 	let cabinet_body_material_direct_input: string = "";
 	// Find the '직접입력' option in BODY_MATERIAL_LIST
 	const directInputOption = BODY_MATERIAL_LIST.find(opt => opt.name.includes("직접입력"));
@@ -83,6 +85,10 @@ function createCabinetInstance(item: any, cabinetImageUrls: string[] = []) {
 		cabinet_body_material_direct_input = item.body_material_direct_input;
 	} else if (typeof item.bodyMaterial === "number") {
 		cabinet_body_material = item.bodyMaterial;
+		cabinet_body_material_direct_input = "";
+	} else {
+		// No selection provided; keep undefined to satisfy FK on nullable column
+		cabinet_body_material = undefined;
 		cabinet_body_material_direct_input = "";
 	}
 
