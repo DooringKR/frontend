@@ -96,7 +96,7 @@ function OpenCabinetPageContent() {
 	});
 	const button1Disabled =
 		isFormValid() ||
-		(bodyMaterial === null && !bodyMaterialDirectInput) ||
+		// (bodyMaterial === null && !bodyMaterialDirectInput) ||
 		!riceRail ||
 		!lowerDrawer ||
 		!behindType ||
@@ -126,14 +126,14 @@ function OpenCabinetPageContent() {
 			<div className="flex flex-col gap-5 px-5">
 				{/* 도어 색상 */}
 				<BoxedSelect
-					default_label="도어 색상"
-					label={<span>도어 색상<span className="text-orange-500 ml-1">*</span></span>}
+					default_label="바디 색상"
+					label={<span>바디 색상<span className="text-orange-500 ml-1">*</span></span>}
 					options={colorOptions}
 					value={formatColor(item?.color ?? "") || item?.cabinet_color_direct_input || ""}
-					onClick={() => setIsColorSheetOpen(true)}
+					onClick={() => router.push("/cabinet/color")}
 					onChange={() => { }}
 				/>
-				{/* 몸통 소재 및 두께 */}
+				{/* 몸통 소재 및 두께
 				<BoxedSelect
 					default_label="몸통 소재 및 두께"
 					label={<span>몸통 소재 및 두께<span className="text-orange-500 ml-1">*</span></span>}
@@ -141,7 +141,7 @@ function OpenCabinetPageContent() {
 					value={bodyMaterial !== null ? (selectedMaterial ? selectedMaterial.name : "") : bodyMaterialDirectInput}
 					onClick={() => setIsBottomSheetOpen(true)}
 					onChange={() => { }}
-				/>
+				/> */}
 				{/* 너비 */}
 				<BoxedInput
 					type="number"
