@@ -1,5 +1,5 @@
 import Image from "next/image";
-import React from "react";
+import React, { useRef, useEffect, useState } from "react";
 
 import { DOOR_COLOR_LIST } from "../../constants/colorList";
 import BoringInputField from "../Input/BoringInputField";
@@ -22,6 +22,20 @@ const FlapDoorPreview: React.FC<FlapDoorPreviewProps> = ({
   doorColor,
 }) => {
   const [focusedBoringIndex, setFocusedBoringIndex] = React.useState<number | null>(null);
+  // 컨테이너 너비 측정 (NormalDoorPreview와 동일 패턴)
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(375);
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.offsetWidth);
+      }
+    };
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
   // boringSize 변경 핸들러
   const handleBoringInputChange = (idx: number, value: number | null) => {
     if (!onChangeBoringSize || boringNum === null) return;
@@ -61,22 +75,40 @@ const FlapDoorPreview: React.FC<FlapDoorPreviewProps> = ({
   // 비율 계산 (가로/세로)
   const widthRatio = actualWidth / actualHeight;
 
-  // 플랩문은 가로가 더 긴 형태이므로 가로를 260으로 고정, 세로는 비율에 따라 조정 (최대 650px)
-  const doorWidth = 260;
-  const doorHeight = Math.min(260 / widthRatio, 390);
+  // 컨테이너 기반 반응형 크기 계산 (문 영역은 3컬럼 중 좌측 2컬럼 사용)
+  const doorAreaWidth = (containerWidth * 2) / 3; // 좌측 2컬럼 폭
+  const doorWidth = doorAreaWidth;
+  const calculatedHeight = doorWidth / widthRatio; // 세로 = 가로 / (가로/세로)
+  const minHeight = doorAreaWidth * 0.25; // 플랩은 낮은 형태
+  const maxHeight = doorAreaWidth * 0.6; // 과도하게 커지지 않도록 제한
+  const containerHeight = Math.max(minHeight, Math.min(calculatedHeight, maxHeight));
 
   // 문 사각형
   const DoorImage = (
     <div
       style={{
-        width: `${doorWidth}px`,
-        height: `${doorHeight}px`,
+        width: "100%",
+        height: `${containerHeight}px`,
         position: "relative",
         borderRadius: "8px",
-        // border: "2px solid #E5E7EB",
         overflow: "visible",
+        display: "flex",
+        alignItems: "flex-start",
+        justifyContent: "center",
+        maxWidth: "100%",
       }}
     >
+      <div
+        style={{
+          width: `${Math.max(doorWidth, 60)}px`,
+          maxWidth: "100%",
+          height: `${containerHeight}px`,
+          position: "relative",
+          overflow: "visible",
+          minWidth: "60px",
+          borderRadius: "8px",
+        }}
+      >
       {/* 문짝 배경 이미지 또는 색상 */}
       {colorImage ? (
         <Image
@@ -279,38 +311,33 @@ const FlapDoorPreview: React.FC<FlapDoorPreviewProps> = ({
           pointerEvents: "none",
         }}
       />
+      </div>
     </div>
   );
 
   return (
-    <div className="flex flex-col gap-[22.5px]">
-      {/* 가로/세로 길이 + 문 이미지 */}
-      <div className="flex justify-between">
-        {/* 왼쪽 컬럼: 가로 길이 + 문 이미지 (세로 배치) */}
-        <div className="flex flex-col gap-[22.5px]">
-          {/* 가로 길이 */}
-          <div className="flex flex-col items-center">
-            <div className="text-center text-[17px]/[24px] font-500 text-gray-800">
-              {DoorWidth !== undefined && DoorWidth !== null && DoorWidth !== 0 ? (
-                <span className="text-[17px]/[24px]">{DoorWidth}mm</span>
-              ) : (
-                <span className="text-gray-300">입력 필요</span>
-              )}
-            </div>
-            <div className="text-center text-[14px]/[20px] font-500 text-gray-400">가로</div>
+    <div ref={containerRef} className="flex w-full flex-col gap-[22.5px] items-center justify-center">
+      {/* 상단: 가로 텍스트 (문 사각형 위, 좌측 2컬럼 영역 중앙) */}
+      <div className="grid grid-cols-3 w-full">
+        <div className="col-span-2 flex flex-col items-center justify-start">
+          <div className="text-center text-[17px]/[24px] font-500 text-gray-800">
+            {DoorWidth !== undefined && DoorWidth !== null && DoorWidth !== 0 ? (
+              <span className="text-[17px]/[24px]">{DoorWidth}mm</span>
+            ) : (
+              <span className="text-gray-300">입력 필요</span>
+            )}
           </div>
-
-          {/* 문 이미지 */}
-          <div
-            className="flex items-center justify-center"
-            style={{ width: `${doorWidth}px`, height: `${doorHeight}px` }}
-          >
-            {DoorImage}
-          </div>
+          <div className="text-center text-[14px]/[20px] font-500 text-gray-400">가로</div>
         </div>
+        <div></div>
+      </div>
 
-        {/* 오른쪽 컬럼: 세로 길이 */}
-        <div className="flex flex-col items-center justify-center pl-[12px] pt-[66.5px]">
+      {/* 프리뷰: 문 이미지(좌측 2컬럼) + 세로 텍스트(우측 1컬럼) */}
+      <div className="grid grid-cols-3 w-full" style={{ height: `${containerHeight}px` }}>
+        {/* 좌측 2컬럼: 문 이미지만 렌더링 */}
+        <div className="col-span-2 flex items-start justify-center w-full">{DoorImage}</div>
+        {/* 우측 1컬럼: 세로 텍스트 (문 사각형 오른쪽, 수직 중앙 정렬) */}
+        <div className="flex flex-col items-center justify-center">
           <div className="text-center text-[17px] font-500 text-gray-800">
             {DoorHeight !== undefined && DoorHeight !== null && DoorHeight !== 0 ? (
               <span>{DoorHeight}mm</span>
@@ -322,8 +349,8 @@ const FlapDoorPreview: React.FC<FlapDoorPreviewProps> = ({
         </div>
       </div>
 
-      {/* 보어링 입력 필드들 */}
-      <div className="flex w-full min-w-[375px] flex-col gap-2">
+      {/* 보어링 입력 필드들: 프리뷰 아래에서 시작 */}
+      <div className="flex w-full flex-col gap-2 mt-3">
         {boringNum !== null && Array.from({ length: boringNum }, (_, idx) => (
           <div key={idx} className="flex flex-row items-center gap-3">
             {/* 번호 표시 */}

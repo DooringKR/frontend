@@ -205,7 +205,7 @@ function StandardDoorPageContent() {
                     value={door_location}
                     onChange={handleDoorLocationChange}
                 />
-                <div className="flex flex-row gap-2">
+                <div className="flex w-full flex-row gap-2">
                     <ImageButton
                         imageSrc="/img/door-pair/pair.svg"
                         imageAlt="양문"
@@ -219,8 +219,8 @@ function StandardDoorPageContent() {
                             // 양문 전용 플로우로 분기
                         }}
                         className="flex-1"
-                        imageWidth={160}
-                        imageHeight={100}
+                        imageWidth={80}
+                        imageHeight={50}
                     />
                     <ImageButton
                         imageSrc="/img/door-pair/single.svg"
@@ -233,8 +233,8 @@ function StandardDoorPageContent() {
                             // 기존 단문 플로우 유지
                         }}
                         className="flex-1"
-                        imageWidth={160}
-                        imageHeight={100}
+                        imageWidth={80}
+                        imageHeight={50}
                     />
                 </div>
 
