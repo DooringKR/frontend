@@ -43,7 +43,7 @@ const FrequentlyUsedProductsSection: React.FC = () => {
                                     롱문
                                 </h3>
                                 <p className="text-[14px]/[20px] font-500 text-gray-500 leading-5">
-                                    긴 문짝 제품을 주문하세요
+                                    붙박이장, 신발장 문짝 교체용
                                 </p>
                             </div>
                         </div>
