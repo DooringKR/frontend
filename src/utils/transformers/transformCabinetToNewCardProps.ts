@@ -10,7 +10,7 @@ import type {
 } from "@/components/Card/ShoppingCartCardNew";
 import formatColor from "@/utils/formatColor";
 import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
-import { CABINET_COLOR_LIST } from "@/constants/colorList";
+import { CABINET_COLOR_LIST, OPEN_CABINET_BODY_MATERIAL_LIST } from "@/constants/colorList";
 import { ABSORBER_TYPE_LIST } from "@/constants/absorbertype";
 import { CABINET_DRAWER_TYPE_LIST } from "@/constants/cabinetdrawertype";
 
@@ -74,9 +74,10 @@ export function transformCabinetToNewCardProps(item: CabinetItem) {
   }
 
   // Format color
+  const colorList = detailProductType === "오픈장" ? OPEN_CABINET_BODY_MATERIAL_LIST : CABINET_COLOR_LIST;
   const colorObj = typeof item.color === "number" 
-    ? CABINET_COLOR_LIST.find(c => c.id === item.color)
-    : CABINET_COLOR_LIST.find(c => c.name === item.color);
+    ? colorList.find(c => c.id === item.color)
+    : colorList.find(c => c.name === item.color);
   
   const color = item.cabinet_color_direct_input
     ? `(직접입력) ${item.cabinet_color_direct_input}`

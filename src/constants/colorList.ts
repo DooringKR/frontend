@@ -61,7 +61,7 @@ export const FINISH_COLOR_LIST = [
 export const OPEN_CABINET_BODY_MATERIAL_LIST = [
   { id: 17, name: "PB,, 18T, 헤링본", image: "/img/color-new-list/herringbone.png" },
   { id: 18, name: "PB,, 15T, 헤링본", image: "/img/color-new-list/herringbone.png" },
-  { id: 19, name: "PB, 동화, 3T 우라, 헤링본", image: "/img/color-new-list/herringbone.png" },
+  { id: 19, name: "PB, 한솔, 18T, 파타고니아크림", image: "/img/color-new-list/hansol-patagonia-cream.png" },
   { id: 20, name: "PB,, 15T, 헤링본 - 미백색", image: "/img/color-new-list/herringbone-off-white.png" },
 
   { id: 16, name: "MDF,, 18T, 필름 부착용 합판 (색깔 상관X)", image: "/img/color-new-list/film-attached-plywood.png" },
