@@ -4,7 +4,7 @@ import { persist, devtools } from "zustand/middleware";
 
 // 기본 아이템 타입
 export interface BaseItem {
-    category: ProductType;
+    category?: ProductType;
     type: any;
     //세부 타입 정의하는 곳,
     // 예시: DoorType의 일반문, 플랩문 등 세부 타입 정의

@@ -24,7 +24,7 @@ import formatColor from "@/utils/formatColor";
 import useItemStore from "@/store/itemStore";
 
 import { useDoorValidation } from "./hooks/useDoorValidation";
-import { HingeDirection, Location } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import { HingeDirection, Location, CabinetHandleType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import { trackClick, trackView } from "@/services/analytics/amplitude";
@@ -82,6 +82,13 @@ function LongDoorPageContent() {
 
     const [door_location, setDoorLocation] = useState(item?.door_location ?? "");
     const [isDoorLocationSheetOpen, setIsDoorLocationSheetOpen] = useState(false);
+
+    // 손잡이 종류 상태 관리
+    const [handleType, setHandleType] = useState<CabinetHandleType | "">(
+        item && item.handleType && Object.values(CabinetHandleType).includes(item.handleType as CabinetHandleType)
+            ? (item.handleType as CabinetHandleType)
+            : ""
+    );
 
     const [isDontKnowHingeCount, setIsDontKnowHingeCount] = useState(() => {
         return item?.hinge && item.hinge.length === 1 && item.hinge[0] === null;
@@ -157,6 +164,12 @@ function LongDoorPageContent() {
         }, 300);
     };
 
+    // 손잡이 종류 변경 시 store에 저장
+    useEffect(() => {
+        updateItem({ handleType });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [handleType]);
+
     return (
         <div className="flex min-h-screen flex-col pt-[90px]">
             <InitAmplitude />
@@ -197,6 +210,26 @@ function LongDoorPageContent() {
                     value={door_location}
                     onChange={handleDoorLocationChange}
                 />
+
+                {/* 손잡이 종류 */}
+                <div className="flex flex-col gap-2">
+                    <div className="text-[14px]/[20px] font-400 text-gray-600">
+                        손잡이 종류
+                        <span className="text-orange-500 ml-1">*</span>
+                    </div>
+                    <div className="flex w-full gap-2">
+                        {Object.values(CabinetHandleType)
+                            .filter(opt => opt == CabinetHandleType.OUTER || opt == CabinetHandleType.SMART_BAR || opt == CabinetHandleType.PUSH)
+                            .map(opt => (
+                                <Button
+                                    key={opt}
+                                    type={handleType === opt ? "BrandInverse" : "GrayLarge"}
+                                    text={opt}
+                                    onClick={() => setHandleType(opt)}
+                                />
+                            ))}
+                    </div>
+                </div>
 
                 {/* 문짝 개수 */}
                 <div className="flex items-center justify-between rounded-2xl border border-gray-200 bg-white px-4 py-3">

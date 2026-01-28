@@ -3,18 +3,19 @@
 import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import useItemStore from "@/store/itemStore";
 
 const FrequentlyUsedProductsSection: React.FC = () => {
     const router = useRouter();
 
-    const handleFrequentOrderClick = () => {
-        // 자주 찾는 주문 클릭 시 동작 (예: 주문 내역 페이지로 이동)
-        router.push("/order-history");
-    };
-
     const handleLongDoorClick = () => {
         // 롱문 클릭 시 동작 (예: 문짝 주문 페이지로 이동)
         router.push("/longdoor/color");
+        useItemStore.setState({
+            item: {
+                type: "롱문",
+            },
+        });
     };
 
     return (
