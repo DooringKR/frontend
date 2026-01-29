@@ -14,6 +14,7 @@ export type DetailProductType =
   | "일반문"
   | "플랩문"
   | "서랍 마에다"
+  | "롱문"
   | "EP마감"
   | "몰딩"
   | "걸레받이"
@@ -33,7 +34,7 @@ export type DetailProductType =
 // 일반문 상세 정보
 export interface DoorStandardDetails {
   color: string;
-  width: number;
+  width?: number;
   height: number;
   hingeCount?: number | "모름";
   hingeDirection?: "좌경" | "우경" | "모름";
@@ -120,7 +121,7 @@ export interface CabinetDrawerDetails extends CabinetBaseDetails {
 
 // 플랩장 상세 정보
 export interface CabinetFlapDetails extends CabinetBaseDetails {
-  absorberType?: string;  
+  absorberType?: string;
 }
 
 // 키큰장 상세 정보
@@ -175,6 +176,7 @@ export type ProductDetails =
   | { type: "일반문"; data: DoorStandardDetails }
   | { type: "플랩문"; data: DoorFlapDetails }
   | { type: "서랍 마에다"; data: DoorDrawerDetails }
+  | { type: "롱문"; data: DoorStandardDetails }
   | { type: "마감재" | "EP마감" | "몰딩" | "걸레받이"; data: FinishDetails }
   | { type: "하부장"; data: CabinetLowerDetails }
   | { type: "상부장"; data: CabinetUpperDetails }
@@ -223,7 +225,9 @@ function renderDoorStandardDetails(data: DoorStandardDetails) {
   return (
     <>
       <DetailRow label="색상" value={data.color} />
-      <DetailRow label="너비" value={`${data.width}mm`} />
+      {data.width !== undefined && data.width !== 0 && (
+        <DetailRow label="너비" value={`${data.width}mm`} />
+      )}
       <DetailRow label="높이" value={`${data.height}mm`} />
       {data.hingeCount && (
         <DetailRow
@@ -239,7 +243,7 @@ function renderDoorStandardDetails(data: DoorStandardDetails) {
       {(data.addOnHinge !== undefined || data.doorConstruct !== undefined) && (() => {
         const options: string[] = [];
         if (data.addOnHinge) {
-          const hingeText = data.hingeThickness 
+          const hingeText = data.hingeThickness
             ? `경첩도 같이 받을래요(${data.hingeThickness})`
             : "경첩도 같이 받을래요";
           options.push(hingeText);
@@ -271,7 +275,7 @@ function renderDoorFlapDetails(data: DoorFlapDetails) {
       {(data.addOnHinge !== undefined || data.doorConstruct !== undefined) && (() => {
         const options: string[] = [];
         if (data.addOnHinge) {
-          const hingeText = data.hingeThickness 
+          const hingeText = data.hingeThickness
             ? `경첩도 같이 받을래요(${data.hingeThickness})`
             : "경첩도 같이 받을래요";
           options.push(hingeText);
@@ -398,6 +402,7 @@ const detailRenderers: Record<DetailProductType, (details: any) => React.ReactEl
   일반문: renderDoorStandardDetails,
   플랩문: renderDoorFlapDetails,
   "서랍 마에다": renderDoorDrawerDetails,
+  롱문: renderDoorStandardDetails,
   EP마감: renderFinishDetails,
   몰딩: renderFinishDetails,
   걸레받이: renderFinishDetails,
@@ -440,8 +445,8 @@ const ShoppingCartCardNew: React.FC<ShoppingCartCardNewProps> = ({
       <div className="flex justify-between gap-[20px]">
         <div className="flex flex-col gap-2">
           <div className="text-[17px] font-600 text-gray-800">
-            {detailProductType === "일반문" && (details.data as DoorStandardDetails).is_pair_door 
-              ? "일반문 (양문 세트)" 
+            {detailProductType === "일반문" && (details.data as DoorStandardDetails).is_pair_door
+              ? "일반문 (양문 세트)"
               : detailProductType}
           </div>
           <div className="flex flex-col text-[15px] font-400 text-gray-500">

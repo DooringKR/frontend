@@ -12,7 +12,7 @@ import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import Checkbox from "@/components/Checkbox";
 import SelectableOptionCard from "@/components/SelectableOptionCard";
 
-import { HingeThickness } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import { HingeDirection, HingeThickness } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 import useItemStore from "@/store/itemStore";
 
@@ -93,17 +93,13 @@ function LongDoorAdditionalPageContent() {
         }
 
         setHasValidationFailed(false);
-        alert("이후 과정 막아둠");
-        //이 코드 나중에 지우셈!
-        useItemStore.setState({ item: null });
-        router.push("/");
+        router.push("/longdoor/report");
         // trackClick({
         //     object_type: "button",
         //     object_name: "confirm",
         //     current_page: getScreenName(),
         //     modal_name: null,
         // });
-        // router.push("/door/report");
     };
 
     return (
@@ -112,6 +108,50 @@ function LongDoorAdditionalPageContent() {
             <TopNavigator />
             <ProgressBar progress={80} />
             <Header title={"추가 정보를 입력해주세요"} />
+            {/* 검증용: itemStore 정보 표시 */}
+            {/* <div className="mt-8 mb-4 rounded-2xl border-2 border-blue-300 bg-blue-50 p-4">
+                <div className="mb-3 text-[16px] font-700 text-blue-800">🔍 ItemStore 검증 정보</div>
+
+                <div className="mb-4 space-y-2">
+                    <div className="text-[14px] font-600 text-gray-800">공통 속성</div>
+                    <div className="rounded-lg bg-white p-3 text-[12px] font-400 text-gray-700">
+                        <div>색상: {item?.color || item?.door_color_direct_input || "미입력"}</div>
+                        <div>용도/장소: {item?.door_location || "미입력"}</div>
+                        <div>손잡이 종류: {item?.handleType || "미입력"}</div>
+                        <div>세로 길이: {item?.door_height ? `${item?.door_height}mm` : "미입력"}</div>
+                        <div>보링 개수: {item?.boringNum ? `${item?.boringNum}개` : "미입력"}</div>
+                        <div>보링 치수: {item?.hinge && item?.hinge.length > 0 ? `[${item?.hinge.map(h => h ?? "null").join(", ")}]` : "미입력"}</div>
+                        <div>문짝 수량: {item?.doors && item?.doors.length > 0 ? `${item?.doors.length}개` : "미입력"}</div>
+                    </div>
+                </div>
+
+                <div className="mb-4 space-y-2">
+                    <div className="text-[14px] font-600 text-gray-800">개별 문 정보 (doors 배열)</div>
+                    <div className="space-y-2">
+                        {item?.doors && item?.doors.length > 0 && item?.doors.map((door: any, idx: number) => (
+                            <div key={idx} className="rounded-lg bg-white p-3 text-[12px] font-400 text-gray-700">
+                                <div className="mb-1 font-600 text-gray-800">문 {idx + 1}</div>
+                                <div>가로 길이: {door.door_width ? `${door.door_width}mm` : "미입력"}</div>
+                                <div>경첩 방향: {
+                                    door.hinge_direction === HingeDirection.LEFT ? "좌경첩" :
+                                        door.hinge_direction === HingeDirection.RIGHT ? "우경첩" :
+                                            door.hinge_direction === HingeDirection.UNKNOWN ? "모름" :
+                                                "미입력"
+                                }</div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="space-y-2">
+                    <div className="text-[14px] font-600 text-gray-800">전체 ItemStore JSON</div>
+                    <div className="max-h-[300px] overflow-auto rounded-lg bg-white p-3">
+                        <pre className="text-[10px] font-400 text-gray-700 whitespace-pre-wrap break-words">
+                            {JSON.stringify(item, null, 2)}
+                        </pre>
+                    </div>
+                </div>
+            </div> */}
             <div className="flex flex-1 flex-col gap-5 px-5">
                 <BoxedInput
                     label="제작 시 요청사항"
