@@ -284,6 +284,29 @@ export default function CartClient() {
         </div>
         <div className="px-5 flex flex-col gap-3">
           <PriceSummaryCard getTotalPrice={getTotalPrice} />
+          <div>
+            {(() => {
+              // 양문 아이템 개수 계산
+              const pairDoorCount = cartItemDetails
+                .filter(({ cartItem, detail }) => 
+                  cartItem.detail_product_type === DetailProductType.DOOR && 
+                  detail?.is_pair_door === true
+                )
+                .reduce((sum, { cartItem }) => sum + (cartItem.item_count ?? 0), 0);
+              
+              if (pairDoorCount > 0) {
+                const totalDoorCount = pairDoorCount * 2;
+                return (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div className="text-red-800 text-base font-medium">
+                      양문 아이템이 {pairDoorCount}개 있어요. 문짝이 {totalDoorCount}개 제작될 예정이에요.
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })()}
+          </div>
           <PaymentNoticeCard />
         </div>
       </div>

@@ -113,6 +113,16 @@ function DoorReportPageContent() {
                     }}
                 />
 
+                <div>
+                    {item.is_pair_door && (
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                            <div className="text-red-800 text-base font-medium">
+                                양문 세트를 {quantity}개 주문하시면, 문짝은 {2 * quantity}개 제작돼요.
+                            </div>
+                        </div>
+                    )}
+                </div>
+
                 {/* 결제 안내 문구 */}
                 <PaymentNoticeCard />
             </div>
