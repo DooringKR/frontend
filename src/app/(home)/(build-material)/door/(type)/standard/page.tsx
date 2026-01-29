@@ -504,36 +504,35 @@ function StandardDoorPageContent() {
                                 </div>
                                 {boringError && <div className="px-1 text-sm text-red-500">{boringError}</div>}
 
-                                {/* 양문 프리뷰 - 경첩 개수를 아는 경우 */}
-                                {!isDontKnowHingeCount && boringNum !== null && (
-                                    <div>
-                                        <div className="w-full flex items-center justify-center pt-5">
-                                            <PairDoorPreview
-                                                DoorWidth={door_width}
-                                                DoorHeight={door_height}
-                                                boringNum={boringNum}
-                                                boringSize={hinge}
-                                                onChangeBoringSize={handleBoringSizeChange}
-                                                doorColor={item?.color ?? ""}
-                                            />
-                                        </div>
+                                {/* 양문 프리뷰 - 경첩 개수 상관없이 표시 */}
+                                <div>
+                                    <div className="w-full flex items-center justify-center pt-5">
+                                        <PairDoorPreview
+                                            DoorWidth={door_width}
+                                            DoorHeight={door_height}
+                                            boringNum={boringNum}
+                                            boringSize={hinge}
+                                            onChangeBoringSize={isDontKnowHingeCount ? undefined : handleBoringSizeChange}
+                                            doorColor={item?.color ?? ""}
+                                            isPreviewOnly={isDontKnowHingeCount}
+                                        />
+                                    </div>
 
-                                        {/* 보링 치수 안내 메시지 - hinge 배열에 null이 없으면 표시하지 않음 */}
-                                        {hinge.some(h => h === null || h === undefined) && (
-                                            <div className="w-full px-5 pt-3 flex flex-col justify-start items-center gap-2.5">
-                                                <div className="w-full px-4 py-3 bg-gray-50 rounded-2xl flex justify-center items-center gap-2">
-                                                    <div className="w-9 h-9 relative bg-blue-100 rounded-xl flex items-center justify-center">
-                                                        <ManWhiteIcon />
-                                                    </div>
-                                                    <div className="flex-1 inline-flex flex-col justify-start items-start">
-                                                        <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">경첩 치수 모르면 입력하지 않아도 돼요</div>
-                                                        <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">주문이 접수되면 상담으로 안내해드려요.</div>
-                                                    </div>
+                                    {/* 보링 치수 안내 메시지 - hinge 배열에 null이 없으면 표시하지 않음 (경첩 개수를 알 때만) */}
+                                    {!isDontKnowHingeCount && hinge.some(h => h === null || h === undefined) && (
+                                        <div className="w-full px-5 pt-3 flex flex-col justify-start items-center gap-2.5">
+                                            <div className="w-full px-4 py-3 bg-gray-50 rounded-2xl flex justify-center items-center gap-2">
+                                                <div className="w-9 h-9 relative bg-blue-100 rounded-xl flex items-center justify-center">
+                                                    <ManWhiteIcon />
+                                                </div>
+                                                <div className="flex-1 inline-flex flex-col justify-start items-start">
+                                                    <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">경첩 치수 모르면 입력하지 않아도 돼요</div>
+                                                    <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">주문이 접수되면 상담으로 안내해드려요.</div>
                                                 </div>
                                             </div>
-                                        )}
-                                    </div>
-                                )}
+                                        </div>
+                                    )}
+                                </div>
 
                                 {/* 경첩 개수만 모르는 경우 */}
                                 {isDontKnowHingeCount && (

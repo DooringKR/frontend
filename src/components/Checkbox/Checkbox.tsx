@@ -122,7 +122,7 @@ export default function Checkbox({
       {/* 숨겨진 실제 input (폼 제출용) */}
       <input
         type="checkbox"
-        checked={checked}
+        checked={checked || false}
         onChange={() => {}}
         disabled={disabled}
         name={name}

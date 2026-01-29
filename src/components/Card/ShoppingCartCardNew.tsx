@@ -444,6 +444,13 @@ const ShoppingCartCardNew: React.FC<ShoppingCartCardNewProps> = ({
               ? "일반문 (양문 세트)" 
               : detailProductType}
           </div>
+          {/* <div>
+            {detailProductType === "일반문" && (details.data as DoorStandardDetails).is_pair_door && (
+              <div className="text-[14px] font-400 text-blue-600">
+                양문 세트 1개당 문짝은 2개 제작돼요.
+              </div>
+            )}
+          </div> */}
           <div className="flex flex-col text-[15px] font-400 text-gray-500">
             {renderDetails(details.data)}
           </div>
