@@ -8,6 +8,7 @@ import { Response } from "@/DDD/data/response";
 import { GenerateOrderEstimateUseCase } from "@/DDD/usecase/generate_order_estimate_usecase";
 import { DeliveryOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/DeliveryOrder";
 import { PickUpOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/PickUpOrder";
+import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 
 export class CreateOrderUsecase {
     constructor(
@@ -40,12 +41,16 @@ export class CreateOrderUsecase {
                 throw new Error("장바구니가 비어있습니다.");
             }
 
+            // 2-1. 세트상품이 있으면 세트상품만 필터링 (세트상품은 가격이 정해져 있어 먼저 결제 필요)
+            const setProducts = cartItems.filter(item => item.detail_product_type === DetailProductType.LONGDOOR);
+            const itemsToOrder = setProducts.length > 0 ? setProducts : cartItems;
+
             // 3. 주문 생성
             const order = await this.createOrder(request);
 
             // 4. 주문 아이템들 생성
             console.log(order.id);
-            await this.createOrderItems(order.id!, cartItems);
+            await this.createOrderItems(order.id!, itemsToOrder);
 
             // 5. 견적서(스프레드시트) 생성 트리거 (비동기 - 실패해도 주문 생성은 유지)
             if (this.generateOrderEstimateUseCase) {

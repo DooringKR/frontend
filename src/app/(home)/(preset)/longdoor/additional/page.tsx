@@ -44,7 +44,9 @@ function LongDoorAdditionalPageContent() {
     const [selectedThickness, setSelectedThickness] = useState<HingeThickness | null>(item?.hinge_thickness ?? null);
 
     const [hasValidationFailed, setHasValidationFailed] = useState(false);
+    const [hasImageValidationFailed, setHasImageValidationFailed] = useState(false);
     const thicknessRef = useRef<HTMLDivElement>(null);
+    const imageRef = useRef<HTMLDivElement>(null);
 
     const handleRequestChange = (newRequest: string) => {
         setDoorRequest(newRequest);
@@ -54,6 +56,10 @@ function LongDoorAdditionalPageContent() {
     const handleImagesChange = (newImages: File[]) => {
         setImages(newImages);
         updateItem({ raw_images: newImages });
+        // 이미지가 추가되면 검증 에러 해제
+        if (hasImageValidationFailed && newImages.length > 0) {
+            setHasImageValidationFailed(false);
+        }
     };
 
     const handleAddOnHingeChange = (newAddOnHinge: boolean) => {
@@ -81,6 +87,19 @@ function LongDoorAdditionalPageContent() {
     };
 
     const validateAndProceed = () => {
+        // 이미지 첨부 필수 검증
+        if (!images || images.length === 0) {
+            setHasImageValidationFailed(true);
+            setTimeout(() => {
+                imageRef.current?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                });
+            }, 100);
+            return;
+        }
+
+        // 경첩 두께 검증
         if (addOn_hinge && !selectedThickness) {
             setHasValidationFailed(true);
             setTimeout(() => {
@@ -93,6 +112,7 @@ function LongDoorAdditionalPageContent() {
         }
 
         setHasValidationFailed(false);
+        setHasImageValidationFailed(false);
         router.push("/longdoor/report");
         // trackClick({
         //     object_type: "button",
@@ -218,12 +238,17 @@ function LongDoorAdditionalPageContent() {
                     />
                 </div>
 
-                <ImageUploadInput
-                    label="이미지 첨부"
-                    placeholder="이미지를 첨부해주세요"
-                    value={images}
-                    onChange={handleImagesChange}
-                />
+                <div ref={imageRef}>
+                    <ImageUploadInput
+                        label="이미지 첨부"
+                        placeholder="이미지를 첨부해주세요"
+                        value={images}
+                        onChange={handleImagesChange}
+                        required={true}
+                        error={hasImageValidationFailed}
+                        helperText={hasImageValidationFailed ? "이미지를 첨부해주세요" : undefined}
+                    />
+                </div>
             </div>
             <div className="h-[100px]"></div>
 

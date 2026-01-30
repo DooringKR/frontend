@@ -8,7 +8,7 @@ import { CreateOrderUsecase } from "@/DDD/usecase/create_order_usecase";
 import { CrudCartItemUsecase } from "@/DDD/usecase/crud_cart_item_usecase";
 import { GenerateOrderEstimateUseCase } from "@/DDD/usecase/generate_order_estimate_usecase";
 import { CHECK_ORDER_PAGE } from "@/constants/pageName";
-import { DeliveryMethod } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
+import { DeliveryMethod, DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 import { DeliveryOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/DeliveryOrder";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -33,11 +33,11 @@ import { trackClick, trackPurchase } from "@/services/analytics/amplitude";
 import { getScreenName } from "@/utils/screenName";
 import BottomButton from "@/components/BottomButton/BottomButton";
 import PaymentNoticeCard from "@/components/PaymentNoticeCard";
-import { 
-  getProductTypesFromCartItems, 
+import {
+  getProductTypesFromCartItems,
   getDetailProductTypesFromCartItems,
   getTotalQuantityFromCartItems,
-  getTotalValueFromCartItems 
+  getTotalValueFromCartItems
 } from "@/utils/getCartProductTypes";
 import { sortProductTypes, sortDetailProductTypes } from "@/utils/formatCartProductTypes";
 import OrderProcessCard from "@/components/OrderProcessCard";
@@ -60,6 +60,7 @@ function CheckOrderClientPage() {
   const cart = useCartStore(state => state.cart);
   const cartItems = useCartItemStore(state => state.cartItems);
   const clearCartItems = useCartItemStore(state => state.clearCartItems);
+  const removeCartItem = useCartItemStore(state => state.removeCartItem);
   const decrementCartCount = useCartStore(state => state.decrementCartCount);
   const getTotalPrice = useCartItemStore(state => state.getTotalPrice);
 
@@ -68,13 +69,25 @@ function CheckOrderClientPage() {
   const user = useBizClientStore(state => state.bizClient!);
   const order = useOrderStore(state => state.order);
 
+  // 세트 상품과 부재 상품 분리
+  const setProducts = cartItems.filter(item => item.detail_product_type === DetailProductType.LONGDOOR);
+  const hasSetProducts = setProducts.length > 0;
+
+  // 예상 주문금액: 세트상품이 있으면 세트상품만, 없으면 전체
+  const getExpectedOrderPrice = () => {
+    if (hasSetProducts) {
+      return setProducts.reduce((sum, item) => sum + (item.unit_price ?? 0) * (item.item_count ?? 0), 0);
+    }
+    return getTotalPrice();
+  };
+
   // 화면 진입 시 초기 DeliveryOrder 구성
   useEffect(() => {
     const fetchDeliveryInfo = async () => {
       // 새로운 주문 시작 시 이전 주문 정보 삭제
       localStorage.removeItem("recentOrder");
 
-      const totalPrice = getTotalPrice();
+      const totalPrice = getExpectedOrderPrice();
       const deliveryOrderData: Partial<DeliveryOrder> = {
         user_id: user.id!,
         recipient_phone: useOrderStore.getState().order?.recipient_phone || user.phone_number!,
@@ -99,7 +112,7 @@ function CheckOrderClientPage() {
       updateOrder(deliveryOrderData);
     };
     fetchDeliveryInfo();
-  }, [user, getTotalPrice, updateOrder]);
+  }, [user, cartItems, updateOrder]);
 
   const handleOrderSubmit = async () => {
     trackClick({
@@ -132,7 +145,7 @@ function CheckOrderClientPage() {
     const isRequestInvalid = !order?.delivery_method ||
       (order?.delivery_method === DeliveryMethod.OPEN_GATE && !order?.gate_password?.trim()) ||
       (order?.delivery_method === DeliveryMethod.DIRECT_INPUT && !order?.delivery_method_direct_input?.trim());
-    
+
     if (isRequestInvalid) {
       setHasValidationFailed(true);
       const requestElement = document.querySelector('[data-component="delivery-request"]');
@@ -177,9 +190,10 @@ function CheckOrderClientPage() {
         return;
       }
 
-      // 2. DB에서 장바구니 아이템 삭제
+      // 2. DB에서 장바구니 아이템 삭제 (세트상품이 있으면 세트상품만 삭제)
+      const itemsToDelete = hasSetProducts ? setProducts : cartItems;
       const deleteResults = await Promise.all(
-        cartItems.map(async item => {
+        itemsToDelete.map(async item => {
           if (!item.id) return true;
 
           try {
@@ -209,7 +223,7 @@ function CheckOrderClientPage() {
         const revenueShipping = 0; // 현재는 0으로 하드코딩
         const discountTotal = 0; // 현재는 0
         const revenueTotal = revenueProduct + revenueShipping - discountTotal;
-        
+
         // delivery_arrival_time에서 날짜/시간 추출
         const deliveryTime = order?.delivery_arrival_time ? new Date(order.delivery_arrival_time) : new Date();
         const shippingYear = deliveryTime.getFullYear();
@@ -242,27 +256,36 @@ function CheckOrderClientPage() {
         // 이벤트 전송 실패는 주문 처리에 영향을 주지 않음
       }
 
-      // 4. 주문 정보 로컬스토리지에 저장 -> 직후 confirm 페이지에서 사용
-      // response.data.order_id, order, cartItems를 올바르게 객체로 저장
-      localStorage.setItem(
-        "recentOrder",
-        JSON.stringify({
-          order_id: response.data?.id,
-          order,
-          cartItems,
-        }),
-      ); // 자동 덮어쓰기
+      // 4. 주문 정보 저장 (스토어 + localStorage) -> confirm에서 스토어 우선 읽음
+      const cartItemsToSave = hasSetProducts ? setProducts : cartItems;
+      const payload = {
+        order_id: response.data?.id,
+        order,
+        cartItems: cartItemsToSave,
+      };
+      localStorage.setItem("recentOrder", JSON.stringify(payload));
+      useOrderStore.getState().setRecentOrderForConfirm(payload);
 
-      // 5 Cart count 초기화 (cartItems 수만큼 감소시켜 0으로 만듦)
-      if (cart && cart.cart_count > 0) {
-        decrementCartCount(cart.cart_count);
+      // 5 Cart count 감소 (삭제된 아이템 수만큼만 감소)
+      const deletedCount = itemsToDelete.reduce((sum, item) => sum + (item.item_count ?? 0), 0);
+      if (cart && deletedCount > 0) {
+        decrementCartCount(deletedCount);
       }
 
-      // 6. 전역 상태 초기화
-      clearCartItems(); // CartItemStore 초기화
+      // 6. 전역 상태 업데이트 (세트상품이 있으면 세트상품만 제거, 없으면 전체 초기화)
+      if (hasSetProducts) {
+        // 세트상품만 store에서 제거
+        itemsToDelete.forEach(item => {
+          if (item.id) {
+            removeCartItem(item.id);
+          }
+        });
+      } else {
+        clearCartItems(); // CartItemStore 초기화
+      }
       useOrderStore.getState().clearOrder(); // OrderStore 초기화
 
-      // 7. 성공 페이지로 이동
+      // 7. 성공 페이지로 이동 (스토어에 이미 payload 저장됨 → confirm에서 스토어 우선 읽음)
       router.push("/order/delivery/confirm");
     } catch (error) {
       console.error("주문 처리 중 오류 발생:", error);
@@ -294,7 +317,7 @@ function CheckOrderClientPage() {
               });
             }}
           /> */}
-          
+
           {/* OrderProcessCard로 표현한 주소 입력 예시 */}
           <div data-component="delivery-address">
             <OrderProcessCard
@@ -308,11 +331,11 @@ function CheckOrderClientPage() {
               showBottom={false}
               state={
                 isLoading ? 'disabled' :
-                (!order?.road_address?.trim() || !order?.detail_address?.trim()) && hasValidationFailed
-                  ? 'errored'
-                  : (!order?.road_address?.trim() || !order?.detail_address?.trim())
-                  ? 'emphasized'
-                  : 'enabled'
+                  (!order?.road_address?.trim() || !order?.detail_address?.trim()) && hasValidationFailed
+                    ? 'errored'
+                    : (!order?.road_address?.trim() || !order?.detail_address?.trim())
+                      ? 'emphasized'
+                      : 'enabled'
               }
               onClick={() => !isLoading && router.push("/order/delivery/address")}
             />
@@ -332,13 +355,17 @@ function CheckOrderClientPage() {
         </section>
 
         <div className="flex flex-col gap-1">
-          <PriceSummaryCard getTotalPrice={getTotalPrice} />
-          <PaymentNoticeCard />
+          <PriceSummaryCard
+            getTotalPrice={getExpectedOrderPrice}
+            page={CHECK_ORDER_PAGE}
+            filteredCartItems={hasSetProducts ? setProducts : undefined}
+          />
+          {!hasSetProducts && <PaymentNoticeCard />}
         </div>
       </div>
-            
+
       <div className="h-[150px]"></div>
-      <div id ="delivery-order-button">
+      <div id="delivery-order-button">
         <BottomButton
           type={"1button"}
           button1Text={isLoading ? "주문 요청 중..." : "주문 접수하기"}

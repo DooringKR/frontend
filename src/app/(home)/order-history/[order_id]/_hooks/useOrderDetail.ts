@@ -11,12 +11,15 @@ import { Accessory } from "dooring-core-domain/dist/models/InteriorMaterials/Acc
 import { Hinge } from "dooring-core-domain/dist/models/InteriorMaterials/Hardware/Hinge";
 import { Rail } from "dooring-core-domain/dist/models/InteriorMaterials/Hardware/Rail";
 import { Piece } from "dooring-core-domain/dist/models/InteriorMaterials/Hardware/Piece";
+import { LongDoor } from "dooring-core-domain/dist/models/CompositeProducts/LongDoor";
 import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 import { OrderItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/OrderItem";
+import { supabase } from "@/lib/supabase";
 
 // 자재 정보를 포함한 OrderItem 타입
 type OrderItemWithMaterial = OrderItem & {
     materialDetails: any;
+    relatedDoors?: Door[]; // 롱문의 경우 관련 Door 배열
 };
 
 // 자재 정보를 포함한 Order 타입
@@ -167,6 +170,43 @@ export const useOrderDetail = (orderId: string | null) => {
                                             new InteriorMaterialsSupabaseRepository<Piece>("Piece")
                                         ).findById(materialId);
                                         if (pieceDetail) materialDetails = pieceDetail;
+                                    }
+                                    break;
+
+                                case DetailProductType.LONGDOOR:
+                                    if (materialId) {
+                                        const longDoorData = await new CrudInteriorMaterialsUsecase(
+                                            new InteriorMaterialsSupabaseRepository<LongDoor>("LongDoor")
+                                        ).findById(materialId);
+                                        // DB에서 가져온 raw 데이터를 LongDoor 객체로 변환
+                                        const longDoor = longDoorData ? LongDoor.fromDB(longDoorData as any) : null;
+                                        if (longDoor) {
+                                            materialDetails = longDoor;
+
+                                            // 롱문에 연결된 Door들 조회
+                                            let relatedDoors: Door[] = [];
+                                            if (longDoor.id) {
+                                                try {
+                                                    const { data: doorsData, error: doorsError } = await supabase
+                                                        .from("Door")
+                                                        .select("*")
+                                                        .eq("long_door_id", longDoor.id)
+                                                        .order("long_door_order", { ascending: true });
+
+                                                    if (!doorsError && doorsData) {
+                                                        relatedDoors = doorsData.map((doorData: any) => Door.fromDB(doorData));
+                                                    }
+                                                } catch (e) {
+                                                    console.error("Failed to fetch related doors for LongDoor:", e);
+                                                }
+                                            }
+
+                                            return {
+                                                ...orderItem,
+                                                materialDetails,
+                                                relatedDoors
+                                            } as OrderItemWithMaterial;
+                                        }
                                     }
                                     break;
 
