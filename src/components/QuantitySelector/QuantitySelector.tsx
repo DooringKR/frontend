@@ -9,6 +9,7 @@ interface QuantitySelectorProps {
     onDecrease?: () => void;
     onIncrease?: () => void;
     onTrash?: () => void;
+    disabled?: boolean;
 }
 
 const QuantitySelector: React.FC<QuantitySelectorProps> = ({
@@ -17,19 +18,21 @@ const QuantitySelector: React.FC<QuantitySelectorProps> = ({
     onDecrease,
     onIncrease,
     onTrash,
+    disabled = false,
 }) => {
     return (
         <div className="flex items-center bg-white">
             <button
-                className="h-[40px] rounded-l-[10px] border-b border-l border-t px-2"
+                className={`h-[40px] rounded-l-[10px] border-b border-l border-t px-2 ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
                 style={{
                     transition: "background 0.2s",
                 }}
                 onMouseEnter={e =>
-                    (e.currentTarget.style.background = "linear-gradient(90deg, #F3F4F6 0%, #FFF 100%)")
+                    !disabled && (e.currentTarget.style.background = "linear-gradient(90deg, #F3F4F6 0%, #FFF 100%)")
                 }
                 onMouseLeave={e => (e.currentTarget.style.background = "")}
-                onClick={trashable && quantity === 1 && onTrash ? onTrash : onDecrease}
+                onClick={disabled ? undefined : (trashable && quantity === 1 && onTrash ? onTrash : onDecrease)}
+                disabled={disabled}
                 aria-label="수량 감소"
             >
                 {trashable && quantity === 1 ? (
@@ -42,15 +45,16 @@ const QuantitySelector: React.FC<QuantitySelectorProps> = ({
                 {quantity}
             </div>
             <button
-                className="h-[40px] rounded-r-[10px] border-b border-r border-t px-2"
+                className={`h-[40px] rounded-r-[10px] border-b border-r border-t px-2 ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
                 style={{
                     transition: "background 0.2s",
                 }}
                 onMouseEnter={e =>
-                    (e.currentTarget.style.background = "linear-gradient(270deg, #F3F4F6 0%, #FFF 100%)")
+                    !disabled && (e.currentTarget.style.background = "linear-gradient(270deg, #F3F4F6 0%, #FFF 100%)")
                 }
                 onMouseLeave={e => (e.currentTarget.style.background = "")}
-                onClick={onIncrease}
+                onClick={disabled ? undefined : onIncrease}
+                disabled={disabled}
                 aria-label="수량 증가"
             >
                 <PlusIcon disabled={false} />

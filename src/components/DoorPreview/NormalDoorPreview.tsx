@@ -7,8 +7,8 @@ import { Chip } from "../Chip/Chip";
 import { HingeDirection } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 interface NormalDoorPreviewProps {
-  DoorWidth: number | null; // 가로 길이, null 경우 입력 필요
-  DoorHeight: number | null; // 세로 길이, null 경우 입력 필요
+  DoorWidth?: number | null; // 가로 길이 (비워서 전달 가능)
+  DoorHeight?: number | null; // 세로 길이 (비워서 전달 가능)
   boringDirection: HingeDirection;
   boringNum: 2 | 3 | 4; // 보어링 개수는 2, 3, 4 중 하나
   boringSize: (number | null)[];
@@ -44,7 +44,7 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
 
   // 현재 포커스된 보어링 입력 필드 인덱스
   const [focusedBoringIndex, setFocusedBoringIndex] = React.useState<number | null>(null);
-  
+
   // 동적 컨테이너 높이 먼저 계산
   const fixedWidth = containerWidth / 3;
   const actualWidth = DoorWidth || 600;
@@ -54,7 +54,7 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
   const minHeight = fixedWidth * 1.5;
   const maxHeight = fixedWidth * 2.0;
   const containerHeight = Math.max(minHeight, Math.min(calculatedHeight, maxHeight));
-  
+
   // 보어링 input의 높이를 동적 컨테이너 높이 기준으로 계산
   const boringHeight = containerHeight / boringNum;
 
@@ -89,11 +89,11 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
     const startY = 30;
     const endY = containerHeight - 30;
     const y = startY + idx * ((endY - startY) / (boringNum - 1));
-    
+
     return (
       <div
         key={idx}
-        style={{ 
+        style={{
           position: "absolute",
           top: `${y - 20}px`, // 입력 필드 중심을 보링 원과 맞춤
           width: "100%",
@@ -154,185 +154,185 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
             minWidth: "60px",
           }}
         >
-        {/* 문짝 배경 이미지 또는 색상 */}
-        {colorImage ? (
-          <Image
-            src={colorImage}
-            alt="door color"
-            fill
-            style={{
-              objectFit: "cover",
-            }}
-          />
-        ) : (
-          <div
-            style={{
-              width: "100%",
-              height: "100%",
-              backgroundColor: doorColor || "#E5E7EB",
-              border: "2px solid #111827", // border-gray-900
-            }}
-          />
-        )}
+          {/* 문짝 배경 이미지 또는 색상 */}
+          {colorImage ? (
+            <Image
+              src={colorImage}
+              alt="door color"
+              fill
+              style={{
+                objectFit: "cover",
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                width: "100%",
+                height: "100%",
+                backgroundColor: doorColor || "#E5E7EB",
+                border: "2px solid #111827", // border-gray-900
+              }}
+            />
+          )}
 
-        {/* 보어링 위치 표시 */}
-        {Array.from({ length: boringNum }).map((_, index) => {
-          // boringDirection에 따라 보어링 위치 조정
-          const boringOffset = 15; // 보어링이 문짝 가장자리에서 떨어진 거리
-          const centerX = boringDirection === HingeDirection.LEFT ? boringOffset : doorWidth - boringOffset;
+          {/* 보어링 위치 표시 */}
+          {Array.from({ length: boringNum }).map((_, index) => {
+            // boringDirection에 따라 보어링 위치 조정
+            const boringOffset = 15; // 보어링이 문짝 가장자리에서 떨어진 거리
+            const centerX = boringDirection === HingeDirection.LEFT ? boringOffset : doorWidth - boringOffset;
 
-          const startY = 30;
-          const endY = containerHeight - 30;
-          const y = startY + index * ((endY - startY) / (boringNum - 1));
+            const startY = 30;
+            const endY = containerHeight - 30;
+            const y = startY + index * ((endY - startY) / (boringNum - 1));
 
-          const isFocused = focusedBoringIndex === index;
+            const isFocused = focusedBoringIndex === index;
 
-          return (
-            <div key={index}>
-              {/* 보어링 원형 */}
-              <div
-                style={{
-                  position: "absolute",
-                  left: `${centerX - (isFocused ? 6 : 4)}px`,
-                  top: `${y - (isFocused ? 6 : 4)}px`,
-                  width: `${isFocused ? 12 : 8}px`,
-                  height: `${isFocused ? 12 : 8}px`,
-                  backgroundColor: isFocused ? "#EF4444" : "#3B82F6",
-                  border: `2px solid ${isFocused ? "#DC2626" : "#1E40AF"}`,
-                  borderRadius: "50%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  transition: "all 0.2s ease-in-out",
-                  boxShadow: isFocused ? "0 0 8px rgba(239, 68, 68, 0.5)" : "none",
-                }}
-              >
-                <div
-                  style={{
-                    width: "2px",
-                    height: "2px",
-                    backgroundColor: "white",
-                    borderRadius: "50%",
-                  }}
-                />
-              </div>
-
-              {/* 문짝 내부 화살표 가이드 */}
-              {isFocused && (
+            return (
+              <div key={index}>
+                {/* 보어링 원형 */}
                 <div
                   style={{
                     position: "absolute",
-                    left:
-                      boringDirection === HingeDirection.LEFT
-                        ? `${centerX + 12}px` // 좌경: 보어링 오른쪽에 화살표
-                        : `${centerX - 12}px`, // 우경: 보어링 왼쪽에 화살표
-                    top:
-                      index === boringNum - 1 || (boringNum === 4 && index === 2)
-                        ? `${y}px`
-                        : "10px", // 맨 아래 보링과 4개일 때 3번째는 해당 위치에서 시작, 나머지는 최상단에서 시작
-                    width: "2px",
-                    height:
-                      index === boringNum - 1 || (boringNum === 4 && index === 2)
-                        ? `${containerHeight - y - 10}px`
-                        : `${y - 10}px`, // 맨 아래 보링과 4개일 때 3번째는 아래쪽으로, 나머지는 위쪽으로
-                    background:
-                      index === boringNum - 1 || (boringNum === 4 && index === 2)
-                        ? "linear-gradient(to top, rgba(239, 68, 68, 0.6), rgba(239, 68, 68, 0.6))"
-                        : "linear-gradient(to bottom, rgba(239, 68, 68, 0.6), rgba(239, 68, 68, 0.6))",
-                    zIndex: 5,
+                    left: `${centerX - (isFocused ? 6 : 4)}px`,
+                    top: `${y - (isFocused ? 6 : 4)}px`,
+                    width: `${isFocused ? 12 : 8}px`,
+                    height: `${isFocused ? 12 : 8}px`,
+                    backgroundColor: isFocused ? "#EF4444" : "#3B82F6",
+                    border: `2px solid ${isFocused ? "#DC2626" : "#1E40AF"}`,
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    transition: "all 0.2s ease-in-out",
+                    boxShadow: isFocused ? "0 0 8px rgba(239, 68, 68, 0.5)" : "none",
                   }}
                 >
-                  {/* 화살표 머리 */}
+                  <div
+                    style={{
+                      width: "2px",
+                      height: "2px",
+                      backgroundColor: "white",
+                      borderRadius: "50%",
+                    }}
+                  />
+                </div>
+
+                {/* 문짝 내부 화살표 가이드 */}
+                {isFocused && (
                   <div
                     style={{
                       position: "absolute",
-                      bottom:
-                        index === boringNum - 1 || (boringNum === 4 && index === 2)
-                          ? "auto"
-                          : "-6px",
+                      left:
+                        boringDirection === HingeDirection.LEFT
+                          ? `${centerX + 12}px` // 좌경: 보어링 오른쪽에 화살표
+                          : `${centerX - 12}px`, // 우경: 보어링 왼쪽에 화살표
                       top:
                         index === boringNum - 1 || (boringNum === 4 && index === 2)
-                          ? "-6px"
-                          : "auto",
-                      left: "-3px",
-                      width: "0",
-                      height: "0",
-                      borderTop:
+                          ? `${y}px`
+                          : "10px", // 맨 아래 보링과 4개일 때 3번째는 해당 위치에서 시작, 나머지는 최상단에서 시작
+                      width: "2px",
+                      height:
                         index === boringNum - 1 || (boringNum === 4 && index === 2)
-                          ? "none"
-                          : "6px solid rgba(239, 68, 68, 0.6)",
-                      borderBottom:
+                          ? `${containerHeight - y - 10}px`
+                          : `${y - 10}px`, // 맨 아래 보링과 4개일 때 3번째는 아래쪽으로, 나머지는 위쪽으로
+                      background:
                         index === boringNum - 1 || (boringNum === 4 && index === 2)
-                          ? "6px solid rgba(239, 68, 68, 0.6)"
-                          : "none",
-                      borderLeft: "4px solid transparent",
-                      borderRight: "4px solid transparent",
+                          ? "linear-gradient(to top, rgba(239, 68, 68, 0.6), rgba(239, 68, 68, 0.6))"
+                          : "linear-gradient(to bottom, rgba(239, 68, 68, 0.6), rgba(239, 68, 68, 0.6))",
+                      zIndex: 5,
                     }}
-                  />
-                </div>
-              )}
+                  >
+                    {/* 화살표 머리 */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        bottom:
+                          index === boringNum - 1 || (boringNum === 4 && index === 2)
+                            ? "auto"
+                            : "-6px",
+                        top:
+                          index === boringNum - 1 || (boringNum === 4 && index === 2)
+                            ? "-6px"
+                            : "auto",
+                        left: "-3px",
+                        width: "0",
+                        height: "0",
+                        borderTop:
+                          index === boringNum - 1 || (boringNum === 4 && index === 2)
+                            ? "none"
+                            : "6px solid rgba(239, 68, 68, 0.6)",
+                        borderBottom:
+                          index === boringNum - 1 || (boringNum === 4 && index === 2)
+                            ? "6px solid rgba(239, 68, 68, 0.6)"
+                            : "none",
+                        borderLeft: "4px solid transparent",
+                        borderRight: "4px solid transparent",
+                      }}
+                    />
+                  </div>
+                )}
 
-              {/* 툴팁 */}
-              {isFocused && (
-                <div
-                  style={{
-                    position: "absolute",
-                    left:
-                      boringDirection === HingeDirection.LEFT
-                        ? `${centerX + 30}px` // 좌경: 화살표 오른쪽에 툴팁
-                        : `${centerX - 150}px`, // 우경: 화살표 왼쪽에 툴팁 (더 왼쪽으로)
-                    top: `${y - 15}px`,
-                    backgroundColor: "rgba(0, 0, 0, 0.8)",
-                    color: "white",
-                    padding: "8px 12px",
-                    borderRadius: "6px",
-                    fontSize: "12px",
-                    whiteSpace: "pre-line",
-                    width: "120px",
-                    textAlign: "center",
-                    zIndex: 10,
-                    pointerEvents: "none",
-                  }}
-                >
-                  {index === boringNum - 1 || (boringNum === 4 && index === 2)
-                    ? "아래를 기준으로\n작성해주세요!"
-                    : "위를 기준으로\n작성해주세요!"}
-                  {/* 툴팁 화살표 */}
+                {/* 툴팁 */}
+                {isFocused && (
                   <div
                     style={{
                       position: "absolute",
-                      top: "50%",
-                      left: boringDirection === HingeDirection.LEFT ? "-4px" : "auto",
-                      right: boringDirection === HingeDirection.LEFT ? "auto" : "-4px",
-                      transform: "translateY(-50%)",
-                      width: "0",
-                      height: "0",
-                      borderTop: "4px solid transparent",
-                      borderBottom: "4px solid transparent",
-                      borderLeft:
-                        boringDirection === HingeDirection.LEFT ? "none" : "4px solid rgba(0, 0, 0, 0.8)",
-                      borderRight:
-                        boringDirection === HingeDirection.LEFT ? "4px solid rgba(0, 0, 0, 0.8)" : "none",
+                      left:
+                        boringDirection === HingeDirection.LEFT
+                          ? `${centerX + 30}px` // 좌경: 화살표 오른쪽에 툴팁
+                          : `${centerX - 150}px`, // 우경: 화살표 왼쪽에 툴팁 (더 왼쪽으로)
+                      top: `${y - 15}px`,
+                      backgroundColor: "rgba(0, 0, 0, 0.8)",
+                      color: "white",
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      fontSize: "12px",
+                      whiteSpace: "pre-line",
+                      width: "120px",
+                      textAlign: "center",
+                      zIndex: 10,
+                      pointerEvents: "none",
                     }}
-                  />
-                </div>
-              )}
-            </div>
-          );
-        })}
+                  >
+                    {index === boringNum - 1 || (boringNum === 4 && index === 2)
+                      ? "아래를 기준으로\n작성해주세요!"
+                      : "위를 기준으로\n작성해주세요!"}
+                    {/* 툴팁 화살표 */}
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "50%",
+                        left: boringDirection === HingeDirection.LEFT ? "-4px" : "auto",
+                        right: boringDirection === HingeDirection.LEFT ? "auto" : "-4px",
+                        transform: "translateY(-50%)",
+                        width: "0",
+                        height: "0",
+                        borderTop: "4px solid transparent",
+                        borderBottom: "4px solid transparent",
+                        borderLeft:
+                          boringDirection === HingeDirection.LEFT ? "none" : "4px solid rgba(0, 0, 0, 0.8)",
+                        borderRight:
+                          boringDirection === HingeDirection.LEFT ? "4px solid rgba(0, 0, 0, 0.8)" : "none",
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })}
 
-        {/* 문짝 테두리 강조 */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            border: "2px solid #111827", // border-2 border-gray-900
-            pointerEvents: "none",
-          }}
-        />
+          {/* 문짝 테두리 강조 */}
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              border: "2px solid #111827", // border-2 border-gray-900
+              pointerEvents: "none",
+            }}
+          />
         </div>
       </div>
 
@@ -367,28 +367,27 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
     <div ref={containerRef} className="flex w-full flex-col items-center justify-center">
       <div className="grid grid-cols-3 w-full" style={{ height: `${containerHeight}px` }}>{mainRow}</div>
       {/* 가로/세로 길이를 이미지 아래에 Chip으로 표시 */}
-      <div className="flex w-full justify-center pt-3 gap-4">
-        <div className="flex items-center gap-2">
-          <Chip text="가로" color="gray" weight="weak" />
-          <div className="text-[17px]">
-            {DoorWidth !== undefined && DoorWidth !== null && DoorWidth !== 0 ? (
-              <span className="font-500 text-gray-800">{DoorWidth}</span>
-            ) : (
-              <span className="font-600 text-gray-300">입력 필요</span>
-            )}
-          </div>
+      {(DoorWidth !== undefined && DoorWidth !== null && DoorWidth !== 0) ||
+        (DoorHeight !== undefined && DoorHeight !== null && DoorHeight !== 0) ? (
+        <div className="flex w-full justify-center pt-3 gap-4">
+          {DoorWidth !== undefined && DoorWidth !== null && DoorWidth !== 0 && (
+            <div className="flex items-center gap-2">
+              <Chip text="가로" color="gray" weight="weak" />
+              <div className="text-[17px]">
+                <span className="font-500 text-gray-800">{DoorWidth}</span>
+              </div>
+            </div>
+          )}
+          {DoorHeight !== undefined && DoorHeight !== null && DoorHeight !== 0 && (
+            <div className="flex items-center gap-2">
+              <Chip text="세로" color="gray" weight="weak" />
+              <div className="text-[17px]">
+                <span className="font-500 text-gray-800">{DoorHeight}</span>
+              </div>
+            </div>
+          )}
         </div>
-        <div className="flex items-center gap-2">
-          <Chip text="세로" color="gray" weight="weak" />
-          <div className="text-[17px]">
-            {DoorHeight !== undefined && DoorHeight !== null && DoorHeight !== 0 ? (
-              <span className="font-500 text-gray-800">{DoorHeight}</span>
-            ) : (
-              <span className="font-600 text-gray-300">입력 필요</span>
-            )}
-          </div>
-        </div>
-      </div>
+      ) : null}
     </div>
   );
 };
