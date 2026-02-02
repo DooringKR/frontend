@@ -513,7 +513,7 @@ const ShoppingCartCardNew: React.FC<ShoppingCartCardNewProps> = ({
       {/* 총 금액 */}
       {hasPrice && price && (
         <div className="flex items-end justify-end text-[20px]/[28px] font-600 text-gray-900">
-          {price.toLocaleString()}원&nbsp;<span className="text-gray-600">부터~</span>
+          {price.toLocaleString()}원{detailProductType !== "롱문" && <>&nbsp;<span className="text-gray-600">부터~</span></>}
         </div>
       )}
 

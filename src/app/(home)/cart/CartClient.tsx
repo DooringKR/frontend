@@ -4,12 +4,14 @@ import { useEffect, useState } from "react";
 import { CrudInteriorMaterialsUsecase } from "@/DDD/usecase/crud_interior_materials_usecase";
 import { InteriorMaterialsSupabaseRepository } from "@/DDD/data/db/interior_materials_supabase_repository";
 import { Door } from "dooring-core-domain/dist/models/InteriorMaterials/Door";
+import { LongDoor } from "dooring-core-domain/dist/models/CompositeProducts/LongDoor";
 import { Finish } from "dooring-core-domain/dist/models/InteriorMaterials/Finish";
 import { Cabinet } from "dooring-core-domain/dist/models/InteriorMaterials/Cabinet";
 import { Accessory } from "dooring-core-domain/dist/models/InteriorMaterials/Accessory";
 import { Hinge } from "dooring-core-domain/dist/models/InteriorMaterials/Hardware/Hinge";
 import { Rail } from "dooring-core-domain/dist/models/InteriorMaterials/Hardware/Rail";
 import { Piece } from "dooring-core-domain/dist/models/InteriorMaterials/Hardware/Piece";
+import { HingeDirection } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 import BottomButton from "@/components/BottomButton/BottomButton";
 import Button from "@/components/Button/Button";
@@ -31,15 +33,92 @@ import { track } from "@amplitude/analytics-browser";
 import { trackClick } from "@/services/analytics/amplitude";
 import { getScreenName } from "@/utils/screenName";
 import PaymentNoticeCard from "@/components/PaymentNoticeCard";
+import { supabase } from "@/lib/supabase";
 
 
 // type OrderItem = DoorItem | FinishItem | CabinetItem | AccessoryItem | HardwareItem | null;
 export type AnyCartItem = CartItem;
 
+// 롱문 카드와 개별 문 정보 토글 컴포넌트
+function LongDoorCardWithToggle({
+  cartItem,
+  cardProps,
+  relatedDoors,
+  category,
+  originalIndex,
+  onIncrease,
+  onDecrease,
+  onTrash,
+}: {
+  cartItem: CartItem;
+  cardProps: any;
+  relatedDoors?: Door[];
+  category: string;
+  originalIndex: number;
+  onIncrease: () => void;
+  onDecrease: () => void;
+  onTrash: () => void;
+}) {
+  const [isDoorsExpanded, setIsDoorsExpanded] = useState(false);
+
+  return (
+    <div className="flex w-full flex-col rounded-[16px] border-[1px] border-gray-200 bg-white overflow-hidden">
+      {/* ShoppingCartCardNew를 border 없이 렌더링하기 위해 스타일 오버라이드 */}
+      <div className="[&>div]:border-0 [&>div]:rounded-none [&>div]:shadow-none">
+        <ShoppingCartCardNew
+          {...cardProps}
+          onIncrease={onIncrease}
+          onDecrease={onDecrease}
+          onTrash={onTrash}
+        />
+      </div>
+      {/* 관련 Door 정보 토글 */}
+      {relatedDoors && relatedDoors.length > 0 && (
+        <>
+          <div className="h-px bg-gray-100 mx-[20px]" />
+          <div
+            className="flex items-center justify-between px-[20px] py-3 cursor-pointer hover:bg-gray-50 transition-colors"
+            onClick={() => setIsDoorsExpanded(!isDoorsExpanded)}
+          >
+            <div className="text-[14px] font-600 text-gray-800">개별 문 정보 ({relatedDoors.length}개)</div>
+            <svg
+              className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isDoorsExpanded ? 'rotate-180' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+          {isDoorsExpanded && (
+            <div className="px-[20px] pb-4 pt-2">
+              <div className="space-y-2">
+                {relatedDoors.map((door, idx) => (
+                  <div key={door.id || idx} className="rounded-lg bg-gray-50 p-3 text-[12px] font-400 text-gray-700">
+                    <div className="mb-1 font-600 text-gray-800">{idx + 1}번 문</div>
+                    <div>가로 길이: {door.door_width ? `${door.door_width}mm` : "미입력"}</div>
+                    <div>경첩 방향: {
+                      door.hinge_direction === HingeDirection.LEFT ? "좌경첩" :
+                        door.hinge_direction === HingeDirection.RIGHT ? "우경첩" :
+                          door.hinge_direction === HingeDirection.UNKNOWN ? "모름" :
+                            "미입력"
+                    }</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 // UI용 상세 정보 타입
 type CartItemDetail = {
   cartItem: CartItem;
-  detail: any | null; // Door | Finish | Cabinet | Hardware | Accessory 등
+  detail: any | null; // Door | Finish | Cabinet | Hardware | Accessory | LongDoor 등
+  relatedDoors?: Door[]; // 롱문의 경우 관련 Door 배열
 };
 
 export default function CartClient() {
@@ -64,6 +143,9 @@ export default function CartClient() {
       current_page: getScreenName(),
       modal_name: null,
     });
+
+    // 세트상품이 있으면 세트상품만 주문하도록 CreateOrderUsecase에서 필터링됨
+    // 여기서는 단순히 주문 페이지로 이동
     try {
       router.push("/order");
     } catch (err) {
@@ -121,6 +203,33 @@ export default function CartClient() {
           let detail: any = null;
           try {
             switch (cartItem.detail_product_type) {
+              case DetailProductType.LONGDOOR:
+                const longDoorData = await new CrudInteriorMaterialsUsecase(
+                  new InteriorMaterialsSupabaseRepository<LongDoor>("LongDoor")
+                ).findById(cartItem.item_detail);
+                // DB에서 가져온 raw 데이터를 LongDoor 객체로 변환
+                const longDoor = longDoorData ? LongDoor.fromDB(longDoorData as any) : null;
+                detail = longDoor;
+
+                // 롱문에 연결된 Door들 조회
+                let relatedDoors: Door[] = [];
+                if (longDoor && longDoor.id) {
+                  try {
+                    const { data: doorsData, error: doorsError } = await supabase
+                      .from("Door")
+                      .select("*")
+                      .eq("long_door_id", longDoor.id)
+                      .order("long_door_order", { ascending: true });
+
+                    if (!doorsError && doorsData) {
+                      relatedDoors = doorsData.map((doorData: any) => Door.fromDB(doorData));
+                    }
+                  } catch (e) {
+                    console.error("Failed to fetch related doors for LongDoor:", e);
+                  }
+                }
+
+                return { cartItem, detail, relatedDoors };
               case DetailProductType.DOOR:
                 detail = await new CrudInteriorMaterialsUsecase(
                   new InteriorMaterialsSupabaseRepository<Door>("Door")
@@ -188,7 +297,7 @@ export default function CartClient() {
             console.error("fetch detail error", e); // 추가
             detail = null;
           }
-          return { cartItem, detail };
+          return { cartItem, detail, relatedDoors: undefined };
         })
       );
       console.log("details after fetch", details); // 추가
@@ -237,12 +346,29 @@ export default function CartClient() {
     );
   }
 
+  // 세트 상품과 부재 상품 분리
+  const setProducts = cartItemDetails.filter(({ cartItem }) => cartItem.detail_product_type === DetailProductType.LONGDOOR);
+  const individualProducts = cartItemDetails.filter(({ cartItem }) => cartItem.detail_product_type !== DetailProductType.LONGDOOR);
+
+  // 세트상품이 있으면 세트상품만 구매 가능
+  const hasSetProducts = setProducts.length > 0;
+  const purchasableItems = hasSetProducts ? setProducts : cartItemDetails;
+
   const getTotalItemCount = () => {
-    return cartItemDetails.length;
+    return purchasableItems.length;
   };
 
   const getTotalPrice = () => {
-    return cartItemDetails.reduce((sum, { cartItem }) => sum + (cartItem.unit_price ?? 0) * (cartItem.item_count ?? 0), 0);
+    return purchasableItems.reduce((sum, { cartItem }) => sum + (cartItem.unit_price ?? 0) * (cartItem.item_count ?? 0), 0);
+  };
+
+  const getSetProductPrice = () => {
+    return setProducts.reduce((sum, { cartItem }) => sum + (cartItem.unit_price ?? 0) * (cartItem.item_count ?? 0), 0);
+  };
+
+  // 예상 주문금액: 세트상품이 있으면 세트상품만, 없으면 전체
+  const getExpectedOrderPrice = () => {
+    return hasSetProducts ? getSetProductPrice() : getTotalPrice();
   };
 
   return (
@@ -252,27 +378,74 @@ export default function CartClient() {
         <div className="p-5">
           <div className="pb-3 text-xl font-600">상품 {getTotalItemCount()}개</div>
 
-          <div className="mb-4 flex flex-col gap-3">
-            {cartItemDetails.map(({ cartItem, detail }, i) => {
-              if (!cartItem) return null;
-              
-              const category = cartItem.detail_product_type;
-              const key = `${category}-${i}`;
-              const cardProps = transformCartItemToNewCardProps(cartItem, detail);
-              
-              if (!cardProps) return null;
+          {/* 세트 상품 섹션 */}
+          {setProducts.length > 0 && (
+            <div className="mb-6">
+              <div className="mb-3 text-[16px] font-600 text-gray-800">세트 상품</div>
+              <div className="flex flex-col gap-3">
+                {setProducts.map(({ cartItem, detail, relatedDoors }, i) => {
+                  if (!cartItem) return null;
 
-              return (
-                <ShoppingCartCardNew
-                  key={key}
-                  {...cardProps}
-                  onIncrease={() => handleCountChange(category, i, (cartItem.item_count ?? 0) + 1)}
-                  onDecrease={() => handleCountChange(category, i, (cartItem.item_count ?? 0) - 1)}
-                  onTrash={() => { if (cartItem.id) handleCountChange(category, i, 0); }}
-                />
-              );
-            })}
-          </div>
+                  const category = cartItem.detail_product_type;
+                  const originalIndex = cartItems.findIndex(ci => ci.id === cartItem.id);
+                  const key = `${category}-${originalIndex}`;
+                  const cardProps = transformCartItemToNewCardProps(cartItem, detail, relatedDoors);
+
+                  if (!cardProps) return null;
+
+                  return (
+                    <LongDoorCardWithToggle
+                      key={key}
+                      cartItem={cartItem}
+                      cardProps={cardProps}
+                      relatedDoors={relatedDoors}
+                      category={category}
+                      originalIndex={originalIndex}
+                      onIncrease={() => handleCountChange(category, originalIndex, (cartItem.item_count ?? 0) + 1)}
+                      onDecrease={() => handleCountChange(category, originalIndex, (cartItem.item_count ?? 0) - 1)}
+                      onTrash={() => { if (cartItem.id) handleCountChange(category, originalIndex, 0); }}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* 부재 상품 섹션 */}
+          {individualProducts.length > 0 && (
+            <div className="mb-4">
+              <div className="mb-3 text-[16px] font-600 text-gray-800">부재 상품</div>
+              {hasSetProducts && (
+                <div className="mb-3 rounded-lg bg-amber-50 border border-amber-200 p-3">
+                  <p className="text-[14px] font-500 text-amber-800">
+                    세트상품 구매 후 부재 상품을 구매할 수 있습니다.
+                  </p>
+                </div>
+              )}
+              <div className={`flex flex-col gap-3 ${hasSetProducts ? 'opacity-50 pointer-events-none' : ''}`}>
+                {individualProducts.map(({ cartItem, detail }, i) => {
+                  if (!cartItem) return null;
+
+                  const category = cartItem.detail_product_type;
+                  const originalIndex = cartItems.findIndex(ci => ci.id === cartItem.id);
+                  const key = `${category}-${originalIndex}`;
+                  const cardProps = transformCartItemToNewCardProps(cartItem, detail);
+
+                  if (!cardProps) return null;
+
+                  return (
+                    <ShoppingCartCardNew
+                      key={key}
+                      {...cardProps}
+                      onIncrease={() => handleCountChange(category, originalIndex, (cartItem.item_count ?? 0) + 1)}
+                      onDecrease={() => handleCountChange(category, originalIndex, (cartItem.item_count ?? 0) - 1)}
+                      onTrash={() => { if (cartItem.id) handleCountChange(category, originalIndex, 0); }}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           <BottomButton
             type="1button"
@@ -283,7 +456,10 @@ export default function CartClient() {
           />
         </div>
         <div className="px-5 flex flex-col gap-3">
-          <PriceSummaryCard getTotalPrice={getTotalPrice} />
+          <PriceSummaryCard
+            getTotalPrice={getExpectedOrderPrice}
+            filteredCartItems={hasSetProducts ? setProducts.map(({ cartItem }) => cartItem) : undefined}
+          />
           <div>
             {(() => {
               // 양문 아이템 개수 계산
@@ -307,7 +483,7 @@ export default function CartClient() {
               return null;
             })()}
           </div>
-          <PaymentNoticeCard />
+          {!hasSetProducts && <PaymentNoticeCard />}
         </div>
       </div>
       <div className="h-[100px]"></div>
@@ -315,7 +491,7 @@ export default function CartClient() {
         <BottomButton
           type="textcombo+button"
           textComboText={{
-            title: `${getTotalPrice().toLocaleString()}원`,
+            title: `${getExpectedOrderPrice().toLocaleString()}원`,
             subtitle: "예상 주문금액",
           }}
           button1Text="다음"

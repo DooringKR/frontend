@@ -25,7 +25,7 @@ import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
 import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_repository";
 import { Door } from "dooring-core-domain/dist/models/InteriorMaterials/Door";
 import { LongDoor } from "dooring-core-domain/dist/models/CompositeProducts/LongDoor";
-import { DoorType, HingeDirection, Location, CabinetHandleType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import { DoorType, HingeDirection, Location, CabinetHandleType, HingeThickness } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import { DOOR_COLOR_LIST } from "@/constants/colorList";
 import { InteriorMaterialsSupabaseRepository } from "@/DDD/data/db/interior_materials_supabase_repository";
 import { CrudInteriorMaterialsUsecase } from "@/DDD/usecase/crud_interior_materials_usecase";
@@ -51,6 +51,7 @@ function LongDoorReportPageContent() {
     const cartItems = useCartItemStore((state) => state.cartItems);
 
     const [isLoading, setIsLoading] = useState(false);
+    const [isDoorsExpanded, setIsDoorsExpanded] = useState(false);
 
     // color 문자열을 color.id로 변환하는 함수
     const getColorId = (colorName: string) => {
@@ -120,47 +121,63 @@ function LongDoorReportPageContent() {
                 {/* 업로드된 이미지 표시 */}
                 <ImageCard images={item?.raw_images || []} />
 
-                {/* 문 개수 표시 */}
-                <div className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3">
-                    <div className="flex items-center justify-between">
-                        <div className="text-[16px]/[22px] font-600 text-gray-800">문짝 개수</div>
-                        <div className="text-[16px]/[22px] font-600 text-gray-800">{quantity}개</div>
-                    </div>
-                </div>
-
-                {/* 개별 문 정보 요약 */}
+                {/* 문짝 개수 및 개별 문 정보 (아코디언) */}
                 {doors.length > 0 && (
-                    <div className="w-full rounded-2xl border border-gray-200 bg-white p-4">
-                        <div className="mb-3 text-[14px] font-600 text-gray-800">개별 문 정보</div>
-                        <div className="space-y-2">
-                            {doors.map((door, idx) => {
-                                // 각 문의 단가 계산
-                                const doorUnitPrice = door.door_width && door.door_width > 0
-                                    ? calculateUnitDoorPrice(
-                                        item?.color ?? "",
-                                        door.door_width,
-                                        item?.door_height ?? 0,
-                                        false // longdoor는 항상 단문
-                                    )
-                                    : 0;
-
-                                return (
-                                    <div key={idx} className="rounded-lg bg-gray-50 p-3 text-[12px] font-400 text-gray-700">
-                                        <div className="mb-1 font-600 text-gray-800">{idx + 1}번 문</div>
-                                        <div>가로 길이: {door.door_width ? `${door.door_width}mm` : "미입력"}</div>
-                                        <div>경첩 방향: {
-                                            door.hinge_direction === HingeDirection.LEFT ? "좌경첩" :
-                                                door.hinge_direction === HingeDirection.RIGHT ? "우경첩" :
-                                                    door.hinge_direction === HingeDirection.UNKNOWN ? "모름" :
-                                                        "미입력"
-                                        }</div>
-                                        <div className="mt-1 font-600 text-gray-800">
-                                            단가: {doorUnitPrice > 0 ? `${doorUnitPrice.toLocaleString()}원` : "별도 견적"}
-                                        </div>
-                                    </div>
-                                );
-                            })}
+                    <div className="w-full rounded-2xl border border-gray-200 bg-white overflow-hidden">
+                        {/* 헤더 (클릭 가능) */}
+                        <div
+                            className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors"
+                            onClick={() => setIsDoorsExpanded(!isDoorsExpanded)}
+                        >
+                            <div className="text-[16px]/[22px] font-600 text-gray-800">문짝 개수</div>
+                            <div className="flex items-center gap-2">
+                                <div className="text-[16px]/[22px] font-600 text-gray-800">{quantity}개</div>
+                                <svg
+                                    className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isDoorsExpanded ? 'rotate-180' : ''}`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
                         </div>
+
+                        {/* 개별 문 정보 (펼쳐지는 부분) */}
+                        {isDoorsExpanded && (
+                            <div className="px-4 pb-4 pt-2 border-t border-gray-100">
+                                <div className="mb-3 text-[14px] font-600 text-gray-800">개별 문 정보</div>
+                                <div className="space-y-2">
+                                    {doors.map((door, idx) => {
+                                        // 각 문의 단가 계산
+                                        const doorUnitPrice = door.door_width && door.door_width > 0
+                                            ? calculateUnitDoorPrice(
+                                                item?.color ?? "",
+                                                door.door_width,
+                                                item?.door_height ?? 0,
+                                                false // longdoor는 항상 단문
+                                            )
+                                            : 0;
+
+                                        return (
+                                            <div key={idx} className="rounded-lg bg-gray-50 p-3 text-[12px] font-400 text-gray-700">
+                                                <div className="mb-1 font-600 text-gray-800">{idx + 1}번 문</div>
+                                                <div>가로 길이: {door.door_width ? `${door.door_width}mm` : "미입력"}</div>
+                                                <div>경첩 방향: {
+                                                    door.hinge_direction === HingeDirection.LEFT ? "좌경첩" :
+                                                        door.hinge_direction === HingeDirection.RIGHT ? "우경첩" :
+                                                            door.hinge_direction === HingeDirection.UNKNOWN ? "모름" :
+                                                                "미입력"
+                                                }</div>
+                                                <div className="mt-1 font-600 text-gray-800">
+                                                    단가: {doorUnitPrice > 0 ? `${doorUnitPrice.toLocaleString()}원` : "별도 견적"}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -175,6 +192,7 @@ function LongDoorReportPageContent() {
                         // longdoor는 수량 변경 불가 (이미 설정된 문 개수 사용)
                     }}
                     showQuantitySelector={false}
+                    hideFromText={true}
                 />
 
                 {/* 결제 안내 문구 */}
@@ -186,8 +204,8 @@ function LongDoorReportPageContent() {
                     type={"1button"}
                     button1Text={isLoading ? "처리 중..." : "장바구니 담기"}
                     className="fixed bottom-0 w-full max-w-[460px]"
-                    button1Disabled={true}
-                    // button1Disabled={isLoading}
+                    // button1Disabled={true}
+                    button1Disabled={isLoading}
                     onButton1Click={async () => {
                         // 이미 로딩 중이면 중복 클릭 방지
                         if (isLoading) return;
@@ -214,9 +232,11 @@ function LongDoorReportPageContent() {
                             const longDoor = new LongDoor({
                                 door_height: item.door_height!,
                                 door_location: item.door_location as Location,
+                                door_color: getColorId(item.color ?? ""),
+                                door_color_direct_input: item.door_color_direct_input ?? undefined,
                                 handle_type: item.handleType as CabinetHandleType,
                                 addOn_hinge: item.addOn_hinge ?? false,
-                                hinge_thickness: item.hinge_thickness ?? undefined,
+                                hinge_thickness: item.hinge_thickness as HingeThickness ?? undefined,
                                 door_construct: item.door_construct ?? false,
                                 long_door_request: item.door_request ?? undefined,
                                 long_door_image_url: longDoorImageUrls.length > 0 ? longDoorImageUrls : undefined,
@@ -233,7 +253,6 @@ function LongDoorReportPageContent() {
 
                             // 각 문을 개별 Door 객체로 생성 (long_door_id 연결, 이미지 URL 없음)
                             const createdDoors: Door[] = [];
-                            const detailProductType = DetailProductType.DOOR;
 
                             for (let i = 0; i < doors.length; i++) {
                                 const doorData = doors[i];
@@ -270,7 +289,7 @@ function LongDoorReportPageContent() {
                             const cartItem = new CartItem({
                                 cart_id: cart!.id!,
                                 item_detail: createdLongDoor.id!, // LongDoor ID
-                                detail_product_type: DetailProductType.DOOR,
+                                detail_product_type: DetailProductType.LONGDOOR,
                                 item_count: 1, // 롱문은 하나의 아이템
                                 unit_price: totalPrice, // 총 가격
                             });

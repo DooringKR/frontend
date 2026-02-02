@@ -3,20 +3,25 @@ import React from "react";
 
 import useCartItemStore from "@/store/cartItemStore";
 import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
+import { CartItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/CartItem";
 
 
 
 type PriceSummaryCardProps = {
   getTotalPrice: () => number;
   page?: string;
+  filteredCartItems?: CartItem[]; // 필터링된 cartItems (세트상품만 등)
 };
 
 const PriceSummaryCard: React.FC<PriceSummaryCardProps> = ({
   getTotalPrice,
   page,
+  filteredCartItems,
 }) => {
   // DDD: cartItems come from cartItemStore, not cartStore
-  const cartItems = useCartItemStore(state => state.cartItems) ?? [];
+  const allCartItems = useCartItemStore(state => state.cartItems) ?? [];
+  // filteredCartItems가 제공되면 그것을 사용, 아니면 전체 사용
+  const cartItems = filteredCartItems ?? allCartItems;
 
   // DDD: group by detail_product_type (enum value, which is already a user-friendly string)
   const groupedItems = cartItems.reduce<Record<string, typeof cartItems>>((acc, item) => {
@@ -39,6 +44,12 @@ const PriceSummaryCard: React.FC<PriceSummaryCardProps> = ({
       ].includes(type);
     });
 
+  // 세트상품만 있는지 확인 (filteredCartItems가 제공되고 모두 LONGDOOR인 경우)
+  const onlySetProducts =
+    filteredCartItems !== undefined &&
+    cartItems.length > 0 &&
+    cartItems.every(item => item.detail_product_type === DetailProductType.LONGDOOR);
+
   return (
     <div className="flex flex-col gap-3 py-5">
       <div className="text-xl font-600 text-gray-800">
@@ -50,9 +61,11 @@ const PriceSummaryCard: React.FC<PriceSummaryCardProps> = ({
           <span>
             {onlyExtraPriceItems
               ? "별도 견적"
-              : page === CHECK_ORDER_PAGE
-                ? <>{getTotalPrice().toLocaleString()}원&nbsp;<span className="text-gray-600">부터~</span></>
-                : <>{getTotalPrice().toLocaleString()}원&nbsp;<span className="text-gray-600">부터~</span></>}
+              : onlySetProducts
+                ? <>{getTotalPrice().toLocaleString()}원</>
+                : page === CHECK_ORDER_PAGE
+                  ? <>{getTotalPrice().toLocaleString()}원&nbsp;<span className="text-gray-600">부터~</span></>
+                  : <>{getTotalPrice().toLocaleString()}원&nbsp;<span className="text-gray-600">부터~</span></>}
           </span>
         </div>
         {page === CHECK_ORDER_PAGE ? (
@@ -76,9 +89,12 @@ const PriceSummaryCard: React.FC<PriceSummaryCardProps> = ({
                 DetailProductType.RAIL,
                 DetailProductType.PIECE
               ].includes(item.detail_product_type);
+              const isSetProduct = item.detail_product_type === DetailProductType.LONGDOOR;
               const displayPrice = isExtraPriceCategory
                 ? "별도 견적"
-                : `${((item.unit_price ?? 0) * (item.item_count ?? 1)).toLocaleString()}원 부터~`;
+                : isSetProduct
+                  ? `${((item.unit_price ?? 0) * (item.item_count ?? 1)).toLocaleString()}원`
+                  : `${((item.unit_price ?? 0) * (item.item_count ?? 1)).toLocaleString()}원 부터~`;
 
               return (
                 <div

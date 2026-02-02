@@ -11,6 +11,7 @@ interface OrderSummaryCardProps {
   disabled?: boolean;
   showQuantitySelector?: boolean;
   totalPrice?: number; // 총 가격 (지정 시 unitPrice * quantity 대신 사용)
+  hideFromText?: boolean; // "부터~" 텍스트 숨김 여부 (롱문 등 세트상품용)
 }
 
 const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
@@ -22,6 +23,7 @@ const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
   disabled = false,
   showQuantitySelector = true,
   totalPrice,
+  hideFromText = false,
 }) => {
   return (
     <div className="flex flex-col gap-[16px] rounded-[16px] bg-gray-50 p-5">
@@ -36,14 +38,14 @@ const OrderSummaryCard: React.FC<OrderSummaryCardProps> = ({
             {totalPrice !== undefined
               ? (totalPrice === 0 ? "별도 견적" : (
                 <>
-                  {`${totalPrice}원 `}
-                  <span className="text-gray-600">부터~</span>
+                  {`${totalPrice.toLocaleString()}원`}
+                  {!hideFromText && <span className="text-gray-600"> 부터~</span>}
                 </>
               ))
               : (unitPrice === 0 ? "별도 견적" : (
                 <>
-                  {`${quantity * unitPrice}원 `}
-                  <span className="text-gray-600">부터~</span>
+                  {`${(quantity * unitPrice).toLocaleString()}원`}
+                  {!hideFromText && <span className="text-gray-600"> 부터~</span>}
                 </>
               ))
             }

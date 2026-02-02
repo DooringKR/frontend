@@ -20,6 +20,8 @@ import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
 import { ABSORBER_TYPE_LIST } from "@/constants/absorbertype";
 import { CABINET_DRAWER_TYPE_LIST } from "@/constants/cabinetdrawertype";
 import { CabinetRailType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import { HingeDirection } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import { Door } from "dooring-core-domain/dist/models/InteriorMaterials/Door";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -30,12 +32,14 @@ interface OrderItemDetailProps {
 export default function OrderItemDetail({ item }: OrderItemDetailProps) {
   // 이미지 모달 상태
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  // 롱문 개별 문 정보 토글 상태
+  const [isDoorsExpanded, setIsDoorsExpanded] = useState(false);
 
   const renderItemDetails = () => {
     switch (item.detail_product_type) {
       case DetailProductType.DOOR: {
         const hinge = item?.materialDetails?.hinge;
-        
+
         // 경첩 개수 처리: ShoppingCartCardNew와 동일한 방식
         let hingeCount: number | "모름" | undefined;
         if (!hinge) {
@@ -60,9 +64,9 @@ export default function OrderItemDetail({ item }: OrderItemDetailProps) {
 
         // 보링 치수 처리: 경첩 개수와 방향을 둘 다 알 때만 표시
         let boringDimensions: (number | "모름")[] | undefined;
-        if (Array.isArray(hinge) && 
-            hinge.length > 1 && 
-            item.materialDetails.hinge_direction !== "UNKNOWN") {
+        if (Array.isArray(hinge) &&
+          hinge.length > 1 &&
+          item.materialDetails.hinge_direction !== "UNKNOWN") {
           boringDimensions = hinge.map(val => val === null ? "모름" : val);
         }
 
@@ -154,7 +158,7 @@ export default function OrderItemDetail({ item }: OrderItemDetailProps) {
             {(item.materialDetails.addOn_hinge !== undefined || item.materialDetails.door_construct !== undefined) && (() => {
               const options: string[] = [];
               if (item.materialDetails.addOn_hinge) {
-                const hingeText = item.materialDetails.hinge_thickness 
+                const hingeText = item.materialDetails.hinge_thickness
                   ? `경첩도 같이 받을래요(${item.materialDetails.hinge_thickness})`
                   : "경첩도 같이 받을래요";
                 options.push(hingeText);
@@ -549,6 +553,52 @@ export default function OrderItemDetail({ item }: OrderItemDetailProps) {
             )}
           </>
         );
+
+      case DetailProductType.LONGDOOR: {
+        const relatedDoors = (item as any).relatedDoors as Door[] | undefined;
+
+        return (
+          <>
+            {relatedDoors && relatedDoors.length > 0 && (
+              <>
+                <div className="h-px bg-gray-100 my-3" />
+                <div
+                  className="flex items-center justify-between py-3 cursor-pointer hover:bg-gray-50 transition-colors rounded-lg px-2 -mx-2"
+                  onClick={() => setIsDoorsExpanded(!isDoorsExpanded)}
+                >
+                  <div className="text-[15px] font-600 text-gray-800">개별 문 정보 ({relatedDoors.length}개)</div>
+                  <svg
+                    className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isDoorsExpanded ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+                {isDoorsExpanded && (
+                  <div className="pt-2 pb-4">
+                    <div className="space-y-2">
+                      {relatedDoors.map((door, idx) => (
+                        <div key={door.id || idx} className="rounded-lg bg-gray-50 p-3 text-[14px] font-400 text-gray-700">
+                          <div className="mb-1 font-600 text-gray-800">{idx + 1}번 문</div>
+                          <div>가로 길이: {door.door_width ? `${door.door_width.toLocaleString()}mm` : "미입력"}</div>
+                          <div>경첩 방향: {
+                            door.hinge_direction === HingeDirection.LEFT ? "좌경첩" :
+                              door.hinge_direction === HingeDirection.RIGHT ? "우경첩" :
+                                door.hinge_direction === HingeDirection.UNKNOWN ? "모름" :
+                                  "미입력"
+                          }</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </>
+        );
+      }
 
       default:
         return <>

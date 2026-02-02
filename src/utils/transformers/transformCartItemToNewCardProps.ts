@@ -13,11 +13,45 @@ import { transformAccessoryToNewCardProps } from "./transformAccessoryToNewCardP
  * - Color/BodyMaterial ID → Name 변환 처리
  * - Category별로 적절한 개별 transformer 호출
  * - Cart 전용 props (price, quantity, hasPrice, hasStepper, trashable) 추가
+ * @param relatedDoors 롱문의 경우 관련 Door 배열 (선택사항)
  */
-export function transformCartItemToNewCardProps(cartItem: CartItem, detail: any) {
+export function transformCartItemToNewCardProps(cartItem: CartItem, detail: any, relatedDoors?: any[]) {
   const category = cartItem.detail_product_type;
 
   if (!detail) return null;
+
+  // LONGDOOR (롱문)
+  if (category === DetailProductType.LONGDOOR) {
+    // 롱문의 색상 정보는 LongDoor 객체에서 가져옴
+    const colorName = detail.door_color_direct_input 
+      ? detail.door_color_direct_input 
+      : (detail.door_color ? DOOR_COLOR_LIST.find(c => c.id === detail.door_color)?.name || detail.door_color : undefined);
+    
+    const longDoorItem = {
+      type: "롱문" as const,
+      color: colorName,
+      door_color_direct_input: detail.door_color_direct_input,
+      door_width: undefined, // 롱문은 개별 문의 너비가 다를 수 있으므로 표시하지 않음
+      door_height: detail.door_height,
+      hinge: undefined, // 롱문은 개별 문의 경첩 정보가 다를 수 있으므로 표시하지 않음
+      hinge_direction: undefined, // 롱문은 개별 문의 경첩 방향이 다를 수 있으므로 표시하지 않음
+      door_location: detail.door_location,
+      door_construct: detail.door_construct,
+      addOn_hinge: detail.addOn_hinge,
+      hinge_thickness: detail.hinge_thickness,
+      door_request: detail.long_door_request,
+      raw_images: detail.long_door_image_url,
+      is_pair_door: false, // 롱문은 항상 단문
+    };
+    return {
+      ...transformDoorToNewCardProps(longDoorItem),
+      price: cartItem.unit_price * cartItem.item_count,
+      quantity: cartItem.item_count,
+      hasPrice: true,
+      hasStepper: true,
+      trashable: true,
+    };
+  }
 
   // DOOR
   if (category === DetailProductType.DOOR) {
@@ -85,11 +119,11 @@ export function transformCartItemToNewCardProps(cartItem: CartItem, detail: any)
   ) {
     const cabinetType =
       category === DetailProductType.UPPERCABINET ? "상부장" :
-      category === DetailProductType.LOWERCABINET ? "하부장" :
-      category === DetailProductType.TALLCABINET ? "키큰장" :
-      category === DetailProductType.FLAPCABINET ? "플랩장" :
-      category === DetailProductType.DRAWERCABINET ? "서랍장" :
-      category === DetailProductType.OPENCABINET ? "오픈장" : "하부장";
+        category === DetailProductType.LOWERCABINET ? "하부장" :
+          category === DetailProductType.TALLCABINET ? "키큰장" :
+            category === DetailProductType.FLAPCABINET ? "플랩장" :
+              category === DetailProductType.DRAWERCABINET ? "서랍장" :
+                category === DetailProductType.OPENCABINET ? "오픈장" : "하부장";
 
     // For OpenCabinet, color may be represented by body material when door color is not applicable.
     let colorName: string | number | undefined;
@@ -143,8 +177,8 @@ export function transformCartItemToNewCardProps(cartItem: CartItem, detail: any)
   if (category === DetailProductType.ACCESSORY) {
     const accessoryType =
       detail.accessory_type === "싱크볼" ? "sinkbowl" :
-      detail.accessory_type === "쿡탑" ? "cooktop" :
-      detail.accessory_type === "후드" ? "hood" : "sinkbowl";
+        detail.accessory_type === "쿡탑" ? "cooktop" :
+          detail.accessory_type === "후드" ? "hood" : "sinkbowl";
 
     const accessoryItem = {
       type: detail.accessory_type,
@@ -171,17 +205,17 @@ export function transformCartItemToNewCardProps(cartItem: CartItem, detail: any)
   ) {
     const hardwareType =
       category === DetailProductType.HINGE ? "경첩" :
-      category === DetailProductType.RAIL ? "레일" :
-      category === DetailProductType.PIECE ? "피스" : "경첩";
+        category === DetailProductType.RAIL ? "레일" :
+          category === DetailProductType.PIECE ? "피스" : "경첩";
 
     const hardwareItem = {
       type: hardwareType,
       madeby: category === DetailProductType.HINGE ? detail.hinge_madeby :
-              category === DetailProductType.RAIL ? detail.rail_madeby :
-              detail.piece_madeby,
+        category === DetailProductType.RAIL ? detail.rail_madeby :
+          detail.piece_madeby,
       madebyInput: category === DetailProductType.HINGE ? detail.hinge_madeby_direct_input :
-                   category === DetailProductType.RAIL ? detail.rail_madeby_direct_input :
-                   detail.piece_madeby_direct_input,
+        category === DetailProductType.RAIL ? detail.rail_madeby_direct_input :
+          detail.piece_madeby_direct_input,
       thickness: category === DetailProductType.HINGE ? detail.hinge_thickness : null,
       thicknessInput: category === DetailProductType.HINGE ? detail.hinge_thickness_direct_input : null,
       angle: category === DetailProductType.HINGE ? detail.hinge_angle : null,
@@ -192,8 +226,8 @@ export function transformCartItemToNewCardProps(cartItem: CartItem, detail: any)
       railLengthInput: category === DetailProductType.RAIL ? detail.rail_length_direct_input : null,
       railDamping: category === DetailProductType.RAIL ? detail.rail_damping : null,
       color: category === DetailProductType.HINGE ? detail.hinge_color :
-             category === DetailProductType.RAIL ? detail.rail_color :
-             detail.piece_color,
+        category === DetailProductType.RAIL ? detail.rail_color :
+          detail.piece_color,
       size: category === DetailProductType.PIECE ? detail.piece_size : null,
       request: detail.hardware_request,
     };
