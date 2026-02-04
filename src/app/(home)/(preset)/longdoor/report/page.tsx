@@ -163,6 +163,7 @@ function LongDoorReportPageContent() {
                                             <div key={idx} className="rounded-lg bg-gray-50 p-3 text-[12px] font-400 text-gray-700">
                                                 <div className="mb-1 font-600 text-gray-800">{idx + 1}번 문</div>
                                                 <div>가로 길이: {door.door_width ? `${door.door_width}mm` : "미입력"}</div>
+                                                <div>높이: {item?.door_height ? `${item.door_height}mm` : "미입력"}</div>
                                                 <div>경첩 방향: {
                                                     door.hinge_direction === HingeDirection.LEFT ? "좌경첩" :
                                                         door.hinge_direction === HingeDirection.RIGHT ? "우경첩" :
@@ -235,6 +236,8 @@ function LongDoorReportPageContent() {
                                 door_color: getColorId(item.color ?? ""),
                                 door_color_direct_input: item.door_color_direct_input ?? undefined,
                                 handle_type: item.handleType as CabinetHandleType,
+                                // 겉손잡이 선택 시 직접 입력값(장바구니/주문서 공통정보 표시용)
+                                handle_type_direct_input: item.handle_type_direct_input ?? undefined,
                                 addOn_hinge: item.addOn_hinge ?? false,
                                 hinge_thickness: item.hinge_thickness as HingeThickness ?? undefined,
                                 door_construct: item.door_construct ?? false,

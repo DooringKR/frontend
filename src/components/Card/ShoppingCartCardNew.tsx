@@ -35,7 +35,9 @@ export type DetailProductType =
 export interface DoorStandardDetails {
   color: string;
   width?: number;
-  height: number;
+  height?: number; // 롱문 공통 카드에서는 미표시(undefined)
+  handleType?: string; // 롱문 손잡이 종류 (공통 사항)
+  handleTypeDirectInput?: string; // 겉손잡이 선택 시 직접 입력
   hingeCount?: number | "모름";
   hingeDirection?: "좌경" | "우경" | "모름";
   boringDimensions?: (number | "모름")[];
@@ -228,7 +230,11 @@ function renderDoorStandardDetails(data: DoorStandardDetails) {
       {data.width !== undefined && data.width !== 0 && (
         <DetailRow label="너비" value={`${data.width}mm`} />
       )}
-      <DetailRow label="높이" value={`${data.height}mm`} />
+      {data.height != null && data.height !== 0 && (
+        <DetailRow label="높이" value={`${data.height}mm`} />
+      )}
+      {data.handleType && <DetailRow label="손잡이 종류" value={data.handleType} />}
+      {data.handleTypeDirectInput && <DetailRow label="손잡이 상세" value={data.handleTypeDirectInput} />}
       {data.hingeCount && (
         <DetailRow
           label="경첩 개수"

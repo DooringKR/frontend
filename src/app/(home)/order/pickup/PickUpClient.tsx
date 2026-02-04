@@ -53,7 +53,7 @@ export default function PickUpClientPage() {
   const decrementCartCount = useCartStore(state => state.decrementCartCount);
   const getTotalPrice = useCartItemStore(state => state.getTotalPrice);
 
-  // 세트 상품과 부재 상품 분리
+  // 세트 상품과 개별 상품 분리
   const setProducts = cartItems.filter(item => item.detail_product_type === DetailProductType.LONGDOOR);
   const hasSetProducts = setProducts.length > 0;
 

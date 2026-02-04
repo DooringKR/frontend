@@ -23,16 +23,18 @@ export function transformCartItemToNewCardProps(cartItem: CartItem, detail: any,
   // LONGDOOR (롱문)
   if (category === DetailProductType.LONGDOOR) {
     // 롱문의 색상 정보는 LongDoor 객체에서 가져옴
-    const colorName = detail.door_color_direct_input 
-      ? detail.door_color_direct_input 
+    const colorName = detail.door_color_direct_input
+      ? detail.door_color_direct_input
       : (detail.door_color ? DOOR_COLOR_LIST.find(c => c.id === detail.door_color)?.name || detail.door_color : undefined);
-    
+
     const longDoorItem = {
       type: "롱문" as const,
       color: colorName,
       door_color_direct_input: detail.door_color_direct_input,
       door_width: undefined, // 롱문은 개별 문의 너비가 다를 수 있으므로 표시하지 않음
       door_height: detail.door_height,
+      handleType: detail.handle_type ?? null,
+      handleTypeDirectInput: detail.handle_type_direct_input ?? null,
       hinge: undefined, // 롱문은 개별 문의 경첩 정보가 다를 수 있으므로 표시하지 않음
       hinge_direction: undefined, // 롱문은 개별 문의 경첩 방향이 다를 수 있으므로 표시하지 않음
       door_location: detail.door_location,
