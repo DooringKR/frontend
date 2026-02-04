@@ -69,7 +69,7 @@ function CheckOrderClientPage() {
   const user = useBizClientStore(state => state.bizClient!);
   const order = useOrderStore(state => state.order);
 
-  // 세트 상품과 부재 상품 분리
+  // 세트 상품과 개별 상품 분리
   const setProducts = cartItems.filter(item => item.detail_product_type === DetailProductType.LONGDOOR);
   const hasSetProducts = setProducts.length > 0;
 

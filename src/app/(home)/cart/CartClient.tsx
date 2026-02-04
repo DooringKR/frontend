@@ -72,6 +72,7 @@ function LongDoorCardWithToggle({
           onTrash={onTrash}
         />
       </div>
+
       {/* 관련 Door 정보 토글 */}
       {relatedDoors && relatedDoors.length > 0 && (
         <>
@@ -97,6 +98,7 @@ function LongDoorCardWithToggle({
                   <div key={door.id || idx} className="rounded-lg bg-gray-50 p-3 text-[12px] font-400 text-gray-700">
                     <div className="mb-1 font-600 text-gray-800">{idx + 1}번 문</div>
                     <div>가로 길이: {door.door_width ? `${door.door_width}mm` : "미입력"}</div>
+                    <div>높이: {door.door_height ? `${door.door_height}mm` : "미입력"}</div>
                     <div>경첩 방향: {
                       door.hinge_direction === HingeDirection.LEFT ? "좌경첩" :
                         door.hinge_direction === HingeDirection.RIGHT ? "우경첩" :
@@ -160,6 +162,11 @@ export default function CartClient() {
     console.log('[handleCountChange] category:', category, 'index:', index, 'newCount:', newCount, 'item:', item);
     if (!item || !item.id || newCount < 0) {
       console.warn('[handleCountChange] Invalid item or id or newCount < 0', { item, newCount });
+      return;
+    }
+    // 롱문은 1회 1개 주문만 가능(수량 증가 불가)
+    if (item.detail_product_type === DetailProductType.LONGDOOR && newCount > 1) {
+      alert("롱문은 1회 1개 주문만 가능합니다.");
       return;
     }
     const usecase = new UpdateCartItemCountUsecase(new CartItemSupabaseRepository());
@@ -346,7 +353,7 @@ export default function CartClient() {
     );
   }
 
-  // 세트 상품과 부재 상품 분리
+  // 세트 상품과 개별 상품 분리
   const setProducts = cartItemDetails.filter(({ cartItem }) => cartItem.detail_product_type === DetailProductType.LONGDOOR);
   const individualProducts = cartItemDetails.filter(({ cartItem }) => cartItem.detail_product_type !== DetailProductType.LONGDOOR);
 
@@ -401,7 +408,10 @@ export default function CartClient() {
                       relatedDoors={relatedDoors}
                       category={category}
                       originalIndex={originalIndex}
-                      onIncrease={() => handleCountChange(category, originalIndex, (cartItem.item_count ?? 0) + 1)}
+                      onIncrease={() => {
+                        // 롱문은 수량 증가 불가
+                        alert("롱문은 1회 1개 주문만 가능합니다.");
+                      }}
                       onDecrease={() => handleCountChange(category, originalIndex, (cartItem.item_count ?? 0) - 1)}
                       onTrash={() => { if (cartItem.id) handleCountChange(category, originalIndex, 0); }}
                     />
@@ -411,14 +421,14 @@ export default function CartClient() {
             </div>
           )}
 
-          {/* 부재 상품 섹션 */}
+          {/* 개별 상품 섹션 */}
           {individualProducts.length > 0 && (
             <div className="mb-4">
-              <div className="mb-3 text-[16px] font-600 text-gray-800">부재 상품</div>
+              <div className="mb-3 text-[16px] font-600 text-gray-800">개별 상품</div>
               {hasSetProducts && (
                 <div className="mb-3 rounded-lg bg-amber-50 border border-amber-200 p-3">
                   <p className="text-[14px] font-500 text-amber-800">
-                    세트상품 구매 후 부재 상품을 구매할 수 있습니다.
+                    세트상품 구매 후 개별 상품을 구매할 수 있습니다.
                   </p>
                 </div>
               )}

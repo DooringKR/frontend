@@ -8,6 +8,12 @@ import type {
 } from "@/components/Card/ShoppingCartCardNew";
 import formatColor from "@/utils/formatColor";
 
+const HANDLE_TYPE_LABEL_MAP: Record<string, string> = {
+  OUTER: "겉손잡이",
+  SMART_BAR: "스마트바",
+  PUSH: "푸시",
+};
+
 /**
  * Door item interface - represents the item from itemStore
  */
@@ -17,6 +23,9 @@ export interface DoorItem {
   door_color_direct_input?: string | null;
   door_width?: number;
   door_height?: number;
+  /** 롱문 공통 사항 */
+  handleType?: string | null;
+  handleTypeDirectInput?: string | null;
   hinge?: number[] | null;
   hinge_direction?: HingeDirection;
   door_location?: string;
@@ -93,6 +102,8 @@ export function transformDoorToNewCardProps(item: DoorItem) {
     : formatColor(item.color);
   const width = item.door_width ?? 0;
   const height = item.door_height ?? 0;
+  const handleTypeLabel = item.handleType ? (HANDLE_TYPE_LABEL_MAP[item.handleType] ?? item.handleType) : undefined;
+  const handleTypeDirectInput = item.handleTypeDirectInput ?? undefined;
 
   // Build common props
   const commonProps = {
@@ -109,11 +120,13 @@ export function transformDoorToNewCardProps(item: DoorItem) {
   // Build type-specific details
   if (doorType === "롱문") {
     // 롱문은 일반문과 동일한 구조 사용
-    // 단, 너비와 경첩 방향은 각 문마다 다를 수 있으므로 표시하지 않음
+    // 단, 너비·높이·경첩 방향은 개별 문 정보에서만 표시 (공통 카드에서는 미표시)
     const data: DoorStandardDetails = {
       color,
       width: undefined, // 롱문은 각 문마다 너비가 다를 수 있으므로 표시하지 않음
-      height,
+      height: undefined, // 롱문 공통 카드에서는 높이 미표시 (개별 문 정보에만 표시)
+      handleType: handleTypeLabel,
+      handleTypeDirectInput: handleTypeDirectInput || undefined,
       hingeCount,
       hingeDirection: undefined, // 롱문은 각 문마다 경첩 방향이 다를 수 있으므로 표시하지 않음
       boringDimensions,

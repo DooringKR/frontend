@@ -157,6 +157,8 @@ function LongDoorPageContent() {
             ? (item.handleType as CabinetHandleType)
             : ""
     );
+    // 겉손잡이(OUTER) 선택 시 직접 입력값
+    const [handle_type_direct_input, setHandleTypeDirectInput] = useState<string>(item?.handle_type_direct_input ?? "");
 
     const [isDontKnowHingeCount, setIsDontKnowHingeCount] = useState(() => {
         return item?.hinge && item.hinge.length === 1 && item.hinge[0] === null;
@@ -253,11 +255,11 @@ function LongDoorPageContent() {
         setIsDoorLocationSheetOpen(false);
     };
 
-    // 손잡이 종류 변경 시 store에 저장
+    // 손잡이 종류·직접입력 변경 시 store에 저장
     useEffect(() => {
-        updateItem({ handleType });
+        updateItem({ handleType, handle_type_direct_input: handleType === CabinetHandleType.OUTER ? handle_type_direct_input : "" });
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [handleType]);
+    }, [handleType, handle_type_direct_input]);
 
     return (
         <div className="flex min-h-screen flex-col pt-[90px]">
@@ -313,11 +315,20 @@ function LongDoorPageContent() {
                                 <Button
                                     key={opt}
                                     type={handleType === opt ? "BrandInverse" : "GrayLarge"}
-                                    text={opt}
+                                    text={opt === CabinetHandleType.OUTER ? "겉손잡이" : opt}
                                     onClick={() => setHandleType(opt)}
                                 />
                             ))}
                     </div>
+                    {handleType === CabinetHandleType.OUTER && (
+                        <BoxedInput
+                            type="text"
+                            label="겉손잡이 종류"
+                            placeholder="겉손잡이 종류를 적어주세요"
+                            value={handle_type_direct_input}
+                            onChange={e => setHandleTypeDirectInput(e.target.value)}
+                        />
+                    )}
                 </div>
 
                 {/* 문짝 개수 */}
@@ -387,7 +398,7 @@ function LongDoorPageContent() {
                             {"문을 클릭하면\n개별 문의 가로 길이를 설정할 수 있어요."}
                         </div> */}
                     </div>
-                    <div className="grid w-full grid-cols-5 gap-3 p-3 rounded-xl border border-gray-300 bg-gray-50">
+                    <div className="grid w-full grid-cols-6 gap-1 p-3 rounded-xl border border-gray-300 bg-gray-50">
                         {Array.from({ length: 10 }).map((_, idx) => {
                             const isActive = idx < quantity;
                             const isSelected = selectedDoorIndex === idx;
@@ -399,11 +410,12 @@ function LongDoorPageContent() {
                             const hingeLabel = isActive && doorHingeDirection
                                 ? (doorHingeDirection === HingeDirection.LEFT ? "좌" : "우")
                                 : null;
+                            const doorWidth = isActive ? doors[idx]?.door_width : null;
                             return (
                                 <div
                                     key={idx}
                                     onClick={() => isActive && setSelectedDoorIndex(idx === selectedDoorIndex ? null : idx)}
-                                    className={`flex h-[92px] items-stretch justify-center rounded-lg cursor-pointer transition-all duration-200 ${isActive
+                                    className={`flex h-[100px] items-stretch justify-center rounded-lg cursor-pointer transition-all duration-200 ${isActive
                                         ? isSelected
                                             ? "bg-white border-2 border-blue-500 shadow-lg scale-[1.03] ring-2 ring-blue-200"
                                             : "bg-white border border-gray-300 hover:border-blue-300 hover:shadow-md"
@@ -422,6 +434,16 @@ function LongDoorPageContent() {
                                                 : undefined
                                         }
                                     >
+                                        {doorWidth != null && (
+                                            <div className="absolute inset-x-0 top-1 flex items-center justify-center">
+                                                <div
+                                                    className={`rounded-md px-1.5 py-[2px] text-[11px] font-600 ${isSelected ? "bg-blue-50 text-blue-700" : "bg-white/90 text-gray-800"
+                                                        }`}
+                                                >
+                                                    {doorWidth}mm
+                                                </div>
+                                            </div>
+                                        )}
                                         {hingeLabel && (
                                             <div className="absolute inset-x-0 bottom-1 flex items-center justify-center">
                                                 <div

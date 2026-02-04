@@ -11,6 +11,8 @@ import ImageUploadInput from "@/components/Input/ImageUploadInput";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import Checkbox from "@/components/Checkbox";
 import SelectableOptionCard from "@/components/SelectableOptionCard";
+import Modal from "@/components/Modal/Modal";
+import Button from "@/components/Button/Button";
 
 import { HingeDirection, HingeThickness } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
@@ -44,9 +46,11 @@ function LongDoorAdditionalPageContent() {
     const [selectedThickness, setSelectedThickness] = useState<HingeThickness | null>(item?.hinge_thickness ?? null);
 
     const [hasValidationFailed, setHasValidationFailed] = useState(false);
-    const [hasImageValidationFailed, setHasImageValidationFailed] = useState(false);
     const thicknessRef = useRef<HTMLDivElement>(null);
     const imageRef = useRef<HTMLDivElement>(null);
+    /** 이미지 미첨부 시 확인 팝업 */
+    const [isNoImageConfirmOpen, setIsNoImageConfirmOpen] = useState(false);
+    const [noImageConfirmChecked, setNoImageConfirmChecked] = useState(false);
 
     const handleRequestChange = (newRequest: string) => {
         setDoorRequest(newRequest);
@@ -56,10 +60,6 @@ function LongDoorAdditionalPageContent() {
     const handleImagesChange = (newImages: File[]) => {
         setImages(newImages);
         updateItem({ raw_images: newImages });
-        // 이미지가 추가되면 검증 에러 해제
-        if (hasImageValidationFailed && newImages.length > 0) {
-            setHasImageValidationFailed(false);
-        }
     };
 
     const handleAddOnHingeChange = (newAddOnHinge: boolean) => {
@@ -86,19 +86,14 @@ function LongDoorAdditionalPageContent() {
         }
     };
 
-    const validateAndProceed = () => {
-        // 이미지 첨부 필수 검증
-        if (!images || images.length === 0) {
-            setHasImageValidationFailed(true);
-            setTimeout(() => {
-                imageRef.current?.scrollIntoView({
-                    behavior: "smooth",
-                    block: "center",
-                });
-            }, 100);
-            return;
-        }
+    const hasImages = images && images.length > 0;
 
+    const proceedToReport = () => {
+        setHasValidationFailed(false);
+        router.push("/longdoor/report");
+    };
+
+    const validateAndProceed = () => {
         // 경첩 두께 검증
         if (addOn_hinge && !selectedThickness) {
             setHasValidationFailed(true);
@@ -111,15 +106,21 @@ function LongDoorAdditionalPageContent() {
             return;
         }
 
-        setHasValidationFailed(false);
-        setHasImageValidationFailed(false);
-        router.push("/longdoor/report");
-        // trackClick({
-        //     object_type: "button",
-        //     object_name: "confirm",
-        //     current_page: getScreenName(),
-        //     modal_name: null,
-        // });
+        // 이미지 없으면 확인 팝업
+        if (!hasImages) {
+            setNoImageConfirmChecked(false);
+            setIsNoImageConfirmOpen(true);
+            return;
+        }
+
+        proceedToReport();
+    };
+
+    const handleNoImageConfirm = () => {
+        if (!noImageConfirmChecked) return;
+        setIsNoImageConfirmOpen(false);
+        setNoImageConfirmChecked(false);
+        proceedToReport();
     };
 
     return (
@@ -244,9 +245,7 @@ function LongDoorAdditionalPageContent() {
                         placeholder="이미지를 첨부해주세요"
                         value={images}
                         onChange={handleImagesChange}
-                        required={true}
-                        error={hasImageValidationFailed}
-                        helperText={hasImageValidationFailed ? "이미지를 첨부해주세요" : undefined}
+                        required={false}
                     />
                 </div>
             </div>
@@ -261,6 +260,47 @@ function LongDoorAdditionalPageContent() {
                     onButton1Click={validateAndProceed}
                 />
             </div>
+
+            {/* 이미지 미첨부 시 확인 팝업 */}
+            <Modal
+                isOpen={isNoImageConfirmOpen}
+                onClose={() => {
+                    setIsNoImageConfirmOpen(false);
+                    setNoImageConfirmChecked(false);
+                }}
+            >
+                <div className="flex flex-col gap-4">
+                    <h3 className="text-[18px] font-600 text-gray-900">이미지를 첨부하지 않으셨습니다</h3>
+                    <p className="text-[15px] font-400 text-gray-700 leading-relaxed">
+                        주문 접수 후 카카오톡 채널 또는 문자(010-9440-1874)로 시공 현장·도면 사진을 보내주세요.
+                    </p>
+                    <div className="flex items-center gap-2 pt-2">
+                        <Checkbox
+                            checked={noImageConfirmChecked}
+                            onChange={setNoImageConfirmChecked}
+                        />
+                        <span className="text-[15px] font-500 text-gray-800">네 확인했습니다</span>
+                    </div>
+                    <div className="flex gap-2 pt-2">
+                        <Button
+                            type="GrayLarge"
+                            text="취소"
+                            className="flex-1"
+                            onClick={() => {
+                                setIsNoImageConfirmOpen(false);
+                                setNoImageConfirmChecked(false);
+                            }}
+                        />
+                        <Button
+                            type="BrandInverse"
+                            text="확인"
+                            className="flex-1"
+                            disabled={!noImageConfirmChecked}
+                            onClick={handleNoImageConfirm}
+                        />
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 }
