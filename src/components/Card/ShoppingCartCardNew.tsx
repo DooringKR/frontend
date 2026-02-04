@@ -5,6 +5,7 @@ import Image from "next/image";
 import { HingeDirection } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import DoorPreviewIcon from "../DoorPreviewIcon/DoorPreviewIcon";
 import QuantitySelector from "../QuantitySelector/QuantitySelector";
+import { Chip } from "@/components/Chip/Chip";
 
 // ============================================================================
 // Type Definitions (Exported for use in transformers)
@@ -205,6 +206,7 @@ interface ShoppingCartCardNewProps {
   detailProductType: DetailProductType;
   details: ProductDetails;
   price?: number;
+  nickName?: string;
 
   // 수량 관리
   quantity: number;
@@ -437,6 +439,7 @@ const ShoppingCartCardNew: React.FC<ShoppingCartCardNewProps> = ({
   detailProductType,
   details,
   price,
+  nickName,
   quantity,
   trashable,
   onDecrease,
@@ -450,10 +453,20 @@ const ShoppingCartCardNew: React.FC<ShoppingCartCardNewProps> = ({
       {/* 상품 정보 */}
       <div className="flex justify-between gap-[20px]">
         <div className="flex flex-col gap-2">
-          <div className="text-[17px] font-600 text-gray-800">
-            {detailProductType === "일반문" && (details.data as DoorStandardDetails).is_pair_door
-              ? "일반문 (양문 세트)"
-              : detailProductType}
+          <div className="flex items-center gap-2 text-[17px] font-600 text-gray-800">
+            {nickName && (
+              <Chip
+                text={`${nickName}`}
+                color="gray"
+                weight="weak"
+                className="text-[12px]/[16px] px-[6px] py-[1px]"
+              />
+            )}
+            <span>
+              {detailProductType === "일반문" && (details.data as DoorStandardDetails).is_pair_door
+                ? "일반문 (양문 세트)"
+                : detailProductType}
+            </span>
           </div>
           {/* <div>
             {detailProductType === "일반문" && (details.data as DoorStandardDetails).is_pair_door && (
@@ -517,7 +530,7 @@ const ShoppingCartCardNew: React.FC<ShoppingCartCardNewProps> = ({
       </div>
 
       {/* 총 금액 */}
-      {hasPrice && price && (
+      {hasPrice && typeof price === "number" && price > 0 && (
         <div className="flex items-end justify-end text-[20px]/[28px] font-600 text-gray-900">
           {price.toLocaleString()}원{detailProductType !== "롱문" && <>&nbsp;<span className="text-gray-600">부터~</span></>}
         </div>

@@ -455,12 +455,17 @@ function ReportPageContent() {
 								throw new Error("Cabinet creation failed or missing ID.");
 							}
 
+							const maxNickName = cartItems.reduce((max, item) => {
+								const num = parseInt(item.nick_name || "0");
+								return num > max ? num : max;
+							}, 0);
 							const cartItem = new CartItem({
 								cart_id: cart!.id!,
 								item_detail: createdCabinet.id,
 								detail_product_type: detailProductType,
 								item_count: quantity,
 								unit_price: unitPrice,
+								nick_name: (maxNickName + 1).toString(),
 							});
 							await new CrudCartItemUsecase(
 								new CartItemSupabaseRepository()

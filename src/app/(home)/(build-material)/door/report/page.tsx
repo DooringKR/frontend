@@ -184,12 +184,17 @@ function DoorReportPageContent() {
                             const detailProductType = DetailProductType.DOOR;
 
                             // 문짝의 경우 별도의 모델 클래스가 없으므로 직접 CartItem에 저장
+                            const maxNickName = cartItems.reduce((max, item) => {
+                                const num = parseInt(item.nick_name || "0");
+                                return num > max ? num : max;
+                            }, 0);
                             const cartItem = new CartItem({
                                 cart_id: cart!.id!,
                                 item_detail: createdDoor.id!, // 문짝은 별도의 interior_material_id가 없음
                                 detail_product_type: detailProductType,
                                 item_count: quantity,
                                 unit_price: unitPrice,
+                                nick_name: (maxNickName + 1).toString(),
                                 // 문짝 정보를 item_options에 저장
                             });
 

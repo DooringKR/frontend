@@ -289,12 +289,17 @@ function LongDoorReportPageContent() {
                             }
 
                             // CartItem은 LongDoor와 연결 (롱문 전체를 하나의 아이템으로)
+                            const maxNickName = cartItems.reduce((max, item) => {
+                                const num = parseInt(item.nick_name || "0");
+                                return num > max ? num : max;
+                            }, 0);
                             const cartItem = new CartItem({
                                 cart_id: cart!.id!,
                                 item_detail: createdLongDoor.id!, // LongDoor ID
                                 detail_product_type: DetailProductType.LONGDOOR,
                                 item_count: 1, // 롱문은 하나의 아이템
                                 unit_price: totalPrice, // 총 가격
+                                nick_name: (maxNickName + 1).toString(),
                             });
 
                             const createdCartItem = await new CrudCartItemUsecase(

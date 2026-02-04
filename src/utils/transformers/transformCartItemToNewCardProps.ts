@@ -47,6 +47,7 @@ export function transformCartItemToNewCardProps(cartItem: CartItem, detail: any,
     };
     return {
       ...transformDoorToNewCardProps(longDoorItem),
+      nickName: cartItem.nick_name,
       price: cartItem.unit_price * cartItem.item_count,
       quantity: cartItem.item_count,
       hasPrice: true,
@@ -76,6 +77,7 @@ export function transformCartItemToNewCardProps(cartItem: CartItem, detail: any,
     };
     return {
       ...transformDoorToNewCardProps(doorItem),
+      nickName: cartItem.nick_name,
       price: cartItem.unit_price * cartItem.item_count,
       quantity: cartItem.item_count,
       hasPrice: true,
@@ -102,6 +104,7 @@ export function transformCartItemToNewCardProps(cartItem: CartItem, detail: any,
     };
     return {
       ...transformFinishToNewCardProps(finishItem),
+      nickName: cartItem.nick_name,
       price: cartItem.unit_price * cartItem.item_count,
       quantity: cartItem.item_count,
       hasPrice: true,
@@ -167,6 +170,7 @@ export function transformCartItemToNewCardProps(cartItem: CartItem, detail: any,
     };
     return {
       ...transformCabinetToNewCardProps(cabinetItem),
+      nickName: cartItem.nick_name,
       price: cartItem.unit_price * cartItem.item_count,
       quantity: cartItem.item_count,
       hasPrice: true,
@@ -191,6 +195,7 @@ export function transformCartItemToNewCardProps(cartItem: CartItem, detail: any,
     };
     return {
       ...transformAccessoryToNewCardProps(accessoryItem),
+      nickName: cartItem.nick_name,
       price: cartItem.unit_price * cartItem.item_count,
       quantity: cartItem.item_count,
       hasPrice: true,
@@ -235,6 +240,7 @@ export function transformCartItemToNewCardProps(cartItem: CartItem, detail: any,
     };
     return {
       ...transformHardwareToNewCardProps(hardwareItem),
+      nickName: cartItem.nick_name,
       price: cartItem.unit_price * cartItem.item_count,
       quantity: cartItem.item_count,
       hasPrice: true,

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import Button from "@/components/BeforeEditByKi/Button/Button";
+import { Chip } from "@/components/Chip/Chip";
 
 import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 
@@ -278,7 +279,17 @@ export default function OrderConfirmPage() {
 
                     return (
                       <div key={i} className="mb-3 border-b border-gray-200 pb-3">
-                        <p className="mb-2 font-600 text-gray-800">{item.detail_product_type}</p>
+                        <div className="mb-2 flex items-center gap-2 font-600 text-gray-800">
+                          {item.nick_name && (
+                            <Chip
+                              text={`${item.nick_name}`}
+                              color="gray"
+                              weight="weak"
+                              className="text-[12px]/[16px] px-[6px] py-[1px]"
+                            />
+                          )}
+                          <span>{item.detail_product_type}</span>
+                        </div>
                         <p className="text-gray-600">수량: {item.item_count}개</p>
                         <p className="text-gray-600">
                           단가: {unitPrice === 0 ? "별도 견적" : `${unitPrice.toLocaleString()}원`}
