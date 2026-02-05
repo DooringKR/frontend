@@ -279,7 +279,15 @@ function LongDoorAdditionalPageContent() {
                             checked={noImageConfirmChecked}
                             onChange={setNoImageConfirmChecked}
                         />
-                        <span className="text-[15px] font-500 text-gray-800">네 확인했습니다</span>
+                        <span
+                            role="button"
+                            tabIndex={0}
+                            className="text-[15px] font-500 text-gray-800 cursor-pointer select-none"
+                            onClick={() => setNoImageConfirmChecked(prev => !prev)}
+                            onKeyDown={e => e.key === "Enter" && setNoImageConfirmChecked(prev => !prev)}
+                        >
+                            네 확인했습니다
+                        </span>
                     </div>
                     <div className="flex gap-2 pt-2">
                         <Button

@@ -20,6 +20,7 @@ export function getPricingColorName(fullName: string): string {
 
   const colorMap: Record<string, string> = {
     // 문짝/부분장 색상들
+    // 필름부착용합판: "필름부착용합판",
     크림화이트: "한솔크림화이트",
     퍼펙트화이트: "한솔퍼펙트화이트",
     새틴베이지: "한솔새틴베이지",

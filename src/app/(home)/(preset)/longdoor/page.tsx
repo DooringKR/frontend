@@ -40,28 +40,34 @@ function LongDoorPageContent() {
     const selectedDoorColorImage =
         selectedDoorColorName ? DOOR_COLOR_LIST.find(c => c.name === selectedDoorColorName)?.image : undefined;
 
-    // 문짝 개별 속성 타입 정의
+    // 문짝 개별 속성 타입 정의 (보링은 문별 입력)
     type DoorItem = {
         door_width: number | null;
         hinge_direction: HingeDirection | null;
+        boringNum?: 2 | 3 | 4 | null;
+        hinge?: (number | null)[];
     };
 
     // 문짝 수량(기본 1)
     const [quantity, setQuantity] = useState<number>(item?.quantity ?? 1);
 
-    // doors 배열 초기화: item에서 기존 doors 배열이 있으면 사용, 없으면 수량에 맞춰 생성
+    // doors 배열 초기화: 공통 보링은 item에만 두고, 문별는 override 있을 때만 doors에 저장
     const initializeDoors = (qty: number): DoorItem[] => {
         const existingDoors = item?.doors as DoorItem[] | undefined;
         if (existingDoors && Array.isArray(existingDoors) && existingDoors.length === qty) {
-            return existingDoors;
+            return existingDoors.map(d => ({
+                ...d,
+                // override만 유지 (undefined면 공통값 사용)
+                boringNum: d.boringNum,
+                hinge: d.hinge,
+            }));
         }
-        // 기존 데이터가 없거나 수량이 맞지 않으면 새로 생성
-        // 기존 door_width, hinge_direction이 있으면 첫 번째 문에 적용
         const defaultWidth = item?.door_width ?? null;
         const defaultDirection = (item?.hinge_direction as HingeDirection) ?? null;
         return Array.from({ length: qty }, (_, idx) => ({
             door_width: idx === 0 ? defaultWidth : null,
             hinge_direction: idx === 0 ? defaultDirection : null,
+            // boringNum, hinge 없음 → 공통값 사용
         }));
     };
 
@@ -71,8 +77,6 @@ function LongDoorPageContent() {
     const [selectedDoorIndex, setSelectedDoorIndex] = useState<number | null>(null);
 
     const canSelectLastDoorHingeDirection = quantity % 2 === 1;
-
-    const [boringNum, setBoringNum] = useState<2 | 3 | 4 | null>(item?.boringNum ?? null);
 
     useEffect(() => {
         setScreenName("preset_longdoor");
@@ -102,35 +106,23 @@ function LongDoorPageContent() {
             return;
         }
 
-        // doors 배열 크기 조정
+        // doors 배열 크기 조정 (문별 보링 override는 해당 인덱스에만 유지)
         const newDoors: DoorItem[] = Array.from({ length: clamped }, (_, idx) => {
             const isLastDoor = idx === clamped - 1;
             const existingDoor = doors[idx];
-
-            // 마지막 문이 아니면 좌경, 우경을 번갈아가며 자동 설정
-            if (!isLastDoor) {
-                // 기존 가로 길이는 유지, 경첩 방향은 자동 설정 (좌, 우, 좌, 우...)
-                return {
-                    door_width: existingDoor?.door_width ?? doors[0]?.door_width ?? null,
-                    hinge_direction: idx % 2 === 0 ? HingeDirection.LEFT : HingeDirection.RIGHT,
-                };
-            }
-
-            // 마지막 문
-            // - 짝수 개수: 자동 적용(선택 불가) → 기존 값 무시하고 좌/우 패턴으로 강제
-            // - 홀수 개수: 선택 가능 → 기존 값 유지(없으면 자동)
-            if (clamped % 2 === 0) {
-                return {
-                    door_width: existingDoor?.door_width ?? doors[0]?.door_width ?? null,
-                    hinge_direction: idx % 2 === 0 ? HingeDirection.LEFT : HingeDirection.RIGHT,
-                };
-            }
-
-            // 홀수 개수: 마지막 문은 기존 경첩 방향 유지 (없으면 자동 설정)
-            return {
+            const hasBoringOverride = existingDoor?.boringNum !== undefined || (existingDoor?.hinge && existingDoor.hinge.length > 0);
+            const hingeDir = !isLastDoor || clamped % 2 === 0
+                ? (idx % 2 === 0 ? HingeDirection.LEFT : HingeDirection.RIGHT)
+                : (existingDoor?.hinge_direction ?? (idx % 2 === 0 ? HingeDirection.LEFT : HingeDirection.RIGHT));
+            const base: DoorItem = {
                 door_width: existingDoor?.door_width ?? doors[0]?.door_width ?? null,
-                hinge_direction: existingDoor?.hinge_direction ?? (idx % 2 === 0 ? HingeDirection.LEFT : HingeDirection.RIGHT),
+                hinge_direction: hingeDir,
             };
+            if (hasBoringOverride) {
+                base.boringNum = existingDoor?.boringNum ?? null;
+                base.hinge = existingDoor?.hinge ?? [];
+            }
+            return base;
         });
 
         setDoors(newDoors);
@@ -146,7 +138,6 @@ function LongDoorPageContent() {
     // 첫 번째 문의 가로 길이 (UI 편의를 위한 상태, 실제는 doors[0].door_width 사용)
     const [door_width, setDoorWidth] = useState<number | null>(doors[0]?.door_width ?? null);
     const [door_height, setDoorHeight] = useState<number | null>(item?.door_height ?? null);
-    const [hinge, setHinge] = useState<(number | null)[]>(item?.hinge ?? []);
 
     const [door_location, setDoorLocation] = useState(item?.door_location ?? "");
     const [isDoorLocationSheetOpen, setIsDoorLocationSheetOpen] = useState(false);
@@ -160,9 +151,6 @@ function LongDoorPageContent() {
     // 겉손잡이(OUTER) 선택 시 직접 입력값
     const [handle_type_direct_input, setHandleTypeDirectInput] = useState<string>(item?.handle_type_direct_input ?? "");
 
-    const [isDontKnowHingeCount, setIsDontKnowHingeCount] = useState(() => {
-        return item?.hinge && item.hinge.length === 1 && item.hinge[0] === null;
-    });
     const [isDontKnowHingeDirection, setIsDontKnowHingeDirection] = useState(() => {
         return item?.hinge_direction === HingeDirection.UNKNOWN;
     });
@@ -173,39 +161,105 @@ function LongDoorPageContent() {
         }
     }, []);
 
-    useEffect(() => {
-        if (boringNum !== null && hinge.length !== boringNum) {
-            const newBoringSize = Array.from({ length: boringNum }, (_, i) =>
-                hinge && hinge[i] !== undefined ? hinge[i] : null,
-            );
-            setHinge(newBoringSize);
-        }
-    }, [boringNum]);
+    // 공통 보링 (item에 저장, 문 선택 시 개별 override 가능)
+    const commonBoringNum = (item?.boringNum as 2 | 3 | 4 | null) ?? null;
+    const commonHinge = (Array.isArray(item?.hinge) ? item.hinge : []) as (number | null)[];
+    const isCommonDontKnowHingeCount = commonHinge.length === 1 && commonHinge[0] === null;
 
-    // 첫 번째 문의 가로 길이와 경첩 방향 (validation용)
+    // 문별 실제 보링: override 있으면 door 값, 없으면 공통값
+    const getEffectiveBoring = (doorIndex: number) => {
+        const d = doors[doorIndex];
+        const hasOverride = d?.boringNum !== undefined || (d?.hinge && d.hinge.length > 0);
+        if (hasOverride) return { boringNum: d?.boringNum ?? null, hinge: d?.hinge ?? [] };
+        return { boringNum: commonBoringNum, hinge: commonHinge };
+    };
+
     const firstDoorWidth = doors[0]?.door_width ?? null;
     const firstDoorHingeDirection = doors[0]?.hinge_direction ?? null;
-
+    const effectiveFirst = getEffectiveBoring(0);
     const { widthError, heightError, boringError, isFormValid } = useDoorValidation({
         DoorWidth: firstDoorWidth,
         DoorHeight: door_height,
-        hinge,
-        boringNum,
+        hinge: effectiveFirst.hinge,
+        boringNum: effectiveFirst.boringNum,
         hingeDirection: firstDoorHingeDirection,
         isPairDoor: false,
     });
 
-    const handleBoringNumChange = (newBoringNum: 2 | 3 | 4 | null) => {
-        setBoringNum(newBoringNum);
+    // 공통 보링 변경 (모든 문에 기본 적용, 개별 override 있는 문만 제외)
+    const handleCommonBoringNumChange = (newBoringNum: 2 | 3 | 4 | null) => {
         if (newBoringNum !== null) {
-            const newBoringSize = Array.from({ length: newBoringNum }, (_, i) =>
-                hinge && hinge[i] !== undefined ? hinge[i] : null,
-            );
-            setHinge(newBoringSize);
-            updateItem({ boringNum: newBoringNum, hinge: newBoringSize });
+            const newHinge = Array.from({ length: newBoringNum }, (_, i) => (commonHinge[i] !== undefined ? commonHinge[i] : null));
+            updateItem({ boringNum: newBoringNum, hinge: newHinge });
         } else {
-            updateItem({ boringNum: null, hinge: [] });
+            updateItem({ boringNum: null, hinge: [null] });
         }
+    };
+    const handleCommonBoringSizeChange = (newHinge: (number | null)[]) => {
+        updateItem({ hinge: newHinge });
+    };
+    const setCommonDontKnowHingeCount = (checked: boolean) => {
+        if (checked) updateItem({ hinge: [null], boringNum: null });
+        else updateItem({ hinge: [], boringNum: null });
+    };
+
+    // 문별 보링 override (해당 문만 개별 적용)
+    const hasDoorBoringOverride = (doorIndex: number) => {
+        const d = doors[doorIndex];
+        return d?.boringNum !== undefined || (d?.hinge && d.hinge.length > 0);
+    };
+    const handleBoringNumChange = (doorIndex: number, newBoringNum: 2 | 3 | 4 | null) => {
+        const newDoors = [...doors];
+        const prev = getEffectiveBoring(doorIndex).hinge;
+        if (newBoringNum !== null) {
+            const newHinge = Array.from({ length: newBoringNum }, (_, i) => (prev[i] !== undefined ? prev[i] : null));
+            newDoors[doorIndex] = { ...newDoors[doorIndex], boringNum: newBoringNum, hinge: newHinge };
+        } else {
+            newDoors[doorIndex] = { ...newDoors[doorIndex], boringNum: null, hinge: [null] };
+        }
+        setDoors(newDoors);
+        updateItem({ doors: newDoors });
+    };
+    const handleBoringSizeChange = (doorIndex: number, newBoringSize: (number | null)[]) => {
+        const newDoors = [...doors];
+        newDoors[doorIndex] = { ...newDoors[doorIndex], hinge: newBoringSize };
+        setDoors(newDoors);
+        updateItem({ doors: newDoors });
+    };
+    const isDoorDontKnowHingeCount = (doorIndex: number) => {
+        const h = getEffectiveBoring(doorIndex).hinge;
+        return h.length === 1 && h[0] === null;
+    };
+    const setDoorDontKnowHingeCount = (doorIndex: number, checked: boolean) => {
+        const newDoors = [...doors];
+        if (checked) {
+            newDoors[doorIndex] = { ...newDoors[doorIndex], hinge: [null], boringNum: null };
+        } else {
+            newDoors[doorIndex] = { ...newDoors[doorIndex], hinge: [], boringNum: null };
+        }
+        setDoors(newDoors);
+        updateItem({ doors: newDoors });
+    };
+    const clearDoorBoringOverride = (doorIndex: number) => {
+        const newDoors = doors.map((d, i) => {
+            if (i !== doorIndex) return d;
+            const { boringNum, hinge, ...rest } = d;
+            return rest as DoorItem;
+        });
+        setDoors(newDoors);
+        updateItem({ doors: newDoors });
+    };
+    const setDoorBoringFromCommon = (doorIndex: number) => {
+        const newDoors = [...doors];
+        if (commonBoringNum !== null && commonHinge.length === commonBoringNum) {
+            newDoors[doorIndex] = { ...newDoors[doorIndex], boringNum: commonBoringNum, hinge: [...commonHinge] };
+        } else if (isCommonDontKnowHingeCount) {
+            newDoors[doorIndex] = { ...newDoors[doorIndex], boringNum: null, hinge: [null] };
+        } else {
+            newDoors[doorIndex] = { ...newDoors[doorIndex], boringNum: commonBoringNum, hinge: [...commonHinge] };
+        }
+        setDoors(newDoors);
+        updateItem({ doors: newDoors });
     };
 
     // 마지막 문의 경첩 방향 변경 (마지막 문만 선택 가능)
@@ -241,11 +295,6 @@ function LongDoorPageContent() {
     const handleDoorHeightChange = (newHeight: number | null) => {
         setDoorHeight(newHeight);
         updateItem({ door_height: newHeight });
-    };
-
-    const handleBoringSizeChange = (newBoringSize: (number | null)[]) => {
-        setHinge(newBoringSize);
-        updateItem({ hinge: newBoringSize });
     };
 
     const handleDoorLocationChange = (newLocation: string) => {
@@ -359,7 +408,7 @@ function LongDoorPageContent() {
                     error={!!widthError}
                     helperText={widthError}
                     inputGuide={{
-                        text: "가로 스끼(문틈) 값을 빼고 입력해주세요.",
+                        text: "가로 스끼(문틈) 값을 빼고 입력해주세요. 문을 클릭하면 해당 문만 개별 수정할 수 있어요",
                         state: "default",
                         color: "text-emerald-500",
                     }}
@@ -388,11 +437,102 @@ function LongDoorPageContent() {
                     }}
                 />
 
+                {/* 보링(경첩 구멍) 개수·치수 — 공통 입력(기본), 문 클릭 시 해당 문만 개별 수정 가능 */}
+                {door_height != null && door_height > 0 && (
+                    <div className="w-full space-y-3 rounded-2xl border border-gray-200 bg-gray-50 p-4">
+                        <div className="text-[14px] font-400 text-gray-600">
+                            보링(경첩 구멍) 개수 · 치수
+                            <span className="text-orange-500 ml-1">*</span>
+                        </div>
+                        <p className="text-[13px] text-gray-500">
+                            모든 문에 공통으로 적용돼요. 문을 클릭하면 해당 문만 개별 수정할 수 있어요.
+                        </p>
+                        {/* 공통 보링 입력 */}
+                        <div className="self-stretch inline-flex justify-center items-center gap-5">
+                            <div className="flex-1 grid grid-cols-3 gap-2">
+                                <Button
+                                    type={!isCommonDontKnowHingeCount && commonBoringNum === 2 ? "BrandInverse" : "GrayLarge"}
+                                    text="2개"
+                                    onClick={() => !isCommonDontKnowHingeCount && handleCommonBoringNumChange(2)}
+                                    disabled={isCommonDontKnowHingeCount}
+                                />
+                                <Button
+                                    type={!isCommonDontKnowHingeCount && commonBoringNum === 3 ? "BrandInverse" : "GrayLarge"}
+                                    text="3개"
+                                    onClick={() => !isCommonDontKnowHingeCount && handleCommonBoringNumChange(3)}
+                                    disabled={isCommonDontKnowHingeCount}
+                                />
+                                <Button
+                                    type={!isCommonDontKnowHingeCount && commonBoringNum === 4 ? "BrandInverse" : "GrayLarge"}
+                                    text="4개"
+                                    onClick={() => !isCommonDontKnowHingeCount && handleCommonBoringNumChange(4)}
+                                    disabled={isCommonDontKnowHingeCount}
+                                />
+                            </div>
+                            <div className="flex justify-start items-center gap-2">
+                                <Checkbox
+                                    checked={isCommonDontKnowHingeCount}
+                                    onChange={checked => setCommonDontKnowHingeCount(checked)}
+                                />
+                                <span className="text-gray-700 text-base font-medium">모름</span>
+                            </div>
+                        </div>
+                        {boringError && (
+                            <div className="px-1 text-sm text-red-500">{boringError}</div>
+                        )}
+                        {!isCommonDontKnowHingeCount && commonBoringNum !== null && firstDoorHingeDirection !== null && (
+                            <div className="w-full flex items-center justify-center pt-2">
+                                <NormalDoorPreview
+                                    boringDirection={firstDoorHingeDirection}
+                                    boringNum={commonBoringNum}
+                                    boringSize={commonHinge}
+                                    onChangeBoringSize={handleCommonBoringSizeChange}
+                                    doorColor={item?.color ?? ""}
+                                />
+                            </div>
+                        )}
+                        {!isCommonDontKnowHingeCount && commonHinge.some(h => h === null || h === undefined) && commonBoringNum != null && (
+                            <div className="w-full px-1 pt-2 flex flex-col justify-start items-center gap-2.5">
+                                <div className="w-full px-4 py-3 bg-gray-50 rounded-2xl flex justify-center items-center gap-2">
+                                    <div className="w-9 h-9 relative bg-blue-100 rounded-xl flex items-center justify-center">
+                                        <ManWhiteIcon />
+                                    </div>
+                                    <div className="flex-1 inline-flex flex-col justify-start items-start">
+                                        <div className="text-gray-700 text-base font-medium leading-5">
+                                            경첩 치수 모르면 입력하지 않아도 돼요
+                                        </div>
+                                        <div className="text-blue-500 text-sm font-normal leading-5">
+                                            주문이 접수되면 상담으로 안내해드려요.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        {isCommonDontKnowHingeCount && (
+                            <div className="w-full px-1 pt-2 flex flex-col justify-start items-center gap-2.5">
+                                <div className="w-full px-4 py-3 bg-gray-50 rounded-2xl flex justify-center items-center gap-2">
+                                    <div className="w-9 h-9 relative bg-blue-100 rounded-xl flex items-center justify-center">
+                                        <ManWhiteIcon />
+                                    </div>
+                                    <div className="flex-1 inline-flex flex-col justify-start items-start">
+                                        <div className="text-gray-700 text-base font-medium leading-5">
+                                            보링 개수 몰라도 괜찮아요
+                                        </div>
+                                        <div className="text-blue-500 text-sm font-normal leading-5">
+                                            주문이 접수되면 상담으로 안내해드려요.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {/* 문짝 미리보기(5개씩 2줄 배치) */}
                 <div className="w-full">
                     <div className="mb-3 flex items-end justify-between">
                         <div className="text-[14px] font-400 text-gray-600 whitespace-pre-line">
-                            {"문을 클릭하면 각 문의 가로 길이를 설정할 수 있어요."}
+                            {"문을 클릭하면 각 문의 가로 길이와 보링 치수를 설정할 수 있어요."}
                         </div>
                         {/* <div className="text-[16px] font-600 text-blue-500 whitespace-pre-line text-right">
                             {"문을 클릭하면\n개별 문의 가로 길이를 설정할 수 있어요."}
@@ -542,6 +682,83 @@ function LongDoorPageContent() {
                                         handleDoorWidthChange(selectedDoorIndex, value ? Number(value) : null);
                                     }}
                                 />
+                                {/* 이 문의 보링: 공통값 사용 중이면 개별 수정만 가능하게, 개별 입력 중이면 공통값 사용 버튼 */}
+                                <div className="border-t border-gray-200 pt-3 mt-3">
+                                    <div className="text-[14px] font-600 text-gray-800 mb-2">이 문의 보링</div>
+                                    {!hasDoorBoringOverride(selectedDoorIndex) ? (
+                                        <div className="flex items-center justify-between rounded-lg bg-gray-100 px-3 py-2">
+                                            <span className="text-[13px] text-gray-600">공통값 사용 중</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => setDoorBoringFromCommon(selectedDoorIndex)}
+                                                className="text-[13px] font-500 text-blue-600 hover:text-blue-800"
+                                            >
+                                                개별 수정
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        (() => {
+                                            const idx = selectedDoorIndex;
+                                            const eff = getEffectiveBoring(idx);
+                                            const isDontKnow = isDoorDontKnowHingeCount(idx);
+                                            const hingeDir = doors[idx]?.hinge_direction ?? null;
+                                            return (
+                                                <div className="space-y-2">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-[13px] text-gray-600">개별 입력 중</span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => clearDoorBoringOverride(idx)}
+                                                            className="text-[13px] font-500 text-blue-600 hover:text-blue-800"
+                                                        >
+                                                            공통값 사용
+                                                        </button>
+                                                    </div>
+                                                    <div className="self-stretch inline-flex justify-center items-center gap-5">
+                                                        <div className="flex-1 grid grid-cols-3 gap-2">
+                                                            <Button
+                                                                type={!isDontKnow && eff.boringNum === 2 ? "BrandInverse" : "GrayLarge"}
+                                                                text="2개"
+                                                                onClick={() => !isDontKnow && handleBoringNumChange(idx, 2)}
+                                                                disabled={isDontKnow}
+                                                            />
+                                                            <Button
+                                                                type={!isDontKnow && eff.boringNum === 3 ? "BrandInverse" : "GrayLarge"}
+                                                                text="3개"
+                                                                onClick={() => !isDontKnow && handleBoringNumChange(idx, 3)}
+                                                                disabled={isDontKnow}
+                                                            />
+                                                            <Button
+                                                                type={!isDontKnow && eff.boringNum === 4 ? "BrandInverse" : "GrayLarge"}
+                                                                text="4개"
+                                                                onClick={() => !isDontKnow && handleBoringNumChange(idx, 4)}
+                                                                disabled={isDontKnow}
+                                                            />
+                                                        </div>
+                                                        <div className="flex justify-start items-center gap-2">
+                                                            <Checkbox
+                                                                checked={isDontKnow}
+                                                                onChange={checked => setDoorDontKnowHingeCount(idx, checked)}
+                                                            />
+                                                            <span className="text-gray-700 text-base font-medium">모름</span>
+                                                        </div>
+                                                    </div>
+                                                    {!isDontKnow && eff.boringNum !== null && hingeDir !== null && (
+                                                        <div className="w-full flex items-center justify-center pt-2">
+                                                            <NormalDoorPreview
+                                                                boringDirection={hingeDir}
+                                                                boringNum={eff.boringNum}
+                                                                boringSize={eff.hinge}
+                                                                onChangeBoringSize={size => handleBoringSizeChange(idx, size)}
+                                                                doorColor={item?.color ?? ""}
+                                                            />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })()
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -616,111 +833,11 @@ function LongDoorPageContent() {
                                 </div>
                             </>
                         )}
-
-                        <div className="w-full text-[14px] font-400 text-gray-600"> 보링(경첩 구멍) 개수</div>
-                        <div className="self-stretch inline-flex justify-center items-center gap-5">
-                            <div className="flex-1 grid grid-cols-3 gap-2">
-                                <Button
-                                    type={!isDontKnowHingeCount && boringNum == 2 ? "BrandInverse" : "GrayLarge"}
-                                    text={"2개"}
-                                    onClick={() => !isDontKnowHingeCount && handleBoringNumChange(2)}
-                                    disabled={isDontKnowHingeCount}
-                                />
-                                <Button
-                                    type={!isDontKnowHingeCount && boringNum == 3 ? "BrandInverse" : "GrayLarge"}
-                                    text={"3개"}
-                                    onClick={() => !isDontKnowHingeCount && handleBoringNumChange(3)}
-                                    disabled={isDontKnowHingeCount}
-                                />
-                                <Button
-                                    type={!isDontKnowHingeCount && boringNum == 4 ? "BrandInverse" : "GrayLarge"}
-                                    text={"4개"}
-                                    onClick={() => !isDontKnowHingeCount && handleBoringNumChange(4)}
-                                    disabled={isDontKnowHingeCount}
-                                />
-                            </div>
-                            <div className="flex justify-start items-center gap-2">
-                                <Checkbox
-                                    checked={isDontKnowHingeCount}
-                                    onChange={checked => {
-                                        setIsDontKnowHingeCount(checked);
-                                        if (checked) {
-                                            setHinge([null]);
-                                            setBoringNum(null);
-                                            updateItem({ hinge: [null], boringNum: null });
-                                        } else {
-                                            setHinge([]);
-                                            setBoringNum(null);
-                                            updateItem({ hinge: [], boringNum: null });
-                                        }
-                                    }}
-                                />
-                                <div className="text-center justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-6">
-                                    모름
-                                </div>
-                            </div>
-                        </div>
-                        {boringError && <div className="px-1 text-sm text-red-500">{boringError}</div>}
-
-                        {!isDontKnowHingeCount &&
-                            !isDontKnowHingeDirection &&
-                            boringNum !== null &&
-                            firstDoorHingeDirection !== null && (
-                                <div>
-                                    <div className="w-full flex items-center justify-center pt-5">
-                                        <NormalDoorPreview
-                                            // DoorWidth={firstDoorWidth}
-                                            // DoorHeight={door_height}
-                                            boringDirection={firstDoorHingeDirection}
-                                            boringNum={boringNum}
-                                            boringSize={hinge}
-                                            onChangeBoringSize={handleBoringSizeChange}
-                                            doorColor={item?.color ?? ""}
-                                        />
-                                    </div>
-
-                                    {hinge.some(h => h === null || h === undefined) && (
-                                        <div className="w-full px-5 pt-3 flex flex-col justify-start items-center gap-2.5">
-                                            <div className="w-full px-4 py-3 bg-gray-50 rounded-2xl flex justify-center items-center gap-2">
-                                                <div className="w-9 h-9 relative bg-blue-100 rounded-xl flex items-center justify-center">
-                                                    <ManWhiteIcon />
-                                                </div>
-                                                <div className="flex-1 inline-flex flex-col justify-start items-start">
-                                                    <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">
-                                                        경첩 치수 모르면 입력하지 않아도 돼요
-                                                    </div>
-                                                    <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">
-                                                        주문이 접수되면 상담으로 안내해드려요.
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                        {isDontKnowHingeCount && !isDontKnowHingeDirection && (
-                            <div className="w-full px-5 pt-3 flex flex-col justify-start items-center gap-2.5">
-                                <div className="w-full px-4 py-3 bg-gray-50 rounded-2xl flex justify-center items-center gap-2">
-                                    <div className="w-9 h-9 relative bg-blue-100 rounded-xl flex items-center justify-center">
-                                        <ManWhiteIcon />
-                                    </div>
-                                    <div className="flex-1 inline-flex flex-col justify-start items-start">
-                                        <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">
-                                            보링 개수 몰라도 괜찮아요
-                                        </div>
-                                        <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">
-                                            주문이 접수되면 상담으로 안내해드려요.
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
                     </>
                 )}
             </div>
 
-            {/* 검증용: itemStore 정보 표시 */}
+            {/* 검증용: itemStore 정보 표시 (보링 치수 문별 입력 검증 가능) */}
             {/* <div className="mt-8 mb-4 rounded-2xl border-2 border-blue-300 bg-blue-50 p-4">
                 <div className="mb-3 text-[16px] font-700 text-blue-800">🔍 ItemStore 검증 정보</div>
 
@@ -731,27 +848,37 @@ function LongDoorPageContent() {
                         <div>용도/장소: {door_location || "미입력"}</div>
                         <div>손잡이 종류: {handleType || "미입력"}</div>
                         <div>세로 길이: {door_height ? `${door_height}mm` : "미입력"}</div>
-                        <div>보링 개수: {boringNum ? `${boringNum}개` : "미입력"}</div>
-                        <div>보링 치수: {hinge.length > 0 ? `[${hinge.map(h => h ?? "null").join(", ")}]` : "미입력"}</div>
                         <div>문짝 수량: {quantity}개</div>
                     </div>
                 </div>
 
                 <div className="mb-4 space-y-2">
-                    <div className="text-[14px] font-600 text-gray-800">개별 문 정보 (doors 배열)</div>
+                    <div className="text-[14px] font-600 text-gray-800">개별 문 정보 (doors 배열) — 보링 치수 검증 (공통/개별)</div>
                     <div className="space-y-2">
-                        {doors.map((door, idx) => (
-                            <div key={idx} className="rounded-lg bg-white p-3 text-[12px] font-400 text-gray-700">
-                                <div className="mb-1 font-600 text-gray-800">문 {idx + 1}</div>
-                                <div>가로 길이: {door.door_width ? `${door.door_width}mm` : "미입력"}</div>
-                                <div>경첩 방향: {
-                                    door.hinge_direction === HingeDirection.LEFT ? "좌경첩" :
-                                        door.hinge_direction === HingeDirection.RIGHT ? "우경첩" :
-                                            door.hinge_direction === HingeDirection.UNKNOWN ? "모름" :
-                                                "미입력"
-                                }</div>
-                            </div>
-                        ))}
+                        {doors.map((door, idx) => {
+                            const eff = getEffectiveBoring(idx);
+                            const h = eff.hinge;
+                            const boringOk = (h.length === 1 && h[0] === null) || (eff.boringNum != null && h.length === eff.boringNum);
+                            const fromCommon = !hasDoorBoringOverride(idx);
+                            return (
+                                <div key={idx} className="rounded-lg bg-white p-3 text-[12px] font-400 text-gray-700">
+                                    <div className="mb-1 font-600 text-gray-800">문 {idx + 1}</div>
+                                    <div>가로 길이: {door.door_width ? `${door.door_width}mm` : "미입력"}</div>
+                                    <div>경첩 방향: {
+                                        door.hinge_direction === HingeDirection.LEFT ? "좌경첩" :
+                                            door.hinge_direction === HingeDirection.RIGHT ? "우경첩" :
+                                                door.hinge_direction === HingeDirection.UNKNOWN ? "모름" :
+                                                    "미입력"
+                                    }</div>
+                                    <div>보링: {fromCommon ? "공통값 사용" : "개별 입력"}</div>
+                                    <div>보링 개수: {eff.boringNum ? `${eff.boringNum}개` : h.length === 1 && h[0] === null ? "모름" : "미입력"}</div>
+                                    <div>보링 치수: {h.length > 0 ? `[${h.map(x => x ?? "null").join(", ")}]` : "미입력"}</div>
+                                    <div className={boringOk ? "text-emerald-600 font-600" : "text-red-600 font-600"}>
+                                        보링 검증: {boringOk ? "✓ 통과" : "✗ 미입력 또는 개수 불일치"}
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
 
@@ -777,7 +904,12 @@ function LongDoorPageContent() {
                             isFormValid() ||
                             !door_location ||
                             !handleType ||
-                            doors.some(door => !door.door_width || door.hinge_direction === null || door.hinge_direction === HingeDirection.UNKNOWN)
+                            doors.some(door => !door.door_width || door.hinge_direction === null || door.hinge_direction === HingeDirection.UNKNOWN) ||
+                            doors.some((_, i) => {
+                                const { boringNum, hinge } = getEffectiveBoring(i);
+                                const ok = (hinge.length === 1 && hinge[0] === null) || (boringNum != null && hinge.length === boringNum);
+                                return !ok;
+                            })
                         }
                         onButton1Click={() => {
                             trackClick({

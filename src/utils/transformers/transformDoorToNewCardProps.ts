@@ -120,16 +120,16 @@ export function transformDoorToNewCardProps(item: DoorItem) {
   // Build type-specific details
   if (doorType === "롱문") {
     // 롱문은 일반문과 동일한 구조 사용
-    // 단, 너비·높이·경첩 방향은 개별 문 정보에서만 표시 (공통 카드에서는 미표시)
+    // 단, 너비·높이·경첩 방향·보링 개수·보링 치수는 개별 문 정보에서만 표시 (공통 카드에서는 미표시)
     const data: DoorStandardDetails = {
       color,
       width: undefined, // 롱문은 각 문마다 너비가 다를 수 있으므로 표시하지 않음
       height: undefined, // 롱문 공통 카드에서는 높이 미표시 (개별 문 정보에만 표시)
       handleType: handleTypeLabel,
       handleTypeDirectInput: handleTypeDirectInput || undefined,
-      hingeCount,
+      hingeCount: undefined, // 롱문은 각 문마다 보링이 다를 수 있으므로 공통 카드에서는 미표시
       hingeDirection: undefined, // 롱문은 각 문마다 경첩 방향이 다를 수 있으므로 표시하지 않음
-      boringDimensions,
+      boringDimensions: undefined, // 롱문은 각 문마다 보링 치수가 다를 수 있으므로 공통 카드에서는 미표시
       location: item.door_location,
       doorConstruct: item.door_construct,
       addOnHinge: item.addOn_hinge,

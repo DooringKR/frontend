@@ -94,19 +94,32 @@ function LongDoorCardWithToggle({
           {isDoorsExpanded && (
             <div className="px-[20px] pb-4 pt-2">
               <div className="space-y-2">
-                {relatedDoors.map((door, idx) => (
-                  <div key={door.id || idx} className="rounded-lg bg-gray-50 p-3 text-[12px] font-400 text-gray-700">
-                    <div className="mb-1 font-600 text-gray-800">{idx + 1}번 문</div>
-                    <div>가로 길이: {door.door_width ? `${door.door_width}mm` : "미입력"}</div>
-                    <div>높이: {door.door_height ? `${door.door_height}mm` : "미입력"}</div>
-                    <div>경첩 방향: {
-                      door.hinge_direction === HingeDirection.LEFT ? "좌경첩" :
-                        door.hinge_direction === HingeDirection.RIGHT ? "우경첩" :
-                          door.hinge_direction === HingeDirection.UNKNOWN ? "모름" :
-                            "미입력"
-                    }</div>
-                  </div>
-                ))}
+                {relatedDoors.map((door, idx) => {
+                  const hinge = (door.hinge ?? []) as (number | null)[];
+                  const boringLabel = hinge.length === 1 && (hinge[0] === null || hinge[0] === undefined)
+                    ? "모름"
+                    : hinge.length > 0
+                      ? `${hinge.length}개`
+                      : "미입력";
+                  const boringSizeLabel = hinge.length > 0
+                    ? `[${hinge.map(x => x ?? "null").join(", ")}]`
+                    : "미입력";
+                  return (
+                    <div key={door.id || idx} className="rounded-lg bg-gray-50 p-3 text-[12px] font-400 text-gray-700">
+                      <div className="mb-1 font-600 text-gray-800">{idx + 1}번 문</div>
+                      <div>가로 길이: {door.door_width ? `${door.door_width}mm` : "미입력"}</div>
+                      <div>높이: {door.door_height ? `${door.door_height}mm` : "미입력"}</div>
+                      <div>경첩 방향: {
+                        door.hinge_direction === HingeDirection.LEFT ? "좌경첩" :
+                          door.hinge_direction === HingeDirection.RIGHT ? "우경첩" :
+                            door.hinge_direction === HingeDirection.UNKNOWN ? "모름" :
+                              "미입력"
+                      }</div>
+                      <div>보링 개수: {boringLabel}</div>
+                      <div>보링 치수: {boringSizeLabel}</div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}

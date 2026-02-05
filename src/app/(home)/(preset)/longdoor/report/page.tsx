@@ -11,7 +11,7 @@ import PaymentNoticeCard from "@/components/PaymentNoticeCard";
 import { transformDoorToNewCardProps } from "@/utils/transformers/transformDoorToNewCardProps";
 
 import useItemStore from "@/store/itemStore";
-import { calculateUnitDoorPrice } from "@/services/pricing/doorPricing";
+import { calculateLongDoorUnitPriceWithOptions } from "@/services/pricing/longDoorPricing";
 import { Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -77,9 +77,26 @@ function LongDoorReportPageContent() {
         return <div>로딩 중...</div>;
     }
 
-    // longdoor는 여러 문을 관리하므로 doors 배열 확인
-    const doors = (item?.doors as Array<{ door_width: number | null; hinge_direction: HingeDirection | null }> | undefined) || [];
+    // longdoor는 여러 문을 관리하므로 doors 배열 확인 (보링은 문별 override 또는 공통값)
+    type DoorRow = {
+        door_width: number | null;
+        hinge_direction: HingeDirection | null;
+        boringNum?: 2 | 3 | 4 | null;
+        hinge?: (number | null)[];
+    };
+    const doors = (item?.doors as DoorRow[] | undefined) || [];
     const quantity = doors.length || item?.quantity || 1;
+
+    // 문별 실제 보링: override 있으면 door 값, 없으면 item 공통값
+    const getEffectiveBoring = (door: DoorRow) => {
+        const hasOverride = door?.boringNum !== undefined || (door?.hinge && door.hinge.length > 0);
+        if (hasOverride) {
+            return { boringNum: door?.boringNum ?? null, hinge: door?.hinge ?? [] };
+        }
+        const commonNum = (item?.boringNum as 2 | 3 | 4 | null) ?? null;
+        const commonHinge = (Array.isArray(item?.hinge) ? item.hinge : []) as (number | null)[];
+        return { boringNum: commonNum, hinge: commonHinge };
+    };
 
     // 첫 번째 문의 정보를 기준으로 카드 표시 (공통 속성 사용)
     const firstDoor = doors[0];
@@ -92,12 +109,11 @@ function LongDoorReportPageContent() {
     // 각 문의 가로 길이를 기반으로 개별 가격 계산 후 합산
     const totalPrice = doors.reduce((sum, door) => {
         if (door.door_width && door.door_width > 0) {
-            const doorPrice = calculateUnitDoorPrice(
-                item?.color ?? "",
-                door.door_width,
-                item?.door_height ?? 0,
-                false // longdoor는 항상 단문
-            );
+            const doorPrice = calculateLongDoorUnitPriceWithOptions({
+                color: item?.color ?? "",
+                width: door.door_width,
+                addOnHinge: !!item?.addOn_hinge,
+            });
             return sum + doorPrice;
         }
         return sum;
@@ -151,13 +167,23 @@ function LongDoorReportPageContent() {
                                     {doors.map((door, idx) => {
                                         // 각 문의 단가 계산
                                         const doorUnitPrice = door.door_width && door.door_width > 0
-                                            ? calculateUnitDoorPrice(
-                                                item?.color ?? "",
-                                                door.door_width,
-                                                item?.door_height ?? 0,
-                                                false // longdoor는 항상 단문
-                                            )
+                                            ? calculateLongDoorUnitPriceWithOptions({
+                                                color: item?.color ?? "",
+                                                width: door.door_width,
+                                                addOnHinge: !!item?.addOn_hinge,
+                                            })
                                             : 0;
+
+                                        const effectiveBoring = getEffectiveBoring(door);
+                                        const hinge = effectiveBoring.hinge;
+                                        const boringLabel = hinge.length === 1 && hinge[0] === null
+                                            ? "모름"
+                                            : effectiveBoring.boringNum
+                                                ? `${effectiveBoring.boringNum}개`
+                                                : "미입력";
+                                        const boringSizeLabel = hinge.length > 0
+                                            ? `[${hinge.map(x => x ?? "null").join(", ")}]`
+                                            : "미입력";
 
                                         return (
                                             <div key={idx} className="rounded-lg bg-gray-50 p-3 text-[12px] font-400 text-gray-700">
@@ -170,6 +196,8 @@ function LongDoorReportPageContent() {
                                                             door.hinge_direction === HingeDirection.UNKNOWN ? "모름" :
                                                                 "미입력"
                                                 }</div>
+                                                <div>보링 개수: {boringLabel}</div>
+                                                <div>보링 치수: {boringSizeLabel}</div>
                                                 <div className="mt-1 font-600 text-gray-800">
                                                     단가: {doorUnitPrice > 0 ? `${doorUnitPrice.toLocaleString()}원` : "별도 견적"}
                                                 </div>
@@ -259,8 +287,9 @@ function LongDoorReportPageContent() {
 
                             for (let i = 0; i < doors.length; i++) {
                                 const doorData = doors[i];
+                                const effectiveBoringForDoor = getEffectiveBoring(doorData);
 
-                                // Door 생성자에 필요한 모든 인자를 전달
+                                // Door 생성자에 필요한 모든 인자를 전달 (문별 effective 보링 사용)
                                 // 개별 문에는 이미지 URL을 넣지 않음
                                 const door = new Door({
                                     door_type: DoorType.STANDARD,
@@ -269,7 +298,7 @@ function LongDoorReportPageContent() {
                                     door_width: doorData.door_width!,
                                     door_height: item.door_height!,
                                     hinge_direction: doorData.hinge_direction as HingeDirection,
-                                    hinge: item.hinge!,
+                                    hinge: effectiveBoringForDoor.hinge as number[],
                                     door_location: item.door_location ?? undefined,
                                     door_request: item.door_request ?? undefined,
                                     addOn_hinge: item.addOn_hinge ?? false,
