@@ -15,6 +15,19 @@ import { trackView } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
 import { useOrderStore } from "@/store/orderStore";
 
+const sortItemsByNickName = (items: any[]) => {
+  return [...items].sort((a, b) => {
+    const aNum = Number.parseInt(a?.nick_name ?? "", 10);
+    const bNum = Number.parseInt(b?.nick_name ?? "", 10);
+    const aValid = Number.isFinite(aNum);
+    const bValid = Number.isFinite(bNum);
+    if (aValid && bValid) return aNum - bNum;
+    if (aValid) return -1;
+    if (bValid) return 1;
+    return String(a?.id ?? "").localeCompare(String(b?.id ?? ""));
+  });
+};
+
 export default function OrderConfirmPage() {
   const router = useRouter();
   const [recentOrder, setRecentOrder] = useState<any>(null);
@@ -47,7 +60,7 @@ export default function OrderConfirmPage() {
         hasSetProducts,
         order_id: orderData.order_id,
       });
-      setOrderItems(itemsToDisplay);
+      setOrderItems(sortItemsByNickName(itemsToDisplay));
     };
 
     // 1) 스토어에 있으면 사용 (push 직전에 저장됨 → 타이밍 이슈 없음)

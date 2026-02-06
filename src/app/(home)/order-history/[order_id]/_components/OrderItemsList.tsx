@@ -10,12 +10,22 @@ interface OrderItemsListProps {
 }
 
 export default function OrderItemsList({ orderItems }: OrderItemsListProps) {
+  const sortedItems = [...orderItems].sort((a, b) => {
+    const aNum = Number.parseInt(a?.nick_name ?? "", 10);
+    const bNum = Number.parseInt(b?.nick_name ?? "", 10);
+    const aValid = Number.isFinite(aNum);
+    const bValid = Number.isFinite(bNum);
+    if (aValid && bValid) return aNum - bNum;
+    if (aValid) return -1;
+    if (bValid) return 1;
+    return String(a?.id ?? "").localeCompare(String(b?.id ?? ""));
+  });
 
   return (
     <div className="flex flex-col gap-4 px-5 py-4">
       <div className="text-[17px]/[24px] font-600 text-gray-800">주문 상품</div>
       <div className="space-y-5">
-        {orderItems.map((item: any) => {
+        {sortedItems.map((item: any) => {
 
           return (
             <div key={item.id}>
