@@ -1,6 +1,6 @@
 import { CartItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/CartItem";
 import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
-import { DOOR_COLOR_LIST, CABINET_COLOR_LIST, FINISH_COLOR_LIST, OPEN_CABINET_BODY_MATERIAL_LIST } from "@/constants/colorList";
+import { DOOR_COLOR_LIST, CABINET_COLOR_LIST, FINISH_COLOR_LIST, OPEN_CABINET_BODY_MATERIAL_LIST } from "dooring-core-domain/dist/constants/color";
 import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
 import { transformDoorToNewCardProps } from "./transformDoorToNewCardProps";
 import { transformFinishToNewCardProps } from "./transformFinishToNewCardProps";

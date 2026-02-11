@@ -1,7 +1,7 @@
 import Image from "next/image";
 import React, { useRef, useEffect, useState } from "react";
 
-import { DOOR_COLOR_LIST } from "../../constants/colorList";
+import { DOOR_COLOR_LIST } from "dooring-core-domain/dist/constants/color";
 import BoringInputField from "../Input/BoringInputField";
 
 interface FlapDoorPreviewProps {

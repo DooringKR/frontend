@@ -7,7 +7,7 @@ import ProgressBar from "@/components/Progress";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
-import { FINISH_COLOR_LIST } from "@/constants/colorList";
+import { FINISH_COLOR_LIST } from "dooring-core-domain/dist/constants/color";
 import { InteriorMaterialsSupabaseRepository } from "@/DDD/data/db/interior_materials_supabase_repository";
 import { FINISH_CATEGORY_LIST } from "@/constants/category";
 import useItemStore from "@/store/itemStore";

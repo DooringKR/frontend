@@ -26,7 +26,7 @@ import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
 import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_repository";
 import { Door } from "dooring-core-domain/dist/models/InteriorMaterials/Door";
 import { DoorType, HingeDirection } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
-import { DOOR_COLOR_LIST } from "@/constants/colorList";
+import { DOOR_COLOR_LIST } from "dooring-core-domain/dist/constants/color";
 import { InteriorMaterialsSupabaseRepository } from "@/DDD/data/db/interior_materials_supabase_repository";
 import { CrudInteriorMaterialsUsecase } from "@/DDD/usecase/crud_interior_materials_usecase";
 import { SupabaseUploadImageUsecase } from "@/DDD/usecase/upload_image_usecase";

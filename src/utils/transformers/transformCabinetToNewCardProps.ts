@@ -10,7 +10,7 @@ import type {
 } from "@/components/Card/ShoppingCartCardNew";
 import formatColor from "@/utils/formatColor";
 import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
-import { CABINET_COLOR_LIST, OPEN_CABINET_BODY_MATERIAL_LIST } from "@/constants/colorList";
+import { CABINET_COLOR_LIST, OPEN_CABINET_BODY_MATERIAL_LIST } from "dooring-core-domain/dist/constants/color";
 import { ABSORBER_TYPE_LIST } from "@/constants/absorbertype";
 import { CABINET_DRAWER_TYPE_LIST } from "@/constants/cabinetdrawertype";
 
