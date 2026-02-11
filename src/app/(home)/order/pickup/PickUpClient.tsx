@@ -16,6 +16,7 @@ import { useOrderStore } from "@/store/orderStore";
 import { PickUpOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/PickUpOrder";
 import useBizClientStore from "@/store/bizClientStore";
 import useCartItemStore from "@/store/cartItemStore";
+import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 import { CreateOrderUsecase } from "@/DDD/usecase/create_order_usecase";
 import { CartItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/cartitem_supabase_repository";
 import { OrderSupabaseRepository } from "@/DDD/data/db/CartNOrder/order_supabase_repository";
@@ -27,11 +28,11 @@ import { EstimateExportEdgeFunctionAdapter } from "@/DDD/data/service/estimate_e
 import { getScreenName } from "@/utils/screenName";
 import { trackClick, trackPurchase } from "@/services/analytics/amplitude";
 import PaymentNoticeCard from "@/components/PaymentNoticeCard";
-import { 
-  getProductTypesFromCartItems, 
+import {
+  getProductTypesFromCartItems,
   getDetailProductTypesFromCartItems,
   getTotalQuantityFromCartItems,
-  getTotalValueFromCartItems 
+  getTotalValueFromCartItems
 } from "@/utils/getCartProductTypes";
 import { sortProductTypes, sortDetailProductTypes } from "@/utils/formatCartProductTypes";
 
@@ -48,15 +49,28 @@ export default function PickUpClientPage() {
   const cartItems = useCartItemStore(state => state.cartItems);
   const cart = useCartStore(state => state.cart);
   const clearCartItems = useCartItemStore(state => state.clearCartItems);
+  const removeCartItem = useCartItemStore(state => state.removeCartItem);
   const decrementCartCount = useCartStore(state => state.decrementCartCount);
   const getTotalPrice = useCartItemStore(state => state.getTotalPrice);
+
+  // 세트 상품과 개별 상품 분리
+  const setProducts = cartItems.filter(item => item.detail_product_type === DetailProductType.LONGDOOR);
+  const hasSetProducts = setProducts.length > 0;
+
+  // 예상 주문금액: 세트상품이 있으면 세트상품만, 없으면 전체
+  const getExpectedOrderPrice = () => {
+    if (hasSetProducts) {
+      return setProducts.reduce((sum, item) => sum + (item.unit_price ?? 0) * (item.item_count ?? 0), 0);
+    }
+    return getTotalPrice();
+  };
 
   // 화면 진입 시 초기 PickUpOrder 구성, 나머지 속성은 각 컴포넌트에서 업데이트
   useEffect(() => {
     // 새로운 주문 시작 시 이전 주문 정보 삭제
     localStorage.removeItem("recentOrder");
 
-    const totalPrice = getTotalPrice();
+    const totalPrice = getExpectedOrderPrice();
     const pickupOrderData: Partial<PickUpOrder> = {
       user_id: user.id!,
       recipient_phone: useOrderStore.getState().order?.recipient_phone || user.phone_number!,
@@ -64,7 +78,7 @@ export default function PickUpClientPage() {
     };
     //setOrder 대신 updateOrder 사용(Order는 초기화 되면 안되기 때문)
     updateOrder(pickupOrderData);
-  }, []);
+  }, [cartItems, updateOrder, user]);
 
   const handleSubmit = async () => {
     trackClick({
@@ -127,9 +141,10 @@ export default function PickUpClientPage() {
         return;
       }
 
-      // 2. DB에서 장바구니 아이템 삭제
+      // 2. DB에서 장바구니 아이템 삭제 (세트상품이 있으면 세트상품만 삭제)
+      const itemsToDelete = hasSetProducts ? setProducts : cartItems;
       const deleteResults = await Promise.all(
-        cartItems.map(async (item) => {
+        itemsToDelete.map(async (item) => {
           if (!item.id) return true;
 
           try {
@@ -161,7 +176,7 @@ export default function PickUpClientPage() {
         const revenueShipping = 0; // 현재는 0으로 하드코딩
         const discountTotal = 0; // 현재는 0
         const revenueTotal = revenueProduct + revenueShipping - discountTotal;
-        
+
         // pickup_time에서 날짜/시간 추출
         const pickupTime = order?.pickup_time ? new Date(order.pickup_time) : new Date();
         const shippingYear = pickupTime.getFullYear();
@@ -193,22 +208,36 @@ export default function PickUpClientPage() {
         // 이벤트 전송 실패는 주문 처리에 영향을 주지 않음
       }
 
-      // 4. 주문 정보 로컬스토리지에 저장 -> 직후 confirm 페이지에서 사용
-      localStorage.setItem("recentOrder", JSON.stringify({ order_id: response.data?.id, order, cartItems })); // 자동 덮어쓰기
+      // 4. 주문 정보 저장 (스토어 + localStorage) -> confirm 페이지에서 스토어 우선 읽음
+      const cartItemsToSave = hasSetProducts ? setProducts : cartItems;
+      const payload = {
+        order_id: response.data?.id,
+        order,
+        cartItems: cartItemsToSave,
+      };
+      localStorage.setItem("recentOrder", JSON.stringify(payload));
+      useOrderStore.getState().setRecentOrderForConfirm(payload);
 
-
-
-      // 5 Cart count 초기화 (cartItems 수만큼 감소시켜 0으로 만듦)
-      if (cart && cart.cart_count > 0) {
-        decrementCartCount(cart.cart_count);
+      // 5 Cart count 감소 (삭제된 아이템 수만큼만 감소)
+      const deletedCount = itemsToDelete.reduce((sum, item) => sum + (item.item_count ?? 0), 0);
+      if (cart && deletedCount > 0) {
+        decrementCartCount(deletedCount);
       }
 
-      // 6. 전역 상태 초기화
-      clearCartItems(); // CartItemStore 초기화
+      // 6. 전역 상태 업데이트 (세트상품이 있으면 세트상품만 제거, 없으면 전체 초기화)
+      if (hasSetProducts) {
+        // 세트상품만 store에서 제거
+        itemsToDelete.forEach(item => {
+          if (item.id) {
+            removeCartItem(item.id);
+          }
+        });
+      } else {
+        clearCartItems(); // CartItemStore 초기화
+      }
       useOrderStore.getState().clearOrder(); // OrderStore 초기화
 
-
-      // 7. 성공 페이지로 이동
+      // 7. 성공 페이지로 이동 (스토어에 이미 payload 저장됨 → confirm에서 스토어 우선 읽음)
       router.push("/order/pickup/confirm");
       // router.replace("/");
 
@@ -249,9 +278,10 @@ export default function PickUpClientPage() {
         <div className="px-5">
           <div className="flex flex-col gap-1">
             <PriceSummaryCard
-              getTotalPrice={getTotalPrice}
+              getTotalPrice={getExpectedOrderPrice}
+              filteredCartItems={hasSetProducts ? setProducts : undefined}
             />
-            <PaymentNoticeCard />
+            {!hasSetProducts && <PaymentNoticeCard />}
           </div>
         </div>
       </div>

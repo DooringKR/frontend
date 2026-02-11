@@ -1,22 +1,31 @@
 import { DoorType, HingeDirection, HingeThickness } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
-import type { 
-  DetailProductType, 
+import type {
+  DetailProductType,
   ProductDetails,
-  DoorStandardDetails, 
-  DoorFlapDetails, 
+  DoorStandardDetails,
+  DoorFlapDetails,
   DoorDrawerDetails
 } from "@/components/Card/ShoppingCartCardNew";
 import formatColor from "@/utils/formatColor";
+
+const HANDLE_TYPE_LABEL_MAP: Record<string, string> = {
+  OUTER: "겉손잡이",
+  SMART_BAR: "스마트바",
+  PUSH: "푸시",
+};
 
 /**
  * Door item interface - represents the item from itemStore
  */
 export interface DoorItem {
-  type: DoorType;
+  type: DoorType | "롱문";
   color?: string | null;
   door_color_direct_input?: string | null;
   door_width?: number;
   door_height?: number;
+  /** 롱문 공통 사항 */
+  handleType?: string | null;
+  handleTypeDirectInput?: string | null;
   hinge?: number[] | null;
   hinge_direction?: HingeDirection;
   door_location?: string;
@@ -36,18 +45,22 @@ export function transformDoorToNewCardProps(item: DoorItem) {
 
   // Map DoorType to DetailProductType (DoorType enum values are in Korean)
   let detailProductType: DetailProductType;
-  switch (doorType) {
-    case DoorType.STANDARD: // "일반문"
-      detailProductType = "일반문";
-      break;
-    case DoorType.FLAP: // "플랩문"
-      detailProductType = "플랩문";
-      break;
-    case DoorType.DRAWER: // "서랍문"
-      detailProductType = "서랍 마에다";
-      break;
-    default:
-      detailProductType = "일반문";
+  if (doorType === "롱문") {
+    detailProductType = "롱문";
+  } else {
+    switch (doorType) {
+      case DoorType.STANDARD: // "일반문"
+        detailProductType = "일반문";
+        break;
+      case DoorType.FLAP: // "플랩문"
+        detailProductType = "플랩문";
+        break;
+      case DoorType.DRAWER: // "서랍문"
+        detailProductType = "서랍 마에다";
+        break;
+      default:
+        detailProductType = "일반문";
+    }
   }
 
   // Determine hinge count from array
@@ -75,20 +88,22 @@ export function transformDoorToNewCardProps(item: DoorItem) {
   // Determine boringDimensions - 보링 치수는 경첩 개수와 방향을 둘 다 알 때만 표시
   // 기존 로직: boring.length > 1 && hingeDirection !== UNKNOWN
   let boringDimensions: (number | "모름")[] | undefined;
-  if (item.hinge && 
-      item.hinge.length > 1 && 
-      item.hinge_direction !== HingeDirection.UNKNOWN) {
+  if (item.hinge &&
+    item.hinge.length > 1 &&
+    item.hinge_direction !== HingeDirection.UNKNOWN) {
     // null 값은 "모름"으로 변환
     boringDimensions = item.hinge.map(val => val === null ? "모름" : val);
   }
 
   // Build common fields - ensure required fields have defaults
   // Format color same as old component: use formatColor for DB colors, or "(직접입력) " prefix for direct input
-  const color = item.door_color_direct_input 
+  const color = item.door_color_direct_input
     ? `(직접입력) ${item.door_color_direct_input}`
     : formatColor(item.color);
   const width = item.door_width ?? 0;
   const height = item.door_height ?? 0;
+  const handleTypeLabel = item.handleType ? (HANDLE_TYPE_LABEL_MAP[item.handleType] ?? item.handleType) : undefined;
+  const handleTypeDirectInput = item.handleTypeDirectInput ?? undefined;
 
   // Build common props
   const commonProps = {
@@ -98,12 +113,36 @@ export function transformDoorToNewCardProps(item: DoorItem) {
     price: 0,
     quantity: 0,
     trashable: false,
-    onDecrease: () => {},
-    onIncrease: () => {},
+    onDecrease: () => { },
+    onIncrease: () => { },
   };
 
   // Build type-specific details
-  if (doorType === DoorType.STANDARD) {
+  if (doorType === "롱문") {
+    // 롱문은 일반문과 동일한 구조 사용
+    // 단, 너비·높이·경첩 방향·보링 개수·보링 치수는 개별 문 정보에서만 표시 (공통 카드에서는 미표시)
+    const data: DoorStandardDetails = {
+      color,
+      width: undefined, // 롱문은 각 문마다 너비가 다를 수 있으므로 표시하지 않음
+      height: undefined, // 롱문 공통 카드에서는 높이 미표시 (개별 문 정보에만 표시)
+      handleType: handleTypeLabel,
+      handleTypeDirectInput: handleTypeDirectInput || undefined,
+      hingeCount: undefined, // 롱문은 각 문마다 보링이 다를 수 있으므로 공통 카드에서는 미표시
+      hingeDirection: undefined, // 롱문은 각 문마다 경첩 방향이 다를 수 있으므로 표시하지 않음
+      boringDimensions: undefined, // 롱문은 각 문마다 보링 치수가 다를 수 있으므로 공통 카드에서는 미표시
+      location: item.door_location,
+      doorConstruct: item.door_construct,
+      addOnHinge: item.addOn_hinge,
+      hingeThickness: item.addOn_hinge && item.hinge_thickness ? item.hinge_thickness : undefined,
+      request: item.door_request,
+      is_pair_door: false, // 롱문은 항상 단문
+    };
+    return {
+      ...commonProps,
+      detailProductType: "롱문" as const,
+      details: { type: "롱문" as const, data } as { type: "롱문"; data: DoorStandardDetails }
+    };
+  } else if (doorType === DoorType.STANDARD) {
     const data: DoorStandardDetails = {
       color,
       width,
@@ -118,10 +157,10 @@ export function transformDoorToNewCardProps(item: DoorItem) {
       request: item.door_request,
       is_pair_door: item.is_pair_door,
     };
-    return { 
+    return {
       ...commonProps,
-      detailProductType: "일반문" as const, 
-      details: { type: "일반문" as const, data } 
+      detailProductType: "일반문" as const,
+      details: { type: "일반문" as const, data }
     };
   } else if (doorType === DoorType.FLAP) {
     const data: DoorFlapDetails = {
@@ -136,10 +175,10 @@ export function transformDoorToNewCardProps(item: DoorItem) {
       hingeThickness: item.addOn_hinge && item.hinge_thickness ? item.hinge_thickness : undefined,
       request: item.door_request,
     };
-    return { 
+    return {
       ...commonProps,
-      detailProductType: "플랩문" as const, 
-      details: { type: "플랩문" as const, data } 
+      detailProductType: "플랩문" as const,
+      details: { type: "플랩문" as const, data }
     };
   } else {
     // DRAWER
@@ -151,10 +190,10 @@ export function transformDoorToNewCardProps(item: DoorItem) {
       doorConstruct: item.door_construct,
       request: item.door_request,
     };
-    return { 
+    return {
       ...commonProps,
-      detailProductType: "서랍 마에다" as const, 
-      details: { type: "서랍 마에다" as const, data } 
+      detailProductType: "서랍 마에다" as const,
+      details: { type: "서랍 마에다" as const, data }
     };
   }
 }

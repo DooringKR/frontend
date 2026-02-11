@@ -14,6 +14,7 @@ export type DetailProductType =
   | "일반문"
   | "플랩문"
   | "서랍 마에다"
+  | "롱문"
   | "EP마감"
   | "몰딩"
   | "걸레받이"
@@ -33,8 +34,10 @@ export type DetailProductType =
 // 일반문 상세 정보
 export interface DoorStandardDetails {
   color: string;
-  width: number;
-  height: number;
+  width?: number;
+  height?: number; // 롱문 공통 카드에서는 미표시(undefined)
+  handleType?: string; // 롱문 손잡이 종류 (공통 사항)
+  handleTypeDirectInput?: string; // 겉손잡이 선택 시 직접 입력
   hingeCount?: number | "모름";
   hingeDirection?: "좌경" | "우경" | "모름";
   boringDimensions?: (number | "모름")[];
@@ -120,7 +123,7 @@ export interface CabinetDrawerDetails extends CabinetBaseDetails {
 
 // 플랩장 상세 정보
 export interface CabinetFlapDetails extends CabinetBaseDetails {
-  absorberType?: string;  
+  absorberType?: string;
 }
 
 // 키큰장 상세 정보
@@ -175,6 +178,7 @@ export type ProductDetails =
   | { type: "일반문"; data: DoorStandardDetails }
   | { type: "플랩문"; data: DoorFlapDetails }
   | { type: "서랍 마에다"; data: DoorDrawerDetails }
+  | { type: "롱문"; data: DoorStandardDetails }
   | { type: "마감재" | "EP마감" | "몰딩" | "걸레받이"; data: FinishDetails }
   | { type: "하부장"; data: CabinetLowerDetails }
   | { type: "상부장"; data: CabinetUpperDetails }
@@ -223,8 +227,14 @@ function renderDoorStandardDetails(data: DoorStandardDetails) {
   return (
     <>
       <DetailRow label="색상" value={data.color} />
-      <DetailRow label="너비" value={`${data.width}mm`} />
-      <DetailRow label="높이" value={`${data.height}mm`} />
+      {data.width !== undefined && data.width !== 0 && (
+        <DetailRow label="너비" value={`${data.width}mm`} />
+      )}
+      {data.height != null && data.height !== 0 && (
+        <DetailRow label="높이" value={`${data.height}mm`} />
+      )}
+      {data.handleType && <DetailRow label="손잡이 종류" value={data.handleType} />}
+      {data.handleTypeDirectInput && <DetailRow label="손잡이 상세" value={data.handleTypeDirectInput} />}
       {data.hingeCount && (
         <DetailRow
           label="경첩 개수"
@@ -239,7 +249,7 @@ function renderDoorStandardDetails(data: DoorStandardDetails) {
       {(data.addOnHinge !== undefined || data.doorConstruct !== undefined) && (() => {
         const options: string[] = [];
         if (data.addOnHinge) {
-          const hingeText = data.hingeThickness 
+          const hingeText = data.hingeThickness
             ? `경첩도 같이 받을래요(${data.hingeThickness})`
             : "경첩도 같이 받을래요";
           options.push(hingeText);
@@ -271,7 +281,7 @@ function renderDoorFlapDetails(data: DoorFlapDetails) {
       {(data.addOnHinge !== undefined || data.doorConstruct !== undefined) && (() => {
         const options: string[] = [];
         if (data.addOnHinge) {
-          const hingeText = data.hingeThickness 
+          const hingeText = data.hingeThickness
             ? `경첩도 같이 받을래요(${data.hingeThickness})`
             : "경첩도 같이 받을래요";
           options.push(hingeText);
@@ -398,6 +408,7 @@ const detailRenderers: Record<DetailProductType, (details: any) => React.ReactEl
   일반문: renderDoorStandardDetails,
   플랩문: renderDoorFlapDetails,
   "서랍 마에다": renderDoorDrawerDetails,
+  롱문: renderDoorStandardDetails,
   EP마감: renderFinishDetails,
   몰딩: renderFinishDetails,
   걸레받이: renderFinishDetails,
@@ -440,8 +451,8 @@ const ShoppingCartCardNew: React.FC<ShoppingCartCardNewProps> = ({
       <div className="flex justify-between gap-[20px]">
         <div className="flex flex-col gap-2">
           <div className="text-[17px] font-600 text-gray-800">
-            {detailProductType === "일반문" && (details.data as DoorStandardDetails).is_pair_door 
-              ? "일반문 (양문 세트)" 
+            {detailProductType === "일반문" && (details.data as DoorStandardDetails).is_pair_door
+              ? "일반문 (양문 세트)"
               : detailProductType}
           </div>
           <div className="flex flex-col text-[15px] font-400 text-gray-500">
@@ -501,7 +512,7 @@ const ShoppingCartCardNew: React.FC<ShoppingCartCardNewProps> = ({
       {/* 총 금액 */}
       {hasPrice && price && (
         <div className="flex items-end justify-end text-[20px]/[28px] font-600 text-gray-900">
-          {price.toLocaleString()}원&nbsp;<span className="text-gray-600">부터~</span>
+          {price.toLocaleString()}원{detailProductType !== "롱문" && <>&nbsp;<span className="text-gray-600">부터~</span></>}
         </div>
       )}
 

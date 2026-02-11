@@ -17,7 +17,7 @@ const InputGuide: React.FC<InputGuideProps> = ({
 }) => {
   const getTextColor = () => {
     if (color) return color;
-    
+
     switch (state) {
       case 'errored':
         return 'text-red-500';
@@ -29,7 +29,7 @@ const InputGuide: React.FC<InputGuideProps> = ({
 
   return (
     <div className={`inline-flex justify-start items-center gap-2.5 ${className}`}>
-      <div className={`justify-start ${getTextColor()} text-base font-normal font-['Pretendard'] leading-5`}>
+      <div className={`justify-start whitespace-pre-line break-words ${getTextColor()} text-base font-normal font-['Pretendard'] leading-5`}>
         {text}
       </div>
     </div>

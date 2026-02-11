@@ -281,7 +281,7 @@ function FlapCabinetPageContent() {
                     </div>
                     <div className="flex w-full gap-2">
                         {Object.values(CabinetHandleType)
-                            .filter(opt => opt !== "찬넬")
+                            .filter(opt => opt == CabinetHandleType.OUTER || opt == CabinetHandleType.PULL_DOWN || opt == CabinetHandleType.PUSH)
                             .map(opt => (
                                 <Button
                                     key={opt}

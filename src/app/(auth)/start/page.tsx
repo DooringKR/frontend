@@ -24,6 +24,12 @@ import InitAmplitudeUnstable from "@/app/(client-helpers)/init-amplitude-unstabl
 import { trackView, trackClick, trackClickAndWait } from "@/services/analytics/amplitude";
 import { trackViewUnstable, trackClickUnstable, trackClickAndWaitUnstable } from "@/services/analytics/amplitude-unstable";
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
+import Modal from "@/components/Modal/Modal";
+import BoxedInput from "@/components/Input/BoxedInput";
+
+// dev 로그인과 동일한 개발자 계정 (테스트 가입 시 ID: test, PW: test1234 입력하면 이 계정으로 로그인)
+const DEV_EMAIL = "dooringbizclient@dooring.com";
+const DEV_PASSWORD = "187400";
 
 function LoginPageContent() {
     const router = useRouter();
@@ -35,6 +41,13 @@ function LoginPageContent() {
     // 개발자용 숨겨진 페이지 접근을 위한 클릭 카운터
     const [clickCount, setClickCount] = useState(0);
     const [lastClickTime, setLastClickTime] = useState(0);
+
+    // 테스트 가입(결제 심사용) 모달
+    const [isTestLoginOpen, setIsTestLoginOpen] = useState(false);
+    const [testId, setTestId] = useState("");
+    const [testPw, setTestPw] = useState("");
+    const [testLoginError, setTestLoginError] = useState("");
+    const [testLoginLoading, setTestLoginLoading] = useState(false);
 
     const kakaoSignupUsecase = new KakaoSignupUsecase(
         new KakaoAuthSupabaseRepository(),
@@ -98,6 +111,59 @@ function LoginPageContent() {
             }
         }
     }, [isLoading]);
+
+    // dev/login과 동일: ID test, PW test1234 입력 시 개발자 계정으로 로그인
+    const handleTestLogin = async () => {
+        if (testId.trim() !== "test" || testPw !== "test1234") {
+            setTestLoginError("ID 또는 비밀번호가 올바르지 않습니다.");
+            return;
+        }
+        setTestLoginLoading(true);
+        setTestLoginError("");
+        try {
+            await supabase.auth.signOut();
+            useCartStore.setState({ cart: null });
+            useBizClientStore.setState({ bizClient: null });
+
+            const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+                email: DEV_EMAIL,
+                password: DEV_PASSWORD,
+            });
+
+            if (loginError) {
+                setTestLoginError("개발자 계정 로그인에 실패했습니다.");
+                return;
+            }
+
+            const session = loginData.session;
+            if (!session) {
+                setTestLoginError("로그인에 실패했습니다.");
+                return;
+            }
+
+            const readBizClientUsecase = new ReadBizClientUsecase(new BizClientSupabaseRepository());
+            const bizClientResponse = await readBizClientUsecase.execute(session.user.id);
+            if (!bizClientResponse.success || !bizClientResponse.data) {
+                setTestLoginError("사용자 정보를 찾을 수 없습니다. 개발자 계정이 설정되지 않았습니다.");
+                return;
+            }
+
+            const readCartUsecase = new CrudCartUsecase(new CartSupabaseRepository());
+            const cart = await readCartUsecase.findById(session.user.id);
+
+            useBizClientStore.setState({ bizClient: bizClientResponse.data });
+            useCartStore.setState({ cart: cart ?? null });
+            setIsTestLoginOpen(false);
+            setTestId("");
+            setTestPw("");
+            router.push("/");
+        } catch (err) {
+            console.error("테스트 로그인 오류:", err);
+            setTestLoginError("로그인 처리 중 오류가 발생했습니다.");
+        } finally {
+            setTestLoginLoading(false);
+        }
+    };
 
     // 로딩 중일 때는 로딩 화면 표시
     if (isLoading) {
@@ -204,6 +270,17 @@ function LoginPageContent() {
                             });
                             window.open("tel:031-528-4002", "_blank");
                         }} />
+                    <Button
+                        type={"GrayLarge"}
+                        text={"테스트 가입"}
+                        className="w-[300px] h-[40px]"
+                        onClick={() => {
+                            setTestLoginError("");
+                            setTestId("");
+                            setTestPw("");
+                            setIsTestLoginOpen(true);
+                        }}
+                    />
                 </div>
                 <div
                     className="text-center text-m text-black-400"
@@ -233,6 +310,53 @@ function LoginPageContent() {
                 </div>
 
             </div>
+
+            {/* 테스트 가입 모달 (결제 심사용) */}
+            <Modal isOpen={isTestLoginOpen} onClose={() => setIsTestLoginOpen(false)}>
+                <div className="flex flex-col gap-4">
+                    <h3 className="text-lg font-600 text-gray-800">테스트 가입</h3>
+                    <p className="text-sm text-gray-500">결제 심사용 테스트 계정으로 로그인합니다.</p>
+                    <BoxedInput
+                        type="text"
+                        label="ID"
+                        placeholder="ID 입력"
+                        value={testId}
+                        onChange={e => {
+                            setTestId(e.target.value);
+                            setTestLoginError("");
+                        }}
+                    />
+                    <BoxedInput
+                        type="password"
+                        label="비밀번호"
+                        placeholder="비밀번호 입력"
+                        value={testPw}
+                        onChange={e => {
+                            setTestPw(e.target.value);
+                            setTestLoginError("");
+                        }}
+                    />
+                    {testLoginError && (
+                        <p className="text-sm text-red-500">{testLoginError}</p>
+                    )}
+                    <div className="flex gap-2">
+                        <Button
+                            type="BrandInverse"
+                            text={testLoginLoading ? "로그인 중..." : "로그인"}
+                            className="flex-1"
+                            onClick={handleTestLogin}
+                            disabled={testLoginLoading}
+                        />
+                        <Button
+                            type="GrayLarge"
+                            text="취소"
+                            className="flex-1"
+                            onClick={() => setIsTestLoginOpen(false)}
+                            disabled={testLoginLoading}
+                        />
+                    </div>
+                </div>
+            </Modal>
 
             {/* 하단 안내 텍스트 */}
             <div className="px-8 pb-8 fixed bottom-0 w-full max-w-[460px]">

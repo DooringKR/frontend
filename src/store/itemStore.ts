@@ -4,8 +4,11 @@ import { persist, devtools } from "zustand/middleware";
 
 // 기본 아이템 타입
 export interface BaseItem {
-    category: ProductType;
-    type: any; //세부 타입 정의하는 곳, 예시: FinishType, AccessoryType, HardwareType, CabinetType, DoorType
+    category?: ProductType;
+    type: any;
+    //세부 타입 정의하는 곳,
+    // 예시: DoorType의 일반문, 플랩문 등 세부 타입 정의
+    // 여기서 롱문도 다룸
     color?: string | null;
     [key: string]: any; // 추가 속성들을 위한 인덱스 시그니처
 }

@@ -15,6 +15,7 @@ import PickUpAddressCard from "./_components/PickUpAddressCard";
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import { trackView } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+import { useOrderStore } from "@/store/orderStore";
 
 export default function OrderConfirmPage() {
   const router = useRouter();
@@ -37,24 +38,37 @@ export default function OrderConfirmPage() {
   }, []);
 
   useEffect(() => {
+    const applyOrderData = (orderData: { order_id?: string; order: any; cartItems: any[] }) => {
+      const allCartItems = orderData.cartItems || [];
+      const setProducts = allCartItems.filter((item: any) => item.detail_product_type === DetailProductType.LONGDOOR);
+      const hasSetProducts = setProducts.length > 0;
+      const itemsToDisplay = hasSetProducts ? setProducts : allCartItems;
+
+      setRecentOrder({
+        ...(orderData.order || {}),
+        hasSetProducts,
+        order_id: orderData.order_id,
+      });
+      setOrderItems(itemsToDisplay);
+    };
+
+    // 1) 스토어에 있으면 사용 (push 직전에 저장됨 → 타이밍 이슈 없음)
+    const fromStore = useOrderStore.getState().recentOrderForConfirm;
+    if (fromStore) {
+      useOrderStore.getState().clearRecentOrderForConfirm();
+      applyOrderData(fromStore);
+      return;
+    }
+
+    // 2) 없으면 localStorage
     const recentOrderRaw = localStorage.getItem("recentOrder");
     if (recentOrderRaw) {
-      const orderData = JSON.parse(recentOrderRaw);
-      // console.log("📦 orderData.order:", orderData.order);
-      // console.log("📦 orderData.cartItems:", orderData.cartItems);
-      // console.log("📦 orderData.order_id:", orderData.order_id); // 이게 실제 order_id
-
-      setRecentOrder(orderData.order);
-      setOrderItems(orderData.cartItems || []);
-
-      // order_id를 recentOrder에 추가
-      if (orderData.order_id) {
-        setRecentOrder((prev: any) => ({
-          ...prev,
-          order_id: orderData.order_id,
-        }));
+      try {
+        const orderData = JSON.parse(recentOrderRaw);
+        applyOrderData(orderData);
+      } catch {
+        // ignore
       }
-      console.log("📦 orderData id:", orderData.order_id);
     }
   }, []);
 
@@ -88,9 +102,8 @@ export default function OrderConfirmPage() {
   };
 
   const handleGoHome = async () => {
-    // 장바구니의 아이템 삭제와 주문 정보 초기화는 이미 PickUpClient에서 처리했으므로
-    // localStorage만 초기화
     localStorage.removeItem("recentOrder");
+    useOrderStore.getState().clearRecentOrderForConfirm();
     router.push("/");
   };
 
@@ -100,6 +113,7 @@ export default function OrderConfirmPage() {
 
   const recipient_phone = recentOrder?.recipient_phone;
   const order_price = recentOrder?.order_price || 0;
+  const hasSetProducts = recentOrder?.hasSetProducts || false;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -110,117 +124,135 @@ export default function OrderConfirmPage() {
           <div className="flex items-center justify-center py-10">
             <img src={"/icons/check-mark-green.svg"} alt="체크 아이콘" className="h-24 w-24" />
           </div>
-          <div className="mb-10 mt-5 flex flex-col gap-2">
-            <div>
-              <div className="flex items-center gap-3 text-[17px] font-600 text-gray-800">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-gray-500">
-                  1
-                </div>
-                <div>
-                  시공 현장 사진, 도면을 카톡 채널 또는
-                  <br />
-                  문자(010-6409-4542)로 보내주세요
-                </div>
-              </div>
-              <div className="mt-2 flex">
-                <div className="mx-[14.5px] w-[3px] rounded-full bg-gray-200"></div>
-                <div
-                  className="flex w-full cursor-pointer justify-between py-[10px]"
-                  onClick={() => {
-                    window.open("https://pf.kakao.com/_BlAHG", "_blank");
-                  }}
-                >
-                  <div className="flex w-full gap-2">
-                    <img src={"/icons/kakaoTalk.svg"} alt="카카오톡 아이콘" />
-                    <span className="text-[17px] font-600">카카오톡 채널 바로가기</span>
+          {!hasSetProducts && (
+            <div className="mb-10 mt-5 flex flex-col gap-2">
+              <div>
+                <div className="flex items-center gap-3 text-[17px] font-600 text-gray-800">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-gray-500">
+                    1
+                  </div>
+                  <div>
+                    시공 현장 사진, 도면을 카톡 채널 또는
+                    <br />
+                    문자(010-6409-4542)로 보내주세요
                   </div>
                 </div>
-              </div>
-            </div>
-            <div>
-              <div className="flex items-center gap-3 text-[17px] font-600 text-gray-800">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-gray-500">
-                  2
-                </div>
-                <div>바로가구에서 주문 확인하면</div>
-              </div>
-              <div className="mt-2 flex">
-                <div className="mx-[14.5px] w-[3px] rounded-full bg-gray-200"></div>
-                <p className="pb-7 font-400 text-gray-500">
-                  {formatPhoneNumber(recipient_phone)}로
-                  <br />
-                  담당자 확인 후 순차적으로 확인 전화드려요
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center gap-3 text-[17px] font-600 text-gray-800">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-gray-500">
-                  3
-                </div>
-                <div>주문금액을 아래 계좌로 송금하고</div>
-              </div>
-              <div className="mt-2 flex">
-                <div className="mx-[14.5px] w-[3px] rounded-full bg-gray-200"></div>
-                <div className="flex w-[291px] flex-col gap-5 rounded-xl border border-gray-200 p-4 pb-7 font-400 text-gray-400">
-                  <div className="flex flex-col">
-                    <span className="text-sm font-500">예상 금액 바탕으로 견적서 송부 예정</span>
-                    <span className="text-xl font-600 text-red-500">
-                      견적서 확인 후 송금해주세요
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <img
-                      src={"/icons/bank.svg"}
-                      alt="IBK기업은행 로고"
-                      className="h-7 w-7 justify-start"
-                    />
-
-                    <div className="flex flex-col items-start">
-                      <span className="text-[17px] font-500 text-gray-600">52307836904011</span>
-                      <span className="text-sm font-500">IBK기업은행</span>
-                    </div>
-                    <div>
-                      <button
-                        className="cursor-pointer rounded-lg bg-brand-50 px-[10px] py-[5px] text-[15px] font-500 text-brand-500"
-                        onClick={handleCopyAccount}
-                      >
-                        복사
-                      </button>
+                <div className="mt-2 flex">
+                  <div className="mx-[14.5px] w-[3px] rounded-full bg-gray-200"></div>
+                  <div
+                    className="flex w-full cursor-pointer justify-between py-[10px]"
+                    onClick={() => {
+                      window.open("https://pf.kakao.com/_BlAHG", "_blank");
+                    }}
+                  >
+                    <div className="flex w-full gap-2">
+                      <img src={"/icons/kakaoTalk.svg"} alt="카카오톡 아이콘" />
+                      <span className="text-[17px] font-600">카카오톡 채널 바로가기</span>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+              <div>
+                <div className="flex items-center gap-3 text-[17px] font-600 text-gray-800">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-gray-500">
+                    2
+                  </div>
+                  <div>바로가구에서 주문 확인하면</div>
+                </div>
+                <div className="mt-2 flex">
+                  <div className="mx-[14.5px] w-[3px] rounded-full bg-gray-200"></div>
+                  <p className="pb-7 font-400 text-gray-500">
+                    {formatPhoneNumber(recipient_phone)}로
+                    <br />
+                    담당자 확인 후 순차적으로 확인 전화드려요
+                  </p>
+                </div>
+              </div>
 
-            <div>
-              <div className="flex items-center gap-3 text-[17px] font-600 text-gray-800">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-gray-500">
-                  4
+              <div>
+                <div className="flex items-center gap-3 text-[17px] font-600 text-gray-800">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-gray-500">
+                    3
+                  </div>
+                  <div>주문금액을 아래 계좌로 송금하고</div>
                 </div>
-                <div>바로가구에서 입금 확인하면</div>
+                <div className="mt-2 flex">
+                  <div className="mx-[14.5px] w-[3px] rounded-full bg-gray-200"></div>
+                  <div className="flex w-[291px] flex-col gap-5 rounded-xl border border-gray-200 p-4 pb-7 font-400 text-gray-400">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-500">예상 금액 바탕으로 견적서 송부 예정</span>
+                      <span className="text-xl font-600 text-red-500">
+                        견적서 확인 후 송금해주세요
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <img
+                        src={"/icons/bank.svg"}
+                        alt="IBK기업은행 로고"
+                        className="h-7 w-7 justify-start"
+                      />
+
+                      <div className="flex flex-col items-start">
+                        <span className="text-[17px] font-500 text-gray-600">52307836904011</span>
+                        <span className="text-sm font-500">IBK기업은행</span>
+                      </div>
+                      <div>
+                        <button
+                          className="cursor-pointer rounded-lg bg-brand-50 px-[10px] py-[5px] text-[15px] font-500 text-brand-500"
+                          onClick={handleCopyAccount}
+                        >
+                          복사
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="mt-2 flex">
-                <div className="mx-[14.5px] w-[3px] rounded-full bg-gray-200"></div>
-                <p className="pb-7 font-400 text-gray-500">
-                  알림톡 보내드리고 곧바로 제작 시작해요
-                </p>
+
+              <div>
+                <div className="flex items-center gap-3 text-[17px] font-600 text-gray-800">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-gray-500">
+                    4
+                  </div>
+                  <div>바로가구에서 입금 확인하면</div>
+                </div>
+                <div className="mt-2 flex">
+                  <div className="mx-[14.5px] w-[3px] rounded-full bg-gray-200"></div>
+                  <p className="pb-7 font-400 text-gray-500">
+                    알림톡 보내드리고 곧바로 제작 시작해요
+                  </p>
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center gap-3 text-[17px] font-600 text-gray-800">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-gray-500">
+                    5
+                  </div>
+                  <div>아래 주소에서 픽업할 수 있어요</div>
+                </div>
+                <div className="mt-2 flex">
+                  <div className="mx-[14.5px] w-[3px] rounded-full bg-gray-200"></div>
+                  <PickUpAddressCard page="pickup" />
+                </div>
               </div>
             </div>
-            <div>
-              <div className="flex items-center gap-3 text-[17px] font-600 text-gray-800">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-gray-500">
-                  5
+          )}
+          {hasSetProducts && (
+            <div className="mb-10 mt-5 flex flex-col gap-2">
+              <div>
+                <div className="flex items-center gap-3 text-[17px] font-600 text-gray-800">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-gray-500">
+                    1
+                  </div>
+                  <div>아래 주소에서 픽업할 수 있어요</div>
                 </div>
-                <div>아래 주소에서 픽업할 수 있어요</div>
-              </div>
-              <div className="mt-2 flex">
-                <div className="mx-[14.5px] w-[3px] rounded-full bg-gray-200"></div>
-                <PickUpAddressCard page="pickup" />
+                <div className="mt-2 flex">
+                  <div className="mx-[14.5px] w-[3px] rounded-full bg-gray-200"></div>
+                  <PickUpAddressCard page="pickup" />
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
         <div className="bg-gray-100 px-5 py-10">
           <div className="w-full">

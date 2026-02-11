@@ -308,7 +308,7 @@ function DrawerCabinetPageContent() {
                     </div>
                     <div className="flex w-full gap-2">
                         {Object.values(CabinetHandleType)
-                            .filter(opt => opt !== CabinetHandleType.PULL_DOWN)
+                            .filter(opt => opt == CabinetHandleType.CHANNEL || opt == CabinetHandleType.OUTER || opt == CabinetHandleType.PUSH)
                             .map(opt => (
                                 <Button
                                     key={opt}

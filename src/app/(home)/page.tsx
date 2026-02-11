@@ -17,6 +17,7 @@ import HomeScreenPaymentNoticeCard from "@/components/PaymentNoticeCard/HomeScre
 import ProductLiabilityInsuranceCard from "./_components/ProductLiabilityInsuranceCard";
 import FaqCard from "./_components/FaqCard";
 import ProductionCaseListCard from "./_components/ProductionCaseListCard";
+import FrequentlyUsedProductsSection from "./_components/FrequentlyUsedProductsSection";
 
 import { useDeliveryInfo } from "./_hooks/useDeliveryInfo";
 import { useSessionCheck } from "./_hooks/useSessionCheck";
@@ -68,6 +69,8 @@ export default function Page() {
 
       <main className="mb-[40px] mt-10 flex flex-grow flex-col gap-7">
         <AddressIndicator {...addressIndicatorProps} />
+        <FrequentlyUsedProductsSection />
+        {/* <div className="w-full h-5 bg-gray-100"></div> */}
         <HomeProductContainer />
         <div className="px-5 pb-10">
           <HomeScreenPaymentNoticeCard

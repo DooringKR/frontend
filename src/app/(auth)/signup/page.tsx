@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from "react";
 import UnderlinedInput from "@/components/Input/UnderlinedInput";
 import Button from "@/components/Button/Button";
 import SelectToggleButton from "@/components/Button/SelectToggleButton";
+import Checkbox from "@/components/Checkbox";
 import { BusinessType } from "dooring-core-domain/dist/enums/UserEnums";
 import BottomButton from "@/components/BottomButton/BottomButton";
 import BottomSheet from "@/components/BottomSheet/BottomSheet";
@@ -30,8 +31,12 @@ export default function SignupPage() {
     const [selectedBusinessType, setSelectedBusinessType] = useState<BusinessType | null>(null);
     const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
     const [isLoadingPhoneNumber, setIsLoadingPhoneNumber] = useState(true);
+    const [isIndividualCustomer, setIsIndividualCustomer] = useState<boolean | null>(null);
     const phoneInputRef = useRef<HTMLInputElement>(null);
     const businessTypeSelectRef = useRef<HTMLButtonElement>(null);
+
+    // 개인고객 링크 (사용자가 나중에 채워넣을 수 있도록 빈 문자열)
+    const INDIVIDUAL_CUSTOMER_LINK = "https://www.gaesudae.com/"; // 개수대연구소 링크
 
     // 전화번호 숫자만 추출하여 길이 체크
     const getNumbersOnly = (phone: string) => phone.replace(/[^0-9]/g, '');
@@ -166,6 +171,10 @@ export default function SignupPage() {
     const handleBusinessTypeSelect = (type: BusinessType) => {
         setSelectedBusinessType(type);
         setIsBottomSheetOpen(false);
+        // '기타'가 아닌 경우 개인고객 체크 초기화
+        if (type !== BusinessType.ETC) {
+            setIsIndividualCustomer(null);
+        }
         console.log("선택된 사업체 유형:", type, "전화번호:", phoneNumber);
     };
 
@@ -215,24 +224,89 @@ export default function SignupPage() {
                     />
                 </div>
             )}
-            {isValidLength && selectedBusinessType && <div className="fixed bottom-0 w-full max-w-[460px]">
-                <BottomButton type="1button" button1Text="확인" onButton1Click={async () => {
-                    // Ensure the Click event is delivered before OAuth redirect (mobile/WebView safety)
-                    await trackClickAndWait({
-                        object_type: "button",
-                        object_name: "confirm",
-                        current_page: getScreenName() ?? 'signup',
-                        modal_name: null,
-                    });
-                    useSignupStore.setState({ businessType: selectedBusinessType, phoneNumber: phoneNumber.replace(/-/g, '') });
-                    const kakaoSignupUsecase = new KakaoSignupUsecase(
-                        new KakaoAuthSupabaseRepository(),
-                        new BizClientSupabaseRepository(),
-                        new CartSupabaseRepository()
-                    );
-                    kakaoSignupUsecase.execute();
-                }} />
-            </div>}
+            {/* 기타 선택 시 개인고객 여부 체크 */}
+            {isValidLength && selectedBusinessType === BusinessType.ETC && (
+                <div className="px-5 mt-4">
+                    <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+                        <div className="mb-3 text-[16px] font-600 text-gray-800">개인고객이신가요?</div>
+                        <div className="flex items-center gap-4">
+                            <div
+                                className="flex items-center gap-2 cursor-pointer"
+                                onClick={() => setIsIndividualCustomer(true)}
+                            >
+                                <Checkbox
+                                    checked={isIndividualCustomer === true}
+                                    onChange={(checked) => {
+                                        setIsIndividualCustomer(checked ? true : null);
+                                    }}
+                                />
+                                <div className="text-[14px] font-400 text-gray-700">네, 개인고객이에요</div>
+                            </div>
+                            <div
+                                className="flex items-center gap-2 cursor-pointer"
+                                onClick={() => setIsIndividualCustomer(false)}
+                            >
+                                <Checkbox
+                                    checked={isIndividualCustomer === false}
+                                    onChange={(checked) => {
+                                        setIsIndividualCustomer(checked ? false : null);
+                                    }}
+                                />
+                                <div className="text-[14px] font-400 text-gray-700">아니에요</div>
+                            </div>
+                        </div>
+                        {isIndividualCustomer === true && INDIVIDUAL_CUSTOMER_LINK && (
+                            <>
+                                <div className="mt-3 mb-3 text-[14px] font-400 text-gray-600">
+                                    가구 제작, 도면상담, 인테리어 문의 등을 희망하는 개인 고객이시라면 아래 링크로 이동해주세요.
+                                </div>
+                                <Button
+                                    type="BrandInverse"
+                                    text="개수대연구소로 이동"
+                                    onClick={() => {
+                                        window.open(INDIVIDUAL_CUSTOMER_LINK, '_blank');
+                                    }}
+                                />
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {isValidLength && selectedBusinessType && (
+                <div className="fixed bottom-0 w-full max-w-[460px]">
+                    <BottomButton
+                        type="1button"
+                        button1Text="확인"
+                        button1Disabled={
+                            selectedBusinessType === BusinessType.ETC &&
+                            (isIndividualCustomer === true || isIndividualCustomer === null)
+                        }
+                        onButton1Click={async () => {
+                            // 개인고객이거나 선택하지 않은 경우 진행 차단
+                            if (selectedBusinessType === BusinessType.ETC &&
+                                (isIndividualCustomer === true || isIndividualCustomer === null)) {
+                                return;
+                            }
+
+                            // Ensure the Click event is delivered before OAuth redirect (mobile/WebView safety)
+                            await trackClickAndWait({
+                                object_type: "button",
+                                object_name: "confirm",
+                                current_page: getScreenName() ?? 'signup',
+                                modal_name: null,
+                            });
+                            useSignupStore.setState({ businessType: selectedBusinessType, phoneNumber: phoneNumber.replace(/-/g, '') });
+                            const kakaoSignupUsecase = new KakaoSignupUsecase(
+                                new KakaoAuthSupabaseRepository(),
+                                new BizClientSupabaseRepository(),
+                                new CartSupabaseRepository()
+                            );
+                            kakaoSignupUsecase.execute();
+                        }}
+                    />
+                </div>
+            )}
 
             {/* 업체 유형 선택 BottomSheet */}
             <BottomSheet
@@ -310,6 +384,7 @@ export default function SignupPage() {
                     />
                 </div>
             </BottomSheet>
+
         </div>
     );
 }

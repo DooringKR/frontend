@@ -93,8 +93,9 @@ const HomeProductContainer: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-6 px-5">
+    <div className="flex flex-col items-start gap-8 px-5">
       <InitAmplitude />
+      <div className="text-[20px]/[28px] font-700 text-gray-800">직접 주문</div>
       <div className="grid grid-cols-3 items-stretch justify-items-stretch gap-5 w-full h-full">
         {productList.map((item, idx) => (
           <HomeProductButton
