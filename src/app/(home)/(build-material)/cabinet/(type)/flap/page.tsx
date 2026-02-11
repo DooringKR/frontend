@@ -1,7 +1,7 @@
 "use client";
 
 import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
-import { CABINET_COLOR_LIST } from "@/constants/colorList";
+import { CABINET_COLOR_LIST } from "dooring-core-domain/dist/constants/color";
 import { ABSORBER_TYPE_LIST } from "@/constants/absorbertype";
 import { useCabinetValidation } from "./hooks/useCabinetValidation";
 

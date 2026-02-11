@@ -27,6 +27,7 @@ import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEn
 import { CartItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/CartItem";
 import { ReadCartItemsUsecase } from "@/DDD/usecase/read_cart_items_usecase";
 import { UpdateCartItemCountUsecase } from "@/DDD/usecase/update_cart_item_count_usecase";
+import { ReindexCartItemNickNamesUsecase } from "@/DDD/usecase/reindex_cart_item_nick_names_usecase";
 import { CartItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/cartitem_supabase_repository";
 import { useOrderStore } from "@/store/orderStore";
 import { track } from "@amplitude/analytics-browser";
@@ -38,6 +39,19 @@ import { supabase } from "@/lib/supabase";
 
 // type OrderItem = DoorItem | FinishItem | CabinetItem | AccessoryItem | HardwareItem | null;
 export type AnyCartItem = CartItem;
+
+const sortCartItemDetailsByNickName = (items: CartItemDetail[]) => {
+  return [...items].sort((a, b) => {
+    const aNum = Number.parseInt(a.cartItem?.nick_name ?? "", 10);
+    const bNum = Number.parseInt(b.cartItem?.nick_name ?? "", 10);
+    const aValid = Number.isFinite(aNum);
+    const bValid = Number.isFinite(bNum);
+    if (aValid && bValid) return aNum - bNum;
+    if (aValid) return -1;
+    if (bValid) return 1;
+    return String(a.cartItem?.id ?? "").localeCompare(String(b.cartItem?.id ?? ""));
+  });
+};
 
 // 롱문 카드와 개별 문 정보 토글 컴포넌트
 function LongDoorCardWithToggle({
@@ -141,6 +155,7 @@ export default function CartClient() {
 
   const [isLoading, setIsLoading] = useState(false);
   const setCartId = useCartStore(state => state.setCartId);
+  const cartId = useCartStore(state => state.cart?.id);
   const userId = useCartStore(state => state.cart?.user_id);
   const cartItems = useCartItemStore(state => state.cartItems);
   // UI에 표시할 상세 정보 포함된 배열
@@ -190,6 +205,17 @@ export default function CartClient() {
         updateCartItem(item.id, { item_count: newCount });
       } else {
         removeCartItem(item.id);
+        if (cartId) {
+          const reindexUsecase = new ReindexCartItemNickNamesUsecase(
+            new CartItemSupabaseRepository()
+          );
+          const reindexResponse = await reindexUsecase.execute(cartId);
+          if (!reindexResponse.success) {
+            console.warn("Failed to reindex cart item nick_name", reindexResponse.message);
+            return;
+          }
+          setCartItems(reindexResponse.data || []);
+        }
       }
     } catch (e: any) {
       console.error('[handleCountChange] Error:', e);
@@ -366,13 +392,15 @@ export default function CartClient() {
     );
   }
 
+  const sortedCartItemDetails = sortCartItemDetailsByNickName(cartItemDetails);
+
   // 세트 상품과 개별 상품 분리
-  const setProducts = cartItemDetails.filter(({ cartItem }) => cartItem.detail_product_type === DetailProductType.LONGDOOR);
-  const individualProducts = cartItemDetails.filter(({ cartItem }) => cartItem.detail_product_type !== DetailProductType.LONGDOOR);
+  const setProducts = sortedCartItemDetails.filter(({ cartItem }) => cartItem.detail_product_type === DetailProductType.LONGDOOR);
+  const individualProducts = sortedCartItemDetails.filter(({ cartItem }) => cartItem.detail_product_type !== DetailProductType.LONGDOOR);
 
   // 세트상품이 있으면 세트상품만 구매 가능
   const hasSetProducts = setProducts.length > 0;
-  const purchasableItems = hasSetProducts ? setProducts : cartItemDetails;
+  const purchasableItems = hasSetProducts ? setProducts : sortedCartItemDetails;
 
   const getTotalItemCount = () => {
     return purchasableItems.length;
@@ -483,6 +511,29 @@ export default function CartClient() {
             getTotalPrice={getExpectedOrderPrice}
             filteredCartItems={hasSetProducts ? setProducts.map(({ cartItem }) => cartItem) : undefined}
           />
+          <div>
+            {(() => {
+              // 양문 아이템 개수 계산
+              const pairDoorCount = cartItemDetails
+                .filter(({ cartItem, detail }) => 
+                  cartItem.detail_product_type === DetailProductType.DOOR && 
+                  detail?.is_pair_door === true
+                )
+                .reduce((sum, { cartItem }) => sum + (cartItem.item_count ?? 0), 0);
+              
+              if (pairDoorCount > 0) {
+                const totalDoorCount = pairDoorCount * 2;
+                return (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div className="text-red-800 text-base font-medium">
+                      양문 아이템이 {pairDoorCount}개 있어요. 문짝이 {totalDoorCount}개 제작될 예정이에요.
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })()}
+          </div>
           {!hasSetProducts && <PaymentNoticeCard />}
         </div>
       </div>

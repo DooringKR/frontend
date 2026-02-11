@@ -26,7 +26,7 @@ import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_r
 import { Door } from "dooring-core-domain/dist/models/InteriorMaterials/Door";
 import { LongDoor } from "dooring-core-domain/dist/models/CompositeProducts/LongDoor";
 import { DoorType, HingeDirection, Location, CabinetHandleType, HingeThickness } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
-import { DOOR_COLOR_LIST } from "@/constants/colorList";
+import { DOOR_COLOR_LIST } from "dooring-core-domain/dist/constants/color";
 import { InteriorMaterialsSupabaseRepository } from "@/DDD/data/db/interior_materials_supabase_repository";
 import { CrudInteriorMaterialsUsecase } from "@/DDD/usecase/crud_interior_materials_usecase";
 import { SupabaseUploadImageUsecase } from "@/DDD/usecase/upload_image_usecase";
@@ -318,12 +318,17 @@ function LongDoorReportPageContent() {
                             }
 
                             // CartItem은 LongDoor와 연결 (롱문 전체를 하나의 아이템으로)
+                            const maxNickName = cartItems.reduce((max, item) => {
+                                const num = parseInt(item.nick_name || "0");
+                                return num > max ? num : max;
+                            }, 0);
                             const cartItem = new CartItem({
                                 cart_id: cart!.id!,
                                 item_detail: createdLongDoor.id!, // LongDoor ID
                                 detail_product_type: DetailProductType.LONGDOOR,
                                 item_count: 1, // 롱문은 하나의 아이템
                                 unit_price: totalPrice, // 총 가격
+                                nick_name: (maxNickName + 1).toString(),
                             });
 
                             const createdCartItem = await new CrudCartItemUsecase(

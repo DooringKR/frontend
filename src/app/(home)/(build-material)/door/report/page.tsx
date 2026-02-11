@@ -26,7 +26,7 @@ import { CrudCartUsecase } from "@/DDD/usecase/crud_cart_usecase";
 import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_repository";
 import { Door } from "dooring-core-domain/dist/models/InteriorMaterials/Door";
 import { DoorType, HingeDirection } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
-import { DOOR_COLOR_LIST } from "@/constants/colorList";
+import { DOOR_COLOR_LIST } from "dooring-core-domain/dist/constants/color";
 import { InteriorMaterialsSupabaseRepository } from "@/DDD/data/db/interior_materials_supabase_repository";
 import { CrudInteriorMaterialsUsecase } from "@/DDD/usecase/crud_interior_materials_usecase";
 import { SupabaseUploadImageUsecase } from "@/DDD/usecase/upload_image_usecase";
@@ -113,6 +113,16 @@ function DoorReportPageContent() {
                     }}
                 />
 
+                <div>
+                    {item.is_pair_door && (
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                            <div className="text-red-800 text-base font-medium">
+                                양문 세트를 {quantity}개 주문하시면, 문짝은 {2 * quantity}개 제작돼요.
+                            </div>
+                        </div>
+                    )}
+                </div>
+
                 {/* 결제 안내 문구 */}
                 <PaymentNoticeCard />
             </div>
@@ -174,12 +184,17 @@ function DoorReportPageContent() {
                             const detailProductType = DetailProductType.DOOR;
 
                             // 문짝의 경우 별도의 모델 클래스가 없으므로 직접 CartItem에 저장
+                            const maxNickName = cartItems.reduce((max, item) => {
+                                const num = parseInt(item.nick_name || "0");
+                                return num > max ? num : max;
+                            }, 0);
                             const cartItem = new CartItem({
                                 cart_id: cart!.id!,
                                 item_detail: createdDoor.id!, // 문짝은 별도의 interior_material_id가 없음
                                 detail_product_type: detailProductType,
                                 item_count: quantity,
                                 unit_price: unitPrice,
+                                nick_name: (maxNickName + 1).toString(),
                                 // 문짝 정보를 item_options에 저장
                             });
 

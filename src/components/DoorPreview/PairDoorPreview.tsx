@@ -1,17 +1,18 @@
 import Image from "next/image";
 import React, { useRef, useEffect, useState } from "react";
 
-import { DOOR_COLOR_LIST } from "../../constants/colorList";
+import { DOOR_COLOR_LIST } from "dooring-core-domain/dist/constants/color";
 import BoringInputField from "../Input/BoringInputField";
 import { Chip } from "../Chip/Chip";
 
 interface PairDoorPreviewProps {
   DoorWidth: number | null; // 가로 길이, null 경우 입력 필요
   DoorHeight: number | null; // 세로 길이, null 경우 입력 필요
-  boringNum: 2 | 3 | 4; // 보어링 개수는 2, 3, 4 중 하나
+  boringNum: 2 | 3 | 4 | null; // 보어링 개수는 2, 3, 4 중 하나, null일 때는 보링을 표시하지 않음
   boringSize: (number | null)[];
   onChangeBoringSize?: (sizes: (number | null)[]) => void;
   doorColor?: string; // 문짝 색깔 (선택적)
+  isPreviewOnly?: boolean; // true일 때는 입력 필드를 렌더링하지 않음
 }
 
 const PairDoorPreview: React.FC<PairDoorPreviewProps> = ({
@@ -21,6 +22,7 @@ const PairDoorPreview: React.FC<PairDoorPreviewProps> = ({
   boringSize,
   onChangeBoringSize,
   doorColor,
+  isPreviewOnly = false,
 }) => {
   // 컨테이너 너비 측정을 위한 ref와 state
   const containerRef = useRef<HTMLDivElement>(null);
@@ -55,12 +57,12 @@ const PairDoorPreview: React.FC<PairDoorPreviewProps> = ({
   const doorHeight = Math.max(minHeight, Math.min(calculatedHeight, maxHeight));
   const singleDoorWidthDisplay = fixedWidth;
   
-  // 보어링 input의 높이를 동적 문짝 높이 기준으로 계산
-  const boringHeight = doorHeight / boringNum;
+  // 보어링 input의 높이를 동적 문짝 높이 기준으로 계산 (boringNum이 null이 아닐 때만)
+  const boringHeight = boringNum ? doorHeight / boringNum : 0;
 
   // boringSize 변경 핸들러
   const handleBoringInputChange = (idx: number, value: number | null) => {
-    if (!onChangeBoringSize) return;
+    if (!onChangeBoringSize || !boringNum) return;
 
     const currentBoringSize = boringSize || [];
     const newSizes = [...currentBoringSize];
@@ -77,14 +79,14 @@ const PairDoorPreview: React.FC<PairDoorPreviewProps> = ({
 
   // boringSize가 boringNum과 맞지 않을 때 조정
   const adjustedBoringSize = React.useMemo(() => {
-    if (!boringSize || boringSize.length !== boringNum) {
-      return Array.from({ length: boringNum }, (_, i) => boringSize?.[i] ?? null);
+    if (!boringNum || !boringSize || boringSize.length !== boringNum) {
+      return boringNum ? Array.from({ length: boringNum }, (_, i) => boringSize?.[i] ?? null) : [];
     }
     return boringSize;
   }, [boringSize, boringNum]);
 
-  // 보링 input 배열 생성 - 보링 원 위치와 일치
-  const boringInputs = Array.from({ length: boringNum }).map((_, idx) => {
+  // 보링 input 배열 생성 - 보링 원 위치와 일치 (isPreviewOnly이거나 boringNum이 null일 때는 입력 필드 렌더링하지 않음)
+  const boringInputs = (isPreviewOnly || !boringNum) ? [] : Array.from({ length: boringNum }).map((_, idx) => {
     // 보링 원과 동일한 위치 계산
     const startY = 30;
     const endY = doorHeight - 30;
@@ -151,8 +153,8 @@ const PairDoorPreview: React.FC<PairDoorPreviewProps> = ({
           />
         )}
 
-        {/* 보어링 위치 표시 */}
-        {Array.from({ length: boringNum }).map((_, index) => {
+        {/* 보어링 위치 표시 - boringNum이 null이 아닐 때만 */}
+        {boringNum && Array.from({ length: boringNum }).map((_, index) => {
           // 양문에서는 좌측문은 왼쪽 가장자리, 우측문은 오른쪽 가장자리에 보링 위치
           const boringOffset = 15; // 보어링이 문짝 가장자리에서 떨어진 거리
           const centerX = isLeft ? boringOffset : doorWidth - boringOffset; // 좌측문은 왼쪽 가장자리, 우측문은 오른쪽 가장자리
@@ -270,6 +272,7 @@ const PairDoorPreview: React.FC<PairDoorPreviewProps> = ({
 
   return (
     <div ref={containerRef} className="flex w-full flex-col items-center justify-center">
+      {/* 문짝 및 보링 그리드 (높이 고정) */}
       <div className="grid grid-cols-3 w-full items-start justify-center" style={{ height: `${doorHeight}px`, position: "relative" }}>
         {/* 문 1 (좌측 문짝) */}
         <div className="flex items-start justify-center">
@@ -284,8 +287,8 @@ const PairDoorPreview: React.FC<PairDoorPreviewProps> = ({
           {boringInputs}
         </div>
         
-        {/* 통합 툴팁 - 포커스된 보링이 있을 때만 표시 */}
-        {focusedBoringIndex !== null && (() => {
+        {/* 통합 툴팁 - 포커스된 보링이 있을 때만 표시 (isPreviewOnly가 아니고 boringNum이 있을 때만) */}
+        {!isPreviewOnly && boringNum && focusedBoringIndex !== null && (() => {
           // 포커스된 보링의 Y 위치 계산
           const startY = 30;
           const endY = doorHeight - 30;
@@ -347,7 +350,76 @@ const PairDoorPreview: React.FC<PairDoorPreviewProps> = ({
           );
         })()}
       </div>
-      {/* 가로/세로 길이를 이미지 아래에 Chip으로 표시 */}
+
+      {/* 가로 길이 치수선 - grid 밖에서 렌더링 (왼쪽 문짝 아래) */}
+      {DoorWidth && DoorWidth > 0 && (
+        <div className="grid grid-cols-3 w-full mt-3">
+          {/* 첫 번째 컬럼 - 왼쪽 문짝과 동일한 위치 */}
+          <div className="flex justify-center">
+            <div className="flex flex-col items-center" style={{ width: `${singleDoorWidthDisplay}px`, position: 'relative' }}>
+              {/* 가로선과 화살표 */}
+              <div
+                style={{
+                  position: "absolute",
+                  left: "6px",
+                  top: "0px",
+                  width: `${singleDoorWidthDisplay - 12}px`,
+                  height: "2px",
+                  background: "linear-gradient(to right, rgba(239, 68, 68, 0.6), rgba(239, 68, 68, 0.6))",
+                  zIndex: 5,
+                }}
+              >
+                {/* 좌측 화살표 머리 - 선의 시작점(왼쪽 끝)에 배치 */}
+                <div
+                  style={{
+                    position: "absolute",
+                    left: "-6px",
+                    top: "-3px",
+                    width: "0",
+                    height: "0",
+                    borderLeft: "none",
+                    borderRight: "6px solid rgba(239, 68, 68, 0.6)",
+                    borderTop: "4px solid transparent",
+                    borderBottom: "4px solid transparent",
+                  }}
+                />
+                {/* 우측 화살표 머리 - 선의 끝점(오른쪽 끝)에 배치 */}
+                <div
+                  style={{
+                    position: "absolute",
+                    right: "-6px",
+                    top: "-3px",
+                    width: "0",
+                    height: "0",
+                    borderRight: "none",
+                    borderLeft: "6px solid rgba(239, 68, 68, 0.6)",
+                    borderTop: "4px solid transparent",
+                    borderBottom: "4px solid transparent",
+                  }}
+                />
+              </div>
+              
+              {/* 텍스트 */}
+              <div 
+                style={{ 
+                  marginTop: "8px",
+                  fontSize: "16px",
+                  color: "#EF4444",
+                  fontFamily: "Pretendard, Arial",
+                  fontWeight: "500",
+                }}
+              >
+                {DoorWidth}mm
+              </div>
+            </div>
+          </div>
+          {/* 두 번째, 세 번째 컬럼은 비워둠 */}
+          <div></div>
+          <div></div>
+        </div>
+      )}
+      
+      {/* 가로/세로 길이를 이미지 아래에 Chip으로 표시 (grid 밖에서 자연스럽게 배치) */}
       <div className="flex w-full justify-center pt-3 gap-4">
         <div className="flex items-center gap-2">
           <Chip text="가로" color="gray" weight="weak" />

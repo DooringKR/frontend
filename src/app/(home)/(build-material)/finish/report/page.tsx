@@ -7,7 +7,7 @@ import ProgressBar from "@/components/Progress";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
-import { FINISH_COLOR_LIST } from "@/constants/colorList";
+import { FINISH_COLOR_LIST } from "dooring-core-domain/dist/constants/color";
 import { InteriorMaterialsSupabaseRepository } from "@/DDD/data/db/interior_materials_supabase_repository";
 import { FINISH_CATEGORY_LIST } from "@/constants/category";
 import useItemStore from "@/store/itemStore";
@@ -168,12 +168,17 @@ function ReportPageContent() {
                                 item.id
                             );
 
+                            const maxNickName = cartItems.reduce((max, item) => {
+                                const num = parseInt(item.nick_name || "0");
+                                return num > max ? num : max;
+                            }, 0);
                             const cartItem = new CartItem({
                                 cart_id: cart!.id!, // 
                                 item_detail: createdFinish.id!, // interior_material_id (Finish 객체의 id 프로퍼티가 private이므로, 인덱싱으로 접근)
                                 detail_product_type: detailProductType, // quantity
                                 item_count: quantity, // quantity
                                 unit_price: unitPrice, // unit_price (필요하다면 값 할당)
+                                nick_name: (maxNickName + 1).toString(),
                             });
                             const createdCartItem = await new CrudCartItemUsecase(
                                 new CartItemSupabaseRepository()

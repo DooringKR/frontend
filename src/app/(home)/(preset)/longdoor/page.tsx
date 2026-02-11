@@ -22,7 +22,7 @@ import formatLocation from "@/utils/formatLocation";
 import formatColor from "@/utils/formatColor";
 
 import useItemStore from "@/store/itemStore";
-import { DOOR_COLOR_LIST } from "@/constants/colorList";
+import { DOOR_COLOR_LIST } from "dooring-core-domain/dist/constants/color";
 
 import { useDoorValidation } from "./hooks/useDoorValidation";
 import { HingeDirection, Location, CabinetHandleType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";

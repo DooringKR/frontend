@@ -1,4 +1,4 @@
-import { CABINET_COLOR_LIST } from "@/constants/colorList";
+import { CABINET_COLOR_LIST } from "dooring-core-domain/dist/constants/color";
 import Image from "next/image";
 import React from "react";
 

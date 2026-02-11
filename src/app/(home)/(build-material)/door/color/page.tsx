@@ -1,6 +1,6 @@
 "use client";
 
-import { DOOR_COLOR_LIST } from "@/constants/colorList";
+import { DOOR_COLOR_LIST } from "dooring-core-domain/dist/constants/color";
 import { DOOR_CATEGORY_LIST } from "@/constants/category";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
