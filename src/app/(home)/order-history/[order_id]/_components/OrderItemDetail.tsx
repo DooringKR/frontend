@@ -15,7 +15,7 @@ import formatLocation from "@/utils/formatLocation";
 import { getCategoryLabel } from "@/utils/getCategoryLabel";
 import formatColor from "@/utils/formatColor";
 import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
-import { CABINET_COLOR_LIST, DOOR_COLOR_LIST, FINISH_COLOR_LIST } from "@/constants/colorList";
+import { CABINET_COLOR_LIST, DOOR_COLOR_LIST, FINISH_COLOR_LIST, OPEN_CABINET_BODY_MATERIAL_LIST } from "@/constants/colorList";
 import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
 import { ABSORBER_TYPE_LIST } from "@/constants/absorbertype";
 import { CABINET_DRAWER_TYPE_LIST } from "@/constants/cabinetdrawertype";
@@ -437,7 +437,11 @@ export default function OrderItemDetail({ item }: OrderItemDetailProps) {
             )}
             {/* 공통 로직 */}
             <p className="text-[15px]/[22px] font-400 text-gray-600">
-              색상: {CABINET_COLOR_LIST.find(color => color.id === item.materialDetails.cabinet_color)?.name || "-"}
+              색상: {
+                item.detail_product_type === DetailProductType.OPENCABINET
+                  ? OPEN_CABINET_BODY_MATERIAL_LIST.find(color => color.id === item.materialDetails.cabinet_color)?.name || "-"
+                  : CABINET_COLOR_LIST.find(color => color.id === item.materialDetails.cabinet_color)?.name || "-"
+              }
             </p>
             <p className="text-[15px]/[22px] font-400 text-gray-600">
               너비:{" "}

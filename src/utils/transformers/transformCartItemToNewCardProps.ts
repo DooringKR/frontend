@@ -1,6 +1,6 @@
 import { CartItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/CartItem";
 import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
-import { DOOR_COLOR_LIST, CABINET_COLOR_LIST, FINISH_COLOR_LIST } from "@/constants/colorList";
+import { DOOR_COLOR_LIST, CABINET_COLOR_LIST, FINISH_COLOR_LIST, OPEN_CABINET_BODY_MATERIAL_LIST } from "@/constants/colorList";
 import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
 import { transformDoorToNewCardProps } from "./transformDoorToNewCardProps";
 import { transformFinishToNewCardProps } from "./transformFinishToNewCardProps";
@@ -127,7 +127,16 @@ export function transformCartItemToNewCardProps(cartItem: CartItem, detail: any,
               category === DetailProductType.DRAWERCABINET ? "서랍장" :
                 category === DetailProductType.OPENCABINET ? "오픈장" : "하부장";
 
-    const colorName = CABINET_COLOR_LIST.find(c => c.id === detail.cabinet_color)?.name || detail.cabinet_color;
+    // For OpenCabinet, color may be represented by body material when door color is not applicable.
+    let colorName: string | number | undefined;
+    if (category === DetailProductType.OPENCABINET) {
+      colorName = OPEN_CABINET_BODY_MATERIAL_LIST.find(c => c.id === detail.cabinet_color)?.name
+        || OPEN_CABINET_BODY_MATERIAL_LIST.find(c => c.id === detail.cabinet_body_material)?.name
+        || detail.cabinet_color
+        || detail.cabinet_body_material;
+    } else {
+      colorName = CABINET_COLOR_LIST.find(c => c.id === detail.cabinet_color)?.name || detail.cabinet_color;
+    }
     const bodyMaterialName = BODY_MATERIAL_LIST.find(b => b.id === detail.cabinet_body_material)?.name || detail.cabinet_body_material;
 
     const cabinetItem = {
