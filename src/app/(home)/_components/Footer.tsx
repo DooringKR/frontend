@@ -35,6 +35,8 @@ function Footer() {
       <div>
         <div className="font-700">주식회사 도어링</div>
         <div className="font-400 ">사업자 등록번호 : 828-88-03247 | 대표 : 최범주</div>
+        <div className="font-400">통신판매신고번호: 제 2024-진접 오남-0743 호</div>
+        <div className="font-400">사업자 연락처: 010-9440-1874</div>
         <div className="font-400">12048 경기도 남양주시 오남읍 양지로139번길 11-14</div>
       </div>
 
@@ -69,13 +71,23 @@ function Footer() {
         </Link>
       </div>
 
-      <div className="flex justify-between">
+      <div className="flex justify-between items-center">
         <div className="font-400">@ 2025 주식회사 도어링</div>
-        {isVisible && (
-          <div className="underline cursor-pointer" onClick={handleContactButtonClick}>
-            고객센터
-          </div>
-        )}
+        <div className="flex gap-4">
+          <Link
+            href="https://witty-sundae-3d1.notion.site/305b6a70ff3980a5b2a2ffb5f4694b89"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline cursor-pointer hover:text-gray-600 transition-colors"
+          >
+            환불규정
+          </Link>
+          {isVisible && (
+            <div className="underline cursor-pointer" onClick={handleContactButtonClick}>
+              고객센터
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

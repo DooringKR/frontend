@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { MY_PAGE } from "@/constants/pageName";
 import { useRouter } from "next/navigation";
 import HeadphonesIcon from "public/icons/Headphones";
@@ -121,6 +122,15 @@ function MyPageClient() {
           </svg>
           <h3>고객센터</h3>
         </div>
+        <Link
+          href="https://witty-sundae-3d1.notion.site/305b6a70ff3980a5b2a2ffb5f4694b89"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex w-fit cursor-pointer gap-3 py-[10px] hover:opacity-80"
+        >
+          <img src={"/icons/list-paper.svg"} alt="문서 아이콘" />
+          <h3>환불규정</h3>
+        </Link>
         <div
           className="flex w-fit cursor-pointer gap-3 py-[10px]"
           onClick={onOpenSourceLicenseClick}

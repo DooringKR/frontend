@@ -222,7 +222,6 @@ function LongDoorAdditionalPageContent() {
                         }
                         checked={addOn_hinge}
                         onChange={handleAddOnHingeChange}
-                        className="mb-4"
                     />
 
                     <div className="self-stretch h-px bg-gray-100" />
@@ -232,7 +231,9 @@ function LongDoorAdditionalPageContent() {
                         description="세부 내용은 상담으로 안내해드려요."
                         showImage={true}
                         imageUrl="/img/door_construction.png"
-                        showChip={false}
+                        showChip={true}
+                        chipText="+30만원"
+                        chipColor="gray"
                         showExpandableContent={false}
                         checked={door_construct}
                         onChange={handleDoorConstructChange}

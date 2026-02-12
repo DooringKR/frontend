@@ -11,7 +11,7 @@ import PaymentNoticeCard from "@/components/PaymentNoticeCard";
 import { transformDoorToNewCardProps } from "@/utils/transformers/transformDoorToNewCardProps";
 
 import useItemStore from "@/store/itemStore";
-import { calculateLongDoorUnitPriceWithOptions } from "@/services/pricing/longDoorPricing";
+import { calculateLongDoorUnitPriceWithOptions, LONG_DOOR_CONSTRUCT_PRICE } from "@/services/pricing/longDoorPricing";
 import { Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -119,6 +119,9 @@ function LongDoorReportPageContent() {
         return sum;
     }, 0);
 
+    // 시공 선택 시 30만원 추가
+    const totalPriceWithConstruct = totalPrice + (item?.door_construct ? LONG_DOOR_CONSTRUCT_PRICE : 0);
+
     // 표시용 단가 (총 가격 / 문 개수)
     const averageUnitPrice = quantity > 0 ? Math.round(totalPrice / quantity) : 0;
 
@@ -210,10 +213,17 @@ function LongDoorReportPageContent() {
                     </div>
                 )}
 
+                {item?.door_construct && (
+                    <div className="flex items-center justify-between rounded-[16px] bg-gray-50 px-5 py-4">
+                        <span className="text-[16px]/[22px] font-500 text-gray-500">시공비</span>
+                        <span className="text-[16px]/[28px] font-600 text-gray-800">+{LONG_DOOR_CONSTRUCT_PRICE.toLocaleString()}원</span>
+                    </div>
+                )}
+
                 <OrderSummaryCard
                     quantity={quantity}
                     unitPrice={averageUnitPrice}
-                    totalPrice={totalPrice}
+                    totalPrice={totalPriceWithConstruct}
                     onIncrease={() => {
                         // longdoor는 수량 변경 불가 (이미 설정된 문 개수 사용)
                     }}
@@ -323,7 +333,7 @@ function LongDoorReportPageContent() {
                                 item_detail: createdLongDoor.id!, // LongDoor ID
                                 detail_product_type: DetailProductType.LONGDOOR,
                                 item_count: 1, // 롱문은 하나의 아이템
-                                unit_price: totalPrice, // 총 가격
+                                unit_price: totalPriceWithConstruct, // 총 가격 (시공비 포함)
                             });
 
                             const createdCartItem = await new CrudCartItemUsecase(
