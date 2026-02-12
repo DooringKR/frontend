@@ -273,7 +273,7 @@ function LongDoorAdditionalPageContent() {
                 <div className="flex flex-col gap-4">
                     <h3 className="text-[18px] font-600 text-gray-900">이미지를 첨부하지 않으셨습니다</h3>
                     <p className="text-[15px] font-400 text-gray-700 leading-relaxed">
-                        주문 접수 후 카카오톡 채널 또는 문자(010-9440-1874)로 시공 현장·도면 사진을 보내주세요.
+                        주문 접수 후 카카오톡 채널 또는 문자(010-6409-4542)로 시공 현장·도면 사진을 보내주세요.
                     </p>
                     <div className="flex items-center gap-2 pt-2">
                         <Checkbox

@@ -36,7 +36,7 @@ function Footer() {
         <div className="font-700">주식회사 도어링</div>
         <div className="font-400 ">사업자 등록번호 : 828-88-03247 | 대표 : 최범주</div>
         <div className="font-400">통신판매신고번호: 제 2024-진접 오남-0743 호</div>
-        <div className="font-400">사업자 연락처: 010-9440-1874</div>
+        <div className="font-400">사업자 연락처: 010-6409-4542 | 031-528-4002 </div>
         <div className="font-400">12048 경기도 남양주시 오남읍 양지로139번길 11-14</div>
       </div>
 
