@@ -222,7 +222,6 @@ function LongDoorAdditionalPageContent() {
                         }
                         checked={addOn_hinge}
                         onChange={handleAddOnHingeChange}
-                        className="mb-4"
                     />
 
                     <div className="self-stretch h-px bg-gray-100" />
@@ -232,7 +231,9 @@ function LongDoorAdditionalPageContent() {
                         description="세부 내용은 상담으로 안내해드려요."
                         showImage={true}
                         imageUrl="/img/door_construction.png"
-                        showChip={false}
+                        showChip={true}
+                        chipText="+30만원"
+                        chipColor="gray"
                         showExpandableContent={false}
                         checked={door_construct}
                         onChange={handleDoorConstructChange}
@@ -272,7 +273,7 @@ function LongDoorAdditionalPageContent() {
                 <div className="flex flex-col gap-4">
                     <h3 className="text-[18px] font-600 text-gray-900">이미지를 첨부하지 않으셨습니다</h3>
                     <p className="text-[15px] font-400 text-gray-700 leading-relaxed">
-                        주문 접수 후 카카오톡 채널 또는 문자(010-9440-1874)로 시공 현장·도면 사진을 보내주세요.
+                        주문 접수 후 카카오톡 채널 또는 문자(010-6409-4542)로 시공 현장·도면 사진을 보내주세요.
                     </p>
                     <div className="flex items-center gap-2 pt-2">
                         <Checkbox

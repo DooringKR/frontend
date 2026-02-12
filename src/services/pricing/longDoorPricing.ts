@@ -1,5 +1,8 @@
 import { getPricingColorName } from "./colorMapping";
 
+/** 롱문 시공 선택 시 추가 비용 (원) */
+export const LONG_DOOR_CONSTRUCT_PRICE = 300_000;
+
 type LongDoorWidthTier = 0 | 1 | 2;
 type LongDoorColorTier = "film" | "special" | "signature" | "other";
 
