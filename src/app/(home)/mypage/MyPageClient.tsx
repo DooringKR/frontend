@@ -131,6 +131,15 @@ function MyPageClient() {
           <img src={"/icons/list-paper.svg"} alt="문서 아이콘" />
           <h3>환불규정</h3>
         </Link>
+        <Link
+          href="https://witty-sundae-3d1.notion.site/306b6a70ff3980af8654d941e2d34156?source=copy_link"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex w-fit cursor-pointer gap-3 py-[10px] hover:opacity-80"
+        >
+          <img src={"/icons/list-paper.svg"} alt="문서 아이콘" />
+          <h3>배송규정</h3>
+        </Link>
         <div
           className="flex w-fit cursor-pointer gap-3 py-[10px]"
           onClick={onOpenSourceLicenseClick}
