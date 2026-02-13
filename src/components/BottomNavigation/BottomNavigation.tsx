@@ -55,7 +55,7 @@ const BottomNavigation: React.FC = () => {
       ),
     },
     {
-      label: "주문내역",
+      label: "주문목록",
       href: "/order-history",
       icon: (
         <svg
