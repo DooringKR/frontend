@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { ReadBizClientUsecase } from "@/DDD/usecase/user/read_bizClient_usecase";
 import { BizClientSupabaseRepository } from "@/DDD/data/db/User/bizclient_supabase_repository";
@@ -9,7 +8,6 @@ import useCartStore from "@/store/cartStore";
 import { useOrderStore } from "@/store/orderStore";
 
 export function useSessionCheck() {
-    const router = useRouter();
 
     useEffect(() => {
         const checkSession = async () => {
@@ -19,8 +17,7 @@ export function useSessionCheck() {
                 return;
             }
             if (!session) {
-                console.log('❌ 세션이 없음, /start로 이동');
-                router.replace("/start");
+                console.log('❌ 세션이 없음');
                 return;
             }
 
@@ -31,13 +28,13 @@ export function useSessionCheck() {
                 const bizClientResponse = await readBizClientUsecase.execute(session.user.id);
 
                 if (!bizClientResponse.success || !bizClientResponse.data) {
-                    console.log('❌ BizClient가 DB에 존재하지 않음, 로그아웃 후 /start로 이동');
+                    //세션이 있는데 bizClient가 DB에 존재하지 않으면 로그아웃 처리
+                    console.log('❌ BizClient가 DB에 존재하지 않음, 로그아웃');
                     const kakaoAuthSupabaseRepository = new KakaoAuthSupabaseRepository();
                     await kakaoAuthSupabaseRepository.logout();
                     useBizClientStore.setState({ bizClient: null });
                     useCartStore.setState({ cart: null });
                     useOrderStore.setState({ order: null });
-                    router.replace("/start");
                     return;
                 }
 
@@ -50,10 +47,9 @@ export function useSessionCheck() {
                 useBizClientStore.setState({ bizClient: null });
                 useCartStore.setState({ cart: null });
                 useOrderStore.setState({ order: null });
-                router.replace("/start");
             }
         };
         checkSession();
-    }, [router]);
+    }, []);
 }
 

@@ -11,7 +11,8 @@ import PaymentNoticeCard from "@/components/PaymentNoticeCard";
 import { transformDoorToNewCardProps } from "@/utils/transformers/transformDoorToNewCardProps";
 
 import useItemStore from "@/store/itemStore";
-import { calculateLongDoorUnitPriceWithOptions } from "@/services/pricing/longDoorPricing";
+import useBizClientStore from "@/store/bizClientStore";
+import { calculateLongDoorUnitPriceWithOptions, LONG_DOOR_CONSTRUCT_PRICE } from "@/services/pricing/longDoorPricing";
 import { Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -47,6 +48,7 @@ import {
 function LongDoorReportPageContent() {
     const router = useRouter();
     const { item } = useItemStore();
+    const bizClient = useBizClientStore(state => state.bizClient);
     const { cart, incrementCartCount } = useCartStore();
     const cartItems = useCartItemStore((state) => state.cartItems);
 
@@ -118,6 +120,9 @@ function LongDoorReportPageContent() {
         }
         return sum;
     }, 0);
+
+    // 시공 선택 시 30만원 추가
+    const totalPriceWithConstruct = totalPrice + (item?.door_construct ? LONG_DOOR_CONSTRUCT_PRICE : 0);
 
     // 표시용 단가 (총 가격 / 문 개수)
     const averageUnitPrice = quantity > 0 ? Math.round(totalPrice / quantity) : 0;
@@ -210,10 +215,17 @@ function LongDoorReportPageContent() {
                     </div>
                 )}
 
+                {item?.door_construct && (
+                    <div className="flex items-center justify-between rounded-[16px] bg-gray-50 px-5 py-4">
+                        <span className="text-[16px]/[22px] font-500 text-gray-500">시공비</span>
+                        <span className="text-[16px]/[28px] font-600 text-gray-800">+{LONG_DOOR_CONSTRUCT_PRICE.toLocaleString()}원</span>
+                    </div>
+                )}
+
                 <OrderSummaryCard
                     quantity={quantity}
                     unitPrice={averageUnitPrice}
-                    totalPrice={totalPrice}
+                    totalPrice={totalPriceWithConstruct}
                     onIncrease={() => {
                         // longdoor는 수량 변경 불가 (이미 설정된 문 개수 사용)
                     }}
@@ -231,11 +243,26 @@ function LongDoorReportPageContent() {
             <div id="longdoor-add-to-cart-button">
                 <BottomButton
                     type={"1button"}
-                    button1Text={isLoading ? "처리 중..." : "장바구니 담기"}
+                    button1Text={
+                        !bizClient
+                            ? "로그인하고 장바구니 담기"
+                            : isLoading
+                                ? "처리 중..."
+                                : "장바구니 담기"
+                    }
                     className="fixed bottom-0 w-full max-w-[460px]"
-                    // button1Disabled={true}
-                    button1Disabled={isLoading}
+                    button1Disabled={!!bizClient && isLoading}
                     onButton1Click={async () => {
+                        if (!bizClient) {
+                            trackClick({
+                                object_type: "button",
+                                object_name: "login_from_longdoor_report",
+                                current_page: getScreenName(),
+                                modal_name: null,
+                            });
+                            router.push("/start");
+                            return;
+                        }
                         // 이미 로딩 중이면 중복 클릭 방지
                         if (isLoading) return;
 
@@ -327,7 +354,7 @@ function LongDoorReportPageContent() {
                                 item_detail: createdLongDoor.id!, // LongDoor ID
                                 detail_product_type: DetailProductType.LONGDOOR,
                                 item_count: 1, // 롱문은 하나의 아이템
-                                unit_price: totalPrice, // 총 가격
+                                unit_price: totalPriceWithConstruct, // 총 가격 (시공비 포함)
                                 nick_name: (maxNickName + 1).toString(),
                             });
 
