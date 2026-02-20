@@ -20,9 +20,10 @@ interface TopNavigatorProps {
   title?: string;
   page?: string;
   cartItemCount?: number;
+  isLoggedIn?: boolean;
 }
 
-const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, cartItemCount = 0 }) => {
+const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, cartItemCount = 0, isLoggedIn = true }) => {
   const router = useRouter();
   return (
     <div
@@ -76,37 +77,50 @@ const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, cartItemCount 
 
       {page === HOME_PAGE ? (
         <div className="flex">
-          {/* 장바구니 아이콘 */}
-          <div className="rounded-2xl p-3 transition hover:bg-gray-100">
-            <div className="relative">
-              <Link
-                href={"/cart"}
-                className="cursor-pointer"
-                onClick={() =>
-                  trackClick({
-                    object_type: "button",
-                    object_name: "cart",
-                    current_page: getScreenName(),
-                    modal_name: null,
-                  })
-                }
-              >
-                <img src={"/icons/shopping-cart.svg"} alt="장바구니 아이콘" />
-              </Link>
+          {isLoggedIn ? (
+            /* 장바구니 아이콘 */
+            <div className="rounded-2xl p-3 transition hover:bg-gray-100">
+              <div className="relative">
+                <Link
+                  href={"/cart"}
+                  className="cursor-pointer"
+                  onClick={() =>
+                    trackClick({
+                      object_type: "button",
+                      object_name: "cart",
+                      current_page: getScreenName(),
+                      modal_name: null,
+                    })
+                  }
+                >
+                  <img src={"/icons/shopping-cart.svg"} alt="장바구니 아이콘" />
+                </Link>
 
-              {cartItemCount > 0 && (
-                <span className="absolute -right-2 -top-2 h-[18px] w-[18px] rounded-full bg-red-500 text-center text-[13px] font-500 text-white">
-                  {cartItemCount}
-                </span>
-              )}
+                {cartItemCount > 0 && (
+                  <span className="absolute -right-2 -top-2 h-[18px] w-[18px] rounded-full bg-red-500 text-center text-[13px] font-500 text-white">
+                    {cartItemCount}
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-          {/* 마이페이지 아이콘 */}
-          {/* <div className="rounded-2xl p-3 transition hover:bg-gray-100">
-            <Link href="/mypage" className="cursor-pointer">
-              <img src={"/icons/user-round.svg"} alt="유저 아이콘"></img>
+          ) : (
+            /* 로그인 버튼 */
+            <Link href="/start">
+              <button
+                className="rounded-2xl px-3 py-2 text-[14px] font-500 text-gray-700 transition hover:bg-gray-100"
+                // onClick={() =>
+                  // trackClick({
+                  //   object_type: "button",
+                  //   object_name: "login",
+                  //   current_page: getScreenName(),
+                  //   modal_name: null,
+                  // })
+                // }
+              >
+                로그인
+              </button>
             </Link>
-          </div> */}
+          )}
         </div>
       ) : (
         ""

@@ -18,6 +18,7 @@ import { Hinge } from "dooring-core-domain/dist/models/InteriorMaterials/Hardwar
 import { Rail } from "dooring-core-domain/dist/models/InteriorMaterials/Hardware/Rail";
 import { Piece } from "dooring-core-domain/dist/models/InteriorMaterials/Hardware/Piece";
 import useItemStore from "@/store/itemStore";
+import useBizClientStore from "@/store/bizClientStore";
 import useCartStore from "@/store/cartStore";
 import { CrudInteriorMaterialsUsecase } from "@/DDD/usecase/crud_interior_materials_usecase";
 import { InteriorMaterialsSupabaseRepository } from "@/DDD/data/db/interior_materials_supabase_repository";
@@ -92,6 +93,7 @@ function createHardwareInstance(item: any) {
 function ReportPageContent() {
   const router = useRouter();
   const { item } = useItemStore();
+  const bizClient = useBizClientStore(state => state.bizClient);
   const { cart, incrementCartCount } = useCartStore();
   const cartItems = useCartItemStore((state) => state.cartItems);
 
@@ -146,10 +148,26 @@ function ReportPageContent() {
       <div id="hardware-add-to-cart-button">
         <BottomButton
           type={"1button"}
-          button1Text={isLoading ? "처리 중..." : "장바구니 담기"}
+          button1Text={
+            !bizClient
+              ? "로그인하고 장바구니 담기"
+              : isLoading
+                ? "처리 중..."
+                : "장바구니 담기"
+          }
           className="fixed bottom-0 w-full max-w-[460px]"
-          button1Disabled={isLoading}
+          button1Disabled={!!bizClient && isLoading}
           onButton1Click={async () => {
+            if (!bizClient) {
+              trackClick({
+                object_type: "button",
+                object_name: "login_from_hardware_report",
+                current_page: getScreenName(),
+                modal_name: null,
+              });
+              router.push("/start");
+              return;
+            }
             // 이미 로딩 중이면 중복 클릭 방지
             if (isLoading) return;
 
