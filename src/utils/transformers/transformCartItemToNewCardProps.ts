@@ -1,6 +1,6 @@
 import { CartItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/CartItem";
 import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
-import { DOOR_COLOR_LIST, CABINET_COLOR_LIST, FINISH_COLOR_LIST, OPEN_CABINET_BODY_MATERIAL_LIST } from "dooring-core-domain/dist/constants/color";
+import { DOOR_COLOR_LIST, CABINET_COLOR_LIST, FINISH_COLOR_LIST, LONG_DOOR_COLOR_LIST, OPEN_CABINET_BODY_MATERIAL_LIST } from "dooring-core-domain/dist/constants/color";
 import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
 import { transformDoorToNewCardProps } from "./transformDoorToNewCardProps";
 import { transformFinishToNewCardProps } from "./transformFinishToNewCardProps";
@@ -25,7 +25,9 @@ export function transformCartItemToNewCardProps(cartItem: CartItem, detail: any,
     // 롱문의 색상 정보는 LongDoor 객체에서 가져옴
     const colorName = detail.door_color_direct_input
       ? detail.door_color_direct_input
-      : (detail.door_color ? DOOR_COLOR_LIST.find(c => c.id === detail.door_color)?.name || detail.door_color : undefined);
+      : (typeof detail.door_color === "number"
+        ? LONG_DOOR_COLOR_LIST.find(c => c.id === detail.door_color)?.name
+        : detail.door_color);
 
     const longDoorItem = {
       type: "롱문" as const,

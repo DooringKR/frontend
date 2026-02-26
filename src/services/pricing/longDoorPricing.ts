@@ -4,7 +4,7 @@ import { getPricingColorName } from "./colorMapping";
 export const LONG_DOOR_CONSTRUCT_PRICE = 300_000;
 
 type LongDoorWidthTier = 0 | 1 | 2;
-type LongDoorColorTier = "film" | "special" | "signature" | "other";
+type LongDoorColorTier = "film" | "special" | "signature" | "glass" | "other";
 
 function getWidthTier(width: number): LongDoorWidthTier {
   // 기획 기준: 300~450 / 450~600 / 600~
@@ -52,6 +52,9 @@ function getColorTier(color: string): LongDoorColorTier {
   ];
   if (standardColors.includes(normalized)) return "special";
 
+  const glassColors = ["유리문", "거울문"];
+  if (glassColors.includes(normalized)) return "glass";
+
   // 정해진(리스트에 있는) 컬러가 아니라면 시그니처 단가 적용
   return "signature";
 }
@@ -62,11 +65,13 @@ function getUnitPriceByTier(colorTier: LongDoorColorTier, widthTier: LongDoorWid
   // 2) 스페셜: 12 / 14 / 16 (만원)
   // 3) 시그니처: 16 / 18 / 20 (만원)
   // 4) 기타: 16 / 18 / 20 (만원)
+  // 5) 유리문/거울문: 25 (만원)
   const table: Record<LongDoorColorTier, [number, number, number]> = {
     film: [9, 11, 13],
     special: [12, 14, 16],
     signature: [16, 18, 20],
     other: [16, 18, 20],
+    glass: [25, 25, 25],
   };
   return table[colorTier][widthTier] * 10000;
 }
@@ -74,7 +79,7 @@ function getUnitPriceByTier(colorTier: LongDoorColorTier, widthTier: LongDoorWid
 /**
  * 롱문 전용 문짝 단가 계산
  * - 세로 길이는 무시
- * - 가로 길이 급간 + 색상 tier(필름/스페셜/기타)에 따라 문짝 1개 단가를 반환
+ * - 가로 길이 급간 + 색상 tier(필름/스페셜/기타/유리문)에 따라 문짝 1개 단가를 반환
  */
 export function calculateLongDoorUnitPrice(color: string, width: number): number {
   const wTier = getWidthTier(width);
