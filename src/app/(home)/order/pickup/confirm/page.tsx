@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import Button from "@/components/BeforeEditByKi/Button/Button";
+import { Chip } from "@/components/Chip/Chip";
 
 import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 
@@ -16,6 +17,19 @@ import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import { trackView } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
 import { useOrderStore } from "@/store/orderStore";
+
+const sortItemsByNickName = (items: any[]) => {
+  return [...items].sort((a, b) => {
+    const aNum = Number.parseInt(a?.nick_name ?? "", 10);
+    const bNum = Number.parseInt(b?.nick_name ?? "", 10);
+    const aValid = Number.isFinite(aNum);
+    const bValid = Number.isFinite(bNum);
+    if (aValid && bValid) return aNum - bNum;
+    if (aValid) return -1;
+    if (bValid) return 1;
+    return String(a?.id ?? "").localeCompare(String(b?.id ?? ""));
+  });
+};
 
 export default function OrderConfirmPage() {
   const router = useRouter();
@@ -49,7 +63,7 @@ export default function OrderConfirmPage() {
         hasSetProducts,
         order_id: orderData.order_id,
       });
-      setOrderItems(itemsToDisplay);
+      setOrderItems(sortItemsByNickName(itemsToDisplay));
     };
 
     // 1) 스토어에 있으면 사용 (push 직전에 저장됨 → 타이밍 이슈 없음)
@@ -278,7 +292,17 @@ export default function OrderConfirmPage() {
 
                     return (
                       <div key={i} className="mb-3 border-b border-gray-200 pb-3">
-                        <p className="mb-2 font-600 text-gray-800">{item.detail_product_type}</p>
+                        <div className="mb-2 flex items-center gap-2 font-600 text-gray-800">
+                          {item.nick_name && (
+                            <Chip
+                              text={`${item.nick_name}`}
+                              color="gray"
+                              weight="weak"
+                              className="text-[12px]/[16px] px-[6px] py-[1px]"
+                            />
+                          )}
+                          <span>{item.detail_product_type}</span>
+                        </div>
                         <p className="text-gray-600">수량: {item.item_count}개</p>
                         <p className="text-gray-600">
                           단가: {unitPrice === 0 ? "별도 견적" : `${unitPrice.toLocaleString()}원`}

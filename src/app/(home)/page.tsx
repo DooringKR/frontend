@@ -33,8 +33,14 @@ export default function Page() {
   const cartItemCount = useCartItemStore(state => state.cartItems.length);
 
   // 커스텀 훅들
+
+  //bizClient 없을 때 훅에서 처리 로직 존재함.
   const deliveryInfo = useDeliveryInfo(bizClient);
+
+  //bizClient 있을 때 훅에서 처리 로직 존재함.
   useSessionCheck();
+
+
   useCartData(bizClient, deliveryInfo.checkDelivery);
 
   // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
@@ -50,13 +56,13 @@ export default function Page() {
   }, []);
 
   // 로그인되지 않은 경우 로딩 화면 표시
-  if (!bizClient) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-gray-500">로그인 확인 중...</div>
-      </div>
-    );
-  }
+  // if (!bizClient) {
+  //   return (
+  //     <div className="flex min-h-screen items-center justify-center">
+  //       <div className="text-gray-500">로그인 확인 중...</div>
+  //     </div>
+  //   );
+  // }
 
   const addressIndicatorProps = getAddressIndicatorProps(bizClient, deliveryInfo);
 
@@ -64,11 +70,11 @@ export default function Page() {
     <div className="flex min-h-screen flex-col bg-white pt-[60px]">
       {/* Amplitude 초기화 (클라이언트 전용) */}
       <InitAmplitude />
-      <TopNavigator page="/" cartItemCount={cartItemCount || 0} />
+      <TopNavigator page="/" cartItemCount={cartItemCount || 0} isLoggedIn={!!bizClient} />
       <HomeBanner />
 
       <main className="mb-[40px] mt-10 flex flex-grow flex-col gap-7">
-        <AddressIndicator {...addressIndicatorProps} />
+        {bizClient && <AddressIndicator {...addressIndicatorProps} />}
         <FrequentlyUsedProductsSection />
         {/* <div className="w-full h-5 bg-gray-100"></div> */}
         <HomeProductContainer />
@@ -90,7 +96,7 @@ export default function Page() {
       </main>
 
       <Footer />
-      <BottomNavigation />
+      {bizClient && <BottomNavigation />}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { FINISH_COLOR_LIST } from "@/constants/colorList";
+import { FINISH_COLOR_LIST } from "dooring-core-domain/dist/constants/color";
 import { FINISH_CATEGORY_LIST } from "@/constants/category";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";

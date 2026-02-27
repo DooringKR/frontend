@@ -1,6 +1,6 @@
 "use client";
 
-import { DOOR_COLOR_LIST } from "@/constants/colorList";
+import { LONG_DOOR_COLOR_LIST } from "dooring-core-domain/dist/constants/color";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
@@ -25,7 +25,7 @@ function ColorListPageContent() {
     const updateItem = useItemStore(state => state.updateItem);
     const [searchKeyword, setSearchKeyword] = useState("");
     const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-    const colorList = DOOR_COLOR_LIST;
+    const colorList = LONG_DOOR_COLOR_LIST;
     const filteredColors = colorList.filter(item => item.name.toLowerCase().includes(searchKeyword.toLowerCase()));
 
     return (

@@ -1,4 +1,4 @@
-import { CABINET_COLOR_LIST } from "@/constants/colorList";
+import { CABINET_COLOR_LIST } from "dooring-core-domain/dist/constants/color";
 import Image from "next/image";
 import React from "react";
 
@@ -34,7 +34,7 @@ const ColorSelectBottomButton: React.FC<ColorSelectBottomButtonProps> = ({
             <div className="text-[16px]/[22px] font-500 text-[#3B82F6]">
               {(() => {
                 const { label, description } = parseColorName(selectedColor);
-                return `${label} (${description}) 선택됨`;
+                return `${label}${description ? ` (${description})` : ""} 선택됨`;
               })()}
             </div>
           </div>

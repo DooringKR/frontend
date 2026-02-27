@@ -11,6 +11,7 @@ import PaymentNoticeCard from "@/components/PaymentNoticeCard";
 import { transformDoorToNewCardProps } from "@/utils/transformers/transformDoorToNewCardProps";
 
 import useItemStore from "@/store/itemStore";
+import useBizClientStore from "@/store/bizClientStore";
 import { calculateLongDoorUnitPriceWithOptions, LONG_DOOR_CONSTRUCT_PRICE } from "@/services/pricing/longDoorPricing";
 import { Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -26,7 +27,7 @@ import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_r
 import { Door } from "dooring-core-domain/dist/models/InteriorMaterials/Door";
 import { LongDoor } from "dooring-core-domain/dist/models/CompositeProducts/LongDoor";
 import { DoorType, HingeDirection, Location, CabinetHandleType, HingeThickness } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
-import { DOOR_COLOR_LIST } from "@/constants/colorList";
+import { LONG_DOOR_COLOR_LIST } from "dooring-core-domain/dist/constants/color";
 import { InteriorMaterialsSupabaseRepository } from "@/DDD/data/db/interior_materials_supabase_repository";
 import { CrudInteriorMaterialsUsecase } from "@/DDD/usecase/crud_interior_materials_usecase";
 import { SupabaseUploadImageUsecase } from "@/DDD/usecase/upload_image_usecase";
@@ -47,6 +48,7 @@ import {
 function LongDoorReportPageContent() {
     const router = useRouter();
     const { item } = useItemStore();
+    const bizClient = useBizClientStore(state => state.bizClient);
     const { cart, incrementCartCount } = useCartStore();
     const cartItems = useCartItemStore((state) => state.cartItems);
 
@@ -55,7 +57,7 @@ function LongDoorReportPageContent() {
 
     // color 문자열을 color.id로 변환하는 함수
     const getColorId = (colorName: string) => {
-        const colorItem = DOOR_COLOR_LIST.find(item => item.name === colorName);
+        const colorItem = LONG_DOOR_COLOR_LIST.find(item => item.name === colorName);
         return colorItem?.id;
     };
 
@@ -241,11 +243,26 @@ function LongDoorReportPageContent() {
             <div id="longdoor-add-to-cart-button">
                 <BottomButton
                     type={"1button"}
-                    button1Text={isLoading ? "처리 중..." : "장바구니 담기"}
+                    button1Text={
+                        !bizClient
+                            ? "로그인하고 장바구니 담기"
+                            : isLoading
+                                ? "처리 중..."
+                                : "장바구니 담기"
+                    }
                     className="fixed bottom-0 w-full max-w-[460px]"
-                    // button1Disabled={true}
-                    button1Disabled={isLoading}
+                    button1Disabled={!!bizClient && isLoading}
                     onButton1Click={async () => {
+                        if (!bizClient) {
+                            trackClick({
+                                object_type: "button",
+                                object_name: "login_from_longdoor_report",
+                                current_page: getScreenName(),
+                                modal_name: null,
+                            });
+                            router.push("/start");
+                            return;
+                        }
                         // 이미 로딩 중이면 중복 클릭 방지
                         if (isLoading) return;
 
@@ -328,12 +345,17 @@ function LongDoorReportPageContent() {
                             }
 
                             // CartItem은 LongDoor와 연결 (롱문 전체를 하나의 아이템으로)
+                            const maxNickName = cartItems.reduce((max, item) => {
+                                const num = parseInt(item.nick_name || "0");
+                                return num > max ? num : max;
+                            }, 0);
                             const cartItem = new CartItem({
                                 cart_id: cart!.id!,
                                 item_detail: createdLongDoor.id!, // LongDoor ID
                                 detail_product_type: DetailProductType.LONGDOOR,
                                 item_count: 1, // 롱문은 하나의 아이템
                                 unit_price: totalPriceWithConstruct, // 총 가격 (시공비 포함)
+                                nick_name: (maxNickName + 1).toString(),
                             });
 
                             const createdCartItem = await new CrudCartItemUsecase(

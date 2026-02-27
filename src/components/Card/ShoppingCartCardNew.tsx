@@ -5,6 +5,8 @@ import Image from "next/image";
 import { HingeDirection } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import DoorPreviewIcon from "../DoorPreviewIcon/DoorPreviewIcon";
 import QuantitySelector from "../QuantitySelector/QuantitySelector";
+import ToggleButton from "@/components/Button/ToggleButton";
+import { Chip } from "@/components/Chip/Chip";
 
 // ============================================================================
 // Type Definitions (Exported for use in transformers)
@@ -205,6 +207,7 @@ interface ShoppingCartCardNewProps {
   detailProductType: DetailProductType;
   details: ProductDetails;
   price?: number;
+  nickName?: string;
 
   // 수량 관리
   quantity: number;
@@ -437,88 +440,57 @@ const ShoppingCartCardNew: React.FC<ShoppingCartCardNewProps> = ({
   detailProductType,
   details,
   price,
+  nickName,
   quantity,
   trashable,
   onDecrease,
   onIncrease,
   onTrash,
 }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
   const renderDetails = detailRenderers[detailProductType];
 
-  return (
-    <div className="flex w-full flex-col gap-3 rounded-[16px] border-[1px] border-gray-200 bg-white p-[20px]">
-      {/* 상품 정보 */}
-      <div className="flex justify-between gap-[20px]">
-        <div className="flex flex-col gap-2">
-          <div className="text-[17px] font-600 text-gray-800">
+  // ============================================================================
+  // 기본 보기 (축약 상태)
+  // ============================================================================
+  const renderCompactView = () => (
+    <div className="flex w-full flex-col gap-3 rounded-[16px] border-[1px] border-gray-200 bg-white p-[20px] transition-all duration-300">
+      {/* 제목 및 토글 버튼 (오른쪽 정렬) */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-[17px] font-600 text-gray-800 flex-1">
+          {nickName && (
+            <Chip
+              text={`${nickName}`}
+              color="gray"
+              weight="weak"
+              className="text-[12px]/[16px] px-[6px] py-[1px]"
+            />
+          )}
+          <span className="truncate">
             {detailProductType === "일반문" && (details.data as DoorStandardDetails).is_pair_door
               ? "일반문 (양문 세트)"
               : detailProductType}
-          </div>
-          <div className="flex flex-col text-[15px] font-400 text-gray-500">
-            {renderDetails(details.data)}
-          </div>
+          </span>
         </div>
-        {/* 프리뷰는 경첩 개수와 방향을 모두 알 때만 표시 (입력 화면과 동일) */}
-        {/* TODO: 프리뷰 이미지 임시 주석 처리 
-        {hasPreviewIcon && 
-         detailProductType === "일반문" && 
-         (details.data as DoorStandardDetails).hingeCount &&
-         (details.data as DoorStandardDetails).hingeCount !== "모름" &&
-         (details.data as DoorStandardDetails).hingeDirection &&
-         (details.data as DoorStandardDetails).hingeDirection !== "모름" && (
-          <DoorPreviewIcon
-            DoorType="일반문"
-            FatOrTall={
-              (details.data as DoorStandardDetails).width >
-              (details.data as DoorStandardDetails).height
-                ? "Fat"
-                : "Tall"
-            }
-            BoringDirection={
-              (details.data as DoorStandardDetails).hingeDirection === "우경"
-                ? "right"
-                : "left"
-            }
-            BoringNum={
-              typeof (details.data as DoorStandardDetails).hingeCount === "number"
-                ? ((details.data as DoorStandardDetails).hingeCount as 2 | 3 | 4)
-                : 2
-            }
-          />
-        )}
-        {hasPreviewIcon && 
-         detailProductType === "플랩문" && 
-         (details.data as DoorFlapDetails).hingeCount &&
-         (details.data as DoorFlapDetails).hingeCount !== "모름" && (
-          <DoorPreviewIcon
-            DoorType="플랩문"
-            FatOrTall={
-              (details.data as DoorFlapDetails).width > (details.data as DoorFlapDetails).height
-                ? "Fat"
-                : "Tall"
-            }
-            BoringDirection="left"
-            BoringNum={
-              typeof (details.data as DoorFlapDetails).hingeCount === "number"
-                ? ((details.data as DoorFlapDetails).hingeCount as 2 | 3 | 4)
-                : 2
-            }
-          />
-        )}
-        */}
+        <ToggleButton
+          isExpanded={isExpanded}
+          onClick={() => setIsExpanded(true)}
+          compactLabel="자세히 보기"
+        />
       </div>
 
-      {/* 총 금액 */}
-      {hasPrice && price && (
-        <div className="flex items-end justify-end text-[20px]/[28px] font-600 text-gray-900">
-          {price.toLocaleString()}원{detailProductType !== "롱문" && <>&nbsp;<span className="text-gray-600">부터~</span></>}
+      {/* 가격 */}
+      {hasPrice && typeof price === "number" && price > 0 && (
+        <div className="flex justify-end text-[18px]/[26px] font-600 text-gray-900">
+          {price.toLocaleString()}
+          <span className="text-[13px] text-gray-500 font-400 ml-1">원</span>
+          {detailProductType !== "롱문" && <span className="text-[13px] text-gray-500 font-400 ml-1">부터~</span>}
         </div>
       )}
 
       {/* Stepper */}
       {hasStepper && (
-        <div className="ml-auto flex w-fit items-center gap-3">
+        <div className="flex items-center justify-end">
           <QuantitySelector
             quantity={quantity}
             onDecrease={onDecrease}
@@ -530,6 +502,68 @@ const ShoppingCartCardNew: React.FC<ShoppingCartCardNewProps> = ({
       )}
     </div>
   );
+
+  // ============================================================================
+  // 상세 보기 (전개 상태)
+  // ============================================================================
+  const renderExpandedView = () => (
+    <div className="flex w-full flex-col gap-3 rounded-[16px] border-[1px] border-gray-200 bg-white p-[20px] transition-all duration-300">
+      {/* 제목 및 토글 버튼 (오른쪽 정렬) */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-[17px] font-600 text-gray-800 flex-1">
+          {nickName && (
+            <Chip
+              text={`${nickName}`}
+              color="gray"
+              weight="weak"
+              className="text-[12px]/[16px] px-[6px] py-[1px]"
+            />
+          )}
+          <span>
+            {detailProductType === "일반문" && (details.data as DoorStandardDetails).is_pair_door
+              ? "일반문 (양문 세트)"
+              : detailProductType}
+          </span>
+        </div>
+        <ToggleButton
+          isExpanded={isExpanded}
+          onClick={() => setIsExpanded(false)}
+          expandedLabel="간단 보기"
+        />
+      </div>
+      
+      {/* 상세 정보 */}
+      <div className="flex flex-col text-[15px] font-400 text-gray-600 space-y-2">
+        {renderDetails(details.data)}
+      </div>
+
+      {/* 가격 및 수량 */}
+      <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+        <div>
+          {hasPrice && typeof price === "number" && price > 0 && (
+            <div className="text-[18px]/[26px] font-600 text-gray-900">
+              {price.toLocaleString()}
+              <span className="text-[13px] text-gray-500 font-400 ml-1">원</span>
+              {detailProductType !== "롱문" && <span className="text-[13px] text-gray-500 font-400 ml-1">부터~</span>}
+            </div>
+          )}
+        </div>
+
+        {/* Stepper */}
+        {hasStepper && (
+          <QuantitySelector
+            quantity={quantity}
+            onDecrease={onDecrease}
+            onIncrease={onIncrease}
+            trashable={trashable}
+            onTrash={onTrash}
+          />
+        )}
+      </div>
+    </div>
+  );
+
+  return isExpanded ? renderExpandedView() : renderCompactView();
 };
 
 export default ShoppingCartCardNew;

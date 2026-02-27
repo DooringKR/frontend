@@ -1,5 +1,5 @@
 // Simple color id->name lookup used by Edge Function
-// Keep in sync with src/constants/colorList.ts
+// Keep in sync with dooring-core-domain/dist/constants/color
 
 type ColorItem = { id: number; name: string };
 

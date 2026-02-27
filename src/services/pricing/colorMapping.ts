@@ -14,6 +14,14 @@ export function getPricingColorName(fullName: string): string {
     return "헤링본 미백색";
   }
 
+  if (fullName === "유리문") {
+    return "유리문";
+  }
+
+  if (fullName === "거울문") {
+    return "거울문";
+  }
+
   // 일반적인 색상명 처리
   const parts = fullName.split(", ");
   const colorName = parts[parts.length - 1];

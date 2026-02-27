@@ -11,6 +11,7 @@ import { transformAccessoryToNewCardProps } from "@/utils/transformers/transform
 
 import { ACCESSORY_CATEGORY_LIST } from "@/constants/category";
 import useItemStore from "@/store/itemStore";
+import useBizClientStore from "@/store/bizClientStore";
 import { Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -40,6 +41,7 @@ import {
 function ReportPageContent() {
     const router = useRouter();
     const { item } = useItemStore();
+    const bizClient = useBizClientStore(state => state.bizClient);
     const { cart, incrementCartCount } = useCartStore();
     const cartItems = useCartItemStore((state) => state.cartItems);
 
@@ -98,10 +100,26 @@ function ReportPageContent() {
             <div id="accessory-add-to-cart-button">
                 <BottomButton
                     type={"1button"}
-                    button1Text={isLoading ? "처리 중..." : "장바구니 담기"}
+                    button1Text={
+                        !bizClient
+                            ? "로그인하고 장바구니 담기"
+                            : isLoading
+                                ? "처리 중..."
+                                : "장바구니 담기"
+                    }
                     className="fixed bottom-0 w-full max-w-[460px]"
-                    button1Disabled={isLoading}
+                    button1Disabled={!!bizClient && isLoading}
                     onButton1Click={async () => {
+                        if (!bizClient) {
+                            trackClick({
+                                object_type: "button",
+                                object_name: "login_from_accessory_report",
+                                current_page: getScreenName(),
+                                modal_name: null,
+                            });
+                            router.push("/start");
+                            return;
+                        }
                         // 이미 로딩 중이면 중복 클릭 방지
                         if (isLoading) return;
 
@@ -128,12 +146,17 @@ function ReportPageContent() {
 
                             const detailProductType = DetailProductType.ACCESSORY;
 
+                            const maxNickName = cartItems.reduce((max, item) => {
+                                const num = parseInt(item.nick_name || "0");
+                                return num > max ? num : max;
+                            }, 0);
                             const cartItem = new CartItem({
                                 cart_id: cart!.id!,
                                 item_detail: createdAccessory.id!,
                                 detail_product_type: detailProductType,
                                 item_count: quantity,
                                 unit_price: unitPrice,
+                                nick_name: (maxNickName + 1).toString(),
                             });
 
                             const createdCartItem = await new CrudCartItemUsecase(
