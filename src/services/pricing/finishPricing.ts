@@ -15,9 +15,16 @@ export function calculateUnitFinishPrice(
   additionalHeight: number,
   finishType: FinishType,
 ) {
-  const originalPrice = calculateOriginalPrice(color);
   const totalDepth = baseDepth + additionalDepth;
   const totalHeight = baseHeight + additionalHeight;
+
+  // 걸레받이: 가로길이(mm) 기준 고정 단가 — 1000 이하 5만원, 초과 9만원
+  if (finishType === FinishType.GALLE) {
+    const horizontalLength = Math.max(totalDepth, totalHeight);
+    return horizontalLength <= 1000 ? 50000 : 90000;
+  }
+
+  const originalPrice = calculateOriginalPrice(color);
   const split = calculateSplit(totalDepth, totalHeight, finishType);
 
   // 최종 견적 = (original_price / split ) * { 1 + ( margin + 0.1 ) }
