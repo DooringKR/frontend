@@ -135,6 +135,7 @@ export function transformDoorToNewCardProps(item: DoorItem) {
       addOnHinge: item.addOn_hinge,
       hingeThickness: item.addOn_hinge && item.hinge_thickness ? item.hinge_thickness : undefined,
       request: item.door_request,
+      images: item.raw_images,
       is_pair_door: false, // 롱문은 항상 단문
     };
     return {
@@ -155,6 +156,7 @@ export function transformDoorToNewCardProps(item: DoorItem) {
       addOnHinge: item.addOn_hinge,
       hingeThickness: item.addOn_hinge && item.hinge_thickness ? item.hinge_thickness : undefined,
       request: item.door_request,
+      images: item.raw_images,
       is_pair_door: item.is_pair_door,
     };
     return {
@@ -174,6 +176,7 @@ export function transformDoorToNewCardProps(item: DoorItem) {
       addOnHinge: item.addOn_hinge,
       hingeThickness: item.addOn_hinge && item.hinge_thickness ? item.hinge_thickness : undefined,
       request: item.door_request,
+      images: item.raw_images,
     };
     return {
       ...commonProps,
@@ -189,6 +192,7 @@ export function transformDoorToNewCardProps(item: DoorItem) {
       location: item.door_location,
       doorConstruct: item.door_construct,
       request: item.door_request,
+      images: item.raw_images,
     };
     return {
       ...commonProps,

@@ -7,10 +7,11 @@ import ProgressBar from "@/components/Progress";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
-import { FINISH_COLOR_LIST } from "@/constants/colorList";
+import { FINISH_COLOR_LIST } from "dooring-core-domain/dist/constants/color";
 import { InteriorMaterialsSupabaseRepository } from "@/DDD/data/db/interior_materials_supabase_repository";
 import { FINISH_CATEGORY_LIST } from "@/constants/category";
 import useItemStore from "@/store/itemStore";
+import useBizClientStore from "@/store/bizClientStore";
 import { calculateUnitFinishPrice } from "@/services/pricing/finishPricing";
 import { Finish } from "dooring-core-domain/dist/models/InteriorMaterials/Finish";
 import { Suspense, useEffect, useState } from "react";
@@ -46,6 +47,7 @@ import {
 function ReportPageContent() {
     const router = useRouter();
     const { item } = useItemStore();
+    const bizClient = useBizClientStore(state => state.bizClient);
     const { cart, incrementCartCount } = useCartStore();
     const cartItems = useCartItemStore((state) => state.cartItems);
 
@@ -114,10 +116,26 @@ function ReportPageContent() {
             <div id="finish-add-to-cart-button">
                 <BottomButton
                     type={"1button"}
-                    button1Text={isLoading ? "처리 중..." : "장바구니 담기"}
+                    button1Text={
+                        !bizClient
+                            ? "로그인하고 장바구니 담기"
+                            : isLoading
+                                ? "처리 중..."
+                                : "장바구니 담기"
+                    }
                     className="fixed bottom-0 w-full max-w-[460px]"
-                    button1Disabled={isLoading}
+                    button1Disabled={!!bizClient && isLoading}
                     onButton1Click={async () => {
+                        if (!bizClient) {
+                            trackClick({
+                                object_type: "button",
+                                object_name: "login_from_finish_report",
+                                current_page: getScreenName(),
+                                modal_name: null,
+                            });
+                            router.push("/start");
+                            return;
+                        }
                         // 이미 로딩 중이면 중복 클릭 방지
                         if (isLoading) return;
 
@@ -168,12 +186,17 @@ function ReportPageContent() {
                                 item.id
                             );
 
+                            const maxNickName = cartItems.reduce((max, item) => {
+                                const num = parseInt(item.nick_name || "0");
+                                return num > max ? num : max;
+                            }, 0);
                             const cartItem = new CartItem({
                                 cart_id: cart!.id!, // 
                                 item_detail: createdFinish.id!, // interior_material_id (Finish 객체의 id 프로퍼티가 private이므로, 인덱싱으로 접근)
                                 detail_product_type: detailProductType, // quantity
                                 item_count: quantity, // quantity
                                 unit_price: unitPrice, // unit_price (필요하다면 값 할당)
+                                nick_name: (maxNickName + 1).toString(),
                             });
                             const createdCartItem = await new CrudCartItemUsecase(
                                 new CartItemSupabaseRepository()

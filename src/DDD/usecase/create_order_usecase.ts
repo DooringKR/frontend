@@ -109,6 +109,7 @@ export class CreateOrderUsecase {
                 item_count: cartItem.item_count,
                 detail_product_type: cartItem.detail_product_type,
                 item_detail: cartItem.item_detail,
+                nick_name: cartItem.nick_name,
             });
             const response = await this.orderItemRepository.createOrderItem(orderItemData as OrderItem);
 

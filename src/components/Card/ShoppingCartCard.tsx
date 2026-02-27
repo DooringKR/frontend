@@ -3,7 +3,7 @@
 
 import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
 import { CABINET_DRAWER_TYPE_LIST } from "@/constants/cabinetdrawertype";
-import { DOOR_COLOR_LIST, FINISH_COLOR_LIST, CABINET_COLOR_LIST } from "@/constants/colorList";
+import { DOOR_COLOR_LIST, FINISH_COLOR_LIST, CABINET_COLOR_LIST } from "dooring-core-domain/dist/constants/color";
 import React, { useState } from "react";
 import { ABSORBER_TYPE_LIST } from "@/constants/absorbertype";
 import Image from "next/image";

@@ -5,7 +5,10 @@ export default function formatColor(color: string | null | undefined) {
     // [자재, 브랜드, 두께, 색상] 순서라고 가정
     const label = [parts[1], parts[3]].filter(Boolean).join(" ");
     const description = [parts[0], parts[2]].filter(Boolean).join(" ");
-    return `${label} (${description})`;
+    if (label && description) return `${label} (${description})`;
+    if (label) return label;
+    if (description) return description;
+    return color;
   }
   return color;
 }

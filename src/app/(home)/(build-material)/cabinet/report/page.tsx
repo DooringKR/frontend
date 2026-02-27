@@ -8,12 +8,13 @@ import ProgressBar from "@/components/Progress";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
-import { CABINET_COLOR_LIST, OPEN_CABINET_BODY_MATERIAL_LIST } from "@/constants/colorList";
+import { CABINET_COLOR_LIST, OPEN_CABINET_BODY_MATERIAL_LIST } from "dooring-core-domain/dist/constants/color";
 import { ABSORBER_TYPE_LIST } from "@/constants/absorbertype";
 import { BODY_MATERIAL_LIST } from "@/constants/bodymaterial";
 import { InteriorMaterialsSupabaseRepository } from "@/DDD/data/db/interior_materials_supabase_repository";
 import { CABINET_CATEGORY_LIST } from "@/constants/category";
 import useItemStore from "@/store/itemStore";
+import useBizClientStore from "@/store/bizClientStore";
 import { calculateUnitCabinetPrice } from "@/services/pricing/cabinetPricing";
 import { Cabinet, UpperCabinet, LowerCabinet, TallCabinet, OpenCabinet, FlapCabinet, DrawerCabinet } from "dooring-core-domain/dist/models/InteriorMaterials/Cabinet";
 import { CabinetLegType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
@@ -255,6 +256,7 @@ function createCabinetInstance(item: any, cabinetImageUrls: string[] = []) {
 function ReportPageContent() {
 	const router = useRouter();
 	const { item } = useItemStore();
+	const bizClient = useBizClientStore(state => state.bizClient);
 	const { cart, incrementCartCount } = useCartStore();
 	const cartItems = useCartItemStore((state) => state.cartItems);
 	const [quantity, setQuantity] = useState(1);
@@ -357,10 +359,26 @@ function ReportPageContent() {
 			<div id="cabinet-add-to-cart-button">
 				<BottomButton
 					type={"1button"}
-					button1Text={isLoading ? "처리 중..." : "장바구니 담기"}
+					button1Text={
+						!bizClient
+							? "로그인하고 장바구니 담기"
+							: isLoading
+								? "처리 중..."
+								: "장바구니 담기"
+					}
 					className="fixed bottom-0 w-full max-w-[460px]"
-					button1Disabled={isLoading}
+					button1Disabled={!!bizClient && isLoading}
 					onButton1Click={async () => {
+						if (!bizClient) {
+							trackClick({
+								object_type: "button",
+								object_name: "login_from_cabinet_report",
+								current_page: getScreenName(),
+								modal_name: null,
+							});
+							router.push("/start");
+							return;
+						}
 						// 이미 로딩 중이면 중복 클릭 방지
 						if (isLoading) return;
 
@@ -455,12 +473,17 @@ function ReportPageContent() {
 								throw new Error("Cabinet creation failed or missing ID.");
 							}
 
+							const maxNickName = cartItems.reduce((max, item) => {
+								const num = parseInt(item.nick_name || "0");
+								return num > max ? num : max;
+							}, 0);
 							const cartItem = new CartItem({
 								cart_id: cart!.id!,
 								item_detail: createdCabinet.id,
 								detail_product_type: detailProductType,
 								item_count: quantity,
 								unit_price: unitPrice,
+								nick_name: (maxNickName + 1).toString(),
 							});
 							await new CrudCartItemUsecase(
 								new CartItemSupabaseRepository()
