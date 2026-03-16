@@ -73,7 +73,7 @@ export class KakaoSignupUsecase {
                 id: userInfo.data.user.id,
                 created_at: new Date(),
                 business_type: userType,
-                nick_name: userInfo.data.user.user_metadata?.nickname || "test",
+                nick_name: userInfo.data.user.user_metadata?.name || userInfo.data.user.user_metadata?.full_name || "test",
                 phone_number: phoneNumber,
             });
             console.log('BizClient:', bizClient);
