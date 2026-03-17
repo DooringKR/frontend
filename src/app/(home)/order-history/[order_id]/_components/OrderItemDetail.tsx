@@ -161,7 +161,7 @@ export default function OrderItemDetail({ item }: OrderItemDetailProps) {
                 용도 ∙ 장소: {formatLocation(item.materialDetails.door_location)}
               </p>
             )}
-            {(item.materialDetails.addOn_hinge !== undefined || item.materialDetails.door_construct !== undefined) && (() => {
+            {item.materialDetails.addOn_hinge !== undefined && (() => {
               const options: string[] = [];
               if (item.materialDetails.addOn_hinge) {
                 const hingeText = item.materialDetails.hinge_thickness
@@ -169,7 +169,6 @@ export default function OrderItemDetail({ item }: OrderItemDetailProps) {
                   : "경첩도 같이 받을래요";
                 options.push(hingeText);
               }
-              if (item.materialDetails.door_construct) options.push("시공도 필요해요");
               const displayValue = options.length > 0 ? options.join(", ") : "없음";
               return (
                 <p className="text-[15px]/[22px] font-400 text-gray-600">
@@ -638,7 +637,7 @@ export default function OrderItemDetail({ item }: OrderItemDetailProps) {
                 손잡이 상세 : {handleTypeDirectInput}
               </p>
             )}
-            {(md?.addOn_hinge !== undefined || md?.door_construct !== undefined) && (() => {
+            {md?.addOn_hinge !== undefined && (() => {
               const options: string[] = [];
               if (md?.addOn_hinge) {
                 const hingeText = md?.hinge_thickness
@@ -646,7 +645,6 @@ export default function OrderItemDetail({ item }: OrderItemDetailProps) {
                   : "경첩도 같이 받을래요";
                 options.push(hingeText);
               }
-              if (md?.door_construct) options.push("시공도 필요해요");
               const displayValue = options.length > 0 ? options.join(", ") : "없음";
               return (
                 <p className="text-[15px]/[22px] font-400 text-gray-600">

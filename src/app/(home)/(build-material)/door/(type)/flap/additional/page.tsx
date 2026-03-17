@@ -40,12 +40,10 @@ function FlapDoorAdditionalPageContent() {
 
     const [door_request, setDoorRequest] = useState(item?.door_request ?? "");
     const [addOn_hinge, setAddOn_hinge] = useState(item?.addOn_hinge ?? false);
-    const [door_construct, setDoorConstruct] = useState(item?.door_construct ?? false);
     const [images, setImages] = useState<File[]>(item?.raw_images || []);
     
     // 체크박스 선택을 위한 상태 (기존 상태와 동기화)
     const [hingeChecked, setHingeChecked] = useState(addOn_hinge);
-    const [constructChecked, setConstructChecked] = useState(door_construct);
     
     // 몸통 두께 선택을 위한 상태 (단일 선택)
     const [selectedThickness, setSelectedThickness] = useState<HingeThickness | null>(null);
@@ -71,11 +69,9 @@ function FlapDoorAdditionalPageContent() {
         updateItem({ addOn_hinge: newAddOnHinge });
     };
 
-    const handleDoorConstructChange = (newDoorConstruct: boolean) => {
-        setDoorConstruct(newDoorConstruct);
-        setConstructChecked(newDoorConstruct);
-        updateItem({ door_construct: newDoorConstruct });
-    };
+    useEffect(() => {
+        updateItem({ door_construct: false });
+    }, [updateItem]);
 
     const handleThicknessChange = (thickness: HingeThickness) => {
         const newValue = selectedThickness === thickness ? null : thickness;
@@ -171,21 +167,8 @@ function FlapDoorAdditionalPageContent() {
                             }
                             checked={hingeChecked}
                             onChange={handleAddOnHingeChange}
-                            className="mb-4"
                         />
                     
-                    <div className="self-stretch h-px bg-gray-100" />
-
-                    <SelectableOptionCard
-                        title="시공도 필요해요"
-                        description="세부 내용은 상담으로 안내해드려요."
-                        showImage={true}
-                        imageUrl="/img/door_construction.png"
-                        showChip={false}
-                        showExpandableContent={false}
-                        checked={constructChecked}
-                        onChange={handleDoorConstructChange}
-                    />
                 </div>
 
                 <ImageUploadInput

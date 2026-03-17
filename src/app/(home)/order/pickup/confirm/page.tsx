@@ -14,6 +14,7 @@ import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 import PickUpAddressCard from "./_components/PickUpAddressCard";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
+import { formatOrderConstructFeeAmount } from "@/app/(home)/order/_utils/orderConstructPricing";
 import { trackView } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
 import { useOrderStore } from "@/store/orderStore";
@@ -32,6 +33,10 @@ const sortItemsByNickName = (items: any[]) => {
 };
 
 export default function OrderConfirmPage() {
+  const getOrderConstructFeeAmount = (orderData: any) => {
+    return formatOrderConstructFeeAmount(orderData?.order_construct, Boolean(orderData?.is_date_free));
+  };
+
   const router = useRouter();
   const [recentOrder, setRecentOrder] = useState<any>(null);
   const [orderItems, setOrderItems] = useState<any[]>([]);
@@ -318,11 +323,21 @@ export default function OrderConfirmPage() {
                 <div className="mb-2 mt-3 border-b border-gray-200 pb-3 text-gray-500">
                   <p className="mb-1 text-[17px] font-600 text-gray-800">픽업 정보</p>
                   <p>
-                    픽업 날짜:{" "}
-                    {recentOrder?.pickup_time
-                      ? formatDate(recentOrder?.pickup_time.toString(), true)
-                      : "날짜 정보 없음"}
+                    {recentOrder?.is_date_free ? "일반 픽업" : "예약 픽업"}
                   </p>
+                  <p>
+                    {recentOrder?.is_date_free
+                      ? "가장 빠른 일정으로 준비해드려요"
+                      : `픽업 날짜: ${recentOrder?.pickup_time
+                        ? formatDate(recentOrder?.pickup_time.toString(), true)
+                        : "날짜 정보 없음"}`}
+                  </p>
+                </div>
+
+                <div className="my-4 border-b border-gray-200 pb-3 text-gray-500">
+                  <p className="mb-1 text-[17px] font-600 text-gray-800">시공 정보</p>
+                  <p>{recentOrder?.order_construct ? "시공 필요" : "시공 불필요"}</p>
+                  {recentOrder?.order_construct && <p>시공비: {getOrderConstructFeeAmount(recentOrder)}</p>}
                 </div>
 
                 <div className="my-4 border-b border-gray-200 pb-3 text-gray-500">

@@ -17,28 +17,33 @@ export default function CustomDateDeliveryOption({
 }: CustomDateDeliveryOptionProps) {
     const order = useOrderStore(state => state.order);
     const updateOrder = useOrderStore(state => state.updateOrder);
+    const isReservedDelivery = order?.is_today_delivery === false && (order as any)?.is_date_free === false;
 
     const handleClick = () => {
-        updateOrder({ is_today_delivery: false, delivery_arrival_time: new Date(Date.now() + 24 * 60 * 60 * 1000) });
+        updateOrder({
+            is_today_delivery: false,
+            is_date_free: false,
+            delivery_arrival_time: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        } as any);
     };
 
     // OrderProcessCard용 텍스트 계산
     const getTrailingText = () => {
-        return order?.is_today_delivery === false ? "" : "날짜 선택";
+        return isReservedDelivery ? "" : "날짜 선택";
     };
 
     const getDescriptionLine1 = () => {
-        if (order?.is_today_delivery === false) {
+        if (isReservedDelivery) {
             return order?.delivery_arrival_time
-                ? `${formatSelectedDate(order.delivery_arrival_time)} 원하는 시간 도착`
-                : "날짜를 선택해주세요 원하는 시간 도착";
+                ? `${formatSelectedDate(order.delivery_arrival_time)} 예약 시간 도착`
+                : "날짜를 선택해주세요 예약 시간 도착";
         }
-        return "원하는 날짜와 시간에 배송돼요.";
+        return "원하는 날짜와 시간에 예약 배송돼요.";
     };
 
     const getState = () => {
         if (isLoading) return 'disabled';
-        if (order?.is_today_delivery === false) {
+        if (isReservedDelivery) {
             // 원하는 날짜 선택했지만 시간이 없고 검증 시도한 경우
             if (!order?.delivery_arrival_time && hasValidationFailed) return 'errored';
             return 'activated';
@@ -87,15 +92,15 @@ export default function CustomDateDeliveryOption({
 
         {/* OrderProcessCard 구현 */}
         <OrderProcessCard
-            title="원하는 날짜 배송"
+            title="예약 배송"
             descriptionLine1={getDescriptionLine1()}
             trailing="primary"
             trailingText={getTrailingText()}
             showLeadingIcon={false}
             showSamedaydeliverySticker={false}
             showDescriptionLine2={false}
-            showTrailing={order?.is_today_delivery !== false}
-            showBottom={order?.is_today_delivery === false}
+            showTrailing={!isReservedDelivery}
+            showBottom={isReservedDelivery}
             state={getState()}
             onClick={handleClick}
             className="mt-3"

@@ -48,8 +48,6 @@ function OpenCabinetPageContent() {
     const [behindType, setBehindType] = useState<CabinetBehindType | "">(
         item && Object.values(CabinetBehindType).includes(item.behindType) ? item.behindType : cabinetBehindTypeDefault
     );
-	// 시공 필요 여부
-	const [cabinet_construct, setCabinetConstruct] = useState(item?.cabinet_construct ?? false);
 	const [request, setRequest] = useState(item?.request ?? "");
 	const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
 	const [images, setImages] = useState<File[]>(item?.raw_images || []);
@@ -83,7 +81,7 @@ function OpenCabinetPageContent() {
 	React.useEffect(() => { updateItem({ riceRail }); }, [riceRail]);
 	React.useEffect(() => { updateItem({ lowerDrawer }); }, [lowerDrawer]);
 	React.useEffect(() => { updateItem({ behindType }); }, [behindType]);
-	React.useEffect(() => { updateItem({ cabinet_construct }); }, [cabinet_construct]);
+	React.useEffect(() => { updateItem({ cabinet_construct: false }); }, [updateItem]);
 	React.useEffect(() => { updateItem({ request }); }, [request]);
 	// React.useEffect(() => { updateItem({ legType }); }, [legType]);
 	// React.useEffect(() => { updateItem({ legType_direct_input: legTypeDirectInput }); }, [legTypeDirectInput]);
@@ -99,8 +97,7 @@ function OpenCabinetPageContent() {
 		// (bodyMaterial === null && !bodyMaterialDirectInput) ||
 		!riceRail ||
 		!lowerDrawer ||
-		!behindType ||
-		(cabinet_construct === null);
+		!behindType;
 	// (legType === null && !legTypeDirectInput);
 
 	const selectedMaterial = bodyMaterial !== null ? BODY_MATERIAL_LIST.find(option => option.id === bodyMaterial) : null;
@@ -237,23 +234,6 @@ function OpenCabinetPageContent() {
                         ))}
                     </div>
                 </div>
-				{/* 시공 필요 여부 */}
-				<div className="flex flex-col gap-2">
-					<div className="w-full text-[14px] font-400 text-gray-600">시공 필요 여부</div>
-					<div className="flex flex-row gap-2">
-						<Button
-							type={cabinet_construct ? "BrandInverse" : "GrayLarge"}
-							text={"시공도 필요해요"}
-							onClick={() => setCabinetConstruct(true)}
-						/>
-						<Button
-							type={!cabinet_construct ? "BrandInverse" : "GrayLarge"}
-							text={"필요 없어요"}
-							onClick={() => setCabinetConstruct(false)}
-						/>
-					</div>
-				</div>
-				
 				{/* 요청사항 */}
 				<BoxedInput
 					label="제작 시 요청사항"

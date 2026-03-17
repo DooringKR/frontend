@@ -40,7 +40,6 @@ function StandardDoorAdditionalPageContent() {
 
     const [door_request, setDoorRequest] = useState(item?.door_request ?? "");
     const [addOn_hinge, setAddOn_hinge] = useState(item?.addOn_hinge ?? false);
-    const [door_construct, setDoorConstruct] = useState(item?.door_construct ?? false);
     const [images, setImages] = useState<File[]>(item?.raw_images || []);
     
     // 몸통 두께 선택을 위한 상태 (단일 선택)
@@ -72,10 +71,9 @@ function StandardDoorAdditionalPageContent() {
         }
     };
 
-    const handleDoorConstructChange = (newDoorConstruct: boolean) => {
-        setDoorConstruct(newDoorConstruct);
-        updateItem({ door_construct: newDoorConstruct });
-    };
+    useEffect(() => {
+        updateItem({ door_construct: false });
+    }, [updateItem]);
 
     const handleThicknessChange = (thickness: HingeThickness) => {
         const newValue = selectedThickness === thickness ? null : thickness;
@@ -171,31 +169,9 @@ function StandardDoorAdditionalPageContent() {
                         }
                         checked={addOn_hinge}
                         onChange={handleAddOnHingeChange}
-                        className="mb-4"
                         />
                     
                     
-                    <div className="self-stretch h-px bg-gray-100" />
-
-                    <SelectableOptionCard
-                        title="시공도 필요해요"
-                        description="세부 내용은 상담으로 안내해드려요."
-                        showImage={true}
-                        imageUrl="/img/door_construction.png"
-                        showChip={false}
-                        showExpandableContent={false}
-                        checked={door_construct}
-                        onChange={handleDoorConstructChange}
-                    />
-                </div>
-
-                <div className="w-full pt-2 inline-flex flex-col justify-start items-center gap-2.5">
-                    <div className="w-full px-4 py-3 bg-gray-50 rounded-2xl inline-flex justify-center items-center gap-2">
-                        <div className="flex-1 inline-flex flex-col justify-start items-start">
-                            <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">구체적인 시공 내용은 상담으로 안내해드려요</div>
-                            <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">믿을 수 있는 전문 시공팀과 함께해보세요.</div>
-                        </div>
-                    </div>
                 </div>
 
                 <ImageUploadInput

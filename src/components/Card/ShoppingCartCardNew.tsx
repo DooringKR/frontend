@@ -249,7 +249,7 @@ function renderDoorStandardDetails(data: DoorStandardDetails) {
         <DetailRow label="보링 치수" value={data.boringDimensions.join(", ")} />
       )}
       {data.location && <DetailRow label="용도 ∙ 장소" value={data.location} />}
-      {(data.addOnHinge !== undefined || data.doorConstruct !== undefined) && (() => {
+      {data.addOnHinge !== undefined && (() => {
         const options: string[] = [];
         if (data.addOnHinge) {
           const hingeText = data.hingeThickness
@@ -257,7 +257,6 @@ function renderDoorStandardDetails(data: DoorStandardDetails) {
             : "경첩도 같이 받을래요";
           options.push(hingeText);
         }
-        if (data.doorConstruct) options.push("시공도 필요해요");
         return <DetailRow label="추가 선택" value={options.length > 0 ? options.join(", ") : "없음"} />;
       })()}
       {data.request && <DetailRow label="제작 시 요청 사항" value={data.request} />}
@@ -281,7 +280,7 @@ function renderDoorFlapDetails(data: DoorFlapDetails) {
         <DetailRow label="보링 치수" value={data.boringDimensions.join(", ")} />
       )}
       {data.location && <DetailRow label="용도 ∙ 장소" value={data.location} />}
-      {(data.addOnHinge !== undefined || data.doorConstruct !== undefined) && (() => {
+      {data.addOnHinge !== undefined && (() => {
         const options: string[] = [];
         if (data.addOnHinge) {
           const hingeText = data.hingeThickness
@@ -289,7 +288,6 @@ function renderDoorFlapDetails(data: DoorFlapDetails) {
             : "경첩도 같이 받을래요";
           options.push(hingeText);
         }
-        if (data.doorConstruct) options.push("시공도 필요해요");
         return <DetailRow label="추가 선택" value={options.length > 0 ? options.join(", ") : "없음"} />;
       })()}
       {data.request && <DetailRow label="제작 시 요청 사항" value={data.request} />}
@@ -304,11 +302,6 @@ function renderDoorDrawerDetails(data: DoorDrawerDetails) {
       <DetailRow label="너비" value={`${data.width}mm`} />
       <DetailRow label="높이" value={`${data.height}mm`} />
       {data.location && <DetailRow label="용도 ∙ 장소" value={data.location} />}
-      {data.doorConstruct !== undefined && (() => {
-        const options: string[] = [];
-        if (data.doorConstruct) options.push("시공도 필요해요");
-        return <DetailRow label="추가 선택" value={options.length > 0 ? options.join(", ") : "없음"} />;
-      })()}
       {data.request && <DetailRow label="제작 시 요청 사항" value={data.request} />}
     </>
   );
@@ -365,12 +358,6 @@ function renderCabinetDetails(data: CabinetBaseDetails & Partial<CabinetLowerDet
       )}
       {data.behindType && <DetailRow label="마감 방식" value={data.behindType} />}
       {data.location && <DetailRow label="용도 ∙ 장소" value={data.location} />}
-      {data.cabinetConstruct !== undefined && (
-        <DetailRow
-          label="시공 필요 여부"
-          value={data.cabinetConstruct ? "시공도 필요해요" : "필요 없어요"}
-        />
-      )}
       {data.legType && <DetailRow label="다리발" value={data.legType} />}
       {data.request && <DetailRow label="제작 시 요청 사항" value={data.request} />}
     </>

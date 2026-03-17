@@ -9,7 +9,6 @@ import ProgressBar from "@/components/Progress";
 import BoxedInput from "@/components/Input/BoxedInput";
 import ImageUploadInput from "@/components/Input/ImageUploadInput";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
-import Checkbox from "@/components/Checkbox";
 
 import useItemStore from "@/store/itemStore";
 
@@ -36,7 +35,6 @@ function DrawerDoorAdditionalPageContent() {
     }, []);
 
     const [door_request, setDoorRequest] = useState(item?.door_request ?? "");
-    const [door_construct, setDoorConstruct] = useState(item?.door_construct ?? false);
     const [images, setImages] = useState<File[]>(item?.raw_images || []);
 
     const handleRequestChange = (newRequest: string) => {
@@ -50,10 +48,9 @@ function DrawerDoorAdditionalPageContent() {
         console.log('이미지 업로드됨:', newImages.length, '개');
     };
 
-    const handleDoorConstructChange = (newDoorConstruct: boolean) => {
-        setDoorConstruct(newDoorConstruct);
-        updateItem({ door_construct: newDoorConstruct });
-    };
+    useEffect(() => {
+        updateItem({ door_construct: false });
+    }, [updateItem]);
 
     return (
         <div className="flex min-h-screen flex-col pt-[90px]">
@@ -74,14 +71,6 @@ function DrawerDoorAdditionalPageContent() {
                 />
 
                 <div className="w-full text-[14px] font-400 text-gray-600"> 추가선택</div>
-
-                <div className="flex justify-start items-center gap-2">
-                    <Checkbox 
-                        checked={door_construct} 
-                        onChange={handleDoorConstructChange}
-                    />
-                    <div className="text-center justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-6">시공도 필요해요</div>
-                </div>
                 
                 <ImageUploadInput
                     label="이미지 첨부"

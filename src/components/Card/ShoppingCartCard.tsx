@@ -283,9 +283,6 @@ const ShoppingCartCard: React.FC<ShoppingCartCardProps> = ({
             {addOn_hinge !== undefined && addOn_hinge !== null && (
               <div>경첩 추가 선택 : {addOn_hinge ? "경첩도 받기" : "필요 없어요"}</div>
             )}
-            {typeof cabinet_construct !== "undefined" && cabinet_construct !== null && (
-              <div>시공 필요 여부 : {cabinet_construct ? "시공도 필요해요" : "필요 없어요"}</div>
-            )}
             {typeof legTypeLabel !== "undefined" && legTypeLabel !== null && legTypeLabel !== "" && (
               <div>다리발 : {legTypeLabel}</div>
             )}

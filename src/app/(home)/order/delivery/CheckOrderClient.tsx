@@ -41,6 +41,8 @@ import {
 } from "@/utils/getCartProductTypes";
 import { sortProductTypes, sortDetailProductTypes } from "@/utils/formatCartProductTypes";
 import OrderProcessCard from "@/components/OrderProcessCard";
+import OrderConstructSelector from "../_components/OrderConstructSelector";
+import { getOrderConstructFee, ORDER_CONSTRUCT_GENERAL_FEE, ORDER_CONSTRUCT_RESERVED_FEE } from "../_utils/orderConstructPricing";
 
 const CATEGORY_MAP: Record<string, string> = {
   door: "문짝",
@@ -81,6 +83,16 @@ function CheckOrderClientPage() {
     return getTotalPrice();
   };
 
+  const is_date_free = Boolean((order as any)?.is_date_free);
+  const orderConstructFee = getOrderConstructFee(order?.order_construct, is_date_free);
+
+  const getOrderConstructFeeLabel = () => {
+    if (!order?.order_construct) return "";
+    return is_date_free
+      ? `일반 시공 추가비 (+${ORDER_CONSTRUCT_GENERAL_FEE.toLocaleString()}원)`
+      : `예약 시공 추가비 (+${ORDER_CONSTRUCT_RESERVED_FEE.toLocaleString()}원)`;
+  };
+
   // 화면 진입 시 초기 DeliveryOrder 구성
   useEffect(() => {
     const fetchDeliveryInfo = async () => {
@@ -94,8 +106,8 @@ function CheckOrderClientPage() {
         order_price: totalPrice,
         road_address: useOrderStore.getState().order?.road_address || user?.road_address || "",
         detail_address: useOrderStore.getState().order?.detail_address || user.detail_address,
-        // 오늘 배송이 아닌 원하는 날짜 배송인 경우를 기본값으로 설정
-        is_today_delivery: useOrderStore.getState().order?.is_today_delivery || false,
+        is_today_delivery: useOrderStore.getState().order?.is_today_delivery ?? false,
+        is_date_free: useOrderStore.getState().order?.is_date_free ?? false,
         // 오늘 배송이 아니면 '내일 자정'이 기본값,
         //2025-10-01T15:00:00.000Z 이런 형식으로 저장되어 있음, z는 UTC(+0) 시간임, 저장은 이렇게 해두고 보여줄 때만 한국시간으로 변환
         delivery_arrival_time:
@@ -106,6 +118,7 @@ function CheckOrderClientPage() {
             tomorrow.setHours(0, 0, 0, 0);
             return tomorrow;
           })(),
+        order_construct: useOrderStore.getState().order?.order_construct ?? false,
       };
 
       // setOrder 대신 updateOrder 사용 (Order는 초기화되면 안되기 때문)
@@ -156,7 +169,7 @@ function CheckOrderClientPage() {
     }
 
     // 배송 일정 검증
-    if (order?.is_today_delivery === false && !order?.delivery_arrival_time) {
+    if (order?.is_today_delivery === false && (order as any)?.is_date_free === false && !order?.delivery_arrival_time) {
       setHasValidationFailed(true);
       const scheduleElement = document.querySelector('[data-component="delivery-schedule"]');
       if (scheduleElement) {
@@ -182,7 +195,11 @@ function CheckOrderClientPage() {
       );
       console.log("[OrderSubmit] Export usecase injected");
 
-      const response = await createOrderUsecase.execute(order!, cart!.id!);
+      const orderPayload = {
+        ...order,
+        order_price: getExpectedOrderPrice() + orderConstructFee,
+      };
+      const response = await createOrderUsecase.execute(orderPayload as DeliveryOrder, cart!.id!);
 
       if (!response.success) {
         alert(response.message);
@@ -229,7 +246,7 @@ function CheckOrderClientPage() {
         const shippingYear = deliveryTime.getFullYear();
         const shippingMonth = deliveryTime.getMonth() + 1; // 0-based이므로 +1
         const shippingDay = deliveryTime.getDate();
-        // is_today_delivery가 true면 18시 0분 고정, 아니면 실제 시간
+        // 오늘배송은 당일 마감 기준, 일반배송은 협의 일정, 예약배송은 선택한 시간 기준
         const shippingHour = order?.is_today_delivery ? 18 : deliveryTime.getHours();
         const shippingMinute = order?.is_today_delivery ? 0 : deliveryTime.getMinutes();
 
@@ -342,6 +359,8 @@ function CheckOrderClientPage() {
           </div>
         </div>
 
+        <OrderConstructSelector isLoading={isLoading} />
+
         <div data-component="delivery-schedule">
           <DeliveryScheduleSelector hasValidationFailed={hasValidationFailed} isLoading={isLoading} />
         </div>
@@ -359,6 +378,8 @@ function CheckOrderClientPage() {
             getTotalPrice={getExpectedOrderPrice}
             page={CHECK_ORDER_PAGE}
             filteredCartItems={hasSetProducts ? setProducts : undefined}
+            constructFeeLabel={getOrderConstructFeeLabel()}
+            constructFeeAmount={orderConstructFee}
           />
           {!hasSetProducts && <PaymentNoticeCard />}
         </div>

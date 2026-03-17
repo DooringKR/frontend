@@ -17,16 +17,18 @@ export default function TodayDeliveryOption({
 }: TodayDeliveryOptionProps) {
     const order = useOrderStore(state => state.order);
     const updateOrder = useOrderStore(state => state.updateOrder);
+    const isConstructOrder = Boolean(order?.order_construct);
 
     const handleClick = () => {
         if (expectedArrivalMinutes && !isTodayDeliveryAvailable) return; // 오늘배송 불가 시 클릭 막기
+        if (isConstructOrder) return;
 
         // 예상 도착 시간 계산
         const now = new Date();
         const arrivalDate = new Date(now);
         arrivalDate.setMinutes(now.getMinutes() + (expectedArrivalMinutes || 0));
 
-        updateOrder({ is_today_delivery: true, delivery_arrival_time: arrivalDate });
+        updateOrder({ is_today_delivery: true, is_date_free: false, delivery_arrival_time: arrivalDate } as any);
     };
 
     // OrderProcessCard용 텍스트 계산
@@ -40,17 +42,21 @@ export default function TodayDeliveryOption({
         if (expectedArrivalMinutes === null) {
             return "계산 중...";
         }
+        if (isConstructOrder) {
+            return "시공 주문은 오늘배송을 선택할 수 없어요.";
+        }
         if (!isTodayDeliveryAvailable) {
             return "오늘 배송이 불가능해요.";
         }
         if (order?.is_today_delivery === true) {
-            return formatRemainingTimeRange(expectedArrivalMinutes);
+            return `오늘 ${formatDeliveryTimeRange(expectedArrivalMinutes)} 도착 예정`;
         }
         return `오늘 ${formatDeliveryTimeRange(expectedArrivalMinutes)} 도착 예정`;
     };
 
     const getState = () => {
         if (isLoading) return 'disabled';
+        if (isConstructOrder) return 'disabled';
         if (expectedArrivalMinutes === null) return 'enabled'; // 계산 중일 때
         if (!isTodayDeliveryAvailable) return 'disabled';
         if (order?.is_today_delivery === true) return 'activated';
@@ -100,12 +106,12 @@ export default function TodayDeliveryOption({
                 trailing="primary"
                 trailingText={getTrailingText()}
                 showLeadingIcon={false}
-                showSamedaydeliverySticker={isTodayDeliveryAvailable}
+                showSamedaydeliverySticker={isTodayDeliveryAvailable && !isConstructOrder}
                 showDescriptionLine2={false}
-                showTrailing={isTodayDeliveryAvailable && expectedArrivalMinutes !== null}
+                showTrailing={isTodayDeliveryAvailable && expectedArrivalMinutes !== null && !isConstructOrder}
                 showBottom={false}
                 state={getState()}
-                onClick={isTodayDeliveryAvailable && !isLoading ? handleClick : undefined}
+                onClick={isTodayDeliveryAvailable && !isLoading && !isConstructOrder ? handleClick : undefined}
                 className="mt-3"
             />
         </>

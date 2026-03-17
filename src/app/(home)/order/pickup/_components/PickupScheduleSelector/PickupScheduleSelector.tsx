@@ -10,55 +10,77 @@ export default function PickupScheduleSelector({ hasValidationFailed, isLoading 
     const { formatSelectedDate } = usePickupDate();
     const order = useOrderStore(state => state.order);
     const updateOrder = useOrderStore(state => state.updateOrder);
+    const pickupScheduleMode = (order as any)?.pickup_schedule_mode as "GENERAL" | "RESERVED" | undefined;
+
+    const getConstructMinPickupTime = () => {
+        const min = new Date();
+        min.setHours(min.getHours() + 24);
+        min.setSeconds(0, 0);
+        return min;
+    };
+
+    const getGeneralPickupTime = () => {
+        const base = new Date();
+        if (order?.order_construct) {
+            return getConstructMinPickupTime();
+        }
+        base.setMinutes(base.getMinutes() + 120);
+        base.setSeconds(0, 0);
+        return base;
+    };
 
     // 초기 픽업 날짜 설정 (현재 시간으로)
     useEffect(() => {
         if (!order?.pickup_time) {
-            const now = new Date();
-            updateOrder({ pickup_time: now });
+            updateOrder({ pickup_time: getGeneralPickupTime(), pickup_schedule_mode: "GENERAL", is_date_free: true } as any);
         }
-    }, []);
+    }, [order?.pickup_time]);
 
-    const getState = () => {
+    const getGeneralState = () => {
         if (isLoading) return 'disabled';
-        
-        const isInvalid = !order?.pickup_time;
-        if (isInvalid && hasValidationFailed) return 'errored';
-        if (isInvalid) return 'emphasized';
-        return 'activated'; // 픽업 스케줄은 선택되면 활성화 상태로 표시
+        return pickupScheduleMode === "GENERAL" ? 'activated' : 'enabled';
+    };
+
+    const getReservedState = () => {
+        if (isLoading) return 'disabled';
+        if (pickupScheduleMode === "RESERVED") {
+            if (!order?.pickup_time && hasValidationFailed) return 'errored';
+            return 'activated';
+        }
+        return 'enabled';
     };
 
     return (
         <section className="flex flex-col gap-3">
             <h2 className="text-xl font-600">픽업일정 선택</h2>
-
-            {/* 기존 구현 */}
-            {/* <div className="flex cursor-pointer flex-col gap-1 rounded-xl border-2 border-gray-800 px-5 py-4">
-                <div className="flex justify-between">
-                    <span className="text-[17px] font-600">원하는 날짜 픽업</span>
-                </div>
-                <span className="text-[15px] font-500">
-                    {order?.pickup_time
-                        ? formatSelectedDate(order.pickup_time)
-                        : "날짜를 선택해주세요"}
-                    {" "}
-                    원하는 시간 픽업
-                </span>
-
-                <PickupDateTimeSelector
-                    formatSelectedDate={(dateString: string) => {
-                        return formatSelectedDate(new Date(dateString));
-                    }}
-                />
-            </div> */}
-
-            {/* OrderProcessCard 구현 */}
             <OrderProcessCard
-                title="원하는 날짜 픽업"
+                title="일반 픽업"
+                descriptionLine1={order?.order_construct ? "시공 주문은 내일부터 순차 픽업 가능해요." : "가장 빠른 일정으로 픽업 준비해요."}
+                trailing="primary"
+                trailingText=""
+                showLeadingIcon={false}
+                showSamedaydeliverySticker={!order?.order_construct}
+                showDescriptionLine2={false}
+                showTrailing={false}
+                showBottom={false}
+                state={getGeneralState()}
+                onClick={() => {
+                    if (isLoading) return;
+                    updateOrder({
+                        pickup_schedule_mode: "GENERAL",
+                        is_date_free: true,
+                        pickup_time: getGeneralPickupTime(),
+                    } as any);
+                }}
+                className="mt-3"
+            />
+
+            <OrderProcessCard
+                title="예약 픽업"
                 descriptionLine1={
-                    order?.pickup_time
-                        ? `${formatSelectedDate(order.pickup_time)} 원하는 시간 픽업`
-                        : "날짜를 선택해주세요 원하는 시간 픽업"
+                    pickupScheduleMode === "RESERVED" && order?.pickup_time
+                        ? `${formatSelectedDate(order.pickup_time)} 예약 시간 픽업`
+                        : "원하는 날짜와 시간으로 예약할 수 있어요"
                 }
                 trailing="primary"
                 trailingText=""
@@ -66,14 +88,26 @@ export default function PickupScheduleSelector({ hasValidationFailed, isLoading 
                 showSamedaydeliverySticker={false}
                 showDescriptionLine2={false}
                 showTrailing={false}
-                showBottom={true}
-                state={getState()}
+                showBottom={pickupScheduleMode === "RESERVED"}
+                state={getReservedState()}
+                onClick={() => {
+                    if (isLoading) return;
+                    if (pickupScheduleMode !== "RESERVED") {
+                        const defaultReserved = order?.order_construct
+                            ? getConstructMinPickupTime()
+                            : (() => {
+                                const tomorrow = new Date();
+                                tomorrow.setDate(tomorrow.getDate() + 1);
+                                tomorrow.setHours(10, 0, 0, 0);
+                                return tomorrow;
+                            })();
+                        updateOrder({ pickup_schedule_mode: "RESERVED", is_date_free: false, pickup_time: defaultReserved } as any);
+                    }
+                }}
                 bottomLabel=""
                 bottomContent={
                     <PickupDateTimeSelector
-                        formatSelectedDate={(dateString: string) => {
-                            return formatSelectedDate(new Date(dateString));
-                        }}
+                        formatSelectedDate={formatSelectedDate}
                     />
                 }
                 className="mt-3"

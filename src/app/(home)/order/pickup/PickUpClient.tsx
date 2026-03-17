@@ -34,6 +34,8 @@ import {
   getTotalQuantityFromCartItems,
   getTotalValueFromCartItems
 } from "@/utils/getCartProductTypes";
+import OrderConstructSelector from "../_components/OrderConstructSelector";
+import { getOrderConstructFee, ORDER_CONSTRUCT_GENERAL_FEE, ORDER_CONSTRUCT_RESERVED_FEE } from "../_utils/orderConstructPricing";
 import { sortProductTypes, sortDetailProductTypes } from "@/utils/formatCartProductTypes";
 
 
@@ -65,6 +67,23 @@ export default function PickUpClientPage() {
     return getTotalPrice();
   };
 
+  const now = new Date();
+  const pickupTime = order?.pickup_time ? new Date(order.pickup_time) : null;
+  const pickupScheduleMode = (order as any)?.pickup_schedule_mode as "GENERAL" | "RESERVED" | undefined;
+  const is_date_free = (order as any)?.is_date_free ?? (pickupScheduleMode
+    ? pickupScheduleMode === "GENERAL"
+    : pickupTime
+      ? pickupTime.toDateString() === now.toDateString()
+      : false);
+  const orderConstructFee = getOrderConstructFee(order?.order_construct, is_date_free);
+
+  const getOrderConstructFeeLabel = () => {
+    if (!order?.order_construct) return "";
+    return is_date_free
+      ? `일반 시공 추가비 (+${ORDER_CONSTRUCT_GENERAL_FEE.toLocaleString()}원)`
+      : `예약 시공 추가비 (+${ORDER_CONSTRUCT_RESERVED_FEE.toLocaleString()}원)`;
+  };
+
   // 화면 진입 시 초기 PickUpOrder 구성, 나머지 속성은 각 컴포넌트에서 업데이트
   useEffect(() => {
     // 새로운 주문 시작 시 이전 주문 정보 삭제
@@ -75,6 +94,8 @@ export default function PickUpClientPage() {
       user_id: user.id!,
       recipient_phone: useOrderStore.getState().order?.recipient_phone || user.phone_number!,
       order_price: totalPrice,
+      order_construct: useOrderStore.getState().order?.order_construct ?? false,
+      is_date_free: useOrderStore.getState().order?.is_date_free ?? true,
     };
     //setOrder 대신 updateOrder 사용(Order는 초기화 되면 안되기 때문)
     updateOrder(pickupOrderData);
@@ -133,7 +154,13 @@ export default function PickUpClientPage() {
         generateEstimateUC
       );
       console.log('[PickUpOrderSubmit] Export usecase injected');
-      const response = await createOrderUsecase.execute(order, cart!.id!);
+      const orderPayload = {
+        ...order,
+        order_price: getExpectedOrderPrice() + orderConstructFee,
+      };
+      const { pickup_schedule_mode: _pickupScheduleMode, ...sanitizedOrderPayload } = orderPayload as any;
+      const response = await createOrderUsecase.execute(sanitizedOrderPayload as PickUpOrder, cart!.id!);
+      
 
       if (!response.success) {
         alert(response.message);
@@ -271,6 +298,9 @@ export default function PickUpClientPage() {
           </div>
         </div>
         <div className="px-5">
+          <OrderConstructSelector isLoading={isLoading} />
+        </div>
+        <div className="px-5">
           <div data-component="pickup-schedule">
             <PickupScheduleSelector hasValidationFailed={hasValidationFailed} isLoading={isLoading} />
           </div>
@@ -280,6 +310,8 @@ export default function PickUpClientPage() {
             <PriceSummaryCard
               getTotalPrice={getExpectedOrderPrice}
               filteredCartItems={hasSetProducts ? setProducts : undefined}
+              constructFeeLabel={getOrderConstructFeeLabel()}
+              constructFeeAmount={orderConstructFee}
             />
             {!hasSetProducts && <PaymentNoticeCard />}
           </div>

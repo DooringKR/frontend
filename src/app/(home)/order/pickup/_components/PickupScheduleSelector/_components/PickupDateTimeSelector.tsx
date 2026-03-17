@@ -6,7 +6,7 @@ import TimePickerSwiper from "@/components/TimePickerSwiper";
 import { useOrderStore } from "@/store/orderStore";
 
 interface PickupDateTimeSelectorProps {
-    formatSelectedDate: (dateString: string) => string;
+    formatSelectedDate: (date: Date) => string;
 }
 
 export default function PickupDateTimeSelector({
@@ -17,14 +17,29 @@ export default function PickupDateTimeSelector({
     const [isTimeModalOpen, setIsTimeModalOpen] = useState(false);
     const [isDateModalOpen, setIsDateModalOpen] = useState(false);
 
+    const getConstructMinPickupTime = () => {
+        const min = new Date();
+        min.setHours(min.getHours() + 24);
+        min.setSeconds(0, 0);
+        return min;
+    };
+
+    const clampPickupTime = (candidate: Date) => {
+        if (!order?.order_construct) return candidate;
+        const min = getConstructMinPickupTime();
+        return candidate < min ? min : candidate;
+    };
+
+    const pickupTime = order?.pickup_time ? new Date(order.pickup_time) : null;
+
     return (
         <div className="flex items-center gap-2">
             <div
                 onClick={() => setIsDateModalOpen(true)}
                 className="flex-1 rounded-xl border border-gray-200 bg-white px-4 py-3 text-lg cursor-pointer"
             >
-                {order?.pickup_time
-                    ? formatSelectedDate(order.pickup_time)
+                {pickupTime
+                    ? formatSelectedDate(pickupTime)
                     : "날짜"}
             </div>
 
@@ -32,33 +47,34 @@ export default function PickupDateTimeSelector({
                 onClick={() => setIsTimeModalOpen(true)}
                 className="flex-1 rounded-xl border border-gray-200 bg-white px-4 py-3 text-lg cursor-pointer"
             >
-                {order?.pickup_time
-                    ? order?.pickup_time.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })
+                {pickupTime
+                    ? pickupTime.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })
                     : "시간"}
             </div>
 
             <Modal isOpen={isDateModalOpen} onClose={() => setIsDateModalOpen(false)}>
                 <DatePicker
                     initialDate={
-                        order?.pickup_time
-                            ? order?.pickup_time
+                        pickupTime
+                            ? pickupTime
                             : (() => {
                                 // 픽업은 현재 시간부터 가능
                                 const now = new Date();
                                 return now;
                             })()
                     }
+                    minSelectableDate={order?.order_construct ? getConstructMinPickupTime() : undefined}
                     onConfirm={date => {
                         // 현재 시간 유지하면서 날짜만 변경
-                        if (order?.pickup_time) {
+                        if (pickupTime) {
                             const newDate = new Date(date);
-                            newDate.setHours(order.pickup_time.getHours());
-                            newDate.setMinutes(order.pickup_time.getMinutes());
-                            updateOrder({ pickup_time: newDate });
+                            newDate.setHours(pickupTime.getHours());
+                            newDate.setMinutes(pickupTime.getMinutes());
+                            updateOrder({ pickup_time: clampPickupTime(newDate) });
                         } else {
                             // 현재 시간으로 설정
                             const now = new Date();
-                            updateOrder({ pickup_time: now });
+                            updateOrder({ pickup_time: clampPickupTime(now) });
                         }
                         setIsDateModalOpen(false);
                     }}
@@ -67,14 +83,14 @@ export default function PickupDateTimeSelector({
             </Modal>
             <Modal isOpen={isTimeModalOpen} onClose={() => setIsTimeModalOpen(false)}>
                 <TimePickerSwiper
-                    initialHour={order?.pickup_time ? order?.pickup_time.getHours().toString().padStart(2, "0") : ""}
-                    initialMinute={order?.pickup_time ? order?.pickup_time.getMinutes().toString().padStart(2, "0") : ""}
+                    initialHour={pickupTime ? pickupTime.getHours().toString().padStart(2, "0") : ""}
+                    initialMinute={pickupTime ? pickupTime.getMinutes().toString().padStart(2, "0") : ""}
                     onConfirm={(h, m) => {
-                        if (!order?.pickup_time) return;
-                        const newDate = new Date(order?.pickup_time);
+                        if (!pickupTime) return;
+                        const newDate = new Date(pickupTime);
                         newDate.setHours(parseInt(h));
                         newDate.setMinutes(parseInt(m));
-                        updateOrder({ pickup_time: newDate });
+                        updateOrder({ pickup_time: clampPickupTime(newDate) });
                         setIsTimeModalOpen(false);
                     }}
                     onClose={() => setIsTimeModalOpen(false)}
