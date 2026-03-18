@@ -10,6 +10,7 @@ import { GenerateOrderEstimateUseCase } from "@/DDD/usecase/generate_order_estim
 import { CHECK_ORDER_PAGE } from "@/constants/pageName";
 import { DeliveryMethod, DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 import { DeliveryOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/DeliveryOrder";
+import * as PortOne from "@portone/browser-sdk/v2";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -166,9 +167,43 @@ function CheckOrderClientPage() {
     }
 
     setIsLoading(true);
-    setHasValidationFailed(false); // 로딩 시작과 동시에 검증 실패 상태 초기화
+    setHasValidationFailed(false);
 
     try {
+      // 0. 포트원 v2 결제 요청
+      const totalAmount = getExpectedOrderPrice();
+      const orderName = hasSetProducts
+        ? `롱문 세트 외 ${setProducts.length}건`
+        : `바로가구 주문 (${cartItems.length}건)`;
+
+      const paymentResponse = await PortOne.requestPayment({
+        storeId: "store-1188f5df-a970-42b4-a89e-35228abdc0ae",
+        channelKey: "channel-key-8380081d-aa08-4ae0-93ed-e2fd2cc3a9c5",
+        paymentId: `payment-${crypto.randomUUID().replaceAll("-", "")}`,
+        orderName,
+        totalAmount,
+        currency: "CURRENCY_KRW",
+        payMethod: "CARD",
+      });
+
+      // TODO: 테스트 완료 후 아래 강제 실패 블록 제거
+      setIsLoading(false);
+      return;
+
+      // /* eslint-disable no-unreachable */
+      // if (paymentResponse?.code != null) {
+      //   if (paymentResponse.code === "FAILURE_TYPE_PG") {
+      //     alert("결제가 취소되었습니다.");
+      //   } else {
+      //     alert(paymentResponse.message || "결제에 실패했습니다.");
+      //   }
+      //   setIsLoading(false);
+      //   return;
+      // }
+
+      // console.log("✅ 포트원 결제 성공:", paymentResponse);
+      // /* eslint-enable no-unreachable */
+
       // 1. 주문 생성 (CreateOrderUsecase 사용)
       // Reuse a single repo instance for order so export usecase uses same implementation
       const orderRepo = new OrderSupabaseRepository();
@@ -368,7 +403,7 @@ function CheckOrderClientPage() {
       <div id="delivery-order-button">
         <BottomButton
           type={"1button"}
-          button1Text={isLoading ? "주문 요청 중..." : "주문 접수하기"}
+          button1Text={isLoading ? "주문 요청 중..." : "결제하기"}
           className="fixed bottom-0 w-full max-w-[460px]"
           button1Disabled={isLoading}
           onButton1Click={handleOrderSubmit}
