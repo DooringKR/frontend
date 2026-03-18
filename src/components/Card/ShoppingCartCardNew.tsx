@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { HingeDirection } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
+import { isOuterHandleType } from "@/services/pricing/priceAdjustments";
 import DoorPreviewIcon from "../DoorPreviewIcon/DoorPreviewIcon";
 import QuantitySelector from "../QuantitySelector/QuantitySelector";
 import ToggleButton from "@/components/Button/ToggleButton";
@@ -333,6 +334,8 @@ function renderFinishDetails(data: FinishDetails) {
 }
 
 function renderCabinetDetails(data: CabinetBaseDetails & Partial<CabinetLowerDetails & CabinetDrawerDetails & CabinetFlapDetails & CabinetTallDetails & CabinetOpenDetails>) {
+  const isOuterHandle = isOuterHandleType(data.handleType);
+
   return (
     <>
       <DetailRow label="색상" value={data.color} />
@@ -343,6 +346,7 @@ function renderCabinetDetails(data: CabinetBaseDetails & Partial<CabinetLowerDet
       {data.absorberType && <DetailRow label="쇼바 종류" value={data.absorberType} />}
       {data.drawerType && <DetailRow label="서랍 종류" value={data.drawerType} />}
       {data.handleType && <DetailRow label="손잡이 종류" value={data.handleType} />}
+      {isOuterHandle && <DetailRow label="손잡이 안내" value="별도 구매 · 직접 설치" />}
       {data.railType && <DetailRow label="레일 종류" value={data.railType} />}
       {data.addRiceCookerRail !== undefined && (
         <DetailRow

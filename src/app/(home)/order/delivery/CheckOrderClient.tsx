@@ -43,6 +43,7 @@ import { sortProductTypes, sortDetailProductTypes } from "@/utils/formatCartProd
 import OrderProcessCard from "@/components/OrderProcessCard";
 import OrderConstructSelector from "../_components/OrderConstructSelector";
 import { getOrderConstructFee, ORDER_CONSTRUCT_GENERAL_FEE, ORDER_CONSTRUCT_RESERVED_FEE } from "../_utils/orderConstructPricing";
+import { applyDeliveryPriceMultiplier } from "@/services/pricing/priceAdjustments";
 
 const CATEGORY_MAP: Record<string, string> = {
   door: "문짝",
@@ -83,6 +84,8 @@ function CheckOrderClientPage() {
     return getTotalPrice();
   };
 
+  const getAdjustedOrderPrice = () => applyDeliveryPriceMultiplier(getExpectedOrderPrice(), order);
+
   const is_date_free = Boolean((order as any)?.is_date_free);
   const orderConstructFee = getOrderConstructFee(order?.order_construct, is_date_free);
 
@@ -99,7 +102,7 @@ function CheckOrderClientPage() {
       // 새로운 주문 시작 시 이전 주문 정보 삭제
       localStorage.removeItem("recentOrder");
 
-      const totalPrice = getExpectedOrderPrice();
+      const totalPrice = getAdjustedOrderPrice();
       const deliveryOrderData: Partial<DeliveryOrder> = {
         user_id: user.id!,
         recipient_phone: useOrderStore.getState().order?.recipient_phone || user.phone_number!,
@@ -197,7 +200,7 @@ function CheckOrderClientPage() {
 
       const orderPayload = {
         ...order,
-        order_price: getExpectedOrderPrice() + orderConstructFee,
+        order_price: getAdjustedOrderPrice() + orderConstructFee,
       };
       const response = await createOrderUsecase.execute(orderPayload as DeliveryOrder, cart!.id!);
 
@@ -277,7 +280,7 @@ function CheckOrderClientPage() {
       const cartItemsToSave = hasSetProducts ? setProducts : cartItems;
       const payload = {
         order_id: response.data?.id,
-        order,
+        order: orderPayload,
         cartItems: cartItemsToSave,
       };
       localStorage.setItem("recentOrder", JSON.stringify(payload));
@@ -375,7 +378,7 @@ function CheckOrderClientPage() {
 
         <div className="flex flex-col gap-1">
           <PriceSummaryCard
-            getTotalPrice={getExpectedOrderPrice}
+            getTotalPrice={getAdjustedOrderPrice}
             page={CHECK_ORDER_PAGE}
             filteredCartItems={hasSetProducts ? setProducts : undefined}
             constructFeeLabel={getOrderConstructFeeLabel()}

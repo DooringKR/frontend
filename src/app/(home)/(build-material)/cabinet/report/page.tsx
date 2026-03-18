@@ -16,6 +16,7 @@ import { CABINET_CATEGORY_LIST } from "@/constants/category";
 import useItemStore from "@/store/itemStore";
 import useBizClientStore from "@/store/bizClientStore";
 import { calculateUnitCabinetPrice } from "@/services/pricing/cabinetPricing";
+import { isOuterHandleType } from "@/services/pricing/priceAdjustments";
 import { Cabinet, UpperCabinet, LowerCabinet, TallCabinet, OpenCabinet, FlapCabinet, DrawerCabinet } from "dooring-core-domain/dist/models/InteriorMaterials/Cabinet";
 import { CabinetLegType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import { Suspense, useEffect, useState } from "react";
@@ -327,6 +328,15 @@ function ReportPageContent() {
 		typeof item.bodyMaterial === "number" ? item.bodyMaterial : 0,
 		item.handleType ?? "",
 		item.depth ?? 0,
+		{
+			bodyMaterialDirectInput: item.body_material_direct_input,
+			drawerType: item.drawer_type,
+			drawerTypeDirectInput: item.drawer_type_direct_input,
+			railType: item.rail_type,
+			railTypeDirectInput: item.rail_type_direct_input,
+			absorberType: item.absorber_type,
+			absorberTypeDirectInput: item.absorber_type_direct_input,
+		},
 	);
 
 	// 오픈장: 밥솥 레일/하부장 robust 표시
@@ -354,6 +364,11 @@ function ReportPageContent() {
 					onIncrease={() => setQuantity(q => q + 1)}
 					onDecrease={() => setQuantity(q => Math.max(1, q - 1))}
 				/>
+				{isOuterHandleType(item.handleType) && (
+					<div className="rounded-[16px] border border-amber-200 bg-amber-50 px-4 py-3 text-[14px]/[20px] text-amber-900">
+						겉손잡이는 별도 구매 품목이며, 손잡이는 직접 다셔야 해요.
+					</div>
+				)}
 				<PaymentNoticeCard />
 			</div>
 			<div id="cabinet-add-to-cart-button">

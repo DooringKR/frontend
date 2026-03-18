@@ -115,6 +115,7 @@ function LongDoorReportPageContent() {
                 color: item?.color ?? "",
                 width: door.door_width,
                 addOnHinge: !!item?.addOn_hinge,
+                hinge: getEffectiveBoring(door).hinge,
             });
             return sum + doorPrice;
         }
@@ -170,16 +171,18 @@ function LongDoorReportPageContent() {
                                 <div className="mb-3 text-[14px] font-600 text-gray-800">개별 문 정보</div>
                                 <div className="space-y-2">
                                     {doors.map((door, idx) => {
+                                        const effectiveBoring = getEffectiveBoring(door);
+
                                         // 각 문의 단가 계산
                                         const doorUnitPrice = door.door_width && door.door_width > 0
                                             ? calculateLongDoorUnitPriceWithOptions({
                                                 color: item?.color ?? "",
                                                 width: door.door_width,
                                                 addOnHinge: !!item?.addOn_hinge,
+                                                hinge: effectiveBoring.hinge,
                                             })
                                             : 0;
 
-                                        const effectiveBoring = getEffectiveBoring(door);
                                         const hinge = effectiveBoring.hinge;
                                         const boringLabel = hinge.length === 1 && hinge[0] === null
                                             ? "모름"

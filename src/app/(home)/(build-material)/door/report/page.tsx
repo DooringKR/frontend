@@ -83,7 +83,11 @@ function DoorReportPageContent() {
         item?.color ?? "",
         item?.door_width ?? 0,
         item?.door_height ?? 0,
-        item?.is_pair_door ?? false
+        item?.is_pair_door ?? false,
+        {
+            addOnHinge: item?.addOn_hinge ?? false,
+            hinge: item?.hinge ?? [],
+        },
     );
 
     // 카테고리 정보 가져오기
