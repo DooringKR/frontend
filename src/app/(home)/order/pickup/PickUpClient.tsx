@@ -1,4 +1,5 @@
 "use client";
+import * as PortOne from "@portone/browser-sdk/v2";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -143,6 +144,40 @@ export default function PickUpClientPage() {
     setHasValidationFailed(false);
 
     try {
+      // 0. 포트원 v2 결제 요청
+      const totalAmount = getExpectedOrderPrice();
+      const orderName = hasSetProducts
+        ? `롱문 세트 외 ${setProducts.length}건`
+        : `바로가구 주문 (${cartItems.length}건)`;
+
+      const paymentResponse = await PortOne.requestPayment({
+        storeId: "store-1188f5df-a970-42b4-a89e-35228abdc0ae",
+        channelKey: "channel-key-8380081d-aa08-4ae0-93ed-e2fd2cc3a9c5",
+        paymentId: `payment-${crypto.randomUUID().replaceAll("-", "")}`,
+        orderName,
+        totalAmount,
+        currency: "CURRENCY_KRW",
+        payMethod: "CARD",
+      });
+
+      // TODO: 테스트 완료 후 아래 강제 실패 블록 제거
+      // alert("결제 테스트: 결제창 확인 완료. 현재는 테스트 모드로 결제가 진행되지 않습니다.");
+      setIsLoading(false);
+      return;
+
+      // eslint-disable-next-line no-unreachable -- 테스트 완료 후 위 강제 실패 블록과 함께 제거
+      // if (paymentResponse?.code != null) {
+      //   if (paymentResponse.code === "FAILURE_TYPE_PG") {
+      //     alert("결제가 취소되었습니다.");
+      //   } else {
+      //     alert(paymentResponse.message || "결제에 실패했습니다.");
+      //   }
+      //   setIsLoading(false);
+      //   return;
+      // }
+
+      // console.log("✅ 포트원 결제 성공:", paymentResponse);
+
       // 1. 주문 생성
       const orderRepo = new OrderSupabaseRepository();
       const exportAdapter = new EstimateExportEdgeFunctionAdapter();
@@ -321,7 +356,7 @@ export default function PickUpClientPage() {
       <div id="pickup-order-button">
         <BottomButton
           type={"1button"}
-          button1Text={isLoading ? "주문 요청 중..." : "주문 접수하기"}
+          button1Text={isLoading ? "주문 요청 중..." : "결제하기"}
           className={`fixed bottom-0 w-full max-w-[460px] `}
           button1Disabled={isLoading}
           onButton1Click={handleSubmit}
