@@ -15,16 +15,20 @@ import ChevronLeft from "public/icons/chevron_left";
 import React from "react";
 import { trackClick } from "@/services/analytics/amplitude";
 import { getScreenName } from "@/utils/screenName";
+import useDebugModeStore from "@/store/debugModeStore";
 
 interface TopNavigatorProps {
   title?: string;
   page?: string;
   cartItemCount?: number;
   isLoggedIn?: boolean;
+  isDevAccount?: boolean;
 }
 
-const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, cartItemCount = 0, isLoggedIn = true }) => {
+const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, cartItemCount = 0, isLoggedIn = true, isDevAccount = false }) => {
   const router = useRouter();
+  const isDebugMode = useDebugModeStore((state) => state.isDebugMode);
+  const toggleDebugMode = useDebugModeStore((state) => state.toggleDebugMode);
   return (
     <div
       className={`fixed top-0 z-50 flex h-[60px] w-full max-w-[460px] flex-shrink-0 items-center justify-between gap-[12px] bg-white ${page === HOME_PAGE ? "pl-5 pr-2" : "px-5"
@@ -76,7 +80,18 @@ const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, cartItemCount 
       )}
 
       {page === HOME_PAGE ? (
-        <div className="flex">
+        <div className="flex items-center">
+          {isDevAccount && (
+            <label className="mr-1 flex cursor-pointer items-center gap-1 rounded-xl bg-orange-50 px-2 py-1 text-[11px] font-600 text-orange-600 hover:bg-orange-100">
+              <input
+                type="checkbox"
+                checked={isDebugMode}
+                onChange={toggleDebugMode}
+                className="h-3 w-3 accent-orange-500"
+              />
+              DEBUG
+            </label>
+          )}
           {isLoggedIn ? (
             /* 장바구니 아이콘 */
             <div className="rounded-2xl p-3 transition hover:bg-gray-100">

@@ -6,6 +6,7 @@ import Header from "@/components/Header/Header";
 import ProgressBar from "@/components/Progress";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import PriceDebugPanel from "@/components/PriceDebugPanel";
 
 import { FINISH_COLOR_LIST } from "dooring-core-domain/dist/constants/color";
 import { InteriorMaterialsSupabaseRepository } from "@/DDD/data/db/interior_materials_supabase_repository";
@@ -43,6 +44,9 @@ import {
     getTotalQuantityFromCartItems,
     getTotalValueFromCartItems
 } from "@/utils/getCartProductTypes";
+import useDebugModeStore from "@/store/debugModeStore";
+import { isDeveloperAccount } from "@/utils/isDeveloperAccount";
+import { getPriceTraceByDetailProductType } from "@/services/pricing/priceTrace";
 
 function ReportPageContent() {
     const router = useRouter();
@@ -53,6 +57,8 @@ function ReportPageContent() {
 
     const [quantity, setQuantity] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
+    const isDebugMode = useDebugModeStore((state) => state.isDebugMode);
+    const isDevAccount = isDeveloperAccount(bizClient?.phone_number);
 
     // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
     useEffect(() => {
@@ -87,6 +93,16 @@ function ReportPageContent() {
         item.type
     );
 
+    const finishTraceDetail = {
+        finish_color: getColorId(item?.color ?? ""),
+        finish_color_direct_input: item?.finish_color_direct_input,
+        finish_base_depth: item?.depth ?? 0,
+        finish_additional_depth: item?.depthIncrease ?? 0,
+        finish_base_height: item?.height ?? 0,
+        finish_additional_height: item?.heightIncrease ?? 0,
+        finish_type: item?.type,
+    };
+
     return (
         <div className="flex flex-col pt-[90px]">
             <InitAmplitude />
@@ -98,6 +114,13 @@ function ReportPageContent() {
                 <ShoppingCartCardNew
                     {...transformFinishToNewCardProps(item)}
                 />
+
+                {isDevAccount && isDebugMode && (
+                    <PriceDebugPanel
+                        className="mt-2"
+                        steps={getPriceTraceByDetailProductType(DetailProductType.FINISH, finishTraceDetail)}
+                    />
+                )}
 
                 {/* 업로드된 이미지 표시 */}
                 <ImageCard images={item?.raw_images || []} />

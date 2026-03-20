@@ -23,6 +23,8 @@ import { transformCartItemToNewCardProps } from "@/utils/transformers/transformC
 
 import useCartStore from "@/store/cartStore";
 import useCartItemStore from "@/store/cartItemStore";
+import useBizClientStore from "@/store/bizClientStore";
+import useDebugModeStore from "@/store/debugModeStore";
 import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 import { CartItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/CartItem";
 import { ReadCartItemsUsecase } from "@/DDD/usecase/read_cart_items_usecase";
@@ -35,6 +37,9 @@ import { trackClick } from "@/services/analytics/amplitude";
 import { getScreenName } from "@/utils/screenName";
 import PaymentNoticeCard from "@/components/PaymentNoticeCard";
 import { supabase } from "@/lib/supabase";
+import { isDeveloperAccount } from "@/utils/isDeveloperAccount";
+import { getCartItemPriceTrace } from "@/services/pricing/priceTrace";
+import PriceDebugPanel from "@/components/PriceDebugPanel";
 
 
 // type OrderItem = DoorItem | FinishItem | CabinetItem | AccessoryItem | HardwareItem | null;
@@ -165,6 +170,10 @@ export default function CartClient() {
   const updateCartItem = useCartItemStore(state => state.updateCartItem);
   const removeCartItem = useCartItemStore(state => state.removeCartItem);
   const clearCartItems = useCartItemStore(state => state.clearCartItems);
+
+  const bizClient = useBizClientStore(state => state.bizClient);
+  const isDevAccount = isDeveloperAccount(bizClient?.phone_number);
+  const isDebugMode = useDebugModeStore(state => state.isDebugMode);
 
   const handleGoToReceiveOption = async () => {
     trackClick({
@@ -442,20 +451,27 @@ export default function CartClient() {
                   if (!cardProps) return null;
 
                   return (
-                    <LongDoorCardWithToggle
-                      key={key}
-                      cartItem={cartItem}
-                      cardProps={cardProps}
-                      relatedDoors={relatedDoors}
-                      category={category}
-                      originalIndex={originalIndex}
-                      onIncrease={() => {
-                        // 롱문은 수량 증가 불가
-                        alert("롱문은 1회 1개 주문만 가능합니다.");
-                      }}
-                      onDecrease={() => handleCountChange(category, originalIndex, (cartItem.item_count ?? 0) - 1)}
-                      onTrash={() => { if (cartItem.id) handleCountChange(category, originalIndex, 0); }}
-                    />
+                    <div key={key} className="flex flex-col">
+                      <LongDoorCardWithToggle
+                        cartItem={cartItem}
+                        cardProps={cardProps}
+                        relatedDoors={relatedDoors}
+                        category={category}
+                        originalIndex={originalIndex}
+                        onIncrease={() => {
+                          // 롱문은 수량 증가 불가
+                          alert("롱문은 1회 1개 주문만 가능합니다.");
+                        }}
+                        onDecrease={() => handleCountChange(category, originalIndex, (cartItem.item_count ?? 0) - 1)}
+                        onTrash={() => { if (cartItem.id) handleCountChange(category, originalIndex, 0); }}
+                      />
+                      {isDevAccount && isDebugMode && (
+                        <PriceDebugPanel
+                          className="mt-2"
+                          steps={getCartItemPriceTrace(cartItem, detail, relatedDoors)}
+                        />
+                      )}
+                    </div>
                   );
                 })}
               </div>
@@ -485,13 +501,17 @@ export default function CartClient() {
                   if (!cardProps) return null;
 
                   return (
-                    <ShoppingCartCardNew
-                      key={key}
-                      {...cardProps}
-                      onIncrease={() => handleCountChange(category, originalIndex, (cartItem.item_count ?? 0) + 1)}
-                      onDecrease={() => handleCountChange(category, originalIndex, (cartItem.item_count ?? 0) - 1)}
-                      onTrash={() => { if (cartItem.id) handleCountChange(category, originalIndex, 0); }}
-                    />
+                    <div key={key} className="flex flex-col">
+                      <ShoppingCartCardNew
+                        {...cardProps}
+                        onIncrease={() => handleCountChange(category, originalIndex, (cartItem.item_count ?? 0) + 1)}
+                        onDecrease={() => handleCountChange(category, originalIndex, (cartItem.item_count ?? 0) - 1)}
+                        onTrash={() => { if (cartItem.id) handleCountChange(category, originalIndex, 0); }}
+                      />
+                      {isDevAccount && isDebugMode && (
+                        <PriceDebugPanel className="mt-2" steps={getCartItemPriceTrace(cartItem, detail)} />
+                      )}
+                    </div>
                   );
                 })}
               </div>

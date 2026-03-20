@@ -41,12 +41,9 @@ function FlapDoorAdditionalPageContent() {
     const [door_request, setDoorRequest] = useState(item?.door_request ?? "");
     const [addOn_hinge, setAddOn_hinge] = useState(item?.addOn_hinge ?? false);
     const [images, setImages] = useState<File[]>(item?.raw_images || []);
-    
-    // 체크박스 선택을 위한 상태 (기존 상태와 동기화)
-    const [hingeChecked, setHingeChecked] = useState(addOn_hinge);
-    
+
     // 몸통 두께 선택을 위한 상태 (단일 선택)
-    const [selectedThickness, setSelectedThickness] = useState<HingeThickness | null>(null);
+    const [selectedThickness, setSelectedThickness] = useState<HingeThickness | null>(item?.hinge_thickness ?? null);
     
     // 검증 관련 상태
     const [hasValidationFailed, setHasValidationFailed] = useState(false);
@@ -65,8 +62,13 @@ function FlapDoorAdditionalPageContent() {
 
     const handleAddOnHingeChange = (newAddOnHinge: boolean) => {
         setAddOn_hinge(newAddOnHinge);
-        setHingeChecked(newAddOnHinge);
         updateItem({ addOn_hinge: newAddOnHinge });
+
+        // 경첩 선택 해제시 두께 선택도 초기화
+        if (!newAddOnHinge) {
+            setSelectedThickness(null);
+            updateItem({ hinge_thickness: null });
+        }
     };
 
     useEffect(() => {
@@ -85,7 +87,7 @@ function FlapDoorAdditionalPageContent() {
 
     const validateAndProceed = () => {
         // 경첩을 선택했는데 두께를 선택하지 않은 경우
-        if (hingeChecked && !selectedThickness) {
+        if (addOn_hinge && !selectedThickness) {
             setHasValidationFailed(true);
             // 해당 영역으로 스크롤
             setTimeout(() => {
@@ -141,7 +143,7 @@ function FlapDoorAdditionalPageContent() {
                             expandableContent={
                                 <>
                                     <div className="self-stretch justify-start text-gray-500 text-sm font-normal font-['Pretendard'] leading-5">몸통 두께</div>
-                                    <div className="self-stretch inline-flex justify-center items-center">
+                                    <div ref={thicknessRef} className="self-stretch inline-flex justify-center items-center">
                                         {[
                                             {value: HingeThickness.FIFTEEN, label: '15T'}, 
                                             {value: HingeThickness.EIGHTEEN, label: '18T'}, 
@@ -158,14 +160,14 @@ function FlapDoorAdditionalPageContent() {
                                         ))}
                                     </div>
                                     {/* 에러 메시지 */}
-                                    {hasValidationFailed && hingeChecked && !selectedThickness && (
+                                    {hasValidationFailed && addOn_hinge && !selectedThickness && (
                                         <div className="mt-2 text-red-500 text-sm font-medium font-['Pretendard']">
                                             몸통 두께를 선택해주세요
                                         </div>
                                     )}
                                 </>
                             }
-                            checked={hingeChecked}
+                            checked={addOn_hinge}
                             onChange={handleAddOnHingeChange}
                         />
                     

@@ -27,10 +27,12 @@ import { getAddressIndicatorProps } from "./_utils/getAddressIndicatorProps";
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import { trackView } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+import { isDeveloperAccount } from "@/utils/isDeveloperAccount";
 
 export default function Page() {
   const bizClient = useBizClientStore(state => state.bizClient);
   const cartItemCount = useCartItemStore(state => state.cartItems.length);
+  const isDevAccount = isDeveloperAccount(bizClient?.phone_number);
 
   // 커스텀 훅들
 
@@ -70,7 +72,7 @@ export default function Page() {
     <div className="flex min-h-screen flex-col bg-white pt-[60px]">
       {/* Amplitude 초기화 (클라이언트 전용) */}
       <InitAmplitude />
-      <TopNavigator page="/" cartItemCount={cartItemCount || 0} isLoggedIn={!!bizClient} />
+      <TopNavigator page="/" cartItemCount={cartItemCount || 0} isLoggedIn={!!bizClient} isDevAccount={isDevAccount} />
       <HomeBanner />
 
       <main className="mb-[40px] mt-10 flex flex-grow flex-col gap-7">
