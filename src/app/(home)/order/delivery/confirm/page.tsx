@@ -11,6 +11,7 @@ import { Chip } from "@/components/Chip/Chip";
 import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
+import { formatOrderConstructFeeAmount } from "@/app/(home)/order/_utils/orderConstructPricing";
 import { trackView } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
 import { useOrderStore } from "@/store/orderStore";
@@ -29,6 +30,26 @@ const sortItemsByNickName = (items: any[]) => {
 };
 
 export default function OrderConfirmPage() {
+    const getOrderConstructFeeAmount = (orderData: any) => {
+      return formatOrderConstructFeeAmount(orderData?.order_construct, Boolean(orderData?.is_date_free));
+    };
+
+    const getDeliveryScheduleLabel = (orderData: any) => {
+      if (orderData?.is_today_delivery === true) return "오늘배송";
+      return orderData?.is_date_free ? "일반 배송" : "예약 배송";
+    };
+
+    const getDeliveryScheduleDescription = (orderData: any) => {
+      if (orderData?.is_today_delivery === true) return "오늘";
+      if (orderData?.is_date_free) return "일정 협의 후";
+      return new Date(orderData.delivery_arrival_time).toLocaleString("ko-KR", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+      });
+    };
+
   const router = useRouter();
   const [recentOrder, setRecentOrder] = useState<any>(null);
   const [orderItems, setOrderItems] = useState<any[]>([]);
@@ -239,14 +260,7 @@ export default function OrderConfirmPage() {
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-200 text-gray-500">
                     5
                   </div>
-                  <div>퀵 ∙ 용달로 {recentOrder.is_today_delivery === true
-                    ? "오늘"
-                    : new Date(recentOrder.delivery_arrival_time).toLocaleString("ko-KR", {
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                      hour: "2-digit",
-                    })}까지 배송해드려요</div>
+                  <div>퀵 ∙ 용달로 {getDeliveryScheduleDescription(recentOrder)} 배송해드려요</div>
                 </div>
               </div>
             </div>
@@ -301,16 +315,24 @@ export default function OrderConfirmPage() {
 
                 <div className="mb-2 mt-3 border-b border-gray-200 pb-3 text-gray-500">
                   <p className="mb-1 text-[17px] font-600 text-gray-800">배송일정</p>
+                  <p>{getDeliveryScheduleLabel(recentOrder)}</p>
                   <p>
                     {recentOrder.is_today_delivery === true
-                      ? "당일배송"
-                      : new Date(recentOrder.delivery_arrival_time).toLocaleString("ko-KR", {
+                      ? "오늘 중 도착 예정"
+                      : recentOrder.is_date_free
+                        ? "일정 협의 후 배송 예정"
+                        : new Date(recentOrder.delivery_arrival_time).toLocaleString("ko-KR", {
                         year: "numeric",
                         month: "2-digit",
                         day: "2-digit",
                         hour: "2-digit",
                       })}
                   </p>
+                </div>
+                <div className="my-4 border-b border-gray-200 pb-3 text-gray-500">
+                  <p className="mb-1 text-[17px] font-600 text-gray-800">시공 정보</p>
+                  <p>{recentOrder.order_construct ? "시공 필요" : "시공 불필요"}</p>
+                  {recentOrder.order_construct && <p>시공비: {getOrderConstructFeeAmount(recentOrder)}</p>}
                 </div>
                 <div className="my-4 border-b border-gray-200 pb-3 text-gray-500">
                   <p className="mb-1 text-[17px] font-600 text-gray-800">배송주소</p>

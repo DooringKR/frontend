@@ -10,5 +10,8 @@
 		"https://deno.land": true,
 		"https://esm.sh": true,
 		"https://jsr.io": true
-	}
+	},
+	"powerquery.client.additionalSymbolsDirectories": [
+		"c:/Users/psy02/SNU/4-1/도어링/front+back/frontend/.vscode/excel-pq-symbols"
+	]
 }

@@ -59,7 +59,6 @@ function TallCabinetPageContent() {
     // 추가 필드: 용도/장소, 시공 필요 여부, 다리발
     const [cabinetLocation, setCabinetLocation] = useState(item?.cabinet_location ?? null);
     const [isCabinetLocationSheetOpen, setIsCabinetLocationSheetOpen] = useState(false);
-    const [cabinet_construct, setCabinetConstruct] = useState(item?.cabinet_construct ?? false);
     // 다리발: enum + 직접입력
     const [legType, setLegType] = useState<CabinetLegType | null>(
         item && Object.values(CabinetLegType).includes(item.legType) ? item.legType : null
@@ -91,7 +90,7 @@ function TallCabinetPageContent() {
     useEffect(() => { updateItem({ behindType }); }, [behindType]);
     useEffect(() => { updateItem({ request }); }, [request]);
     useEffect(() => { updateItem({ cabinet_location: cabinetLocation }); }, [cabinetLocation]);
-    useEffect(() => { updateItem({ cabinet_construct }); }, [cabinet_construct]);
+    useEffect(() => { updateItem({ cabinet_construct: false }); }, [updateItem]);
     useEffect(() => { updateItem({ legType }); }, [legType]);
     useEffect(() => { updateItem({ legType_direct_input: legTypeDirectInput }); }, [legTypeDirectInput]);
 
@@ -108,7 +107,6 @@ function TallCabinetPageContent() {
         !handleType ||
         !behindType ||
         !cabinetLocation ||
-        (cabinet_construct === null) ||
         (legType === null && !legTypeDirectInput);
 
     // BODY_MATERIAL_LIST에서 선택된 소재명 또는 직접입력값 표시
@@ -265,22 +263,6 @@ function TallCabinetPageContent() {
                         }
                     }}
                 />
-                {/* 시공 필요 여부 */}
-                <div className="flex flex-col gap-2">
-                    <div className="w-full text-[14px] font-400 text-gray-600">시공 필요 여부</div>
-                    <div className="flex flex-row gap-2">
-                        <Button
-                            type={cabinet_construct ? "BrandInverse" : "GrayLarge"}
-                            text={"시공도 필요해요"}
-                            onClick={() => setCabinetConstruct(true)}
-                        />
-                        <Button
-                            type={!cabinet_construct ? "BrandInverse" : "GrayLarge"}
-                            text={"필요 없어요"}
-                            onClick={() => setCabinetConstruct(false)}
-                        />
-                    </div>
-                </div>
                 {/* 다리발 (BoxedSelect 1개, 바텀시트+직접입력) */}
                 <BoxedSelect
                     default_label="다리발"

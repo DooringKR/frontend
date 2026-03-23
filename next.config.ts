@@ -1,10 +1,9 @@
 import type { NextConfig } from "next";
-// 타입 에러 방지를 위해 require 사용
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const withPWA = require("next-pwa")({
+import withPWAInit from "@ducanh2912/next-pwa";
+
+const withPWA = withPWAInit({
   dest: "public",
   register: true,
-  skipWaiting: true,
   disable: process.env.NODE_ENV === "development",
 });
 

@@ -11,12 +11,16 @@ type PriceSummaryCardProps = {
   getTotalPrice: () => number;
   page?: string;
   filteredCartItems?: CartItem[]; // 필터링된 cartItems (세트상품만 등)
+  constructFeeLabel?: string;
+  constructFeeAmount?: number;
 };
 
 const PriceSummaryCard: React.FC<PriceSummaryCardProps> = ({
   getTotalPrice,
   page,
   filteredCartItems,
+  constructFeeLabel,
+  constructFeeAmount = 0,
 }) => {
   // DDD: cartItems come from cartItemStore, not cartStore
   const allCartItems = useCartItemStore(state => state.cartItems) ?? [];
@@ -44,11 +48,13 @@ const PriceSummaryCard: React.FC<PriceSummaryCardProps> = ({
       ].includes(type);
     });
 
-  // 세트상품만 있는지 확인 (filteredCartItems가 제공되고 모두 LONGDOOR인 경우)
+  // 롱문 세트는 getTotalPrice가 실제 합산가를 반환하므로 상단도 정확 금액으로 보여준다.
   const onlySetProducts =
     filteredCartItems !== undefined &&
     cartItems.length > 0 &&
     cartItems.every(item => item.detail_product_type === DetailProductType.LONGDOOR);
+
+  const estimatedOrderTotal = getTotalPrice() + constructFeeAmount;
 
   return (
     <div className="flex flex-col gap-3 py-5">
@@ -62,10 +68,8 @@ const PriceSummaryCard: React.FC<PriceSummaryCardProps> = ({
             {onlyExtraPriceItems
               ? "별도 견적"
               : onlySetProducts
-                ? <>{getTotalPrice().toLocaleString()}원</>
-                : page === CHECK_ORDER_PAGE
-                  ? <>{getTotalPrice().toLocaleString()}원&nbsp;<span className="text-gray-600">부터~</span></>
-                  : <>{getTotalPrice().toLocaleString()}원&nbsp;<span className="text-gray-600">부터~</span></>}
+                ? <>{estimatedOrderTotal.toLocaleString()}원</>
+                : <>{estimatedOrderTotal.toLocaleString()}원&nbsp;<span className="text-gray-600">부터~</span></>}
           </span>
         </div>
         {page === CHECK_ORDER_PAGE ? (
@@ -106,6 +110,12 @@ const PriceSummaryCard: React.FC<PriceSummaryCardProps> = ({
                 </div>
               );
             })
+          )}
+          {constructFeeAmount > 0 && (
+            <div className="mb-1 flex justify-between text-[15px] text-gray-500">
+              <span>{constructFeeLabel || "시공 추가비"}</span>
+              <span>+{constructFeeAmount.toLocaleString()}원</span>
+            </div>
           )}
         </div>
       </div>

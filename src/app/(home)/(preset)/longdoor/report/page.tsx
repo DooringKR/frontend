@@ -8,6 +8,7 @@ import ProgressBar from "@/components/Progress";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import PaymentNoticeCard from "@/components/PaymentNoticeCard";
+import PriceDebugPanel from "@/components/PriceDebugPanel";
 import { transformDoorToNewCardProps } from "@/utils/transformers/transformDoorToNewCardProps";
 
 import useItemStore from "@/store/itemStore";
@@ -43,6 +44,9 @@ import {
     getTotalQuantityFromCartItems,
     getTotalValueFromCartItems
 } from "@/utils/getCartProductTypes";
+import useDebugModeStore from "@/store/debugModeStore";
+import { isDeveloperAccount } from "@/utils/isDeveloperAccount";
+import { getPriceTraceByDetailProductType } from "@/services/pricing/priceTrace";
 
 
 function LongDoorReportPageContent() {
@@ -54,6 +58,8 @@ function LongDoorReportPageContent() {
 
     const [isLoading, setIsLoading] = useState(false);
     const [isDoorsExpanded, setIsDoorsExpanded] = useState(false);
+    const isDebugMode = useDebugModeStore((state) => state.isDebugMode);
+    const isDevAccount = isDeveloperAccount(bizClient?.phone_number);
 
     // color 문자열을 color.id로 변환하는 함수
     const getColorId = (colorName: string) => {
@@ -115,6 +121,7 @@ function LongDoorReportPageContent() {
                 color: item?.color ?? "",
                 width: door.door_width,
                 addOnHinge: !!item?.addOn_hinge,
+                hinge: getEffectiveBoring(door).hinge,
             });
             return sum + doorPrice;
         }
@@ -127,6 +134,18 @@ function LongDoorReportPageContent() {
     // 표시용 단가 (총 가격 / 문 개수)
     const averageUnitPrice = quantity > 0 ? Math.round(totalPrice / quantity) : 0;
 
+    const longDoorTraceDetail = {
+        door_color: getColorId(item?.color ?? ""),
+        door_color_direct_input: item?.door_color_direct_input,
+        addOn_hinge: item?.addOn_hinge ?? false,
+        door_construct: item?.door_construct ?? false,
+    };
+
+    const longDoorTraceDoors = doors.map((door) => ({
+        door_width: door?.door_width ?? 0,
+        hinge: getEffectiveBoring(door).hinge,
+    }));
+
     return (
         <div className="flex flex-col pt-[90px]">
             <InitAmplitude />
@@ -138,6 +157,17 @@ function LongDoorReportPageContent() {
                 <ShoppingCartCardNew
                     {...transformDoorToNewCardProps(displayItem)}
                 />
+
+                {isDevAccount && isDebugMode && (
+                    <PriceDebugPanel
+                        className="mt-2"
+                        steps={getPriceTraceByDetailProductType(
+                            DetailProductType.LONGDOOR,
+                            longDoorTraceDetail,
+                            longDoorTraceDoors,
+                        )}
+                    />
+                )}
 
                 {/* 업로드된 이미지 표시 */}
                 <ImageCard images={item?.raw_images || []} />
@@ -170,16 +200,18 @@ function LongDoorReportPageContent() {
                                 <div className="mb-3 text-[14px] font-600 text-gray-800">개별 문 정보</div>
                                 <div className="space-y-2">
                                     {doors.map((door, idx) => {
+                                        const effectiveBoring = getEffectiveBoring(door);
+
                                         // 각 문의 단가 계산
                                         const doorUnitPrice = door.door_width && door.door_width > 0
                                             ? calculateLongDoorUnitPriceWithOptions({
                                                 color: item?.color ?? "",
                                                 width: door.door_width,
                                                 addOnHinge: !!item?.addOn_hinge,
+                                                hinge: effectiveBoring.hinge,
                                             })
                                             : 0;
 
-                                        const effectiveBoring = getEffectiveBoring(door);
                                         const hinge = effectiveBoring.hinge;
                                         const boringLabel = hinge.length === 1 && hinge[0] === null
                                             ? "모름"

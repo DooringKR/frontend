@@ -58,7 +58,6 @@ function UpperCabinetPageContent() {
     // 추가 필드: 용도/장소, 시공 필요 여부, 다리발
     const [cabinetLocation, setCabinetLocation] = useState(item?.cabinet_location ?? null);
     const [isCabinetLocationSheetOpen, setIsCabinetLocationSheetOpen] = useState(false);
-    const [cabinetConstruct, setCabinetConstruct] = useState(item?.cabinet_construct ?? false);
     // 다리발: enum + 직접입력
     // const [legType, setLegType] = useState<CabinetLegType | null>(
     //     item && Object.values(CabinetLegType).includes(item.legType) ? item.legType : null
@@ -77,7 +76,7 @@ function UpperCabinetPageContent() {
     useEffect(() => { updateItem({ behindType }); }, [behindType]);
     useEffect(() => { updateItem({ request }); }, [request]);
     useEffect(() => { updateItem({ cabinet_location: cabinetLocation }); }, [cabinetLocation]);
-    useEffect(() => { updateItem({ cabinet_construct: cabinetConstruct }); }, [cabinetConstruct]);
+    useEffect(() => { updateItem({ cabinet_construct: false }); }, [updateItem]);
     // useEffect(() => { updateItem({ legType }); }, [legType]);
     // useEffect(() => { updateItem({ legType_direct_input: legTypeDirectInput }); }, [legTypeDirectInput]);
 
@@ -107,8 +106,7 @@ function UpperCabinetPageContent() {
         (bodyMaterial === null && !bodyMaterialDirectInput) ||
         !handleType ||
         !behindType ||
-        !cabinetLocation ||
-        (cabinetConstruct === null);
+        !cabinetLocation;
     // BODY_MATERIAL_LIST에서 선택된 소재명 또는 직접입력값 표시
     const selectedMaterial = bodyMaterial !== null ? BODY_MATERIAL_LIST.find(option => option.id === bodyMaterial) : null;
     const bodyMaterialLabel = bodyMaterial !== null
@@ -257,23 +255,6 @@ function UpperCabinetPageContent() {
                         }
                     }}
                 />
-                {/* 시공 필요 여부 */}
-                <div className="flex flex-col gap-2">
-                    <div className="w-full text-[14px] font-400 text-gray-600">시공 필요 여부</div>
-                    <div className="flex flex-row gap-2">
-                        <Button
-                            type={cabinetConstruct ? "BrandInverse" : "GrayLarge"}
-                            text={"시공도 필요해요"}
-                            onClick={() => setCabinetConstruct(true)}
-                        />
-                        <Button
-                            type={!cabinetConstruct ? "BrandInverse" : "GrayLarge"}
-                            text={"필요 없어요"}
-                            onClick={() => setCabinetConstruct(false)}
-                        />
-                    </div>
-                </div>
-
                 {/* 요청사항 */}
                 <BoxedInput
                     label="제작 시 요청사항"

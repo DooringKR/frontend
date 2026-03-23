@@ -6,9 +6,10 @@ interface DatePickerProps {
   initialDate: Date | null;
   onConfirm: (date: string) => void;
   onClose: () => void;
+  minSelectableDate?: Date;
 }
 
-export default function DatePicker({ initialDate, onConfirm, onClose }: DatePickerProps) {
+export default function DatePicker({ initialDate, onConfirm, onClose, minSelectableDate }: DatePickerProps) {
   const [selectedDate, setSelectedDate] = useState(
     initialDate
       ? `${initialDate.getFullYear()}-${(initialDate.getMonth() + 1).toString().padStart(2, "0")}-${initialDate.getDate().toString().padStart(2, "0")}`
@@ -57,13 +58,15 @@ export default function DatePicker({ initialDate, onConfirm, onClose }: DatePick
     const today = new Date();
     // 날짜 비교를 위해 시간을 0으로 설정
     const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const minDate = minSelectableDate ?? todayDateOnly;
+    const minDateOnly = new Date(minDate.getFullYear(), minDate.getMonth(), minDate.getDate());
 
     for (let day = 1; day <= lastDay.getDate(); day++) {
       const date = new Date(year, month, day);
       const isTomorrow =
         date.toDateString() === new Date(today.getTime() + 24 * 60 * 60 * 1000).toDateString();
       // 날짜만 비교 (시간 제외)
-      const isPast = date < todayDateOnly;
+      const isPast = date < minDateOnly;
 
       calendar.push({
         date,

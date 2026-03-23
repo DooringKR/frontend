@@ -7,6 +7,7 @@ import Header from "@/components/Header/Header";
 import ProgressBar from "@/components/Progress";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import PriceDebugPanel from "@/components/PriceDebugPanel";
 
 import { CABINET_COLOR_LIST, OPEN_CABINET_BODY_MATERIAL_LIST } from "dooring-core-domain/dist/constants/color";
 import { ABSORBER_TYPE_LIST } from "@/constants/absorbertype";
@@ -16,6 +17,7 @@ import { CABINET_CATEGORY_LIST } from "@/constants/category";
 import useItemStore from "@/store/itemStore";
 import useBizClientStore from "@/store/bizClientStore";
 import { calculateUnitCabinetPrice } from "@/services/pricing/cabinetPricing";
+import { isOuterHandleType } from "@/services/pricing/priceAdjustments";
 import { Cabinet, UpperCabinet, LowerCabinet, TallCabinet, OpenCabinet, FlapCabinet, DrawerCabinet } from "dooring-core-domain/dist/models/InteriorMaterials/Cabinet";
 import { CabinetLegType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import { Suspense, useEffect, useState } from "react";
@@ -47,6 +49,9 @@ import {
 	getTotalQuantityFromCartItems,
 	getTotalValueFromCartItems
 } from "@/utils/getCartProductTypes";
+import useDebugModeStore from "@/store/debugModeStore";
+import { isDeveloperAccount } from "@/utils/isDeveloperAccount";
+import { getPriceTraceByDetailProductType } from "@/services/pricing/priceTrace";
 
 function createCabinetInstance(item: any, cabinetImageUrls: string[] = []) {
 
@@ -261,6 +266,8 @@ function ReportPageContent() {
 	const cartItems = useCartItemStore((state) => state.cartItems);
 	const [quantity, setQuantity] = useState(1);
 	const [isLoading, setIsLoading] = useState(false);
+	const isDebugMode = useDebugModeStore((state) => state.isDebugMode);
+	const isDevAccount = isDeveloperAccount(bizClient?.phone_number);
 
 	// 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
 	useEffect(() => {
@@ -327,11 +334,45 @@ function ReportPageContent() {
 		typeof item.bodyMaterial === "number" ? item.bodyMaterial : 0,
 		item.handleType ?? "",
 		item.depth ?? 0,
+		{
+			bodyMaterialDirectInput: item.body_material_direct_input,
+			drawerType: item.drawer_type,
+			drawerTypeDirectInput: item.drawer_type_direct_input,
+			railType: item.rail_type,
+			railTypeDirectInput: item.rail_type_direct_input,
+			absorberType: item.absorber_type,
+			absorberTypeDirectInput: item.absorber_type_direct_input,
+		},
 	);
 
 	// 오픈장: 밥솥 레일/하부장 robust 표시
 	const addRiceCookerRail = item.riceRail === "추가";
 	const addBottomDrawer = item.lowerDrawer === "추가";
+
+	const cabinetDetailProductType =
+		item.type === "상부장" ? DetailProductType.UPPERCABINET :
+			item.type === "하부장" ? DetailProductType.LOWERCABINET :
+				item.type === "키큰장" ? DetailProductType.TALLCABINET :
+					item.type === "플랩장" ? DetailProductType.FLAPCABINET :
+						item.type === "서랍장" ? DetailProductType.DRAWERCABINET :
+							item.type === "오픈장" ? DetailProductType.OPENCABINET :
+								DetailProductType.LOWERCABINET;
+
+	const cabinetTraceDetail = {
+		cabinet_color: usingDirectColor ? null : Number(colorId || 0),
+		cabinet_color_direct_input: item.cabinet_color_direct_input,
+		cabinet_body_material: typeof item.bodyMaterial === "number" ? item.bodyMaterial : null,
+		cabinet_body_material_direct_input: item.body_material_direct_input,
+		handle_type: item.handleType,
+		cabinet_width: item.width ?? 0,
+		cabinet_depth: item.depth ?? 0,
+		drawer_type: item.drawer_type,
+		drawer_type_direct_input: item.drawer_type_direct_input,
+		rail_type: item.rail_type,
+		rail_type_direct_input: item.rail_type_direct_input,
+		absorber_type: item.absorber_type,
+		absorber_type_direct_input: item.absorber_type_direct_input,
+	};
 
 	return (
 		<div className="flex flex-col pt-[90px]">
@@ -345,6 +386,13 @@ function ReportPageContent() {
 					{...transformCabinetToNewCardProps(item)}
 				/>
 
+				{isDevAccount && isDebugMode && (
+					<PriceDebugPanel
+						className="mt-2"
+						steps={getPriceTraceByDetailProductType(cabinetDetailProductType, cabinetTraceDetail)}
+					/>
+				)}
+
 				{/* 업로드된 이미지 표시 */}
 				<ImageCard images={item?.raw_images || []} />
 
@@ -354,6 +402,11 @@ function ReportPageContent() {
 					onIncrease={() => setQuantity(q => q + 1)}
 					onDecrease={() => setQuantity(q => Math.max(1, q - 1))}
 				/>
+				{isOuterHandleType(item.handleType) && (
+					<div className="rounded-[16px] border border-amber-200 bg-amber-50 px-4 py-3 text-[14px]/[20px] text-amber-900">
+						겉손잡이는 별도 구매 품목이며, 손잡이는 직접 다셔야 해요.
+					</div>
+				)}
 				<PaymentNoticeCard />
 			</div>
 			<div id="cabinet-add-to-cart-button">

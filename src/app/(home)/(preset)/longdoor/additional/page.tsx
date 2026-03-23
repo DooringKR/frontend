@@ -40,7 +40,6 @@ function LongDoorAdditionalPageContent() {
 
     const [door_request, setDoorRequest] = useState(item?.door_request ?? "");
     const [addOn_hinge, setAddOn_hinge] = useState(item?.addOn_hinge ?? false);
-    const [door_construct, setDoorConstruct] = useState(item?.door_construct ?? false);
     const [images, setImages] = useState<File[]>(item?.raw_images || []);
 
     const [selectedThickness, setSelectedThickness] = useState<HingeThickness | null>(item?.hinge_thickness ?? null);
@@ -72,10 +71,9 @@ function LongDoorAdditionalPageContent() {
         }
     };
 
-    const handleDoorConstructChange = (newDoorConstruct: boolean) => {
-        setDoorConstruct(newDoorConstruct);
-        updateItem({ door_construct: newDoorConstruct });
-    };
+    useEffect(() => {
+        updateItem({ door_construct: false });
+    }, [updateItem]);
 
     const handleThicknessChange = (thickness: HingeThickness) => {
         const newValue = selectedThickness === thickness ? null : thickness;
@@ -224,20 +222,6 @@ function LongDoorAdditionalPageContent() {
                         onChange={handleAddOnHingeChange}
                     />
 
-                    <div className="self-stretch h-px bg-gray-100" />
-
-                    <SelectableOptionCard
-                        title="시공도 필요해요"
-                        description="세부 내용은 상담으로 안내해드려요."
-                        showImage={true}
-                        imageUrl="/img/door_construction.png"
-                        showChip={true}
-                        chipText="+30만원"
-                        chipColor="gray"
-                        showExpandableContent={false}
-                        checked={door_construct}
-                        onChange={handleDoorConstructChange}
-                    />
                 </div>
 
                 <div ref={imageRef}>

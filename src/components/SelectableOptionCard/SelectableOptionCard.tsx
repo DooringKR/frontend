@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Checkbox from "@/components/Checkbox";
 import { Chip } from "@/components/Chip/Chip";
@@ -46,6 +46,12 @@ export default function SelectableOptionCard({
   className = "",
 }: SelectableOptionCardProps) {
   const [isExpanded, setIsExpanded] = useState(checked && showExpandableContent);
+
+  useEffect(() => {
+    if (showExpandableContent) {
+      setIsExpanded(checked);
+    }
+  }, [checked, showExpandableContent]);
 
   const handleCheckboxChange = (newChecked: boolean) => {
     onChange(newChecked);
@@ -93,7 +99,7 @@ export default function SelectableOptionCard({
           </div>
           
           {/* 체크박스 - 컨테이너 상단에 정렬 */}
-          <div className="flex items-start pt-0">
+          <div className="flex items-start pt-0" onClick={(e) => e.stopPropagation()}>
             <Checkbox 
               checked={checked} 
               onChange={handleCheckboxChange}
@@ -103,7 +109,7 @@ export default function SelectableOptionCard({
         
         {/* 확장 가능한 콘텐츠 */}
         {showExpandableContent && isExpanded && expandableContent && (
-          <div className="self-stretch flex flex-col justify-center items-start">
+          <div className="self-stretch flex flex-col justify-center items-start" onClick={(e) => e.stopPropagation()}>
             {expandableContent}
           </div>
         )}

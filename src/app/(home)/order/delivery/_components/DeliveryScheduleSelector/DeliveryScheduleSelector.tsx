@@ -3,6 +3,7 @@
 import { useDeliverySchedule } from "./_hooks/useDeliverySchedule";
 import { useDeliveryDate } from "./_hooks/useDeliveryDate";
 import TodayDeliveryOption from "./_components/TodayDeliveryOption";
+import GeneralDeliveryOption from "./_components/GeneralDeliveryOption";
 import CustomDateDeliveryOption from "./_components/CustomDateDeliveryOption";
 
 export default function DeliveryScheduleSelector({ hasValidationFailed, isLoading }: { hasValidationFailed?: boolean; isLoading?: boolean }) {
@@ -19,6 +20,8 @@ export default function DeliveryScheduleSelector({ hasValidationFailed, isLoadin
         hasValidationFailed={hasValidationFailed}
         isLoading={isLoading}
       />
+
+      <GeneralDeliveryOption isLoading={isLoading} />
 
       <CustomDateDeliveryOption
         formatSelectedDate={formatSelectedDate}

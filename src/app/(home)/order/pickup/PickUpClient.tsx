@@ -1,4 +1,5 @@
 "use client";
+import * as PortOne from "@portone/browser-sdk/v2";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -34,6 +35,8 @@ import {
   getTotalQuantityFromCartItems,
   getTotalValueFromCartItems
 } from "@/utils/getCartProductTypes";
+import OrderConstructSelector from "../_components/OrderConstructSelector";
+import { getOrderConstructFee, ORDER_CONSTRUCT_GENERAL_FEE, ORDER_CONSTRUCT_RESERVED_FEE } from "../_utils/orderConstructPricing";
 import { sortProductTypes, sortDetailProductTypes } from "@/utils/formatCartProductTypes";
 
 
@@ -65,6 +68,23 @@ export default function PickUpClientPage() {
     return getTotalPrice();
   };
 
+  const now = new Date();
+  const pickupTime = order?.pickup_time ? new Date(order.pickup_time) : null;
+  const pickupScheduleMode = (order as any)?.pickup_schedule_mode as "GENERAL" | "RESERVED" | undefined;
+  const is_date_free = (order as any)?.is_date_free ?? (pickupScheduleMode
+    ? pickupScheduleMode === "GENERAL"
+    : pickupTime
+      ? pickupTime.toDateString() === now.toDateString()
+      : false);
+  const orderConstructFee = getOrderConstructFee(order?.order_construct, is_date_free);
+
+  const getOrderConstructFeeLabel = () => {
+    if (!order?.order_construct) return "";
+    return is_date_free
+      ? `일반 시공 추가비 (+${ORDER_CONSTRUCT_GENERAL_FEE.toLocaleString()}원)`
+      : `예약 시공 추가비 (+${ORDER_CONSTRUCT_RESERVED_FEE.toLocaleString()}원)`;
+  };
+
   // 화면 진입 시 초기 PickUpOrder 구성, 나머지 속성은 각 컴포넌트에서 업데이트
   useEffect(() => {
     // 새로운 주문 시작 시 이전 주문 정보 삭제
@@ -75,6 +95,8 @@ export default function PickUpClientPage() {
       user_id: user.id!,
       recipient_phone: useOrderStore.getState().order?.recipient_phone || user.phone_number!,
       order_price: totalPrice,
+      order_construct: useOrderStore.getState().order?.order_construct ?? false,
+      is_date_free: useOrderStore.getState().order?.is_date_free ?? true,
     };
     //setOrder 대신 updateOrder 사용(Order는 초기화 되면 안되기 때문)
     updateOrder(pickupOrderData);
@@ -122,6 +144,40 @@ export default function PickUpClientPage() {
     setHasValidationFailed(false);
 
     try {
+      // 0. 포트원 v2 결제 요청
+      const totalAmount = getExpectedOrderPrice();
+      const orderName = hasSetProducts
+        ? `롱문 세트 외 ${setProducts.length}건`
+        : `바로가구 주문 (${cartItems.length}건)`;
+
+      const paymentResponse = await PortOne.requestPayment({
+        storeId: "store-1188f5df-a970-42b4-a89e-35228abdc0ae",
+        channelKey: "channel-key-8380081d-aa08-4ae0-93ed-e2fd2cc3a9c5",
+        paymentId: `payment-${crypto.randomUUID().replaceAll("-", "")}`,
+        orderName,
+        totalAmount,
+        currency: "CURRENCY_KRW",
+        payMethod: "CARD",
+      });
+
+      // TODO: 테스트 완료 후 아래 강제 실패 블록 제거
+      // alert("결제 테스트: 결제창 확인 완료. 현재는 테스트 모드로 결제가 진행되지 않습니다.");
+      setIsLoading(false);
+      return;
+
+      // eslint-disable-next-line no-unreachable -- 테스트 완료 후 위 강제 실패 블록과 함께 제거
+      // if (paymentResponse?.code != null) {
+      //   if (paymentResponse.code === "FAILURE_TYPE_PG") {
+      //     alert("결제가 취소되었습니다.");
+      //   } else {
+      //     alert(paymentResponse.message || "결제에 실패했습니다.");
+      //   }
+      //   setIsLoading(false);
+      //   return;
+      // }
+
+      // console.log("✅ 포트원 결제 성공:", paymentResponse);
+
       // 1. 주문 생성
       const orderRepo = new OrderSupabaseRepository();
       const exportAdapter = new EstimateExportEdgeFunctionAdapter();
@@ -133,7 +189,13 @@ export default function PickUpClientPage() {
         generateEstimateUC
       );
       console.log('[PickUpOrderSubmit] Export usecase injected');
-      const response = await createOrderUsecase.execute(order, cart!.id!);
+      const orderPayload = {
+        ...order,
+        order_price: getExpectedOrderPrice() + orderConstructFee,
+      };
+      const { pickup_schedule_mode: _pickupScheduleMode, ...sanitizedOrderPayload } = orderPayload as any;
+      const response = await createOrderUsecase.execute(sanitizedOrderPayload as PickUpOrder, cart!.id!);
+      
 
       if (!response.success) {
         alert(response.message);
@@ -271,6 +333,9 @@ export default function PickUpClientPage() {
           </div>
         </div>
         <div className="px-5">
+          <OrderConstructSelector isLoading={isLoading} />
+        </div>
+        <div className="px-5">
           <div data-component="pickup-schedule">
             <PickupScheduleSelector hasValidationFailed={hasValidationFailed} isLoading={isLoading} />
           </div>
@@ -280,6 +345,8 @@ export default function PickUpClientPage() {
             <PriceSummaryCard
               getTotalPrice={getExpectedOrderPrice}
               filteredCartItems={hasSetProducts ? setProducts : undefined}
+              constructFeeLabel={getOrderConstructFeeLabel()}
+              constructFeeAmount={orderConstructFee}
             />
             {!hasSetProducts && <PaymentNoticeCard />}
           </div>
@@ -289,7 +356,7 @@ export default function PickUpClientPage() {
       <div id="pickup-order-button">
         <BottomButton
           type={"1button"}
-          button1Text={isLoading ? "주문 요청 중..." : "주문 접수하기"}
+          button1Text={isLoading ? "주문 요청 중..." : "결제하기"}
           className={`fixed bottom-0 w-full max-w-[460px] `}
           button1Disabled={isLoading}
           onButton1Click={handleSubmit}

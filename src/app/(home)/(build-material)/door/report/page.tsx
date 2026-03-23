@@ -8,6 +8,7 @@ import ProgressBar from "@/components/Progress";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import PaymentNoticeCard from "@/components/PaymentNoticeCard";
+import PriceDebugPanel from "@/components/PriceDebugPanel";
 import { transformDoorToNewCardProps } from "@/utils/transformers/transformDoorToNewCardProps";
 
 import { DOOR_CATEGORY_LIST } from "@/constants/category";
@@ -43,6 +44,9 @@ import {
     getTotalQuantityFromCartItems,
     getTotalValueFromCartItems
 } from "@/utils/getCartProductTypes";
+import useDebugModeStore from "@/store/debugModeStore";
+import { isDeveloperAccount } from "@/utils/isDeveloperAccount";
+import { getPriceTraceByDetailProductType } from "@/services/pricing/priceTrace";
 
 
 function DoorReportPageContent() {
@@ -54,6 +58,8 @@ function DoorReportPageContent() {
 
     const [quantity, setQuantity] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
+    const isDebugMode = useDebugModeStore((state) => state.isDebugMode);
+    const isDevAccount = isDeveloperAccount(bizClient?.phone_number);
 
     // color 문자열을 color.id로 변환하는 함수
     const getColorId = (colorName: string) => {
@@ -83,8 +89,22 @@ function DoorReportPageContent() {
         item?.color ?? "",
         item?.door_width ?? 0,
         item?.door_height ?? 0,
-        item?.is_pair_door ?? false
+        item?.is_pair_door ?? false,
+        {
+            addOnHinge: item?.addOn_hinge ?? false,
+            hinge: item?.hinge ?? [],
+        },
     );
+
+    const doorTraceDetail = {
+        door_color: getColorId(item?.color ?? ""),
+        door_color_direct_input: item?.door_color_direct_input,
+        door_width: item?.door_width ?? 0,
+        door_height: item?.door_height ?? 0,
+        is_pair_door: item?.is_pair_door ?? false,
+        addOn_hinge: item?.addOn_hinge ?? false,
+        hinge: item?.hinge ?? [],
+    };
 
     // 카테고리 정보 가져오기
 
@@ -99,6 +119,13 @@ function DoorReportPageContent() {
                 <ShoppingCartCardNew
                     {...transformDoorToNewCardProps(item)}
                 />
+
+                {isDevAccount && isDebugMode && (
+                    <PriceDebugPanel
+                        className="mt-2"
+                        steps={getPriceTraceByDetailProductType(DetailProductType.DOOR, doorTraceDetail)}
+                    />
+                )}
 
 
                 {/* 업로드된 이미지 표시 */}

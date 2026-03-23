@@ -10,6 +10,7 @@ import { GenerateOrderEstimateUseCase } from "@/DDD/usecase/generate_order_estim
 import { CHECK_ORDER_PAGE } from "@/constants/pageName";
 import { DeliveryMethod, DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 import { DeliveryOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/DeliveryOrder";
+import * as PortOne from "@portone/browser-sdk/v2";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -41,6 +42,9 @@ import {
 } from "@/utils/getCartProductTypes";
 import { sortProductTypes, sortDetailProductTypes } from "@/utils/formatCartProductTypes";
 import OrderProcessCard from "@/components/OrderProcessCard";
+import OrderConstructSelector from "../_components/OrderConstructSelector";
+import { getOrderConstructFee, ORDER_CONSTRUCT_GENERAL_FEE, ORDER_CONSTRUCT_RESERVED_FEE } from "../_utils/orderConstructPricing";
+import { applyDeliveryPriceMultiplier } from "@/services/pricing/priceAdjustments";
 
 const CATEGORY_MAP: Record<string, string> = {
   door: "문짝",
@@ -81,21 +85,33 @@ function CheckOrderClientPage() {
     return getTotalPrice();
   };
 
+  const getAdjustedOrderPrice = () => applyDeliveryPriceMultiplier(getExpectedOrderPrice(), order);
+
+  const is_date_free = Boolean((order as any)?.is_date_free);
+  const orderConstructFee = getOrderConstructFee(order?.order_construct, is_date_free);
+
+  const getOrderConstructFeeLabel = () => {
+    if (!order?.order_construct) return "";
+    return is_date_free
+      ? `일반 시공 추가비 (+${ORDER_CONSTRUCT_GENERAL_FEE.toLocaleString()}원)`
+      : `예약 시공 추가비 (+${ORDER_CONSTRUCT_RESERVED_FEE.toLocaleString()}원)`;
+  };
+
   // 화면 진입 시 초기 DeliveryOrder 구성
   useEffect(() => {
     const fetchDeliveryInfo = async () => {
       // 새로운 주문 시작 시 이전 주문 정보 삭제
       localStorage.removeItem("recentOrder");
 
-      const totalPrice = getExpectedOrderPrice();
+      const totalPrice = getAdjustedOrderPrice();
       const deliveryOrderData: Partial<DeliveryOrder> = {
         user_id: user.id!,
         recipient_phone: useOrderStore.getState().order?.recipient_phone || user.phone_number!,
         order_price: totalPrice,
         road_address: useOrderStore.getState().order?.road_address || user?.road_address || "",
         detail_address: useOrderStore.getState().order?.detail_address || user.detail_address,
-        // 오늘 배송이 아닌 원하는 날짜 배송인 경우를 기본값으로 설정
-        is_today_delivery: useOrderStore.getState().order?.is_today_delivery || false,
+        is_today_delivery: useOrderStore.getState().order?.is_today_delivery ?? false,
+        is_date_free: useOrderStore.getState().order?.is_date_free ?? false,
         // 오늘 배송이 아니면 '내일 자정'이 기본값,
         //2025-10-01T15:00:00.000Z 이런 형식으로 저장되어 있음, z는 UTC(+0) 시간임, 저장은 이렇게 해두고 보여줄 때만 한국시간으로 변환
         delivery_arrival_time:
@@ -106,6 +122,7 @@ function CheckOrderClientPage() {
             tomorrow.setHours(0, 0, 0, 0);
             return tomorrow;
           })(),
+        order_construct: useOrderStore.getState().order?.order_construct ?? false,
       };
 
       // setOrder 대신 updateOrder 사용 (Order는 초기화되면 안되기 때문)
@@ -156,7 +173,7 @@ function CheckOrderClientPage() {
     }
 
     // 배송 일정 검증
-    if (order?.is_today_delivery === false && !order?.delivery_arrival_time) {
+    if (order?.is_today_delivery === false && (order as any)?.is_date_free === false && !order?.delivery_arrival_time) {
       setHasValidationFailed(true);
       const scheduleElement = document.querySelector('[data-component="delivery-schedule"]');
       if (scheduleElement) {
@@ -166,9 +183,43 @@ function CheckOrderClientPage() {
     }
 
     setIsLoading(true);
-    setHasValidationFailed(false); // 로딩 시작과 동시에 검증 실패 상태 초기화
+    setHasValidationFailed(false);
 
     try {
+      // 0. 포트원 v2 결제 요청
+      const totalAmount = getExpectedOrderPrice();
+      const orderName = hasSetProducts
+        ? `롱문 세트 외 ${setProducts.length}건`
+        : `바로가구 주문 (${cartItems.length}건)`;
+
+      const paymentResponse = await PortOne.requestPayment({
+        storeId: "store-1188f5df-a970-42b4-a89e-35228abdc0ae",
+        channelKey: "channel-key-8380081d-aa08-4ae0-93ed-e2fd2cc3a9c5",
+        paymentId: `payment-${crypto.randomUUID().replaceAll("-", "")}`,
+        orderName,
+        totalAmount,
+        currency: "CURRENCY_KRW",
+        payMethod: "CARD",
+      });
+
+      // TODO: 테스트 완료 후 아래 강제 실패 블록 제거
+      setIsLoading(false);
+      return;
+
+      // /* eslint-disable no-unreachable */
+      // if (paymentResponse?.code != null) {
+      //   if (paymentResponse.code === "FAILURE_TYPE_PG") {
+      //     alert("결제가 취소되었습니다.");
+      //   } else {
+      //     alert(paymentResponse.message || "결제에 실패했습니다.");
+      //   }
+      //   setIsLoading(false);
+      //   return;
+      // }
+
+      // console.log("✅ 포트원 결제 성공:", paymentResponse);
+      // /* eslint-enable no-unreachable */
+
       // 1. 주문 생성 (CreateOrderUsecase 사용)
       // Reuse a single repo instance for order so export usecase uses same implementation
       const orderRepo = new OrderSupabaseRepository();
@@ -182,7 +233,11 @@ function CheckOrderClientPage() {
       );
       console.log("[OrderSubmit] Export usecase injected");
 
-      const response = await createOrderUsecase.execute(order!, cart!.id!);
+      const orderPayload = {
+        ...order,
+        order_price: getAdjustedOrderPrice() + orderConstructFee,
+      };
+      const response = await createOrderUsecase.execute(orderPayload as DeliveryOrder, cart!.id!);
 
       if (!response.success) {
         alert(response.message);
@@ -229,7 +284,7 @@ function CheckOrderClientPage() {
         const shippingYear = deliveryTime.getFullYear();
         const shippingMonth = deliveryTime.getMonth() + 1; // 0-based이므로 +1
         const shippingDay = deliveryTime.getDate();
-        // is_today_delivery가 true면 18시 0분 고정, 아니면 실제 시간
+        // 오늘배송은 당일 마감 기준, 일반배송은 협의 일정, 예약배송은 선택한 시간 기준
         const shippingHour = order?.is_today_delivery ? 18 : deliveryTime.getHours();
         const shippingMinute = order?.is_today_delivery ? 0 : deliveryTime.getMinutes();
 
@@ -260,7 +315,7 @@ function CheckOrderClientPage() {
       const cartItemsToSave = hasSetProducts ? setProducts : cartItems;
       const payload = {
         order_id: response.data?.id,
-        order,
+        order: orderPayload,
         cartItems: cartItemsToSave,
       };
       localStorage.setItem("recentOrder", JSON.stringify(payload));
@@ -342,6 +397,8 @@ function CheckOrderClientPage() {
           </div>
         </div>
 
+        <OrderConstructSelector isLoading={isLoading} />
+
         <div data-component="delivery-schedule">
           <DeliveryScheduleSelector hasValidationFailed={hasValidationFailed} isLoading={isLoading} />
         </div>
@@ -356,9 +413,11 @@ function CheckOrderClientPage() {
 
         <div className="flex flex-col gap-1">
           <PriceSummaryCard
-            getTotalPrice={getExpectedOrderPrice}
+            getTotalPrice={getAdjustedOrderPrice}
             page={CHECK_ORDER_PAGE}
             filteredCartItems={hasSetProducts ? setProducts : undefined}
+            constructFeeLabel={getOrderConstructFeeLabel()}
+            constructFeeAmount={orderConstructFee}
           />
           {!hasSetProducts && <PaymentNoticeCard />}
         </div>
@@ -368,7 +427,7 @@ function CheckOrderClientPage() {
       <div id="delivery-order-button">
         <BottomButton
           type={"1button"}
-          button1Text={isLoading ? "주문 요청 중..." : "주문 접수하기"}
+          button1Text={isLoading ? "주문 요청 중..." : "결제하기"}
           className="fixed bottom-0 w-full max-w-[460px]"
           button1Disabled={isLoading}
           onButton1Click={handleOrderSubmit}
