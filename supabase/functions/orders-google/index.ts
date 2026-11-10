@@ -70,7 +70,8 @@ Deno.serve(async (req) => {
 
   // Prefer environment variables; fallback to hardcoded defaults for local convenience ONLY.
   const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "https://ltndnqysxsyldvkrbpfq.supabase.co";
-  const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx0bmRucXlzeHN5bGR2a3JicGZxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NjcwOTA5MiwiZXhwIjoyMDcyMjg1MDkyfQ.ZB8cRo7HDnwHGrstZxib6WvVRoV441FSooG6OC1DC8g";
+  // 운영 키를 코드에 두지 않는다(2026-11-10 유출 대응). 새 secret 키(SUPABASE_SECRET_KEYS)를 먼저, 없으면 런타임 기본값.
+  const SUPABASE_SERVICE_ROLE_KEY = JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") ?? "{}").default ?? Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
   // Fallback updated to new /exec deployment URL (use secret override in production!)
   let APPS_SCRIPT_URL = Deno.env.get("APPS_SCRIPT_URL") ?? "https://script.google.com/macros/s/AKfycbwNKYzCtEfqdmjbUhGBYTW3nZxsr--nX312mxkgJzhmmesR55Hq1dc8OQBPTFQnK_rs/exec";
   // sanitize accidental wrapping quotes from secrets ("url")
