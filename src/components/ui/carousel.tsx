@@ -106,6 +106,19 @@ const Carousel = React.forwardRef<
       setApi(api)
     }, [api, setApi])
 
+    // 슬라이드 안 칸을 누르면(포커스) 브라우저가 overflow-hidden 창을 몰래 옆으로 스크롤해
+    // 두 장 사이에 걸쳐 멈췄다(2026-11-13, scrollLeft 90). 장 이동은 transform 으로만 하므로 창 스크롤은 늘 0.
+    React.useEffect(() => {
+      const root = api?.rootNode()
+      if (!root) return
+      const keep = () => {
+        if (root.scrollLeft !== 0) root.scrollLeft = 0
+        if (root.scrollTop !== 0) root.scrollTop = 0
+      }
+      root.addEventListener("scroll", keep)
+      return () => root.removeEventListener("scroll", keep)
+    }, [api])
+
     React.useEffect(() => {
       if (!api) {
         return

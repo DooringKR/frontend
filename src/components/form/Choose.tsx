@@ -4,6 +4,7 @@ import { Check, ChevronDown } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { checkboxVariants } from "@/components/ui/checkbox";
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn, imageSrc } from "@/lib/utils";
@@ -14,6 +15,8 @@ import { cn, imageSrc } from "@/lib/utils";
  *  - 줄(cards): 그 밖은 카드 줄(이름 + 설명 + 고름 표시).
  *  - 시트(sheet): 선택지가 9개 이상이면 칸 하나를 누르면 시트에 목록.
  * emphasized = 눈에 띄게(화면 1 「현장 급한 수습」), disabled = 지금은 못 고름(이유는 화면이 보인다).
+ * 누를 수 있다는 표시(2026-11-13 사용자 「체크·라디오 표시」): 줄은 왼쪽에 빈 네모(여러 개)·동그라미(하나)를 늘 보이고 고르면 채운다
+ * (프로젝트 shadcn Checkbox square·circle 모양 그대로 — 카드가 이미 버튼이라 안에 버튼을 또 넣지 않고 모양만), 칸은 shadcn Toggle outline.
  * aria-invalid = 골라야 하는데 안 고름 — 글 대신 선택지 테두리를 빨갛게(shadcn 입력칸 오류 표시와 같은 방식, 2026-11-13).
  */
 export interface ChooseOption<V extends string> {
@@ -74,7 +77,8 @@ export default function Choose<V extends string>(props: ChooseProps<V>) {
         value={o.value}
         disabled={o.disabled}
         aria-invalid={invalid}
-        className="h-10 rounded-[12px] border border-transparent bg-secondary px-2 text-[16px] font-500 text-secondary-foreground hover:bg-gray-200 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-[3px] aria-[invalid=true]:ring-destructive/20"
+        variant="outline"
+        className="h-10 rounded-[12px] bg-background px-2 text-[16px] font-500 text-gray-700 data-[state=on]:border-primary data-[state=on]:bg-accent data-[state=on]:text-accent-foreground aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-[3px] aria-[invalid=true]:ring-destructive/20"
       >
         {o.label}
       </ToggleGroupItem>
@@ -85,7 +89,7 @@ export default function Choose<V extends string>(props: ChooseProps<V>) {
         disabled={o.disabled}
         aria-invalid={invalid}
         className={cn(
-          "flex h-auto w-full items-start justify-between gap-3 rounded-[12px] border px-5 py-4 text-left transition-colors aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-[3px] aria-[invalid=true]:ring-destructive/20",
+          "flex h-auto w-full items-start justify-start gap-3 rounded-[12px] border px-5 py-4 text-left transition-colors aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-[3px] aria-[invalid=true]:ring-destructive/20",
           o.disabled
             ? "border-gray-100 bg-muted text-gray-300"
             : picked(o.value)
@@ -95,6 +99,13 @@ export default function Choose<V extends string>(props: ChooseProps<V>) {
                 : "border-border bg-background hover:bg-muted",
         )}
       >
+        <span
+          aria-hidden
+          data-state={picked(o.value) ? "checked" : "unchecked"}
+          className={cn(checkboxVariants({ variant: props.multiple ? "square" : "circle" }), "mt-0.5", o.disabled && "opacity-40")}
+        >
+          {picked(o.value) && <Check strokeWidth={3} />}
+        </span>
         {o.image && <OptionImage image={o.image} />}
         <span className="flex min-w-0 flex-1 flex-col gap-1">
           <span
@@ -108,7 +119,6 @@ export default function Choose<V extends string>(props: ChooseProps<V>) {
           </span>
           {o.description && <span className={cn("text-[14px] font-400", o.disabled ? "" : "text-gray-500")}>{o.description}</span>}
         </span>
-        {picked(o.value) && <Check className="mt-1 size-5 shrink-0 text-primary" strokeWidth={2.5} />}
       </ToggleGroupItem>
     ),
   );
