@@ -2,6 +2,8 @@ import MapIcon from "public/icons/map";
 import PickUpIcon from "public/icons/pick-up";
 import { DeliveryOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/DeliveryOrder";
 import { PickUpOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/PickUpOrder";
+import { Separator } from "@/components/ui/separator";
+
 import { formatPrice } from "../../utils/formatters";
 
 interface OrderHeaderProps {
@@ -28,7 +30,7 @@ export default function OrderHeader({ order, isDelivery }: OrderHeaderProps) {
           {formatPrice(order.order_price)}원
         </div>
       </div>
-      <div className="mx-5 h-[1px] bg-gray-200"></div>
+      <Separator className="mx-5 w-auto" />
     </>
   );
 }

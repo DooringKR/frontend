@@ -1,47 +1,63 @@
 "use client";
 
-import { Chip } from "@/components/Chip/Chip";
 import Header from "@/components/Header/Header";
 import { useState, useEffect, useRef } from "react";
-import UnderlinedInput from "@/components/Input/UnderlinedInput";
-import Button from "@/components/Button/Button";
-import SelectToggleButton from "@/components/Button/SelectToggleButton";
-import Checkbox from "@/components/Checkbox";
 import { BusinessType } from "dooring-core-domain/dist/enums/UserEnums";
-import BottomButton from "@/components/BottomButton/BottomButton";
-import BottomSheet from "@/components/BottomSheet/BottomSheet";
-import router from "next/router";
 import { CartSupabaseRepository } from "@/DDD/data/db/CartNOrder/cart_supabase_repository";
 import { KakaoAuthSupabaseRepository } from "@/DDD/data/service/kakao_auth_supabase_repository";
 import { BizClientSupabaseRepository } from "@/DDD/data/db/User/bizclient_supabase_repository";
 import { KakaoSignupUsecase } from "@/DDD/usecase/auth/kakao_signup_usecase";
 import useSignupStore from "@/store/signupStore";
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
-import InitAmplitudeUnstable from "@/app/(client-helpers)/init-amplitude-unstable";
 import { trackClick, trackView, trackClickAndWait } from "@/services/analytics/amplitude";
-import { trackClickUnstable, trackViewUnstable, trackClickAndWaitUnstable } from "@/services/analytics/amplitude-unstable";
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
-import BoxedInput from "@/components/Input/BoxedInput";
-import BoxedSelect from "@/components/Select/BoxedSelect";
 import { supabase } from "@/lib/supabase";
 import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ActionError, useAction } from "@/components/ui/use-action";
+import Choose from "@/components/form/Choose";
+import Field from "@/components/form/Field";
+import PhoneInput from "@/components/form/PhoneInput";
+import { useRequired } from "@/components/form/useRequired";
+import BottomBar from "@/components/overlay/BottomBar";
+import Notice from "@/components/state/Notice";
+import { Loading } from "@/components/state/StateViews";
 
+// 업체 유형 → 애널리틱스 object_name(예전 시트 줄과 같은 값)
+const BUSINESS_TYPES: { value: BusinessType; track: string }[] = [
+    { value: BusinessType.INTERIOR, track: "interior" },
+    { value: BusinessType.FACTORY, track: "factory" },
+    { value: BusinessType.CONSTRUCTION, track: "construction" },
+    { value: BusinessType.INDIVIDUAL_SALES, track: "individual_sales" },
+    { value: BusinessType.ETC, track: "etc" },
+];
+
+// 개인고객 링크
+const INDIVIDUAL_CUSTOMER_LINK = "https://www.gaesudae.com/"; // 개수대연구소 링크
+
+/**
+ * 가입 마지막 단계 — 휴대폰 번호·업체 유형(기타면 개인고객 여부)을 받고 카카오 가입(OAuth type=signup)을 다시 시작한다.
+ * 「확인」은 늘 눌리고, 빈 칸·틀린 칸은 누를 때 그 칸 밑에 알린다(예전엔 칸을 숨기고 버튼을 막았다).
+ */
 export default function SignupPage() {
     const [phoneNumber, setPhoneNumber] = useState("");
     const [selectedBusinessType, setSelectedBusinessType] = useState<BusinessType | null>(null);
-    const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
     const [isLoadingPhoneNumber, setIsLoadingPhoneNumber] = useState(true);
     const [isIndividualCustomer, setIsIndividualCustomer] = useState<boolean | null>(null);
     const phoneInputRef = useRef<HTMLInputElement>(null);
-    const businessTypeSelectRef = useRef<HTMLButtonElement>(null);
+    const submit = useAction({ holdOnSuccess: true });
 
-    // 개인고객 링크 (사용자가 나중에 채워넣을 수 있도록 빈 문자열)
-    const INDIVIDUAL_CUSTOMER_LINK = "https://www.gaesudae.com/"; // 개수대연구소 링크
-
-    // 전화번호 숫자만 추출하여 길이 체크
-    const getNumbersOnly = (phone: string) => phone.replace(/[^0-9]/g, '');
-    const numbersOnly = getNumbersOnly(phoneNumber);
+    const numbersOnly = phoneNumber.replace(/[^0-9]/g, '');
     const isValidLength = numbersOnly.length === 11;
+    const isEtc = selectedBusinessType === BusinessType.ETC;
+
+    // 화면 위 → 아래 순서
+    const req = useRequired({
+        phone: !numbersOnly ? false : isValidLength || "휴대폰 번호 11자리를 모두 입력해주세요.",
+        businessType: !!selectedBusinessType,
+        individual: !isEtc || (isIndividualCustomer === null ? false : !isIndividualCustomer || "개인고객은 위 링크로 이동해주세요."),
+    });
 
     // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
     useEffect(() => {
@@ -65,59 +81,37 @@ export default function SignupPage() {
 
                 if (!session) {
                     console.log('세션이 없습니다.');
-                    setIsLoadingPhoneNumber(false);
                     return;
                 }
 
                 const kakaoToken = session.provider_token;
-
-                if (kakaoToken) {
-                    // 카카오 API 직접 호출
-                    const response = await fetch('https://kapi.kakao.com/v2/user/me', {
-                        headers: { Authorization: `Bearer ${kakaoToken}` }
-                    });
-
-                    if (!response.ok) {
-                        console.error('카카오 API 호출 실패:', response.status, response.statusText);
-                        setIsLoadingPhoneNumber(false);
-                        return;
-                    }
-
-                    const kakaoData = await response.json();
-                    const kakaoPhoneNumber = kakaoData.kakao_account?.phone_number;
-
-                    console.log('카카오에서 받은 전화번호:', kakaoPhoneNumber);
-
-                    if (kakaoPhoneNumber) {
-                        console.log('🔍 원본 카카오 전화번호:', kakaoPhoneNumber);
-
-                        // 전화번호 형식 변환 (카카오는 +82-10-1234-5678 형식으로 올 수 있음)
-                        let cleanPhoneNumber = kakaoPhoneNumber.replace(/[^0-9]/g, '');
-                        console.log('🔍 숫자만 추출:', cleanPhoneNumber);
-
-                        // 82로 시작하면 0으로 변환
-                        if (cleanPhoneNumber.startsWith('82')) {
-                            cleanPhoneNumber = '0' + cleanPhoneNumber.slice(2);
-                        }
-                        console.log('🔍 82 제거 후:', cleanPhoneNumber);
-
-                        // 전화번호를 상태에 설정 (자동 포맷팅)
-                        const formatted = formatPhoneNumber(cleanPhoneNumber);
-                        console.log('🔍 포맷팅된 전화번호:', formatted);
-                        console.log('🔍 phoneNumber 상태 업데이트 전:', phoneNumber);
-
-                        setPhoneNumber(formatted);
-
-                        // 상태 업데이트 확인을 위한 추가 로그
-                        setTimeout(() => {
-                            console.log('🔍 phoneNumber 상태 업데이트 후:', phoneNumber);
-                        }, 100);
-                    } else {
-                        console.log('⚠️ 카카오 계정에서 전화번호를 찾을 수 없습니다.');
-                    }
-                } else {
+                if (!kakaoToken) {
                     console.log('카카오 토큰이 없습니다.');
+                    return;
                 }
+
+                // 카카오 API 직접 호출
+                const response = await fetch('https://kapi.kakao.com/v2/user/me', {
+                    headers: { Authorization: `Bearer ${kakaoToken}` }
+                });
+                if (!response.ok) {
+                    console.error('카카오 API 호출 실패:', response.status, response.statusText);
+                    return;
+                }
+
+                const kakaoData = await response.json();
+                const kakaoPhoneNumber = kakaoData.kakao_account?.phone_number;
+                if (!kakaoPhoneNumber) {
+                    console.log('⚠️ 카카오 계정에서 전화번호를 찾을 수 없습니다.');
+                    return;
+                }
+
+                // 전화번호 형식 변환 (카카오는 +82-10-1234-5678 형식으로 올 수 있음) — 82로 시작하면 0으로
+                let cleanPhoneNumber = kakaoPhoneNumber.replace(/[^0-9]/g, '');
+                if (cleanPhoneNumber.startsWith('82')) {
+                    cleanPhoneNumber = '0' + cleanPhoneNumber.slice(2);
+                }
+                setPhoneNumber(formatPhoneNumber(cleanPhoneNumber));
             } catch (error) {
                 console.error('카카오 전화번호 가져오기 오류:', error);
             } finally {
@@ -128,263 +122,109 @@ export default function SignupPage() {
         fetchKakaoPhoneNumber();
     }, []);
 
-    // 화면 진입 시 포커스, 11자리 입력 완료 시 포커스 해제
+    // 번호를 다 읽은 뒤 번호 칸에 포커스(카카오에서 못 받았으면 바로 입력하게)
     useEffect(() => {
-        // 화면 진입 시 포커스
-        const timer = setTimeout(() => {
-            if (phoneInputRef.current) {
-                phoneInputRef.current.focus();
-            }
-        }, 100);
-
-        return () => clearTimeout(timer);
-    }, []);
-
-    // 11자리 입력 완료 시 포커스 해제 및 업체 유형 선택으로 포커스 이동
-    useEffect(() => {
-        if (isValidLength) {
-            // 전화번호 입력 필드 포커스 해제
-            if (phoneInputRef.current) {
-                phoneInputRef.current.blur();
-            }
-
-            // 업체 유형 선택 버튼으로 포커스 이동
-            // 약간의 지연을 두어 DOM 업데이트 후 포커스 이동
-            const timer = setTimeout(() => {
-                if (businessTypeSelectRef.current) {
-                    businessTypeSelectRef.current.focus();
-                }
-            }, 100);
-
-            return () => clearTimeout(timer);
-        }
-    }, [isValidLength]);
-    const hasInput = phoneNumber.length > 0;
-
-    // 에러 상태와 헬퍼 텍스트 결정
-    const showError = hasInput && !isValidLength;
-    const helperText = showError
-        ? "휴대폰 번호 11자리를 모두 입력해주세요."
-        : "";
+        if (!isLoadingPhoneNumber && !phoneNumber) phoneInputRef.current?.focus();
+        // 읽기 끝날 때 한 번만
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isLoadingPhoneNumber]);
 
     // 사업체 유형 선택 핸들러
     const handleBusinessTypeSelect = (type: BusinessType) => {
         setSelectedBusinessType(type);
-        setIsBottomSheetOpen(false);
         // '기타'가 아닌 경우 개인고객 체크 초기화
         if (type !== BusinessType.ETC) {
             setIsIndividualCustomer(null);
         }
-        console.log("선택된 사업체 유형:", type, "전화번호:", phoneNumber);
+        trackClick({
+            object_type: "button",
+            object_name: BUSINESS_TYPES.find((b) => b.value === type)?.track ?? null,
+            current_page: getScreenName() ?? 'signup',
+            modal_name: "business_type_selection",
+        });
     };
 
-    // 업체 유형 선택 버튼 클릭 핸들러
-    const handleSelectBusinessType = () => {
-        setIsBottomSheetOpen(true);
+    const handleConfirm = () => {
+        if (!req.check()) return;
+        submit.run(async () => {
+            // Ensure the Click event is delivered before OAuth redirect (mobile/WebView safety)
+            await trackClickAndWait({
+                object_type: "button",
+                object_name: "confirm",
+                current_page: getScreenName() ?? 'signup',
+                modal_name: null,
+            });
+            useSignupStore.setState({ businessType: selectedBusinessType, phoneNumber: phoneNumber.replace(/-/g, '') });
+            const kakaoSignupUsecase = new KakaoSignupUsecase(
+                new KakaoAuthSupabaseRepository(),
+                new BizClientSupabaseRepository(),
+                new CartSupabaseRepository()
+            );
+            const result = await kakaoSignupUsecase.execute();
+            if (!result.success) throw new Error("일시적인 에러입니다. 다시 시도해주세요.");
+        });
     };
 
     return (
-        <div className="flex h-screen w-full flex-col justify-start bg-white">
+        <div className="flex min-h-screen w-full flex-col justify-start bg-white">
             {/* Amplitude 초기화 (클라이언트 전용) */}
             <InitAmplitude />
             <div className="px-5 pt-5">
-                <Chip text="가입을 위한 마지막 단계예요!" color="gray" />
+                <Badge color="gray">가입을 위한 마지막 단계예요!</Badge>
             </div>
             <Header title={isValidLength ? "어떤 업체에서 오셨나요?" : "휴대폰 번호를 입력해주세요"} />
-            <div className="px-5">
-                <UnderlinedInput
-                    ref={phoneInputRef}
-                    label="휴대폰 번호"
-                    placeholder={isLoadingPhoneNumber ? "카카오에서 전화번호를 가져오는 중..." : "010-1234-5678"}
-                    value={phoneNumber}
-                    type="tel"
-                    error={showError}
-                    helperText={helperText}
-                    onChange={setPhoneNumber}
-                    disabled={isLoadingPhoneNumber || (phoneNumber.length > 0 && isValidLength)}
-                />
-            </div>
+            <div className="flex flex-col gap-8 px-5 pt-5">
+                <Field label="휴대폰 번호" required fieldRef={req.ref("phone")} error={req.error("phone")}>
+                    {isLoadingPhoneNumber ? (
+                        <Loading variant="inline" label="카카오에서 전화번호를 가져오는 중" className="h-[50px]" />
+                    ) : (
+                        <PhoneInput ref={phoneInputRef} aria-invalid={!!req.error("phone")} value={phoneNumber} onChange={setPhoneNumber} />
+                    )}
+                </Field>
 
-            {/* 전화번호 11자리 입력 시 업체 유형 선택 버튼 표시 */}
-            {isValidLength && (
-                <div className="px-5 mt-8 gap-2 flex flex-col">
-                    <BoxedSelect
-                        ref={businessTypeSelectRef}
-                        default_label="업체 유형을 선택해주세요"
-                        label="업체 유형"
-                        // options={[
-                        //     { value: BusinessType.INTERIOR, label: BusinessType.INTERIOR },
-                        //     { value: BusinessType.FACTORY, label: BusinessType.FACTORY },
-                        //     { value: BusinessType.CONSTRUCTION, label: BusinessType.CONSTRUCTION },
-                        //     { value: BusinessType.INDIVIDUAL_SALES, label: BusinessType.INDIVIDUAL_SALES },
-                        //     { value: BusinessType.ETC, label: BusinessType.ETC },
-                        // ]}
-                        value={selectedBusinessType ?? ""}
-                        onClick={handleSelectBusinessType}
+                <Field label="업체 유형" required fieldRef={req.ref("businessType")} error={req.error("businessType")}>
+                    <Choose
+                        aria-label="업체 유형"
+                        options={BUSINESS_TYPES.map((b) => ({ value: b.value, label: b.value }))}
+                        value={selectedBusinessType}
+                        onChange={handleBusinessTypeSelect}
                     />
-                </div>
-            )}
-            {/* 기타 선택 시 개인고객 여부 체크 */}
-            {isValidLength && selectedBusinessType === BusinessType.ETC && (
-                <div className="px-5 mt-4">
-                    <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
-                        <div className="mb-3 text-[16px] font-600 text-gray-800">개인고객이신가요?</div>
-                        <div className="flex items-center gap-4">
-                            <div
-                                className="flex items-center gap-2 cursor-pointer"
-                                onClick={() => setIsIndividualCustomer(true)}
-                            >
-                                <Checkbox
-                                    checked={isIndividualCustomer === true}
-                                    onChange={(checked) => {
-                                        setIsIndividualCustomer(checked ? true : null);
-                                    }}
-                                />
-                                <div className="text-[14px] font-400 text-gray-700">네, 개인고객이에요</div>
-                            </div>
-                            <div
-                                className="flex items-center gap-2 cursor-pointer"
-                                onClick={() => setIsIndividualCustomer(false)}
-                            >
-                                <Checkbox
-                                    checked={isIndividualCustomer === false}
-                                    onChange={(checked) => {
-                                        setIsIndividualCustomer(checked ? false : null);
-                                    }}
-                                />
-                                <div className="text-[14px] font-400 text-gray-700">아니에요</div>
-                            </div>
-                        </div>
-                        {isIndividualCustomer === true && INDIVIDUAL_CUSTOMER_LINK && (
+                </Field>
+
+                {/* 기타 선택 시 개인고객 여부 */}
+                {isEtc && (
+                    <Field label="개인고객이신가요?" required fieldRef={req.ref("individual")} error={req.error("individual")}>
+                        <Choose
+                            aria-label="개인고객이신가요?"
+                            options={[
+                                { value: "yes", label: "네, 개인고객이에요" },
+                                { value: "no", label: "아니에요" },
+                            ]}
+                            value={isIndividualCustomer === null ? null : isIndividualCustomer ? "yes" : "no"}
+                            onChange={(v) => setIsIndividualCustomer(v === "yes")}
+                        />
+                        {isIndividualCustomer === true && (
                             <>
-                                <div className="mt-3 mb-3 text-[14px] font-400 text-gray-600">
+                                <Notice tone="gray">
                                     가구 제작, 도면상담, 인테리어 문의 등을 희망하는 개인 고객이시라면 아래 링크로 이동해주세요.
-                                </div>
-                                <Button
-                                    type="BrandInverse"
-                                    text="개수대연구소로 이동"
-                                    onClick={() => {
-                                        window.open(INDIVIDUAL_CUSTOMER_LINK, '_blank');
-                                    }}
-                                />
+                                </Notice>
+                                <Button asChild variant="inverse" className="w-full">
+                                    <a href={INDIVIDUAL_CUSTOMER_LINK} target="_blank" rel="noopener noreferrer">
+                                        개수대연구소로 이동
+                                    </a>
+                                </Button>
                             </>
                         )}
-                    </div>
-                </div>
-            )}
+                    </Field>
+                )}
+            </div>
+            <div className="h-[120px]" />
 
-            {isValidLength && selectedBusinessType && (
-                <div className="fixed bottom-0 w-full max-w-[460px]">
-                    <BottomButton
-                        type="1button"
-                        button1Text="확인"
-                        button1Disabled={
-                            selectedBusinessType === BusinessType.ETC &&
-                            (isIndividualCustomer === true || isIndividualCustomer === null)
-                        }
-                        onButton1Click={async () => {
-                            // 개인고객이거나 선택하지 않은 경우 진행 차단
-                            if (selectedBusinessType === BusinessType.ETC &&
-                                (isIndividualCustomer === true || isIndividualCustomer === null)) {
-                                return;
-                            }
-
-                            // Ensure the Click event is delivered before OAuth redirect (mobile/WebView safety)
-                            await trackClickAndWait({
-                                object_type: "button",
-                                object_name: "confirm",
-                                current_page: getScreenName() ?? 'signup',
-                                modal_name: null,
-                            });
-                            useSignupStore.setState({ businessType: selectedBusinessType, phoneNumber: phoneNumber.replace(/-/g, '') });
-                            const kakaoSignupUsecase = new KakaoSignupUsecase(
-                                new KakaoAuthSupabaseRepository(),
-                                new BizClientSupabaseRepository(),
-                                new CartSupabaseRepository()
-                            );
-                            kakaoSignupUsecase.execute();
-                        }}
-                    />
-                </div>
-            )}
-
-            {/* 업체 유형 선택 BottomSheet */}
-            <BottomSheet
-                isOpen={isBottomSheetOpen}
-                title="업체 유형을 선택해주세요"
-                description="어떤 업체에서 오셨나요?"
-                onClose={() => setIsBottomSheetOpen(false)}
-                contentPadding="px-5 pb-5"
-            >
-                <div className="mt-4">
-                    <SelectToggleButton
-                        label={BusinessType.INTERIOR}
-                        checked={selectedBusinessType === BusinessType.INTERIOR}
-                        onClick={() => {
-                            handleBusinessTypeSelect(BusinessType.INTERIOR);
-                            trackClick({
-                                object_type: "button",
-                                object_name: "interior",
-                                current_page: getScreenName() ?? 'signup',
-                                modal_name: "business_type_selection",
-                            });
-                        }}
-                    />
-                    <SelectToggleButton
-                        label={BusinessType.FACTORY}
-                        checked={selectedBusinessType === BusinessType.FACTORY}
-                        onClick={() => {
-                            handleBusinessTypeSelect(BusinessType.FACTORY);
-                            trackClick({
-                                object_type: "button",
-                                object_name: "factory",
-                                current_page: getScreenName() ?? 'signup',
-                                modal_name: "business_type_selection",
-                            });
-                        }}
-                    />
-                    <SelectToggleButton
-                        label={BusinessType.CONSTRUCTION}
-                        checked={selectedBusinessType === BusinessType.CONSTRUCTION}
-                        onClick={() => {
-                            handleBusinessTypeSelect(BusinessType.CONSTRUCTION);
-                            trackClick({
-                                object_type: "button",
-                                object_name: "construction",
-                                current_page: getScreenName() ?? 'signup',
-                                modal_name: "business_type_selection",
-                            });
-                        }}
-                    />
-                    <SelectToggleButton
-                        label={BusinessType.INDIVIDUAL_SALES}
-                        checked={selectedBusinessType === BusinessType.INDIVIDUAL_SALES}
-                        onClick={() => {
-                            handleBusinessTypeSelect(BusinessType.INDIVIDUAL_SALES);
-                            trackClick({
-                                object_type: "button",
-                                object_name: "individual_sales",
-                                current_page: getScreenName() ?? 'signup',
-                                modal_name: "business_type_selection",
-                            });
-                        }}
-                    />
-                    <SelectToggleButton
-                        label={BusinessType.ETC}
-                        checked={selectedBusinessType === BusinessType.ETC}
-                        onClick={() => {
-                            handleBusinessTypeSelect(BusinessType.ETC);
-                            trackClick({
-                                object_type: "button",
-                                object_name: "etc",
-                                current_page: getScreenName() ?? 'signup',
-                                modal_name: "business_type_selection",
-                            });
-                        }}
-                    />
-                </div>
-            </BottomSheet>
-
+            <BottomBar top={<ActionError error={submit.error} className="mb-3" />}>
+                <Button busy={submit.busy} onClick={handleConfirm}>
+                    확인
+                </Button>
+            </BottomBar>
         </div>
     );
 }

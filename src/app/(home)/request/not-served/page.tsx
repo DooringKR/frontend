@@ -3,9 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 
-import BottomButton from "@/components/BottomButton/BottomButton";
+import BottomBar from "@/components/overlay/BottomBar";
 import Header from "@/components/Header/Header";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import { Button } from "@/components/ui/button";
 
 import { useRequestStore } from "../_lib/requestStore";
 import { recordRepairInquiry } from "../_lib/submit";
@@ -25,12 +26,9 @@ export default function NotServedPage() {
     <div className="flex flex-col pt-[60px]">
       <TopNavigator />
       <Header title="지금은 서비스하지 않아요" />
-      <BottomButton
-        type="1button"
-        button1Text="홈으로"
-        className="fixed bottom-0 w-full max-w-[460px]"
-        onButton1Click={() => router.replace("/")}
-      />
+      <BottomBar>
+        <Button onClick={() => router.replace("/")}>홈으로</Button>
+      </BottomBar>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import useBizClientStore from "@/store/bizClientStore";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -24,7 +25,7 @@ function BridgePage() {
         {/* 상단 */}
         <div className="flex flex-col gap-8 items-center">
           <svg xmlns="http://www.w3.org/2000/svg" width="77" height="21" viewBox="0 0 77 21" fill="none">
-            <g clip-path="url(#clip0_2591_11354)">
+            <g clipPath="url(#clip0_2591_11354)">
               <path d="M72.9563 1.58089V1.25781H60.7441V3.92858H69.8644C69.839 4.34615 69.773 5.00504 69.6633 5.91455L69.6631 5.91644L69.6628 5.91835C69.535 7.09778 69.3287 8.35767 69.0433 9.69826L68.9605 10.0886H72.0365L72.0886 9.82886C72.32 8.67094 72.5223 7.39213 72.6955 5.99286C72.8695 4.58583 72.9563 3.11509 72.9563 1.58089Z" fill="#99A1AF" />
               <path d="M68.4768 13.0283H77.0061V10.3359H57.4492V13.0283H65.44V20.9975H68.4768V13.0283Z" fill="#99A1AF" />
               <path d="M48.6879 3.04831L48.7404 2.67969H38.9989V5.35044H45.2495C44.3878 8.21036 42.2945 11.0369 38.9222 13.8245L38.623 14.0719L40.8479 15.9352L41.0546 15.7676C45.4305 12.2203 47.9855 7.97925 48.6879 3.04831Z" fill="#99A1AF" />
@@ -44,7 +45,7 @@ function BridgePage() {
           </div>
           <div>
             <svg xmlns="http://www.w3.org/2000/svg" width="81" height="80" viewBox="0 0 81 80" fill="none">
-              <g clip-path="url(#clip0_2591_11364)">
+              <g clipPath="url(#clip0_2591_11364)">
                 <path d="M78.2603 43.7016C78.2603 40.0036 75.9123 36.7156 72.4163 35.5136L66.8463 33.6016H6.53633C4.43833 33.6016 2.73633 35.3036 2.73633 37.4016V56.9516H78.2623L78.2603 43.7016Z" fill="#4592FB" />
                 <path d="M2.73633 56.9531V59.0191C2.73633 61.0131 4.35233 62.6291 6.34633 62.6291H74.4603C76.5583 62.6291 78.2603 60.9271 78.2603 58.8291V56.9531H2.73633Z" fill="#2D67D5" />
                 <path d="M63.7012 69.7344C69.224 69.7344 73.7012 65.2572 73.7012 59.7344C73.7012 54.2115 69.224 49.7344 63.7012 49.7344C58.1783 49.7344 53.7012 54.2115 53.7012 59.7344C53.7012 65.2572 58.1783 69.7344 63.7012 69.7344Z" fill="#313D4C" />
@@ -64,13 +65,11 @@ function BridgePage() {
           </div>
         </div>
         <div className="h-[60px]"></div>
-        {/* 웹 주문 */}
-        <div
+        {/* 웹 주문 — 로그인 화면은 /start(예전엔 없는 /login 으로 가 404) */}
+        <Link
           id="web-start"
-          className="px-4 py-5 cursor-pointer rounded-[12px] bg-white outline outline-4 outline-[#BFDBFE] flex flex-col gap-3 items-center"
-          onClick={() => {
-            router.push('/login');
-          }}
+          href="/start"
+          className="px-4 py-5 rounded-[12px] bg-white outline outline-4 outline-[#BFDBFE] flex flex-col gap-3 items-center"
         >
           <div className="text-[17px] leading-[24px] text-center font-pretendard font-semibold text-[#364153]">웹으로 시작하기</div>
           <div className="flex justify-center items-center gap-2 w-full">
@@ -102,14 +101,15 @@ function BridgePage() {
               <div className="text-center font-pretendard font-medium text-[#3B82F6] text-[14px] leading-[20px]">인기</div>
             </div>
           </div>
-        </div>
+        </Link>
         <div className="h-5"></div>
         {/* 전화 주문 */}
-        <div className="flex flex-col justify-center items-center gap-[10px] w-full rounded-[12px] bg-white px-4 py-3">
-          <div className="w-full text-center font-pretendard font-semibold text-[#364153] text-[17px] leading-[24px] cursor-pointer" onClick={() => {
-            window.open("tel:031-528-4002", "_blank");
-          }}>전화 주문</div>
-        </div>
+        <a
+          href="tel:0315284002"
+          className="w-full rounded-[12px] bg-white px-4 py-3 text-center font-pretendard font-semibold text-[#364153] text-[17px] leading-[24px]"
+        >
+          전화 주문
+        </a>
       </div>
     </>
   );

@@ -2,8 +2,8 @@ import Image from "next/image";
 import React, { useRef, useEffect, useState } from "react";
 
 import { DOOR_COLOR_LIST } from "dooring-core-domain/dist/constants/color";
-import BoringInputField from "../Input/BoringInputField";
-import { Chip } from "../Chip/Chip";
+import NumberInput from "@/components/form/NumberInput";
+import { Badge } from "@/components/ui/badge";
 import { HingeDirection } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 interface NormalDoorPreviewProps {
@@ -103,10 +103,11 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
         className="relative flex items-center justify-center"
       >
         <div className="flex items-center w-full">
-          <BoringInputField
+          <NumberInput
+            size="sm"
             placeholder="보링(mm)"
-            value={adjustedBoringSize[idx] ?? null}
-            onChange={value => handleBoringInputChange(idx, value)}
+            value={adjustedBoringSize[idx] ?? ""}
+            onChange={(v) => handleBoringInputChange(idx, v === "" ? null : Number(v))}
             onFocus={() => setFocusedBoringIndex(idx)}
             onBlur={() => setFocusedBoringIndex(null)}
           />
@@ -372,7 +373,7 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
         <div className="flex w-full justify-center pt-3 gap-4">
           {DoorWidth !== undefined && DoorWidth !== null && DoorWidth !== 0 && (
             <div className="flex items-center gap-2">
-              <Chip text="가로" color="gray" weight="weak" />
+              <Badge color="gray">가로</Badge>
               <div className="text-[17px]">
                 <span className="font-500 text-gray-800">{DoorWidth}</span>
               </div>
@@ -380,7 +381,7 @@ const NormalDoorPreview: React.FC<NormalDoorPreviewProps> = ({
           )}
           {DoorHeight !== undefined && DoorHeight !== null && DoorHeight !== 0 && (
             <div className="flex items-center gap-2">
-              <Chip text="세로" color="gray" weight="weak" />
+              <Badge color="gray">세로</Badge>
               <div className="text-[17px]">
                 <span className="font-500 text-gray-800">{DoorHeight}</span>
               </div>

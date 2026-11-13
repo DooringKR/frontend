@@ -3,6 +3,36 @@
 @import "tailwindcss/utilities";
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css");
 
+/*
+ * shadcn 토큰 — 바로가구가 쓰던 색을 그대로 옮겼다(2026-11-13). 고객 화면이 바뀌지 않게.
+ * primary = brand-500 #2b7fff, accent = brand-100/brand-600(BrandInverse), secondary = gray-100/gray-700,
+ * border·input = gray-200, ring = brand-200, muted = gray-50/gray-500, destructive = red-500, 둥글기 12px.
+ */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 221 39% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 221 39% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 221 39% 11%;
+    --primary: 216 100% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 217 19% 27%;
+    --muted: 210 20% 98%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 214 95% 93%;
+    --accent-foreground: 221 97% 54%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 213 100% 87%;
+    --radius: 12px;
+  }
+}
+
 * {
   font-family:
     "Pretendard",

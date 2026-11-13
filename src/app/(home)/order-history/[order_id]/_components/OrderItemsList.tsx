@@ -3,7 +3,7 @@ import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEn
 import { FINISH_CATEGORY_LIST } from "@/constants/category";
 import { formatPrice } from "../../utils/formatters";
 import OrderItemDetail from "./OrderItemDetail";
-import { Chip } from "@/components/Chip/Chip";
+import { Badge } from "@/components/ui/badge";
 
 interface OrderItemsListProps {
   orderItems: any[];
@@ -33,12 +33,9 @@ export default function OrderItemsList({ orderItems }: OrderItemsListProps) {
                 <div className="flex-1">
                   <div className="mb-1 flex items-center gap-2 text-[17px]/[24px] font-600 text-gray-900">
                     {item.nick_name && (
-                      <Chip
-                        text={`${item.nick_name}`}
-                        color="gray"
-                        weight="weak"
-                        className="text-[12px]/[16px] px-[6px] py-[1px]"
-                      />
+                      <Badge color="gray" weight="weak" className="text-[12px]/[16px] py-px">
+                        {item.nick_name}
+                      </Badge>
                     )}
                     <span>
                       {item.detail_product_type === DetailProductType.DOOR && item.materialDetails?.is_pair_door 

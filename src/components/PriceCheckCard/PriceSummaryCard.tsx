@@ -1,6 +1,8 @@
 import { CHECK_ORDER_PAGE } from "@/constants/pageName";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
+import { ListSkeleton } from "@/components/state/StateViews";
+import { Separator } from "@/components/ui/separator";
 import useCartItemStore from "@/store/cartItemStore";
 import { DetailProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 import { CartItem } from "dooring-core-domain/dist/models/BizClientCartAndOrder/CartItem";
@@ -18,6 +20,9 @@ const PriceSummaryCard: React.FC<PriceSummaryCardProps> = ({
   page,
   filteredCartItems,
 }) => {
+  // 장바구니는 브라우저에 저장돼 있어 서버 그림(0원)과 다르다 — 그린 뒤에만 금액·목록을 보인다(hydration 어긋남 #418)
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
   // DDD: cartItems come from cartItemStore, not cartStore
   const allCartItems = useCartItemStore(state => state.cartItems) ?? [];
   // filteredCartItems가 제공되면 그것을 사용, 아니면 전체 사용
@@ -50,6 +55,14 @@ const PriceSummaryCard: React.FC<PriceSummaryCardProps> = ({
     cartItems.length > 0 &&
     cartItems.every(item => item.detail_product_type === DetailProductType.LONGDOOR);
 
+  if (!ready)
+    return (
+      <div className="flex flex-col gap-3 py-5">
+        <div className="text-xl font-600 text-gray-800">예상 주문금액을 확인해주세요</div>
+        <ListSkeleton rows={1} />
+      </div>
+    );
+
   return (
     <div className="flex flex-col gap-3 py-5">
       <div className="text-xl font-600 text-gray-800">
@@ -76,7 +89,7 @@ const PriceSummaryCard: React.FC<PriceSummaryCardProps> = ({
           ""
         )}
 
-        <div className="h-[2px] w-full bg-gray-200"></div>
+        <Separator className="h-[2px]" />
         <div className="flex flex-col gap-1 text-[15px] font-400 text-gray-500">
           {Object.entries(groupedItems).flatMap(([category, items]) =>
             items.map((item, index) => {

@@ -1,22 +1,25 @@
 "use client";
 
-import BottomButton from "@/components/BottomButton/BottomButton";
+import { ChevronDown } from "lucide-react";
 import ShoppingCartCardNew from "@/components/Card/ShoppingCartCardNew";
 import ImageCard from "@/components/Card/ImageCard";
 import Header from "@/components/Header/Header";
 import ProgressBar from "@/components/Progress";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
-import PaymentNoticeCard from "@/components/PaymentNoticeCard";
+import BottomBar from "@/components/overlay/BottomBar";
+import { EmptyState, Loading } from "@/components/state/StateViews";
+import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ActionError, useAction } from "@/components/ui/use-action";
 import { transformDoorToNewCardProps } from "@/utils/transformers/transformDoorToNewCardProps";
 
 import useItemStore from "@/store/itemStore";
 import useBizClientStore from "@/store/bizClientStore";
 import { calculateLongDoorUnitPriceWithOptions, LONG_DOOR_CONSTRUCT_PRICE } from "@/services/pricing/longDoorPricing";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import formatColor from "@/utils/formatColor";
 import { CrudCartItemUsecase } from "@/DDD/usecase/crud_cart_item_usecase";
 import useCartStore from "@/store/cartStore";
 import { DetailProductType, ProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
@@ -36,24 +39,20 @@ import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import { trackClick, trackView, trackAddToCart } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 import useCartItemStore from "@/store/cartItemStore";
-import { sortProductTypes, sortDetailProductTypes } from "@/utils/formatCartProductTypes";
-import {
-    getProductTypesFromCartItems,
-    getDetailProductTypesFromCartItems,
-    getTotalQuantityFromCartItems,
-    getTotalValueFromCartItems
-} from "@/utils/getCartProductTypes";
+
+import { useItemHydrated } from "@/app/(home)/(build-material)/door/_components/DoorForm";
 
 
-function LongDoorReportPageContent() {
+export default function LongDoorReportPage() {
     const router = useRouter();
     const { item } = useItemStore();
     const bizClient = useBizClientStore(state => state.bizClient);
     const { cart, incrementCartCount } = useCartStore();
     const cartItems = useCartItemStore((state) => state.cartItems);
 
-    const [isLoading, setIsLoading] = useState(false);
-    const [isDoorsExpanded, setIsDoorsExpanded] = useState(false);
+    const hydrated = useItemHydrated();
+    // 담기 — 연타 막기·도는 표시·실패는 버튼 바로 위. 성공하면 /cart 로 넘어가는 동안 계속 막아 둔다
+    const add = useAction({ holdOnSuccess: true });
 
     // color 문자열을 color.id로 변환하는 함수
     const getColorId = (colorName: string) => {
@@ -74,9 +73,13 @@ function LongDoorReportPageContent() {
         });
     }, []);
 
-    // 빌드 시점에 item이 비어있을 수 있으므로 안전한 처리
+    // 저장된 item 을 읽기 전·담고 넘어가는 중엔 Loading, 읽었는데 없으면(새 탭 등) 처음부터
     if (!item || Object.keys(item).length === 0) {
-        return <div>로딩 중...</div>;
+        return !hydrated || add.busy ? (
+            <Loading />
+        ) : (
+            <EmptyState text="담을 롱문 정보가 없어요" action={{ label: "롱문 입력하러 가기", onClick: () => router.replace("/longdoor") }} />
+        );
     }
 
     // longdoor는 여러 문을 관리하므로 doors 배열 확인 (보링은 문별 override 또는 공통값)
@@ -144,28 +147,17 @@ function LongDoorReportPageContent() {
 
                 {/* 문짝 개수 및 개별 문 정보 (아코디언) */}
                 {doors.length > 0 && (
-                    <div className="w-full rounded-2xl border border-gray-200 bg-white overflow-hidden">
-                        {/* 헤더 (클릭 가능) */}
-                        <div
-                            className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors"
-                            onClick={() => setIsDoorsExpanded(!isDoorsExpanded)}
-                        >
-                            <div className="text-[16px]/[22px] font-600 text-gray-800">문짝 개수</div>
-                            <div className="flex items-center gap-2">
-                                <div className="text-[16px]/[22px] font-600 text-gray-800">{quantity}개</div>
-                                <svg
-                                    className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isDoorsExpanded ? 'rotate-180' : ''}`}
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </div>
-                        </div>
+                    <Collapsible className="w-full overflow-hidden rounded-2xl border border-gray-200 bg-white">
+                        <CollapsibleTrigger className="group flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-gray-50">
+                            <span className="text-[16px]/[22px] font-600 text-gray-800">문짝 개수</span>
+                            <span className="flex items-center gap-2 text-[16px]/[22px] font-600 text-gray-800">
+                                {quantity}개
+                                <ChevronDown className="size-5 text-gray-400 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                            </span>
+                        </CollapsibleTrigger>
 
                         {/* 개별 문 정보 (펼쳐지는 부분) */}
-                        {isDoorsExpanded && (
+                        <CollapsibleContent>
                             <div className="px-4 pb-4 pt-2 border-t border-gray-100">
                                 <div className="mb-3 text-[14px] font-600 text-gray-800">개별 문 정보</div>
                                 <div className="space-y-2">
@@ -211,8 +203,8 @@ function LongDoorReportPageContent() {
                                     })}
                                 </div>
                             </div>
-                        )}
-                    </div>
+                        </CollapsibleContent>
+                    </Collapsible>
                 )}
 
                 {item?.door_construct && (
@@ -240,19 +232,10 @@ function LongDoorReportPageContent() {
                 {/* <PaymentNoticeCard /> */}
             </div>
 
-            <div id="longdoor-add-to-cart-button">
-                <BottomButton
-                    type={"1button"}
-                    button1Text={
-                        !bizClient
-                            ? "로그인하고 장바구니 담기"
-                            : isLoading
-                                ? "처리 중..."
-                                : "장바구니 담기"
-                    }
-                    className="fixed bottom-0 w-full max-w-[460px]"
-                    button1Disabled={!!bizClient && isLoading}
-                    onButton1Click={async () => {
+            <BottomBar top={<ActionError error={add.error} className="mb-3" />}>
+                <Button
+                    busy={add.busy}
+                    onClick={() => {
                         if (!bizClient) {
                             trackClick({
                                 object_type: "button",
@@ -263,25 +246,19 @@ function LongDoorReportPageContent() {
                             router.push("/start");
                             return;
                         }
-                        // 이미 로딩 중이면 중복 클릭 방지
-                        if (isLoading) return;
-
-                        setIsLoading(true);
                         trackClick({
                             object_type: "button",
                             object_name: "add_to_cart",
                             current_page: getScreenName(),
                             modal_name: null,
                         });
-                        console.log(item!);
+                        add.run(async () => {
                         try {
                             // 이미지 업로드 처리 (LongDoor에만 저장)
                             let longDoorImageUrls: string[] = [];
                             if (item?.raw_images && item.raw_images.length > 0) {
-                                console.log('이미지 업로드 시작:', item.raw_images.length, '개');
                                 const uploadUsecase = new SupabaseUploadImageUsecase();
                                 longDoorImageUrls = await uploadUsecase.uploadImages(item.raw_images, "longdoors");
-                                console.log('이미지 업로드 완료:', longDoorImageUrls);
                             }
 
                             // LongDoor 객체 생성 및 저장
@@ -389,23 +366,17 @@ function LongDoorReportPageContent() {
                             // item 상태 초기화
                             useItemStore.setState({ item: undefined });
                             router.replace("/cart");
-                        } catch (error: any) {
+                        } catch (error) {
+                            // ponytail: LongDoor·Door·CartItem 을 트랜잭션 없이 따로 써서, 중간 실패 뒤 다시 누르면 고아 행이 남는다(서버 함수로 묶을 때 해결)
                             console.error("장바구니 담기 실패:", error);
-                            setIsLoading(false);
+                            throw new Error("장바구니에 담지 못했어요. 잠시 뒤 다시 눌러 주세요.");
                         }
+                        });
                     }}
-                />
-            </div>
+                >
+                    {!bizClient ? "로그인하고 장바구니 담기" : "장바구니 담기"}
+                </Button>
+            </BottomBar>
         </div>
     );
 }
-
-function LongDoorReportPage() {
-    return (
-        <Suspense fallback={<div>로딩 중...</div>}>
-            <LongDoorReportPageContent />
-        </Suspense>
-    );
-}
-
-export default LongDoorReportPage;

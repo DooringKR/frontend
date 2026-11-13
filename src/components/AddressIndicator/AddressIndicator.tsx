@@ -1,7 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import React from "react";
+
+import { Loading } from "@/components/state/StateViews";
 
 import GradientEffectText from "../GradientEffectText/GradientEffectText";
 import DeliveryScheduleDisplay from "./component/DeliveryScheduleDisplay";
@@ -21,14 +23,14 @@ export type AddressIndicatorProps = {
 };
 
 const AddressIndicator: React.FC<AddressIndicatorProps> = props => {
-  const router = useRouter();
   const { address, deliverySchedule, timeLimit, arrivalDate, isLoading } = props;
 
   return (
     <div className="flex w-fit flex-col gap-2 px-5">
       <InitAmplitude />
-      <div
-        className="flex w-fit cursor-pointer flex-row gap-[6px]"
+      <Link
+        href="/address-check"
+        className="flex w-fit flex-row gap-[6px]"
         onClick={() => {
           trackClick({
             object_type: "button",
@@ -36,7 +38,6 @@ const AddressIndicator: React.FC<AddressIndicatorProps> = props => {
             current_page: getScreenName(),
             modal_name: null,
           });
-          router.push("/address-check");
         }}
       >
         <div className="text-[20px] font-600 text-gray-700">
@@ -45,18 +46,9 @@ const AddressIndicator: React.FC<AddressIndicatorProps> = props => {
         <div className="flex items-center justify-center">
           <AddressIcon isAddressEntered={!!address} />
         </div>
-      </div>
+      </Link>
       {isLoading ? (
-        <div className="flex h-[28px] items-center gap-2 py-[3px]">
-          <div className="flex items-center gap-1">
-            <div className="h-2 w-2 animate-bounce rounded-full bg-blue-500 [animation-delay:-0.3s]"></div>
-            <div className="h-2 w-2 animate-bounce rounded-full bg-blue-500 [animation-delay:-0.15s]"></div>
-            <div className="h-2 w-2 animate-bounce rounded-full bg-blue-500"></div>
-          </div>
-          <span className="animate-pulse text-[16px] font-500 text-gray-500">
-            배송 정보 계산 중...
-          </span>
-        </div>
+        <Loading variant="inline" label="배송 정보 계산 중" className="h-[28px]" />
       ) : (
         <DeliveryScheduleDisplay
           schedule={deliverySchedule}

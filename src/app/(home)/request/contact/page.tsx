@@ -3,7 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-import BoxedInput from "@/components/Input/BoxedInput";
+import Field from "@/components/form/Field";
+import PhoneInput from "@/components/form/PhoneInput";
+import { useRequired } from "@/components/form/useRequired";
+import { Input } from "@/components/ui/input";
 import useBizClientStore from "@/store/bizClientStore";
 import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 
@@ -31,43 +34,29 @@ export default function ContactPage() {
   }, [hydrated]);
 
   // 통화 가능 시간·출입 정보는 선택(개인정보 처리방침 제5조 선택항목과 같게)
-  const ready = !!s.contactName.trim() && s.contactPhone.replace(/\D/g, "").length >= 10;
+  const req = useRequired({
+    name: !!s.contactName.trim(),
+    phone: !s.contactPhone.trim() ? false : s.contactPhone.replace(/\D/g, "").length >= 10 || "전화번호를 확인해 주세요",
+  });
 
   return (
     <StepShell
       progress={progressOf(s.situations, path)}
       title="현장 담당자를 알려주세요"
-      nextDisabled={!ready}
-      onNext={() => router.push(nextOf(s.situations, path))}
+      onNext={() => req.check() && router.push(nextOf(s.situations, path))}
     >
-      <BoxedInput
-        label="담당자 이름"
-        value={s.contactName}
-        onChange={(e) => s.set({ contactName: e.target.value })}
-        placeholderClassName="placeholder-gray-500"
-      />
-      <BoxedInput
-        label="담당자 연락처"
-        type="tel"
-        placeholder="010-0000-0000"
-        value={s.contactPhone}
-        onChange={(e) => s.set({ contactPhone: formatPhoneNumber(e.target.value) })}
-        placeholderClassName="placeholder-gray-500"
-      />
-      <BoxedInput
-        label="통화 가능 시간 (선택)"
-        placeholder="예) 평일 오전, 오후 2시 이후"
-        value={s.callTime}
-        onChange={(e) => s.set({ callTime: e.target.value })}
-        placeholderClassName="placeholder-gray-500"
-      />
-      <BoxedInput
-        label="출입 정보 (선택)"
-        placeholder="예) 공동현관 #1234, 현관 5678"
-        value={s.accessInfo}
-        onChange={(e) => s.set({ accessInfo: e.target.value })}
-        placeholderClassName="placeholder-gray-500"
-      />
+      <Field label="담당자 이름" required fieldRef={req.ref("name")} error={req.error("name")}>
+        <Input aria-invalid={!!req.error("name")} value={s.contactName} onChange={(e) => s.set({ contactName: e.target.value })} />
+      </Field>
+      <Field label="담당자 연락처" required fieldRef={req.ref("phone")} error={req.error("phone")}>
+        <PhoneInput aria-invalid={!!req.error("phone")} value={s.contactPhone} onChange={(v) => s.set({ contactPhone: v })} />
+      </Field>
+      <Field label="통화 가능 시간 (선택)">
+        <Input placeholder="예) 평일 오전, 오후 2시 이후" value={s.callTime} onChange={(e) => s.set({ callTime: e.target.value })} />
+      </Field>
+      <Field label="출입 정보 (선택)">
+        <Input placeholder="예) 공동현관 #1234, 현관 5678" value={s.accessInfo} onChange={(e) => s.set({ accessInfo: e.target.value })} />
+      </Field>
     </StepShell>
   );
 }

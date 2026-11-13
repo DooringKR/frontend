@@ -1,12 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect } from "react";
-
-import { useRouter } from "next/navigation";
 
 import AddressIndicator from "@/components/AddressIndicator/AddressIndicator";
 import BottomNavigation from "@/components/BottomNavigation/BottomNavigation";
-import Button from "@/components/Button/Button";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import useBizClientStore from "@/store/bizClientStore";
@@ -15,7 +13,7 @@ import useCartItemStore from "@/store/cartItemStore";
 import Footer from "./_components/Footer";
 import FactoryOwnershipCard from "./_components/FactoryOwnershipCard";
 import HomeBanner from "./_components/HomeBanner";
-import HomeScreenPaymentNoticeCard from "@/components/PaymentNoticeCard/HomeScreenPaymentNoticeCard";
+import PaymentNoticeCard from "@/components/PaymentNoticeCard";
 import ProductLiabilityInsuranceCard from "./_components/ProductLiabilityInsuranceCard";
 import FaqCard from "./_components/FaqCard";
 import ProductionCaseListCard from "./_components/ProductionCaseListCard";
@@ -28,9 +26,9 @@ import { getAddressIndicatorProps } from "./_utils/getAddressIndicatorProps";
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import { trackView } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
+import { Button } from "@/components/ui/button";
 
 export default function Page() {
-  const router = useRouter();
   const bizClient = useBizClientStore(state => state.bizClient);
   const cartItemCount = useCartItemStore(state => state.cartItems.length);
 
@@ -79,12 +77,12 @@ export default function Page() {
         {bizClient && <AddressIndicator {...addressIndicatorProps} />}
         {/* 품목 메뉴는 상황 주문 화면 1의 DIY 로 옮겼다(/diy, 2026-11-13) */}
         <div className="px-5">
-          <Button type="Brand" text="주문하기" className="w-full" onClick={() => router.push("/request")} />
+          <Button asChild className="w-full">
+            <Link href="/request">주문하기</Link>
+          </Button>
         </div>
         <div className="px-5 pb-10">
-          <HomeScreenPaymentNoticeCard
-            className="w-full"
-          />
+          <PaymentNoticeCard />
         </div>
         <div className="w-full h-5 bg-gray-100"></div>
         <ProductionCaseListCard />

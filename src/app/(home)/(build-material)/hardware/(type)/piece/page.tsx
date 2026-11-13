@@ -1,37 +1,35 @@
-
 "use client";
 
 import { useRouter } from "next/navigation";
-import React, { Suspense, useEffect } from "react";
-import BottomButton from "@/components/BottomButton/BottomButton";
-import Header from "@/components/Header/Header";
-import ProgressBar from "@/components/Progress";
-import TopNavigator from "@/components/TopNavigator/TopNavigator";
-import BoxedInput from "@/components/Input/BoxedInput";
-import useItemStore from "@/store/itemStore";
+import { useEffect } from "react";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
+import Field from "@/components/form/Field";
+import { useRequired } from "@/components/form/useRequired";
+import Header from "@/components/Header/Header";
+import BottomBar from "@/components/overlay/BottomBar";
+import ProgressBar from "@/components/Progress";
+import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { trackClick, trackView } from "@/services/analytics/amplitude";
-import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
+import useItemStore from "@/store/itemStore";
+import { getPreviousScreenName, getScreenName, setScreenName } from "@/utils/screenName";
 
-function PiecePageContent() {
+/** 피스 — 색상·사이즈(필수), 요청사항. 값은 칠 때마다 itemStore 에 */
+export default function PiecePage() {
 	const router = useRouter();
-	const item = useItemStore(state => state.item);
-	const updateItem = useItemStore(state => state.updateItem);
-	const color = item?.color ?? "";
-	const size = item?.size ?? "";
-	const request = item?.request ?? "";
+	const item = useItemStore((s) => s.item);
+	const set = useItemStore((s) => s.updateItem);
+	const req = useRequired({ color: !!item?.color?.trim(), size: !!item?.size?.trim() });
 
-	// 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
 	useEffect(() => {
-		// 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
-		setScreenName('hardware_piece');
-		const prev = getPreviousScreenName();
+		setScreenName("hardware_piece");
 		trackView({
 			object_type: "screen",
 			object_name: null,
-			current_screen: typeof window !== 'undefined' ? window.screen_name ?? null : null,
-			previous_screen: prev,
+			current_screen: typeof window !== "undefined" ? window.screen_name ?? null : null,
+			previous_screen: getPreviousScreenName(),
 		});
 	}, []);
 
@@ -43,53 +41,38 @@ function PiecePageContent() {
 			<Header title="피스 정보를 입력해주세요" />
 			<div className="h-5" />
 			<div className="flex flex-col gap-5 px-5">
-				<BoxedInput
-					label={<><span>색상</span><span className="text-orange-500 ml-1">*</span></>}
-					placeholder="색상을 입력해주세요"
-					value={color}
-					onChange={e => updateItem({ color: e.target.value })}
-				/>
-				<BoxedInput
-					label={<><span>사이즈</span><span className="text-orange-500 ml-1">*</span></>}
-					placeholder="사이즈를 입력해주세요"
-					value={size}
-					onChange={e => updateItem({ size: e.target.value })}
-				/>
-				<BoxedInput
-					label="제작 시 요청사항"
-					placeholder="제작 시 요청사항을 입력해주세요"
-					value={request}
-					onChange={e => updateItem({ request: e.target.value })}
-				/>
+				<Field label="색상" required fieldRef={req.ref("color")} error={req.error("color")}>
+					<Input
+						placeholder="색상을 입력해주세요"
+						aria-invalid={!!req.error("color")}
+						value={item?.color ?? ""}
+						onChange={(e) => set({ color: e.target.value })}
+					/>
+				</Field>
+				<Field label="사이즈" required fieldRef={req.ref("size")} error={req.error("size")}>
+					<Input
+						placeholder="사이즈를 입력해주세요"
+						aria-invalid={!!req.error("size")}
+						value={item?.size ?? ""}
+						onChange={(e) => set({ size: e.target.value })}
+					/>
+				</Field>
+				<Field label="제작 시 요청사항">
+					<Input placeholder="제작 시 요청사항을 입력해주세요" value={item?.request ?? ""} onChange={(e) => set({ request: e.target.value })} />
+				</Field>
 			</div>
 			<div className="h-[100px]" />
-			<div id="hardware-next-button">
-				<BottomButton
-					type={"1button"}
-					button1Text={"다음"}
-					className="fixed bottom-0 w-full max-w-[460px]"
-					button1Disabled={color === "" || size === ""}
-					onButton1Click={() => {
-						trackClick({
-							object_type: "button",
-							object_name: "confirm",
-							current_page: getScreenName(),
-							modal_name: null,
-						});
-						router.push(`/hardware/report`);
+			<BottomBar>
+				<Button
+					onClick={() => {
+						if (!req.check()) return;
+						trackClick({ object_type: "button", object_name: "confirm", current_page: getScreenName(), modal_name: null });
+						router.push("/hardware/report");
 					}}
-				/>
-			</div>
+				>
+					다음
+				</Button>
+			</BottomBar>
 		</div>
 	);
 }
-
-function PiecePage() {
-	return (
-		<Suspense fallback={<div>로딩 중...</div>}>
-			<PiecePageContent />
-		</Suspense>
-	);
-}
-
-export default PiecePage;

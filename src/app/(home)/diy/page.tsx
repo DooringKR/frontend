@@ -12,7 +12,7 @@ import FrequentlyUsedProductsSection from "../_components/FrequentlyUsedProducts
 export default function DiyPage() {
   return (
     <div className="flex min-h-screen flex-col bg-white pt-[60px]">
-      <TopNavigator title="DIY(셀프 주문)" />
+      <TopNavigator title="DIY(셀프 주문)" backTo="/request" />
       <main className="mb-[40px] mt-5 flex flex-grow flex-col gap-7">
         <FrequentlyUsedProductsSection />
         <HomeProductContainer />

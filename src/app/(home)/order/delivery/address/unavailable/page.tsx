@@ -2,6 +2,8 @@
 
 import { Suspense, useEffect } from "react";
 
+import { Loading } from "@/components/state/StateViews";
+
 import UnavailableClientPage from "./UnavailableClient";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
@@ -23,7 +25,7 @@ export default function UnavailablePage() {
   }, []);
 
   return (
-    <Suspense fallback={<div>로딩 중...</div>}>
+    <Suspense fallback={<Loading />}>
       <InitAmplitude />
       <UnavailableClientPage />
     </Suspense>

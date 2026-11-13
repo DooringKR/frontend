@@ -1,35 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import InstagramIcon from "public/icons/instagram";
 import NaverBlogIcon from "public/icons/naver-blog";
 import KakaoIcon from "public/icons/kakao";
 
 function Footer() {
-  const router = useRouter();
-  const [isVisible, setIsVisible] = useState(true);
-
-  useEffect(() => {
-    const checkScreenSize = () => {
-      setIsVisible(window.innerWidth < 1024);
-    };
-
-    // 초기 체크
-    checkScreenSize();
-
-    // 리사이즈 이벤트 리스너
-    window.addEventListener("resize", checkScreenSize);
-
-    // 클린업
-    return () => window.removeEventListener("resize", checkScreenSize);
-  }, []);
-
-  const handleContactButtonClick = () => {
-    router.push("/customer-service");
-  };
-
   return (
     <div className="flex flex-col gap-3 bg-gray-50 px-5 pt-[32px] pb-[100px] text-[14px]/[20px] text-gray-400">
       <div>
@@ -82,11 +58,10 @@ function Footer() {
           >
             환불규정
           </Link>
-          {isVisible && (
-            <div className="underline cursor-pointer" onClick={handleContactButtonClick}>
-              고객센터
-            </div>
-          )}
+          {/* 넓은 화면(1024 이상)은 떠 있는 「문의하기」 버튼이 대신한다 */}
+          <Link href="/customer-service" className="underline hover:text-gray-600 transition-colors [@media(min-width:1024px)]:hidden">
+            고객센터
+          </Link>
         </div>
       </div>
     </div>

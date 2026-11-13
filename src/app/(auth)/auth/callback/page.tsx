@@ -17,6 +17,19 @@ import { CrudCartUsecase } from '@/DDD/usecase/crud_cart_usecase';
 import { setAmplitudeUserId, setAmplitudeUserProperties, trackSignup } from '@/services/analytics/amplitude';
 import { formatBusinessTypeToEnglish } from '@/utils/formatBusinessType';
 import { takeAfterLogin } from '@/utils/afterLogin';
+import { Loading } from '@/components/state/StateViews';
+
+/**
+ * 실패하면 로그인 정보를 비우고 시작 화면으로 — 무엇이 잘못됐는지는 시작 화면이 `?error=` 를 읽어 보여 준다
+ * (예전엔 화면을 옮긴 뒤 alert 를 띄웠다). 코드와 문구는 start/page.tsx 의 LOGIN_ERRORS.
+ */
+async function failTo(router: { replace: (href: string) => void }, code: 'network' | 'signup_failed' | 'auth_failed' | 'unexpected') {
+    useSignupStore.setState({ businessType: null, phoneNumber: null });
+    useBizClientStore.setState({ bizClient: null });
+    useCartStore.setState({ cart: null });
+    await supabase.auth.signOut().catch(() => undefined);
+    router.replace(`/start?error=${code}`);
+}
 
 // 콜백 처리 컴포넌트를 분리
 function AuthCallbackContent() {
@@ -40,12 +53,7 @@ function AuthCallbackContent() {
 
                     if (error) {
                         console.error('Auth callback error:', error);
-                        router.push('/start');
-                        useSignupStore.setState({ businessType: null, phoneNumber: null });
-                        supabase.auth.signOut();
-                        useBizClientStore.setState({ bizClient: null });
-                        useCartStore.setState({ cart: null });
-                        alert('일시적인 네트워크 오류입니다. 처음부터 다시 시도해주세요.');
+                        await failTo(router, 'network');
                         return;
                     }
                     console.log('data12312312312321312312312:', data);
@@ -88,33 +96,18 @@ function AuthCallbackContent() {
 
                             useSignupStore.setState({ businessType: null, phoneNumber: null });
                             console.log('🔄 / (홈) 페이지로 이동 시작');
-                            router.push(takeAfterLogin() ?? '/');
+                            router.replace(takeAfterLogin() ?? '/');
                         } catch (error) {
                             console.error('💥 Unexpected error:', error);
-                            useSignupStore.setState({ businessType: null, phoneNumber: null });
-                            supabase.auth.signOut();
-                            useBizClientStore.setState({ bizClient: null });
-                            useCartStore.setState({ cart: null });
-                            router.push('/start');
-                            alert('회원가입에 실패했습니다. 다시 시도해주세요.');
+                            await failTo(router, 'signup_failed');
                         }
                     } else {
                         console.log('❌ 세션이 없음, 로그인 페이지로 이동');
-                        useSignupStore.setState({ businessType: null, phoneNumber: null });
-                        supabase.auth.signOut();
-                        useBizClientStore.setState({ bizClient: null });
-                        useCartStore.setState({ cart: null });
-                        router.push('/start');
-                        alert('회원가입에 실패했습니다. 다시 시도해주세요.');
+                        await failTo(router, 'signup_failed');
                     }
                 } catch (error) {
                     console.error('💥 Unexpected error:', error);
-                    useSignupStore.setState({ businessType: null, phoneNumber: null });
-                    supabase.auth.signOut();
-                    useBizClientStore.setState({ bizClient: null });
-                    useCartStore.setState({ cart: null });
-                    router.push('/start');
-                    alert('회원가입에 실패했습니다. 다시 시도해주세요.');
+                    await failTo(router, 'signup_failed');
                 }
                 // } else if (type === 'login') {
                 //     try {
@@ -162,7 +155,7 @@ function AuthCallbackContent() {
 
                     if (error) {
                         console.error('Auth callback error:', error);
-                        router.push('/start?error=auth_failed');
+                        await failTo(router, 'auth_failed');
                         return;
                     }
 
@@ -195,53 +188,36 @@ function AuthCallbackContent() {
                                 providers: provider,
                             });
 
-                            router.push(takeAfterLogin() ?? '/');
+                            router.replace(takeAfterLogin() ?? '/');
                         } else {
                             // bizClient가 존재하지 않으면 회원가입 페이지로
-                            router.push('/signup');
+                            router.replace('/signup');
                         }
                     } else {
                         console.log('❌ 세션이 없음, 회원가입 페이지로 이동');
                         //이건 사파리에서 이 로직으로 실행돼서 여기다가 추가할게요.
-                        router.push('/signup');
+                        router.replace('/signup');
                     }
                 } catch (error) {
                     console.error('💥 Unexpected error:', error);
-                    alert('일시적인 네트워크 오류입니다. 처음부터 다시 시도해주세요.');
-                    router.push('/start?error=unexpected');
+                    await failTo(router, 'unexpected');
                 }
+            } else {
+                // type 이 없거나 모르는 값이면 기다릴 일이 없다 — 시작 화면으로(예전엔 도는 표시만 계속)
+                await failTo(router, 'unexpected');
             }
         };
 
         handleAuthCallback();
     }, [router, searchParams]);
 
-    return (
-        <div className="flex items-center justify-center min-h-screen">
-            <div className="text-center">
-                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
-                <p className="mt-4 text-lg">인증 처리 중...</p>
-            </div>
-        </div>
-    );
-}
-
-// 로딩 컴포넌트
-function LoadingFallback() {
-    return (
-        <div className="flex items-center justify-center min-h-screen">
-            <div className="text-center">
-                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
-                <p className="mt-4 text-lg">로딩 중...</p>
-            </div>
-        </div>
-    );
+    return <Loading label="로그인 처리 중" className="min-h-screen" />;
 }
 
 // 메인 컴포넌트
 export default function AuthCallback() {
     return (
-        <Suspense fallback={<LoadingFallback />}>
+        <Suspense fallback={<Loading className="min-h-screen" />}>
             <AuthCallbackContent />
         </Suspense>
     );

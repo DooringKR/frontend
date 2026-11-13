@@ -1,0 +1,254 @@
+{
+  "at": "2026-11-13T06:41:30.704Z",
+  "rows": [
+    {
+      "id": "load",
+      "comp": 32,
+      "compFiles": 29,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "action",
+      "comp": 14,
+      "compFiles": 13,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "field",
+      "comp": 32,
+      "compFiles": 30,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "text",
+      "comp": 38,
+      "compFiles": 23,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "number",
+      "comp": 19,
+      "compFiles": 11,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "phone",
+      "comp": 3,
+      "compFiles": 3,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "address",
+      "comp": 4,
+      "compFiles": 4,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "datetime",
+      "comp": 4,
+      "compFiles": 2,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "choose",
+      "comp": 39,
+      "compFiles": 20,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "checkbox",
+      "comp": 4,
+      "compFiles": 3,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "toggle",
+      "comp": 1,
+      "compFiles": 1,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "quantity",
+      "comp": 3,
+      "compFiles": 3,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "accordion",
+      "comp": 5,
+      "compFiles": 5,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "truncate",
+      "comp": 0,
+      "compFiles": 0,
+      "raw": 0,
+      "rawWhere": [],
+      "single": "주문 내역뿐"
+    },
+    {
+      "id": "pagechips",
+      "comp": 0,
+      "compFiles": 0,
+      "raw": 0,
+      "rawWhere": [],
+      "single": "홈 배너뿐"
+    },
+    {
+      "id": "toast",
+      "comp": 5,
+      "compFiles": 5,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "actionerror",
+      "comp": 14,
+      "compFiles": 13,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "pageerror",
+      "comp": 7,
+      "compFiles": 6,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "notice",
+      "comp": 25,
+      "compFiles": 19,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "statuslabel",
+      "comp": 19,
+      "compFiles": 13,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "empty",
+      "comp": 12,
+      "compFiles": 11,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "confirm",
+      "comp": 13,
+      "compFiles": 12,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "sheet",
+      "comp": 4,
+      "compFiles": 4,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "viewer",
+      "comp": 5,
+      "compFiles": 5,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "fileupload",
+      "comp": 5,
+      "compFiles": 5,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "button",
+      "comp": 70,
+      "compFiles": 48,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "bottombar",
+      "comp": 37,
+      "compFiles": 37,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "back",
+      "comp": 59,
+      "compFiles": 49,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "redirect",
+      "comp": 9,
+      "compFiles": 8,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "navrow",
+      "comp": 18,
+      "compFiles": 14,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "tel",
+      "comp": 4,
+      "compFiles": 4,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "progress",
+      "comp": 27,
+      "compFiles": 27,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "copy",
+      "comp": 3,
+      "compFiles": 3,
+      "raw": 0,
+      "rawWhere": []
+    },
+    {
+      "id": "preview",
+      "comp": 0,
+      "compFiles": 0,
+      "raw": 0,
+      "rawWhere": [],
+      "single": "문 그림 전용"
+    },
+    {
+      "id": "price",
+      "comp": 0,
+      "compFiles": 0,
+      "raw": 0,
+      "rawWhere": [],
+      "single": "가격 계산 업무"
+    }
+  ]
+}

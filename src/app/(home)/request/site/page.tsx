@@ -3,8 +3,11 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-import BoxedInput from "@/components/Input/BoxedInput";
-import DaumPostcodePopup from "@/components/SearchAddress/DaumPostcode";
+import AddressField from "@/components/form/AddressField";
+import Choose from "@/components/form/Choose";
+import Field from "@/components/form/Field";
+import { useRequired } from "@/components/form/useRequired";
+import { Input } from "@/components/ui/input";
 import { getCoordinatesFromAddress, getTravelTimeInMinutes, warehouseLocation } from "@/utils/CheckDeliveryTime";
 
 import StepShell from "../_components/StepShell";
@@ -15,45 +18,19 @@ const PARKING = ["가능", "불가", "유료"] as const;
 /** 현장허브 「건물 종류」 select 선택지 그대로(어드민 0141) */
 const BUILDING = ["아파트", "단독주택", "빌라/다세대주택", "오피스텔/상업공간"] as const;
 
-/** 고르는 칸 한 줄 — 구 바로가구 버튼 모양(GrayMedium·BrandInverse) */
-function Pick<T extends string | boolean>({
-  label,
-  options,
-  value,
-  onChange,
-}: {
-  label: string;
-  options: { value: T; text: string }[];
-  value: T | null;
-  onChange: (v: T) => void;
-}) {
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="text-[14px] font-400 text-gray-600">{label}</div>
-      <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${options.length > 3 ? 2 : options.length}, minmax(0, 1fr))` }}>
-        {options.map((o) => (
-          <button
-            key={String(o.value)}
-            type="button"
-            onClick={() => onChange(o.value)}
-            className={`h-[40px] rounded-[12px] text-[16px] font-500 ${
-              value === o.value ? "bg-brand-100 text-brand-600" : "bg-gray-100 text-gray-700"
-            }`}
-          >
-            {o.text}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 /** 현장 — 주소(Daum 검색)·상세 주소·건물 종류·평형·주차·엘리베이터. 시공이 필요하면 주소로 공장→현장 시간을 잰다(출장비) */
 export default function SitePage() {
   const router = useRouter();
   const hydrated = useHydrated();
   const s = useRequestStore();
   const path = "/request/site";
+  const req = useRequired({
+    address: !!s.roadAddress,
+    building: !!s.buildingType,
+    pyeong: !!s.pyeong.trim(),
+    parking: s.parking !== null,
+    elevator: s.elevator !== null,
+  });
 
   useEffect(() => {
     if (hydrated && (s.situations.length === 0 || s.installNeeded === null)) router.replace("/request");
@@ -71,53 +48,55 @@ export default function SitePage() {
     }
   };
 
-  const ready = !!s.roadAddress && !!s.buildingType && !!s.pyeong.trim() && s.parking !== null && s.elevator !== null;
-
   return (
     <StepShell
       progress={progressOf(s.situations, path)}
       title="현장 정보를 알려주세요"
-      nextDisabled={!ready}
-      onNext={() => router.push(nextOf(s.situations, path))}
+      onNext={() => req.check() && router.push(nextOf(s.situations, path))}
     >
-      <div className="flex flex-col gap-[10px]">
-        <div className="text-[14px] font-400 text-gray-600">주소</div>
-        <DaumPostcodePopup address1={s.roadAddress} onComplete={pickAddress} />
-        <BoxedInput
+      <Field label="주소" required fieldRef={req.ref("address")} error={req.error("address")}>
+        <AddressField value={s.roadAddress} onPick={pickAddress} aria-invalid={!!req.error("address")} />
+        <Input
           placeholder="상세주소 (예: 101동 501호)"
           value={s.detailAddress}
           onChange={(e) => s.set({ detailAddress: e.target.value })}
-          placeholderClassName="placeholder-gray-500"
         />
-      </div>
-      <Pick
-        label="건물 종류"
-        options={BUILDING.map((b) => ({ value: b, text: b }))}
-        value={s.buildingType}
-        onChange={(v) => s.set({ buildingType: v })}
-      />
-      <BoxedInput
-        label="평형"
-        placeholder="예) 33평형"
-        value={s.pyeong}
-        onChange={(e) => s.set({ pyeong: e.target.value })}
-        placeholderClassName="placeholder-gray-500"
-      />
-      <Pick
-        label="주차"
-        options={PARKING.map((p) => ({ value: p, text: p }))}
-        value={s.parking}
-        onChange={(v) => s.set({ parking: v })}
-      />
-      <Pick
-        label="엘리베이터"
-        options={[
-          { value: true, text: "있음" },
-          { value: false, text: "없음" },
-        ]}
-        value={s.elevator}
-        onChange={(v) => s.set({ elevator: v })}
-      />
+      </Field>
+      <Field label="건물 종류" required fieldRef={req.ref("building")} error={req.error("building")}>
+        <Choose
+          aria-label="건물 종류"
+          value={s.buildingType}
+          onChange={(v) => s.set({ buildingType: v })}
+          options={BUILDING.map((b) => ({ value: b, label: b }))}
+        />
+      </Field>
+      <Field label="평형" required fieldRef={req.ref("pyeong")} error={req.error("pyeong")}>
+        <Input
+          placeholder="예) 33평형"
+          aria-invalid={!!req.error("pyeong")}
+          value={s.pyeong}
+          onChange={(e) => s.set({ pyeong: e.target.value })}
+        />
+      </Field>
+      <Field label="주차" required fieldRef={req.ref("parking")} error={req.error("parking")}>
+        <Choose
+          aria-label="주차"
+          value={s.parking}
+          onChange={(v) => s.set({ parking: v })}
+          options={PARKING.map((p) => ({ value: p, label: p }))}
+        />
+      </Field>
+      <Field label="엘리베이터" required fieldRef={req.ref("elevator")} error={req.error("elevator")}>
+        <Choose
+          aria-label="엘리베이터"
+          value={s.elevator === null ? null : s.elevator ? "yes" : "no"}
+          onChange={(v) => s.set({ elevator: v === "yes" })}
+          options={[
+            { value: "yes", label: "있음" },
+            { value: "no", label: "없음" },
+          ]}
+        />
+      </Field>
     </StepShell>
   );
 }

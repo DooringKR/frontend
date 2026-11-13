@@ -6,14 +6,18 @@ import TruckIcon from "public/icons/truck";
 import WrenchIcon from "public/icons/wrench";
 import { useEffect, useState } from "react";
 
-import BottomButton from "@/components/BottomButton/BottomButton";
 import CurrentTime from "@/components/DeliveryTimeCheck/CurrentTime";
 import GrayVerticalLine from "@/components/GrayVerticalLine/GrayVerticalLine";
+import BottomBar from "@/components/overlay/BottomBar";
+import { Loading } from "@/components/state/StateViews";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import { Button } from "@/components/ui/button";
+import { goBack } from "@/lib/nav/go";
 
 import { useOrderStore } from "@/store/orderStore";
 import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 
+import { CS_TEL } from "../../../_lib/order";
 import UnavailableDeliveryFooter from "../_components/UnavailableDeliveryFooter";
 
 function UnavailableClientPage() {
@@ -21,18 +25,20 @@ function UnavailableClientPage() {
   const { order } = useOrderStore();
   const [arrivalTimeFormatted, setArrivalTimeFormatted] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [failed, setFailed] = useState(false);
   const [remainingMinutes, setRemainingMinutes] = useState<number | null>(null);
 
   // 최초 1회: remainingMinutes 받아오기
   useEffect(() => {
     const fetchDeliveryInfo = async () => {
-      if (!order?.road_address.trim()) return;
+      if (!order?.road_address?.trim()) return;
       try {
         setIsLoading(true);
         const { remainingMinutes } = await calculateDeliveryInfo(order.road_address);
         setRemainingMinutes(remainingMinutes);
       } catch (err) {
         console.error("배송 시간 계산 실패:", err);
+        setFailed(true);
       } finally {
         setIsLoading(false);
       }
@@ -60,7 +66,7 @@ function UnavailableClientPage() {
 
   // 예상 배송 시간 텍스트
   const formatRemainingTime = () => {
-    if (remainingMinutes === null) return "계산 중...";
+    if (remainingMinutes === null) return "";
     const h = Math.floor(remainingMinutes / 60);
     const m = remainingMinutes % 60;
     return `${h > 0 ? `${h}시간 ` : ""}${m}분`;
@@ -76,7 +82,7 @@ function UnavailableClientPage() {
   };
   return (
     <div className="flex min-h-screen flex-col pt-[60px]">
-      <TopNavigator />
+      <TopNavigator backTo="/order/delivery/address" />
       <div className="mb- flex flex-grow flex-col justify-between p-5">
         <div className="flex flex-grow flex-col gap-5">
           <img src={"/icons/exclamation-mark.svg"} alt="느낌표 아이콘" className="h-12 w-12" />
@@ -94,7 +100,7 @@ function UnavailableClientPage() {
                 <span className="text-[17px]/[24px] font-600 text-gray-800">예상 도착 시간</span>
               </div>
               <span className="text-[17px]/[24px] font-600 text-blue-500">
-                {isLoading ? "계산 중..." : arrivalTimeFormatted}
+                {isLoading ? <Loading variant="inline" label="계산 중" /> : failed ? "계산하지 못했어요" : arrivalTimeFormatted}
               </span>
             </div>
             {/* 소요시간 계산 */}
@@ -106,7 +112,11 @@ function UnavailableClientPage() {
                 width="w-[3px]"
               />
               <span className="text-[16px]/[22px] font-400 text-gray-500">
-                {order?.road_address}까지 {formatRemainingTime()} 걸려요
+                {remainingMinutes === null
+                  ? failed
+                    ? "걸리는 시간을 계산하지 못했어요"
+                    : <Loading variant="inline" label="계산 중" />
+                  : `${order?.road_address}까지 ${formatRemainingTime()} 걸려요`}
               </span>
             </div>
             {/* 주문 접수 및 제작 시간 */}
@@ -140,70 +150,18 @@ function UnavailableClientPage() {
               <CurrentTime textColor="text-blue-500" />
             </div>
           </div>
-          {/* 이전 디자인 코드 */}
-          {/* <div>
-            <div
-              className={`flex justify-between border-gray-200 px-4 py-3 ${isClicked ? "rounded-t-xl border-l border-r border-t" : "rounded-xl border"}`}
-              onClick={handleEstimatedTimeClick}
-            >
-              <span className="font-500 text-gray-500">예상 도착 시간</span>
-              <div className="flex gap-1">
-                <span className="text-[17px] font-600 text-blue-500">
-                  {" "}
-                  {isLoading ? "계산 중..." : arrivalTimeFormatted}
-                </span>
-                {isClicked ? (
-                  <img src={"/icons/chevron-down-thick.svg"} alt="아래쪽 화살표" />
-                ) : (
-                  <img src={"/icons/chevron-right-thick.svg"} alt="오른쪽 화살표" />
-                )}
-              </div>
-            </div>
-            {/* 얘는 조건부 렌더 */}
-          {/* {isClicked ? (
-            <>
-              <div className="mx-4 h-[1px] rounded-full bg-gray-200"></div>
-              <div className="rounded-b-xl border-b border-l border-r border-gray-200 px-4 py-3">
-                <div className="flex flex-col gap-3">
-                  <div className="flex justify-between font-500">
-                    <div className="text-gray-500">현재 시각</div>
-                    <div>
-                      <CurrentTime textColor="text-gray-800" />
-                    </div>
-                  </div>
-                  <div className="flex justify-between font-500">
-                    <div className="text-gray-500">주문 접수 및 제작 시간</div>
-                    <div>{formatCurrentTimePlus30()}</div>
-                  </div>
-                  <div className="flex justify-between font-500">
-                    <div className="text-gray-500">예상 배송 시간</div>
-                    {/* <div>+ {formatMinutes(remainingMinutes)}</div> */}
-          {/* <div>+ {formatRemainingTime()}</div>
-                  </div>
-                </div>
-                <div className="mt-2 whitespace-pre-wrap break-words rounded-xl border border-gray-200 bg-gray-100 px-4 py-3">
-                  {order?.road_address}
-                  {order?.detail_address ? ` (${order.detail_address})` : ""}
-                </div>
-              </div>
-            </>
-          ) : (
-            ""
-          )} */}
         </div>
         <UnavailableDeliveryFooter />
       </div>
       <div className="h-[100px]"></div>
-      <BottomButton
-        className="fixed bottom-0 w-full max-w-[460px]"
-        type={"2buttons"}
-        button1Type="BrandInverse"
-        button1Text="확인했어요"
-        onButton1Click={() => router.back()}
-        button2Type="Brand"
-        button2Text="고객센터 전화하기"
-        onButton2Click={() => window.open("tel:031-528-4002", "_blank")}
-      />
+      <BottomBar>
+        <Button variant="inverse" onClick={() => goBack(router, "/order/delivery/address")}>
+          확인했어요
+        </Button>
+        <Button asChild>
+          <a href={CS_TEL}>고객센터 전화하기</a>
+        </Button>
+      </BottomBar>
     </div>
   );
 }

@@ -1,15 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import Script from "next/script";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
-import BottomButton from "@/components/BottomButton/BottomButton";
 import DeliveryStatusChip from "@/components/DeliveryTimeCheck/DeliveryStatusChip";
+import AddressField from "@/components/form/AddressField";
+import Field from "@/components/form/Field";
+import { useRequired } from "@/components/form/useRequired";
 import Header from "@/components/Header/Header";
-import BoxedInput from "@/components/Input/BoxedInput";
-import DaumPostcodePopup from "@/components/SearchAddress/DaumPostcode";
+import BottomBar from "@/components/overlay/BottomBar";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ActionError, useAction } from "@/components/ui/use-action";
 import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 import useBizClientStore from "@/store/bizClientStore";
 import { UpdateBizClientUsecase } from "@/DDD/usecase/user/update_BizClient_usecase";
@@ -17,39 +20,21 @@ import { BizClientSupabaseRepository } from "@/DDD/data/db/User/bizclient_supaba
 import { trackClick } from "@/services/analytics/amplitude";
 import { getScreenName } from "@/utils/screenName";
 
+/** 배송 주소 — 저장된 주소를 채워 두고, 고쳐서 저장하면 홈으로. 오늘배송 칩은 저장된 주소 기준. */
 function AddressCheckClientPage() {
   const router = useRouter();
   const { bizClient } = useBizClientStore();
   const road_address = bizClient?.road_address || "";
   const detail_address = bizClient?.detail_address || "";
-  const updateBizClientUsecase = new UpdateBizClientUsecase(new BizClientSupabaseRepository());
-
 
   const [isDeliveryPossible, setIsDeliveryPossible] = useState(false);
-
-  // const [showPostcode, setShowPostcode] = useState(false);
-
   const [isCheckingDelivery, setIsCheckingDelivery] = useState(false);
-
-  const scriptLoadedRef = useRef(false);
-
-  // const { address1, address2, setAddress } = useAddressStore();
-  // const userId = useUserStore.getState().id;
-
-
 
   const [temp_road_address, setTempRoadAddress] = useState(road_address);
   const [temp_detail_address, setTempDetailAddress] = useState(detail_address);
 
-  const handleScriptLoad = () => {
-    scriptLoadedRef.current = true;
-  };
-
-  useEffect(() => {
-    if (typeof window !== "undefined" && window.daum?.Postcode) {
-      scriptLoadedRef.current = true;
-    }
-  }, []);
+  const req = useRequired({ road: !!temp_road_address, detail: !!temp_detail_address.trim() });
+  const save = useAction({ holdOnSuccess: true });
 
   // 상태에 따라 주소 입력 완료 여부 판단
   const isAddressEntered = road_address.trim() !== "";
@@ -73,8 +58,7 @@ function AddressCheckClientPage() {
     checkTodayDelivery();
   }, [road_address]);
 
-  const handleSubmit = async () => {
-
+  const handleSubmit = () => {
     trackClick({
       object_type: "button",
       object_name: "confirm",
@@ -82,42 +66,29 @@ function AddressCheckClientPage() {
       modal_name: null,
     });
 
-    if (isCheckingDelivery) return;
+    if (!req.check()) return;
 
-    if (!temp_road_address || !temp_detail_address) {
-      alert("주소와 상세주소를 모두 입력해주세요.");
-      return;
-    }
-
-    try {
-      await updateBizClientUsecase.execute({
-        id: bizClient?.id,
-        road_address: temp_road_address,
-        detail_address: temp_detail_address,
-      });
-
-      // await updateUserAddress(userId, address1, address2);
-      console.log("📦 주소 업데이트 완료 후 후처리 시작");
+    save.run(async () => {
+      if (!bizClient?.id) throw new Error("로그인 후 주소를 저장할 수 있어요.");
+      // 저장 실패는 예외가 아니라 success:false 로 온다(예전엔 이것을 안 보고 저장된 줄 알았다)
+      const result = await new UpdateBizClientUsecase(new BizClientSupabaseRepository())
+        .execute({ id: bizClient.id, road_address: temp_road_address, detail_address: temp_detail_address })
+        .catch((error) => {
+          console.error("주소 저장 실패:", error);
+          return { success: false };
+        });
+      if (!result.success) throw new Error("주소 저장 중 오류가 발생했습니다.");
 
       useBizClientStore.getState().updateBizClient({
         road_address: temp_road_address,
         detail_address: temp_detail_address,
       });
-
-      // setAddress(address1, address2);
       router.replace("/");
-    } catch (error) {
-      alert("주소 저장 중 오류가 발생했습니다.");
-    }
+    });
   };
 
   return (
     <div className="pt-[60px]">
-      <Script
-        src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
-        strategy="afterInteractive"
-        onLoad={handleScriptLoad}
-      />
       <TopNavigator title="주소 입력" />
       <Header
         title={
@@ -129,22 +100,18 @@ function AddressCheckClientPage() {
         size="Large"
       />
       <div className="flex flex-col gap-2 px-[20px] pt-[20px]">
-        <h1 className="text-sm font-400 text-gray-600">주소</h1>
-
-        <DaumPostcodePopup
-          address1={temp_road_address || ""}
-          onComplete={selected => {
-            setTempRoadAddress(selected);
-          }}
-        />
-
-        <BoxedInput
-          placeholder="상세주소 (예: 101동 501호 / 단독주택)"
-          value={temp_detail_address}
-          onChange={e => {
-            setTempDetailAddress(e.target.value);
-          }}
-        />
+        <Field label="주소" required fieldRef={req.ref("road")} error={req.error("road")}>
+          <AddressField aria-invalid={!!req.error("road")} value={temp_road_address} onPick={setTempRoadAddress} />
+        </Field>
+        <Field required fieldRef={req.ref("detail")} error={req.error("detail")}>
+          <Input
+            aria-label="상세주소"
+            aria-invalid={!!req.error("detail")}
+            placeholder="상세주소 (예: 101동 501호 / 단독주택)"
+            value={temp_detail_address}
+            onChange={e => setTempDetailAddress(e.target.value)}
+          />
+        </Field>
       </div>
       <div className="mx-5 mt-3">
         <DeliveryStatusChip
@@ -158,14 +125,11 @@ function AddressCheckClientPage() {
         />
       </div>
 
-      <div id="address-check-next-button" className="fixed bottom-0 left-1/2 w-full max-w-[460px] -translate-x-1/2">
-        <BottomButton
-          type="1button"
-          button1Text="다음"
-          button1Type="Brand"
-          onButton1Click={handleSubmit}
-        />
-      </div>
+      <BottomBar top={<ActionError error={save.error} className="mb-3" />}>
+        <Button busy={save.busy} onClick={handleSubmit}>
+          다음
+        </Button>
+      </BottomBar>
     </div>
   );
 }

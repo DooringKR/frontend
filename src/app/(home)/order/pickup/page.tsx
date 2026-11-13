@@ -1,6 +1,8 @@
 "use client";
 
 import { Suspense, useEffect } from "react";
+
+import { Loading } from "@/components/state/StateViews";
 import PickUpClientPage from "./PickUpClient";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
@@ -22,7 +24,7 @@ export default function PickUpPage() {
         });
     }, []);
     return (
-        <Suspense fallback={"로딩중..."}>
+        <Suspense fallback={<Loading />}>
             <InitAmplitude />
             <PickUpClientPage />
         </Suspense>

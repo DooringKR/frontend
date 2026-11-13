@@ -6,6 +6,7 @@ export function useBarogaguBanners() {
     const [banners, setBanners] = useState<BarogaguBanner[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [attempt, setAttempt] = useState(0);
 
     useEffect(() => {
         const fetchBanners = async () => {
@@ -35,8 +36,8 @@ export function useBarogaguBanners() {
         };
 
         fetchBanners();
-    }, []);
+    }, [attempt]);
 
-    return { banners, loading, error };
+    return { banners, loading, error, reload: () => setAttempt((n) => n + 1) };
 }
 

@@ -1,6 +1,9 @@
 "use client";
 
-import BottomButton from "@/components/BottomButton/BottomButton";
+import BottomBar from "@/components/overlay/BottomBar";
+import { EmptyState, Loading } from "@/components/state/StateViews";
+import { Button } from "@/components/ui/button";
+import { ActionError, useAction } from "@/components/ui/use-action";
 import ShoppingCartCardNew from "@/components/Card/ShoppingCartCardNew";
 import ImageCard from "@/components/Card/ImageCard";
 import Header from "@/components/Header/Header";
@@ -18,8 +21,9 @@ import useBizClientStore from "@/store/bizClientStore";
 import { calculateUnitCabinetPrice } from "@/services/pricing/cabinetPricing";
 import { Cabinet, UpperCabinet, LowerCabinet, TallCabinet, OpenCabinet, FlapCabinet, DrawerCabinet } from "dooring-core-domain/dist/models/InteriorMaterials/Cabinet";
 import { CabinetLegType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import formatColor from "@/utils/formatColor";
 import { transformCabinetToNewCardProps } from "@/utils/transformers/transformCabinetToNewCardProps";
@@ -260,7 +264,8 @@ function ReportPageContent() {
 	const { cart, incrementCartCount } = useCartStore();
 	const cartItems = useCartItemStore((state) => state.cartItems);
 	const [quantity, setQuantity] = useState(1);
-	const [isLoading, setIsLoading] = useState(false);
+	// 담기 — 연타 막기·도는 표시·실패는 버튼 바로 위. 성공하면 장바구니로 넘어가는 동안 계속 막아 둔다
+	const add = useAction({ holdOnSuccess: true });
 
 	// 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
 	useEffect(() => {
@@ -284,24 +289,19 @@ function ReportPageContent() {
 		}
 	}, [item?.behindType, item?.cabinet_behind_type]);
 
+	// 담을 부분장이 없다(새 탭·흐름 밖 진입). 담기 성공 직후엔 item 을 비우고 넘어가는 중이라 Loading
 	if (!item || Object.keys(item).length === 0) {
-		return <div>로딩 중...</div>;
+		return (
+			<div className="flex flex-col pt-[90px]">
+				<TopNavigator />
+				{add.busy ? (
+					<Loading />
+				) : (
+					<EmptyState text="담을 부분장이 없어요" action={{ label: "부분장 고르기", onClick: () => router.replace("/cabinet") }} />
+				)}
+			</div>
+		);
 	}
-
-	// 주요 필드 콘솔 출력
-	console.log(
-		'item.type:', item.type,
-		'item.color:', item.color ?? "",
-		'item.width:', item.width ?? 0,
-		'item.bodyMaterial:', item.bodyMaterial ?? "",
-		'item.handleType:', item.handleType ?? "",
-		'item.depth:', item.depth ?? 0,
-		'item.behindType:', item.behindType ?? "",
-		'item.cabinet_behind_type:', item.cabinet_behind_type ?? "",
-		'item.cabinet_construct:', item.cabinet_construct ?? "",
-		'item.legType:', item.legType ?? "",
-		'item.legType_direct_input:', item.legType_direct_input ?? "",
-	);
 
 	// 색상 id/name 변환
 	const colorObj = CABINET_COLOR_LIST.find(c => c.id === Number(item.color))
@@ -356,181 +356,158 @@ function ReportPageContent() {
 				/>
 				<PaymentNoticeCard />
 			</div>
-			<div id="cabinet-add-to-cart-button">
-				<BottomButton
-					type={"1button"}
-					button1Text={
-						!bizClient
-							? "로그인하고 장바구니 담기"
-							: isLoading
-								? "처리 중..."
-								: "장바구니 담기"
-					}
-					className="fixed bottom-0 w-full max-w-[460px]"
-					button1Disabled={!!bizClient && isLoading}
-					onButton1Click={async () => {
-						if (!bizClient) {
-							trackClick({
-								object_type: "button",
-								object_name: "login_from_cabinet_report",
-								current_page: getScreenName(),
-								modal_name: null,
-							});
-							router.push("/start");
-							return;
-						}
-						// 이미 로딩 중이면 중복 클릭 방지
-						if (isLoading) return;
-
-						setIsLoading(true);
-						trackClick({
-							object_type: "button",
-							object_name: "add_to_cart",
-							current_page: getScreenName(),
-							modal_name: null,
-						});
-						try {
-							// 이미지 업로드 처리
-							let cabinetImageUrls: string[] = [];
-							if (item?.raw_images && item.raw_images.length > 0) {
-								console.log('이미지 업로드 시작:', item.raw_images.length, '개');
-								const uploadUsecase = new SupabaseUploadImageUsecase();
-								cabinetImageUrls = await uploadUsecase.uploadImages(item.raw_images, "cabinets");
-								console.log('이미지 업로드 완료:', cabinetImageUrls);
-								console.log('cabinetImageUrls 타입:', typeof cabinetImageUrls, '길이:', cabinetImageUrls.length);
-							} else {
-								console.log('업로드할 이미지가 없습니다. item.raw_images:', item?.raw_images);
+			<BottomBar id="cabinet-add-to-cart-button" top={<ActionError error={add.error} className="mb-3" />}>
+					<Button
+						busy={add.busy}
+						onClick={() => {
+							if (!bizClient) {
+								trackClick({
+									object_type: "button",
+									object_name: "login_from_cabinet_report",
+									current_page: getScreenName(),
+									modal_name: null,
+								});
+								router.push("/start");
+								return;
 							}
+							add.run(async () => {
+								trackClick({
+									object_type: "button",
+									object_name: "add_to_cart",
+									current_page: getScreenName(),
+									modal_name: null,
+								});
+								try {
+									// 이미지 업로드 처리
+									let cabinetImageUrls: string[] = [];
+									if (item?.raw_images && item.raw_images.length > 0) {
+										const uploadUsecase = new SupabaseUploadImageUsecase();
+										cabinetImageUrls = await uploadUsecase.uploadImages(item.raw_images, "cabinets");
+									}
 
-							// 부분장 객체 생성
-							const cabinet = createCabinetInstance(item, cabinetImageUrls);
-							if (!cabinet) {
-								throw new Error("Cabinet instance could not be created.");
-							}
+									// 부분장 객체 생성
+									const cabinet = createCabinetInstance(item, cabinetImageUrls);
+									if (!cabinet) {
+										throw new Error("Cabinet instance could not be created.");
+									}
 
-							// Supabase에 저장 – 주의: constructor.name은 프로덕션 번들에서 '_' 등으로 난독화될 수 있으므로 명시적으로 테이블 이름을 매핑한다.
-							const tableName = (() => {
-								switch (item.type) {
-									case "상부장":
-										return "UpperCabinet";
-									case "하부장":
-										return "LowerCabinet";
-									case "키큰장":
-										return "TallCabinet";
-									case "오픈장":
-										return "OpenCabinet";
-									case "플랩장":
-										return "FlapCabinet";
-									case "서랍장":
-										return "DrawerCabinet";
-									default:
-										throw new Error("Unknown cabinet type for table mapping");
+									// Supabase에 저장 – 주의: constructor.name은 프로덕션 번들에서 '_' 등으로 난독화될 수 있으므로 명시적으로 테이블 이름을 매핑한다.
+									const tableName = (() => {
+										switch (item.type) {
+											case "상부장":
+												return "UpperCabinet";
+											case "하부장":
+												return "LowerCabinet";
+											case "키큰장":
+												return "TallCabinet";
+											case "오픈장":
+												return "OpenCabinet";
+											case "플랩장":
+												return "FlapCabinet";
+											case "서랍장":
+												return "DrawerCabinet";
+											default:
+												throw new Error("Unknown cabinet type for table mapping");
+										}
+									})();
+
+									const createdCabinet = await new CrudInteriorMaterialsUsecase(
+										new InteriorMaterialsSupabaseRepository<typeof cabinet>(tableName)
+									).create(cabinet);
+
+
+									// 이미지 URL이 있다면 Cabinet 객체에 직접 추가
+									if (cabinetImageUrls.length > 0) {
+										(createdCabinet as any).cabinet_image_url = cabinetImageUrls;
+									}
+
+									// cart, cartItems, setCartItems는 useCartStore에서 가져옴
+									if (!cart) throw new Error("장바구니 정보가 없습니다.");
+
+
+									// CartItem 생성: detail_product_type을 각 타입별로 할당
+									let detailProductType;
+									switch (item.type) {
+										case "상부장":
+											detailProductType = DetailProductType.UPPERCABINET;
+											break;
+										case "하부장":
+											detailProductType = DetailProductType.LOWERCABINET;
+											break;
+										case "키큰장":
+											detailProductType = DetailProductType.TALLCABINET;
+											break;
+										case "플랩장":
+											detailProductType = DetailProductType.FLAPCABINET;
+											break;
+										case "서랍장":
+											detailProductType = DetailProductType.DRAWERCABINET;
+											break;
+										case "오픈장":
+											detailProductType = DetailProductType.OPENCABINET;
+											break;
+										default:
+											throw new Error("Unknown cabinet type for cart item");
+									}
+									if (!createdCabinet || !createdCabinet["id"]) {
+										throw new Error("Cabinet creation failed or missing ID.");
+									}
+
+									const maxNickName = cartItems.reduce((max, item) => {
+										const num = parseInt(item.nick_name || "0");
+										return num > max ? num : max;
+									}, 0);
+									const cartItem = new CartItem({
+										cart_id: cart!.id!,
+										item_detail: createdCabinet.id,
+										detail_product_type: detailProductType,
+										item_count: quantity,
+										unit_price: unitPrice,
+										nick_name: (maxNickName + 1).toString(),
+									});
+									await new CrudCartItemUsecase(
+										new CartItemSupabaseRepository()
+									).create(cartItem);
+
+									// Add to Cart 이벤트 전송 (CartItem 생성 성공 후)
+									const cartQuantityTotalBefore = getTotalQuantityFromCartItems(cartItems);
+									const cartQuantityTypeBefore = cartItems.length;
+									const cartValueBefore = getTotalValueFromCartItems(cartItems);
+
+									// 추가 후 상태 계산 (새 아이템 포함)
+									const productTypesAfter = getProductTypesFromCartItems(cartItems, detailProductType);
+									const detailProductTypesAfter = await getDetailProductTypesFromCartItems(cartItems, detailProductType, item);
+
+									await trackAddToCart({
+										product_type: sortProductTypes(productTypesAfter),
+										detail_product_type: sortDetailProductTypes(detailProductTypesAfter),
+										quantity: quantity,
+										price_unit: unitPrice,
+										cart_quantity_total_before: cartQuantityTotalBefore,
+										cart_quantity_type_before: cartQuantityTypeBefore,
+										cart_value_before: cartValueBefore,
+									});
+									// cart_count 증가
+									await new CrudCartUsecase(
+										new CartSupabaseRepository()
+									).incrementCartCount(cart.id!, quantity);
+
+									incrementCartCount(1);
+									useItemStore.setState({ item: undefined });
+									toast.success("장바구니에 담았어요");
+									router.replace("/cart");
+								} catch (error) {
+									console.error("장바구니 담기 실패:", error);
+									throw new Error("장바구니에 담지 못했어요. 잠시 후 다시 눌러 주세요.");
 								}
-							})();
-
-							const createdCabinet = await new CrudInteriorMaterialsUsecase(
-								new InteriorMaterialsSupabaseRepository<typeof cabinet>(tableName)
-							).create(cabinet);
-
-							console.log('생성된 Cabinet 객체:', createdCabinet);
-							console.log('Cabinet 객체의 모든 속성:', Object.keys(createdCabinet));
-
-							// 이미지 URL이 있다면 Cabinet 객체에 직접 추가
-							if (cabinetImageUrls.length > 0) {
-								(createdCabinet as any).cabinet_image_url = cabinetImageUrls;
-								console.log('이미지 URL을 Cabinet 객체에 추가:', cabinetImageUrls);
-							}
-
-							// cart, cartItems, setCartItems는 useCartStore에서 가져옴
-							if (!cart) throw new Error("장바구니 정보가 없습니다.");
-
-
-							// CartItem 생성: detail_product_type을 각 타입별로 할당
-							let detailProductType;
-							switch (item.type) {
-								case "상부장":
-									detailProductType = DetailProductType.UPPERCABINET;
-									break;
-								case "하부장":
-									detailProductType = DetailProductType.LOWERCABINET;
-									break;
-								case "키큰장":
-									detailProductType = DetailProductType.TALLCABINET;
-									break;
-								case "플랩장":
-									detailProductType = DetailProductType.FLAPCABINET;
-									break;
-								case "서랍장":
-									detailProductType = DetailProductType.DRAWERCABINET;
-									break;
-								case "오픈장":
-									detailProductType = DetailProductType.OPENCABINET;
-									break;
-								default:
-									throw new Error("Unknown cabinet type for cart item");
-							}
-							if (!createdCabinet || !createdCabinet["id"]) {
-								throw new Error("Cabinet creation failed or missing ID.");
-							}
-
-							const maxNickName = cartItems.reduce((max, item) => {
-								const num = parseInt(item.nick_name || "0");
-								return num > max ? num : max;
-							}, 0);
-							const cartItem = new CartItem({
-								cart_id: cart!.id!,
-								item_detail: createdCabinet.id,
-								detail_product_type: detailProductType,
-								item_count: quantity,
-								unit_price: unitPrice,
-								nick_name: (maxNickName + 1).toString(),
 							});
-							await new CrudCartItemUsecase(
-								new CartItemSupabaseRepository()
-							).create(cartItem);
-
-							// Add to Cart 이벤트 전송 (CartItem 생성 성공 후)
-							const cartQuantityTotalBefore = getTotalQuantityFromCartItems(cartItems);
-							const cartQuantityTypeBefore = cartItems.length;
-							const cartValueBefore = getTotalValueFromCartItems(cartItems);
-
-							// 추가 후 상태 계산 (새 아이템 포함)
-							const productTypesAfter = getProductTypesFromCartItems(cartItems, detailProductType);
-							const detailProductTypesAfter = await getDetailProductTypesFromCartItems(cartItems, detailProductType, item);
-
-							await trackAddToCart({
-								product_type: sortProductTypes(productTypesAfter),
-								detail_product_type: sortDetailProductTypes(detailProductTypesAfter),
-								quantity: quantity,
-								price_unit: unitPrice,
-								cart_quantity_total_before: cartQuantityTotalBefore,
-								cart_quantity_type_before: cartQuantityTypeBefore,
-								cart_value_before: cartValueBefore,
-							});							// cart_count 증가
-							await new CrudCartUsecase(
-								new CartSupabaseRepository()
-							).incrementCartCount(cart.id!, quantity);
-
-							incrementCartCount(1);
-							useItemStore.setState({ item: undefined });
-							router.replace("/cart");
-						} catch (error: any) {
-							console.error("장바구니 담기 실패:", error);
-							setIsLoading(false);
-						}
-					}}
-				/>
-			</div>
+						}}
+					>
+						{bizClient ? "장바구니 담기" : "로그인하고 장바구니 담기"}
+					</Button>
+				</BottomBar>
 		</div>
 	);
 }
 
-function ReportPage() {
-	return (
-		<Suspense fallback={<div>로딩 중...</div>}>
-			<ReportPageContent />
-		</Suspense>
-	);
-}
-
-export default ReportPage;
+export default ReportPageContent;

@@ -1,36 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
-import Checkbox from "@/components/Checkbox";
-import { Chip } from "@/components/Chip/Chip";
 
-interface SelectableOptionCardProps {
-  // 기본 정보
-  title: string;
-  description?: string;
-  
-  // 이미지 관련
-  showImage?: boolean;
-  imageUrl?: string;
-  
-  // 칩 관련
-  showChip?: boolean;
-  chipText?: string;
-  chipColor?: 'blue' | 'yellow' | 'green' | 'gray';
-  
-  // 하단 확장 콘텐츠
-  showExpandableContent?: boolean;
-  expandableContent?: React.ReactNode;
-  
-  // 체크박스 상태
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-  
-  // 스타일링
-  className?: string;
-}
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
 
+/**
+ * 켜고 끄는 옵션 카드(체크박스 동작의 카드 모양) — 머리 줄(그림·이름·띠·설명·체크)을 누르면 켜지고 꺼진다.
+ * 켜면 아래에 그 옵션의 칸(expandableContent)이 펼쳐진다. 펼친 칸 안을 눌러도 카드가 꺼지지 않는다(예전 버그).
+ */
 export default function SelectableOptionCard({
   title,
   description,
@@ -38,75 +17,40 @@ export default function SelectableOptionCard({
   imageUrl,
   showChip = false,
   chipText,
-  chipColor = 'yellow',
+  chipColor = "yellow",
   showExpandableContent = false,
   expandableContent,
   checked,
   onChange,
   className = "",
-}: SelectableOptionCardProps) {
-  const [isExpanded, setIsExpanded] = useState(checked && showExpandableContent);
-
-  const handleCheckboxChange = (newChecked: boolean) => {
-    onChange(newChecked);
-    if (showExpandableContent) {
-      setIsExpanded(newChecked);
-    }
-  };
-
-  const handleCardClick = () => {
-    handleCheckboxChange(!checked);
-  };
-
+}: {
+  title: string;
+  description?: string;
+  showImage?: boolean;
+  imageUrl?: string;
+  showChip?: boolean;
+  chipText?: string;
+  chipColor?: "blue" | "yellow" | "green" | "gray";
+  showExpandableContent?: boolean;
+  expandableContent?: React.ReactNode;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  className?: string;
+}) {
   return (
-      <div 
-        className={`self-stretch px-4 pt-2 pb-4 bg-white flex flex-col justify-center items-start gap-2 overflow-hidden cursor-pointer transition-colors hover:bg-gray-50 ${className}`}
-        onClick={handleCardClick}
-      >
-        <div className="self-stretch inline-flex justify-start items-center gap-2">
-          {/* 이미지 */}
-          {showImage && imageUrl && (
-            <Image 
-              src={imageUrl} 
-              alt={title} 
-              width={56} 
-              height={56} 
-              className="w-14 h-14 object-cover rounded-lg"
-            />
-          )}
-          
-          {/* 제목과 칩 */}
-          <div className="flex-1 inline-flex flex-col justify-center items-start">
-            <div className="self-stretch inline-flex justify-start items-center gap-1">
-              <div className="justify-start text-gray-700 text-base font-bold font-['Pretendard'] leading-5">
-                {title}
-              </div>
-              {showChip && chipText && (
-                <Chip text={chipText} color={chipColor} />
-              )}
-            </div>
-            {description && (
-              <div className="self-stretch justify-start text-gray-500 text-sm font-normal font-['Pretendard'] leading-5">
-                {description}
-              </div>
-            )}
-          </div>
-          
-          {/* 체크박스 - 컨테이너 상단에 정렬 */}
-          <div className="flex items-start pt-0">
-            <Checkbox 
-              checked={checked} 
-              onChange={handleCheckboxChange}
-            />
-          </div>
-        </div>
-        
-        {/* 확장 가능한 콘텐츠 */}
-        {showExpandableContent && isExpanded && expandableContent && (
-          <div className="self-stretch flex flex-col justify-center items-start">
-            {expandableContent}
-          </div>
-        )}
-      </div>
+    <div className={cn("flex flex-col gap-2 self-stretch bg-background px-4 pb-4 pt-2", className)}>
+      <label className="flex cursor-pointer items-center gap-2 self-stretch rounded-[12px] transition-colors hover:bg-muted">
+        {showImage && imageUrl && <Image src={imageUrl} alt={title} width={56} height={56} className="size-14 rounded-lg object-cover" />}
+        <span className="flex flex-1 flex-col">
+          <span className="flex items-center gap-1 text-[16px]/5 font-700 text-gray-700">
+            {title}
+            {showChip && chipText && <Badge color={chipColor}>{chipText}</Badge>}
+          </span>
+          {description && <span className="text-[14px]/5 text-gray-500">{description}</span>}
+        </span>
+        <Checkbox checked={checked} onCheckedChange={(v) => onChange(v === true)} aria-label={title} />
+      </label>
+      {showExpandableContent && checked && expandableContent && <div className="flex flex-col self-stretch">{expandableContent}</div>}
+    </div>
   );
 }

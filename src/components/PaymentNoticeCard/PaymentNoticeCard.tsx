@@ -1,26 +1,12 @@
-import React from 'react';
+import Notice from "@/components/state/Notice";
 
-interface PaymentNoticeCardProps {
-    className?: string;
-}
-
-const PaymentNoticeCard: React.FC<PaymentNoticeCardProps> = ({
-    className = '',
-}) => {
-
+/**
+ * 결제 안내 — 홈·리포트·장바구니·주문 확인이 같은 문구 하나를 쓴다(예전엔 홈 판이 따로 있어 문구가 달랐다).
+ */
+export default function PaymentNoticeCard({ className }: { className?: string }) {
     return (
-        <div className={`bg-blue-50 border border-blue-200 rounded-lg p-4 ${className}`}>
-            <div className="text-blue-800 text-base font-medium">
-                지금 주문해도 바로 결제되지 않아요.
-            </div>
-            <div className="text-blue-600 text-sm mt-1">
-                담당 직원이 꼼꼼한 통화 후에 견적서를 따로 보내드려요.
-            </div>
-            <div className="text-blue-600 text-sm mt-1">
-                결제는 견적서를 받고 진행해주세요.
-            </div>
-        </div>
+        <Notice tone="blue" title="지금 주문해도 바로 결제되지 않아요" className={className}>
+            담당 직원이 통화 후 견적서를 따로 보내드려요. 결제는 견적서를 받고 직접 송금으로 진행해주세요.
+        </Notice>
     );
-};
-
-export default PaymentNoticeCard;
+}

@@ -1,54 +1,38 @@
-import { useState, useEffect } from "react";
-import { ReadOrderHistoryUsecase, OrderWithItems } from "@/DDD/usecase/read_order_history_usecase";
+import { useCallback, useEffect, useState } from "react";
+
 import { OrderSupabaseRepository } from "@/DDD/data/db/CartNOrder/order_supabase_repository";
 import { OrderItemSupabaseRepository } from "@/DDD/data/db/CartNOrder/orderitem_supabase_repository";
+import { OrderWithItems, ReadOrderHistoryUsecase } from "@/DDD/usecase/read_order_history_usecase";
 import useBizClientStore from "@/store/bizClientStore";
 
+/**
+ * 품목 주문 내역 — orders: null = 아직 안 읽음, [] = 없음. 회원 정보가 없으면 needLogin(오류 대신 로그인 안내).
+ */
 export const useOrderHistory = () => {
-    const [ordersWithItems, setOrdersWithItems] = useState<OrderWithItems[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+  const [orders, setOrders] = useState<OrderWithItems[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [needLogin, setNeedLogin] = useState(false);
 
-    useEffect(() => {
-        const fetchOrderHistory = async () => {
-            try {
-                const userId = useBizClientStore.getState().getBizClientId();
+  const reload = useCallback(async () => {
+    setOrders(null);
+    setError(null);
+    const userId = useBizClientStore.getState().getBizClientId();
+    if (!userId) return setNeedLogin(true);
+    try {
+      const response = await new ReadOrderHistoryUsecase(new OrderSupabaseRepository(), new OrderItemSupabaseRepository()).execute(userId);
+      if (!response.success) throw new Error(response.message);
+      setOrders(response.data || []);
+    } catch (err) {
+      console.error("주문 내역 조회 에러:", err);
+      setError("주문 내역을 불러오지 못했어요");
+    }
+  }, []);
 
-                if (!userId) {
-                    setError("사용자 정보를 찾을 수 없습니다.");
-                    setLoading(false);
-                    return;
-                }
+  useEffect(() => {
+    reload();
+  }, [reload]);
 
-                console.log("🔍 사용자 ID로 주문 내역 조회 시도:", userId);
-
-                // DDD 스타일의 Usecase 사용
-                const usecase = new ReadOrderHistoryUsecase(
-                    new OrderSupabaseRepository(),
-                    new OrderItemSupabaseRepository()
-                );
-
-                const response = await usecase.execute(userId);
-
-                if (!response.success) {
-                    throw new Error(response.message || "주문 내역 조회에 실패했습니다.");
-                }
-
-                console.log("✅ 주문 내역 데이터:", response.data);
-                setOrdersWithItems(response.data || []);
-
-            } catch (err) {
-                console.error("💥 주문 내역 조회 에러:", err);
-                setError(err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchOrderHistory();
-    }, []);
-
-    return { ordersWithItems, loading, error };
+  return { orders, error, needLogin, reload };
 };
 
-export type { OrderWithItems }; 
+export type { OrderWithItems };

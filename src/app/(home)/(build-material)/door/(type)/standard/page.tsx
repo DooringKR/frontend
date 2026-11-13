@@ -1,62 +1,77 @@
 "use client";
 
+import { HingeDirection } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import { useRouter } from "next/navigation";
-import { Suspense, useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 
-import BottomButton from "@/components/BottomButton/BottomButton";
-import BottomSheet from "@/components/BottomSheet/BottomSheet";
-import Button from "@/components/Button/Button";
-import ImageButton from "@/components/Button/ImageButton";
-import Header from "@/components/Header/Header";
-import ProgressBar from "@/components/Progress";
-import BoxedInput from "@/components/Input/BoxedInput";
-import ImageUploadInput from "@/components/Input/ImageUploadInput";
-import BoxedSelect from "@/components/Select/BoxedSelect";
-import SelectToggleButton from "@/components/Button/SelectToggleButton";
-import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import NormalDoorPreview from "@/components/DoorPreview/NormalDoorPreview";
 import PairDoorPreview from "@/components/DoorPreview/PairDoorPreview";
-import SegmentedControl from "@/components/SegmentedControl/SegmentedControl";
-import Checkbox from "@/components/Checkbox";
-import ManWhiteIcon from "public/icons/man_white";
-import InputGuide from "@/components/Input/InputGuide";
-
-import formatLocation from "@/utils/formatLocation";
-import formatColor from "@/utils/formatColor";
-
+import Choose from "@/components/form/Choose";
+import Field from "@/components/form/Field";
+import NumberInput from "@/components/form/NumberInput";
+import { useRequired } from "@/components/form/useRequired";
+import Header from "@/components/Header/Header";
+import BottomBar from "@/components/overlay/BottomBar";
+import ProgressBar from "@/components/Progress";
+import Notice from "@/components/state/Notice";
+import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import { Button } from "@/components/ui/button";
 import useItemStore from "@/store/itemStore";
-
-// Hooks
-import { useDoorValidation } from "./hooks/useDoorValidation";
-import { HingeDirection } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
-import { Location } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import { trackClick, trackView } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 
-function StandardDoorPageContent() {
+import { BORING_OPTIONS, ChooseOrUnknown, ColorField, hasHingeValues, LocationField } from "../../_components/DoorForm";
+import { useConfirm } from "@/components/overlay/ConfirmSheet";
+import { boringRule, sizeRule } from "./hooks/doorRules";
+import { FieldHint } from "@/components/form/Field";
+
+const HINGE_DIRECTION_OPTIONS = [
+    { value: HingeDirection.LEFT, label: "좌경첩" },
+    { value: HingeDirection.RIGHT, label: "우경첩" },
+];
+
+const DOOR_KIND_OPTIONS = [
+    { value: "pair" as const, label: "양문", description: "양문 한번에 주문", image: "/img/door-pair/pair.svg" },
+    { value: "single" as const, label: "단일문", description: "한쪽 문만 주문", image: "/img/door-pair/single.svg" },
+];
+
+export default function StandardDoorPage() {
     const router = useRouter();
     const item = useItemStore(state => state.item);
     const updateItem = useItemStore(state => state.updateItem);
+    const confirm = useConfirm();
 
-    // 가로 입력 필드 ref
-    const widthInputRef = useRef<HTMLInputElement>(null);
-
-    // 초기값을 itemStore에서 읽어오기 (기본값 없음)
+    // 초기값을 itemStore에서 읽어오기 (기본값 없음 - 사용자가 명시적으로 선택해야 함)
     const [boringNum, setBoringNum] = useState<2 | 3 | 4 | null>(item?.boringNum ?? null);
-    const [hinge_direction, setHingeDirection] = useState<HingeDirection | null>(
-        (item?.hinge_direction as HingeDirection) ?? null,
+    const [hinge_direction, setHingeDirection] = useState<HingeDirection | null>((item?.hinge_direction as HingeDirection) ?? null);
+    const [selectedDoorType, setSelectedDoorType] = useState<"pair" | "single" | null>(
+        item?.is_pair_door === true ? "pair" : item?.is_pair_door === false ? "single" : null,
     );
-    
-    // 양문/단문 선택 상태 관리
-    const [selectedDoorType, setSelectedDoorType] = useState<'pair' | 'single' | null>(
-        item?.is_pair_door === true ? 'pair' : item?.is_pair_door === false ? 'single' : null
-    );
+    const [door_width, setDoorWidth] = useState<number | null>(item?.door_width ?? null);
+    const [door_height, setDoorHeight] = useState<number | null>(item?.door_height ?? null);
+    const [hinge, setHinge] = useState<(number | null)[]>(item?.hinge ?? []);
+    const [door_location, setDoorLocation] = useState(item?.door_location ?? "");
+    // 모름 = hinge 가 정확히 [null] / 경첩 방향 UNKNOWN
+    const [isDontKnowHingeCount, setIsDontKnowHingeCount] = useState(() => !!item?.hinge && item.hinge.length === 1 && item.hinge[0] === null);
+    const [isDontKnowHingeDirection, setIsDontKnowHingeDirection] = useState(() => item?.hinge_direction === HingeDirection.UNKNOWN);
+
+    const isPair = selectedDoorType === "pair";
+    // 화면 위 → 아래 순서. 양문은 경첩 방향이 없다
+    const req = useRequired({
+        color: !!(item?.color || item?.door_color_direct_input),
+        location: !!door_location,
+        kind: selectedDoorType !== null,
+        width: sizeRule(door_width, "가로", 1220),
+        height: sizeRule(door_height, "세로", 2440),
+        count: isDontKnowHingeCount || boringNum !== null,
+        direction: isPair || isDontKnowHingeDirection || hinge_direction !== null,
+        boring: boringRule(hinge, boringNum, door_height),
+    });
 
     // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
     useEffect(() => {
-        // 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
         setScreenName('door_standard');
         const prev = getPreviousScreenName();
         trackView({
@@ -67,77 +82,20 @@ function StandardDoorPageContent() {
         });
     }, []);
 
-    // 기본값 설정 제거 - 사용자가 명시적으로 선택해야 함
-    const [door_width, setDoorWidth] = useState<number | null>(item?.door_width ?? null);
-    const [door_height, setDoorHeight] = useState<number | null>(item?.door_height ?? null);
-
-    // boringSize 초기값 설정
-    const [hinge, setHinge] = useState<(number | null)[]>(item?.hinge ?? []);
-
-    const [door_location, setDoorLocation] = useState(item?.door_location ?? "");
-    const [isDoorLocationSheetOpen, setIsDoorLocationSheetOpen] = useState(false);
-    
-    // 체크박스 초기 상태: 명시적으로 UNKNOWN이거나 [null]인 경우만 모름 체크
-    const [isDontKnowHingeCount, setIsDontKnowHingeCount] = useState(() => {
-        // hinge 배열이 정확히 [null]인 경우만 모름 상태
-        return item?.hinge && item.hinge.length === 1 && item.hinge[0] === null;
-    });
-    const [isDontKnowHingeDirection, setIsDontKnowHingeDirection] = useState(() => {
-        // hinge_direction이 명시적으로 UNKNOWN인 경우만 모름 상태
-        return item?.hinge_direction === HingeDirection.UNKNOWN;
-    });
-
-    // 페이지 진입 시 용도 및 장소 시트 자동 열기 (door_location이 없을 때만)
-    useEffect(() => {
-        if (!door_location) {
-            setIsDoorLocationSheetOpen(true);
-        }
-    }, []);
-
-    // boringNum이 변경되면 hinge 배열 길이 맞추기
+    // boringNum이 바뀔 때 hinge 길이 자동 조정 (기존 값 유지)
     useEffect(() => {
         if (boringNum !== null && hinge.length !== boringNum) {
-            const newBoringSize = Array.from({ length: boringNum }, (_, i) =>
-                hinge && hinge[i] !== undefined ? hinge[i] : null,
-            );
-            setHinge(newBoringSize);
+            setHinge(Array.from({ length: boringNum }, (_, i) => (hinge && hinge[i] !== undefined ? hinge[i] : null)));
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [boringNum]);
-
-    // 유효성 검사 훅 사용
-    const { widthError, heightError, boringError, isFormValid } = useDoorValidation({
-        DoorWidth: door_width,
-        DoorHeight: door_height,
-        hinge,
-        boringNum,
-        hingeDirection: hinge_direction,
-        isPairDoor: selectedDoorType === 'pair',
-    });
-
-    // boringNum이 바뀔 때 boringSize 길이 자동 조정
-    useEffect(() => {
-        if (boringNum !== null) {
-            // 기존 값을 유지하면서 새로운 길이에 맞게 조정
-            const newBoringSize = Array.from({ length: boringNum }, (_, i) =>
-                hinge && hinge[i] !== undefined ? hinge[i] : null,
-            );
-            setHinge(newBoringSize);
-        }
-    }, [boringNum]);
-
 
     // 각 필드 변경 시 useItemStore에 저장
-    const handleBoringNumChange = (newBoringNum: 2 | 3 | 4 | null) => {
+    const handleBoringNumChange = (newBoringNum: 2 | 3 | 4) => {
         setBoringNum(newBoringNum);
-        if (newBoringNum !== null) {
-            const newBoringSize = Array.from({ length: newBoringNum }, (_, i) =>
-                hinge && hinge[i] !== undefined ? hinge[i] : null,
-            );
-            setHinge(newBoringSize);
-            updateItem({ boringNum: newBoringNum, hinge: newBoringSize });
-        } else {
-            updateItem({ boringNum: null, hinge: [] });
-        }
+        const newBoringSize = Array.from({ length: newBoringNum }, (_, i) => (hinge && hinge[i] !== undefined ? hinge[i] : null));
+        setHinge(newBoringSize);
+        updateItem({ boringNum: newBoringNum, hinge: newBoringSize });
     };
 
     const handleBoringDirectionChange = (newBoringDirection: HingeDirection | null) => {
@@ -145,368 +103,182 @@ function StandardDoorPageContent() {
         updateItem({ hinge_direction: newBoringDirection });
     };
 
-    const handleDoorWidthChange = (newWidth: number | null) => {
-        setDoorWidth(newWidth);
-        updateItem({ door_width: newWidth });
-    };
-
-    const handleDoorHeightChange = (newHeight: number | null) => {
-        setDoorHeight(newHeight);
-        updateItem({ door_height: newHeight });
-    };
-
     const handleBoringSizeChange = (newBoringSize: (number | null)[]) => {
         setHinge(newBoringSize);
         updateItem({ hinge: newBoringSize });
     };
 
-    const handleDoorLocationChange = (newLocation: string) => {
-        setDoorLocation(newLocation);
-        updateItem({ door_location: newLocation });
-        
-        // 용도 및 장소 선택 후 시트가 닫히면 가로 입력 필드로 포커스 이동
-        setIsDoorLocationSheetOpen(false);
-        setTimeout(() => {
-            widthInputRef.current?.focus();
-        }, 300); // 시트 닫히는 애니메이션 후 포커스 이동
+    const setDontKnowCount = (checked: boolean) => {
+        const apply = () => {
+            setIsDontKnowHingeCount(checked);
+            // 모름 체크: [null] / 해제: 선택 초기화 (사용자가 직접 선택해야 함)
+            const next = checked ? [null] : [];
+            setHinge(next);
+            setBoringNum(null);
+            updateItem({ hinge: next, boringNum: null });
+        };
+        if (checked && hasHingeValues(hinge)) confirm.ask("넣은 경첩 치수를 지울까요?", apply);
+        else apply();
     };
+
+    const setDontKnowDirection = (checked: boolean) => {
+        setIsDontKnowHingeDirection(checked);
+        handleBoringDirectionChange(checked ? HingeDirection.UNKNOWN : null);
+    };
+
+    const num = (v: string) => (v ? Number(v) : null);
+
+    const sizeFields = (widthHint: React.ReactNode) => (
+        <>
+            <Field label="가로 길이" required fieldRef={req.ref("width")} error={req.error("width")}>
+                <NumberInput
+                    unit="mm"
+                    placeholder="가로 길이를 입력해주세요"
+                    aria-invalid={!!req.error("width")}
+                    value={door_width}
+                    onChange={v => {
+                        setDoorWidth(num(v));
+                        updateItem({ door_width: num(v) });
+                    }}
+                />
+                {widthHint}
+            </Field>
+            <Field label="세로 길이" required fieldRef={req.ref("height")} error={req.error("height")}>
+                <NumberInput
+                    unit="mm"
+                    placeholder="세로 길이를 입력해주세요"
+                    aria-invalid={!!req.error("height")}
+                    value={door_height}
+                    onChange={v => {
+                        setDoorHeight(num(v));
+                        updateItem({ door_height: num(v) });
+                    }}
+                />
+                <FieldHint tone="green">세로 스끼(문틈) 값을 빼고 입력해주세요.</FieldHint>
+            </Field>
+        </>
+    );
+
+    const countField = (
+        <Field label="보링(경첩 구멍) 개수" required fieldRef={req.ref("count")} error={req.error("count")}>
+            <ChooseOrUnknown
+                label="보링(경첩 구멍) 개수"
+                options={BORING_OPTIONS}
+                value={boringNum === null ? null : (String(boringNum) as "2" | "3" | "4")}
+                onChange={v => handleBoringNumChange(Number(v) as 2 | 3 | 4)}
+                unknown={isDontKnowHingeCount}
+                onUnknownChange={setDontKnowCount}
+            />
+        </Field>
+    );
+
+    const hingeNotice = (
+        <Notice tone="blue" title="경첩 치수 모르면 입력하지 않아도 돼요">
+            주문이 접수되면 상담으로 안내해드려요.
+        </Notice>
+    );
+    const countNotice = (
+        <Notice tone="blue" title="보링 개수 몰라도 괜찮아요">
+            주문이 접수되면 상담으로 안내해드려요.
+        </Notice>
+    );
 
     return (
         <div className="flex min-h-screen flex-col pt-[90px]">
             <InitAmplitude />
             <TopNavigator />
             <ProgressBar progress={60} />
-            <Header
-                title={
-                    "일반문 정보를 입력해주세요"
-                }
-            />
+            <Header title="일반문 정보를 입력해주세요" />
             <div className="flex flex-1 flex-col gap-5 px-5">
-                <BoxedSelect
-                    label={<><span>색상</span><span className="text-orange-500 ml-1">*</span></>}
-                    options={[]}
-                    value={formatColor(item?.color ?? "") || item?.door_color_direct_input || ""}
-                    onClick={() => router.push("/door/color")}
-                    onChange={() => { }}
-                    truncate={true}
-                />
-
-                <BoxedSelect
-                    default_label="용도 ∙ 장소"
-                    label={<><span>용도 ∙ 장소</span><span className="text-orange-500 ml-1">*</span></>}
-                    options={[]}
-                    value={door_location ? formatLocation(door_location) : ""}
-                    onClick={() => setIsDoorLocationSheetOpen(true)}
-                    onChange={() => { }}
-                />
-                <DoorLocationSheet
-                    isOpen={isDoorLocationSheetOpen}
-                    onClose={() => setIsDoorLocationSheetOpen(false)}
+                <ColorField fieldRef={req.ref("color")} error={req.error("color")} onClick={() => router.push("/door/color")} />
+                <LocationField
                     value={door_location}
-                    onChange={handleDoorLocationChange}
+                    onChange={v => {
+                        setDoorLocation(v);
+                        updateItem({ door_location: v });
+                    }}
+                    fieldRef={req.ref("location")}
+                    error={req.error("location")}
                 />
-                <div className="flex w-full flex-row gap-2">
-                    <ImageButton
-                        imageSrc="/img/door-pair/pair.svg"
-                        imageAlt="양문"
-                        description="양문 한번에 주문"
-                        selected={selectedDoorType === 'pair'}
-                        onClick={() => {
-                            setSelectedDoorType('pair');
-                            // 양문 선택 시 hingeDirection을 null로 설정 (양문은 경첩 방향이 없음)
-                            setHingeDirection(null);
-                            updateItem({ is_pair_door: true, hinge_direction: null });
-                            // 양문 전용 플로우로 분기
+                <Field fieldRef={req.ref("kind")} error={req.error("kind")}>
+                    <Choose
+                        aria-label="양문 ∙ 단일문"
+                        value={selectedDoorType}
+                        onChange={v => {
+                            setSelectedDoorType(v);
+                            // 양문은 경첩 방향이 없다
+                            if (v === "pair") {
+                                setHingeDirection(null);
+                                updateItem({ is_pair_door: true, hinge_direction: null });
+                            } else {
+                                updateItem({ is_pair_door: false });
+                            }
                         }}
-                        className="flex-1"
-                        imageWidth={80}
-                        imageHeight={50}
+                        options={DOOR_KIND_OPTIONS}
                     />
-                    <ImageButton
-                        imageSrc="/img/door-pair/single.svg"
-                        imageAlt="단일문"
-                        description="한쪽 문만 주문"
-                        selected={selectedDoorType === 'single'}
-                        onClick={() => {
-                            setSelectedDoorType('single');
-                            updateItem({ is_pair_door: false });
-                            // 기존 단문 플로우 유지
-                        }}
-                        className="flex-1"
-                        imageWidth={80}
-                        imageHeight={50}
-                    />
-                </div>
+                </Field>
 
-                {/* 표준문 폼 내용 */}
-                {selectedDoorType === 'single' && (
+                {selectedDoorType === "single" && (
                     <>
-                        {/* 단문 폼 - 기존 코드 */}
-                        <BoxedInput
-                            ref={widthInputRef}
-                            type="number"
-                            label={<><span>가로 길이 (mm)</span><span className="text-orange-500 ml-1">*</span></>}
-                            placeholder="가로 길이를 입력해주세요"
-                            value={door_width}
-                            onChange={e => {
-                                const value = e.target.value;
-                                handleDoorWidthChange(value ? Number(value) : null);
-                            }}
-                            error={!!widthError}
-                            helperText={widthError}
-                            inputGuide={{
-                                text: "가로 스끼(문틈) 값을 빼고 입력해주세요.",
-                                state: "default",
-                                color: "text-emerald-500"
-                            }}
-                        />
-                        <BoxedInput
-                            type="number"
-                            label={<><span>세로 길이 (mm)</span><span className="text-orange-500 ml-1">*</span></>}
-                            placeholder="세로 길이를 입력해주세요"
-                            value={door_height}
-                            onChange={e => {
-                                const value = e.target.value;
-                                handleDoorHeightChange(value ? Number(value) : null);
-                            }}
-                            error={!!heightError}
-                            helperText={heightError}
-                            inputGuide={{
-                                text: "세로 스끼(문틈) 값을 빼고 입력해주세요.",
-                                state: "default",
-                                color: "text-emerald-500"
-                            }}
-                        />
+                        {sizeFields(<FieldHint tone="green">가로 스끼(문틈) 값을 빼고 입력해주세요.</FieldHint>)}
 
                         {/* 세로 길이가 입력된 경우에만 경첩 관련 컴포넌트 표시 */}
                         {door_height !== null && door_height > 0 && (
                             <>
-                                <div className="w-full text-[14px] font-400 text-gray-600"> 보링(경첩 구멍) 개수</div>
-                                <div className="self-stretch inline-flex justify-center items-center gap-5">
-                                    <div className="flex-1 grid grid-cols-3 gap-2">
-                                        <Button
-                                            type={!isDontKnowHingeCount && boringNum == 2 ? "BrandInverse" : "GrayLarge"}
-                                            text={"2개"}
-                                            onClick={() => !isDontKnowHingeCount && handleBoringNumChange(2)}
-                                            disabled={isDontKnowHingeCount}
-                                        />
-                                        <Button
-                                            type={!isDontKnowHingeCount && boringNum == 3 ? "BrandInverse" : "GrayLarge"}
-                                            text={"3개"}
-                                            onClick={() => !isDontKnowHingeCount && handleBoringNumChange(3)}
-                                            disabled={isDontKnowHingeCount}
-                                        />
-                                        <Button
-                                            type={!isDontKnowHingeCount && boringNum == 4 ? "BrandInverse" : "GrayLarge"}
-                                            text={"4개"}
-                                            onClick={() => !isDontKnowHingeCount && handleBoringNumChange(4)}
-                                            disabled={isDontKnowHingeCount}
-                                        />  
-                                    </div>
-                                    <div className="flex justify-start items-center gap-2">
-                                        <Checkbox 
-                                            checked={isDontKnowHingeCount} 
-                                            onChange={(checked) => {
-                                                setIsDontKnowHingeCount(checked);
-                                                if (checked) {
-                                                    // 모름 체크: hinge를 [null]로 설정
-                                                    setHinge([null]);
-                                                    setBoringNum(null);
-                                                    updateItem({ hinge: [null], boringNum: null });
-                                                } else {
-                                                    // 모름 해제: 선택 초기화 (사용자가 직접 선택해야 함)
-                                                    setHinge([]);
-                                                    setBoringNum(null);
-                                                    updateItem({ hinge: [], boringNum: null });
-                                                }
-                                            }}
-                                        />
-                                        <div className="text-center justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-6">모름</div>
-                                    </div>
-                                </div>
-
-                                <div className="w-full text-[14px] font-400 text-gray-600"> 경첩 방향</div>
-                                <div className="self-stretch inline-flex justify-center items-center gap-5">
-                                    <div className="flex-1 grid grid-cols-2 gap-2">
-                                        <Button
-                                            type={!isDontKnowHingeDirection && hinge_direction === HingeDirection.LEFT ? "BrandInverse" : "GrayLarge"}
-                                            text={"좌경첩"}
-                                            onClick={() => !isDontKnowHingeDirection && handleBoringDirectionChange(HingeDirection.LEFT)}
-                                            disabled={isDontKnowHingeDirection}
-                                        />
-                                        <Button
-                                            type={!isDontKnowHingeDirection && hinge_direction === HingeDirection.RIGHT ? "BrandInverse" : "GrayLarge"}
-                                            text={"우경첩"}
-                                            onClick={() => !isDontKnowHingeDirection && handleBoringDirectionChange(HingeDirection.RIGHT)}
-                                            disabled={isDontKnowHingeDirection}
-                                        />
-                                    </div>
-                                    <div className="flex justify-start items-center gap-2">
-                                        <Checkbox 
-                                            checked={isDontKnowHingeDirection} 
-                                            onChange={(checked) => {
-                                                setIsDontKnowHingeDirection(checked);
-                                                if (checked) {
-                                                    // 모름 체크: UNKNOWN으로 설정
-                                                    handleBoringDirectionChange(HingeDirection.UNKNOWN);
-                                                } else {
-                                                    // 모름 해제: 선택 초기화 (사용자가 직접 선택해야 함)
-                                                    handleBoringDirectionChange(null);
-                                                }
-                                            }}
-                                        />
-                                        <div className="text-center justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-6">모름</div>
-                                    </div>
-                                </div>
-                                {boringError && <div className="px-1 text-sm text-red-500">{boringError}</div>}
-
-                                {/* 분기 1: 경첩 개수도 알고 방향도 아는 경우 (기본 케이스) */}
-                                {!isDontKnowHingeCount && !isDontKnowHingeDirection && boringNum !== null && hinge_direction !== null && (
-                                    <div>
-                                        <div className="w-full flex items-center justify-center pt-5">
-                                            <NormalDoorPreview
-                                                DoorWidth={door_width}
-                                                DoorHeight={door_height}
-                                                boringDirection={hinge_direction}
-                                                boringNum={boringNum}
-                                                boringSize={hinge}
-                                                onChangeBoringSize={handleBoringSizeChange}
-                                                doorColor={item?.color ?? ""}
-                                            />
-                                        </div>
-
-                                        {/* 보링 치수 안내 메시지 - hinge 배열에 null이 없으면 표시하지 않음 */}
-                                        {hinge.some(h => h === null || h === undefined) && (
-                                            <div className="w-full px-5 pt-3 flex flex-col justify-start items-center gap-2.5">
-                                                <div className="w-full px-4 py-3 bg-gray-50 rounded-2xl flex justify-center items-center gap-2">
-                                                    <div className="w-9 h-9 relative bg-blue-100 rounded-xl flex items-center justify-center">
-                                                        <ManWhiteIcon />
-                                                    </div>
-                                                    <div className="flex-1 inline-flex flex-col justify-start items-start">
-                                                        <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">경첩 치수 모르면 입력하지 않아도 돼요</div>
-                                                        <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">주문이 접수되면 상담으로 안내해드려요.</div>
-                                                    </div>
-                                                </div>
+                                {countField}
+                                <Field label="경첩 방향" required fieldRef={req.ref("direction")} error={req.error("direction")}>
+                                    <ChooseOrUnknown
+                                        label="경첩 방향"
+                                        options={HINGE_DIRECTION_OPTIONS}
+                                        value={hinge_direction === HingeDirection.UNKNOWN ? null : hinge_direction}
+                                        onChange={handleBoringDirectionChange}
+                                        unknown={isDontKnowHingeDirection}
+                                        onUnknownChange={setDontKnowDirection}
+                                    />
+                                </Field>
+                                <Field fieldRef={req.ref("boring")} error={req.error("boring")}>
+                                    {/* 경첩 개수도 알고 방향도 아는 경우 (기본 케이스) */}
+                                    {!isDontKnowHingeCount && !isDontKnowHingeDirection && boringNum !== null && hinge_direction !== null && (
+                                        <>
+                                            <div className="flex w-full items-center justify-center pt-5">
+                                                <NormalDoorPreview
+                                                    DoorWidth={door_width}
+                                                    DoorHeight={door_height}
+                                                    boringDirection={hinge_direction}
+                                                    boringNum={boringNum}
+                                                    boringSize={hinge}
+                                                    onChangeBoringSize={handleBoringSizeChange}
+                                                    doorColor={item?.color ?? ""}
+                                                />
                                             </div>
-                                        )}
-                                    </div>
-                                )}
-
-                                {/* 분기 2: 경첩 개수만 모르는 경우 */}
-                                {isDontKnowHingeCount && !isDontKnowHingeDirection && (
-                                    <div className="w-full px-5 pt-3 flex flex-col justify-start items-center gap-2.5">
-                                        <div className="w-full px-4 py-3 bg-gray-50 rounded-2xl flex justify-center items-center gap-2">
-                                            <div className="w-9 h-9 relative bg-blue-100 rounded-xl flex items-center justify-center">
-                                                <ManWhiteIcon />
-                                            </div>
-                                            <div className="flex-1 inline-flex flex-col justify-start items-start">
-                                                <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">보링 개수 몰라도 괜찮아요</div>
-                                                <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">주문이 접수되면 상담으로 안내해드려요.</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
+                                            {/* 보링 치수 안내 - 다 넣었으면 표시하지 않음 */}
+                                            {hinge.some(h => h === null || h === undefined) && hingeNotice}
+                                        </>
+                                    )}
+                                    {/* 경첩 개수만 모르는 경우 */}
+                                    {isDontKnowHingeCount && !isDontKnowHingeDirection && countNotice}
+                                </Field>
                             </>
                         )}
                     </>
                 )}
 
-                {selectedDoorType === 'pair' && (
+                {isPair && (
                     <>
-                        {/* 양문 폼 - 새로 개발 */}
-                        <BoxedInput
-                            ref={widthInputRef}
-                            type="number"
-                            label={<><span>가로 길이 (mm)</span><span className="text-orange-500 ml-1">*</span></>}
-                            placeholder="가로 길이를 입력해주세요"
-                            value={door_width}
-                            onChange={e => {
-                                const value = e.target.value;
-                                handleDoorWidthChange(value ? Number(value) : null);
-                            }}
-                            error={!!widthError}
-                            helperText={widthError}
-                        />
-                        {/* 양문 전용 안내 메시지들 */}
-                        <div className="flex flex-col gap-1 -mt-2">
-                            <InputGuide 
-                                text="• 한쪽 문을 기준으로 입력해주세요." 
-                                color="text-gray-600" 
-                            />
-                            <InputGuide 
-                                text="• 가로 스끼(문틈) 값을 빼고 입력해주세요." 
-                                color="text-emerald-500" 
-                            />
-                        </div>
-                        <BoxedInput
-                            type="number"
-                            label={<><span>세로 길이 (mm)</span><span className="text-orange-500 ml-1">*</span></>}
-                            placeholder="세로 길이를 입력해주세요"
-                            value={door_height}
-                            onChange={e => {
-                                const value = e.target.value;
-                                handleDoorHeightChange(value ? Number(value) : null);
-                            }}
-                            error={!!heightError}
-                            helperText={heightError}
-                            inputGuide={{
-                                text: "세로 스끼(문틈) 값을 빼고 입력해주세요.",
-                                state: "default",
-                                color: "text-emerald-500"
-                            }}
-                        />
+                        {sizeFields(
+                            <>
+                                <p className="text-[14px] text-gray-600">• 한쪽 문을 기준으로 입력해주세요.</p>
+                                <FieldHint tone="green">• 가로 스끼(문틈) 값을 빼고 입력해주세요.</FieldHint>
+                            </>,
+                        )}
 
                         {/* 세로 길이가 입력된 경우에만 경첩 관련 컴포넌트 표시 (경첩 방향 제외) */}
                         {door_height !== null && door_height > 0 && (
                             <>
-                                <div className="w-full text-[14px] font-400 text-gray-600"> 보링(경첩 구멍) 개수</div>
-                                <div className="self-stretch inline-flex justify-center items-center gap-5">
-                                    <div className="flex-1 grid grid-cols-3 gap-2">
-                                        <Button
-                                            type={!isDontKnowHingeCount && boringNum == 2 ? "BrandInverse" : "GrayLarge"}
-                                            text={"2개"}
-                                            onClick={() => !isDontKnowHingeCount && handleBoringNumChange(2)}
-                                            disabled={isDontKnowHingeCount}
-                                        />
-                                        <Button
-                                            type={!isDontKnowHingeCount && boringNum == 3 ? "BrandInverse" : "GrayLarge"}
-                                            text={"3개"}
-                                            onClick={() => !isDontKnowHingeCount && handleBoringNumChange(3)}
-                                            disabled={isDontKnowHingeCount}
-                                        />
-                                        <Button
-                                            type={!isDontKnowHingeCount && boringNum == 4 ? "BrandInverse" : "GrayLarge"}
-                                            text={"4개"}
-                                            onClick={() => !isDontKnowHingeCount && handleBoringNumChange(4)}
-                                            disabled={isDontKnowHingeCount}
-                                        />  
-                                    </div>
-                                    <div className="flex justify-start items-center gap-2">
-                                        <Checkbox 
-                                            checked={isDontKnowHingeCount} 
-                                            onChange={(checked) => {
-                                                setIsDontKnowHingeCount(checked);
-                                                if (checked) {
-                                                    // 모름 체크: hinge를 [null]로 설정
-                                                    setHinge([null]);
-                                                    setBoringNum(null);
-                                                    updateItem({ hinge: [null], boringNum: null });
-                                                } else {
-                                                    // 모름 해제: 선택 초기화 (사용자가 직접 선택해야 함)
-                                                    setHinge([]);
-                                                    setBoringNum(null);
-                                                    updateItem({ hinge: [], boringNum: null });
-                                                }
-                                            }}
-                                        />
-                                        <div className="text-center justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-6">모름</div>
-                                    </div>
-                                </div>
-                                {boringError && <div className="px-1 text-sm text-red-500">{boringError}</div>}
-
-                                {/* 양문 프리뷰 - 경첩 개수 상관없이 표시 */}
-                                <div>
-                                    <div className="w-full flex items-center justify-center pt-5">
+                                {countField}
+                                <Field fieldRef={req.ref("boring")} error={req.error("boring")}>
+                                    {/* 양문 프리뷰 - 경첩 개수 상관없이 표시 */}
+                                    <div className="flex w-full items-center justify-center pt-5">
                                         <PairDoorPreview
                                             DoorWidth={door_width}
                                             DoorHeight={door_height}
@@ -517,127 +289,32 @@ function StandardDoorPageContent() {
                                             isPreviewOnly={isDontKnowHingeCount}
                                         />
                                     </div>
-
-                                    {/* 보링 치수 안내 메시지 - hinge 배열에 null이 없으면 표시하지 않음 (경첩 개수를 알 때만) */}
-                                    {!isDontKnowHingeCount && hinge.some(h => h === null || h === undefined) && (
-                                        <div className="w-full px-5 pt-3 flex flex-col justify-start items-center gap-2.5">
-                                            <div className="w-full px-4 py-3 bg-gray-50 rounded-2xl flex justify-center items-center gap-2">
-                                                <div className="w-9 h-9 relative bg-blue-100 rounded-xl flex items-center justify-center">
-                                                    <ManWhiteIcon />
-                                                </div>
-                                                <div className="flex-1 inline-flex flex-col justify-start items-start">
-                                                    <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">경첩 치수 모르면 입력하지 않아도 돼요</div>
-                                                    <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">주문이 접수되면 상담으로 안내해드려요.</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* 경첩 개수만 모르는 경우 */}
-                                {isDontKnowHingeCount && (
-                                    <div className="w-full px-5 pt-3 flex flex-col justify-start items-center gap-2.5">
-                                        <div className="w-full px-4 py-3 bg-gray-50 rounded-2xl flex justify-center items-center gap-2">
-                                            <div className="w-9 h-9 relative bg-blue-100 rounded-xl flex items-center justify-center">
-                                                <ManWhiteIcon />
-                                            </div>
-                                            <div className="flex-1 inline-flex flex-col justify-start items-start">
-                                                <div className="self-stretch justify-start text-gray-700 text-base font-medium font-['Pretendard'] leading-5">보링 개수 몰라도 괜찮아요</div>
-                                                <div className="self-stretch justify-start text-blue-500 text-sm font-normal font-['Pretendard'] leading-5">주문이 접수되면 상담으로 안내해드려요.</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
+                                    {!isDontKnowHingeCount && hinge.some(h => h === null || h === undefined) && hingeNotice}
+                                    {isDontKnowHingeCount && countNotice}
+                                </Field>
                             </>
                         )}
                     </>
                 )}
-
             </div>
-            <div className="h-[100px]"></div>
-            {!isDoorLocationSheetOpen &&
-                <div id="door-next-button">
-                    <BottomButton
-                        type={"1button"}
-                        button1Text={"다음"}
-                        className="fixed bottom-0 w-full max-w-[460px]"
-                        button1Disabled={isFormValid() || !door_location}
-                        onButton1Click={() => {
-                            trackClick({
-                                object_type: "button",
-                                object_name: "confirm",
-                                current_page: getScreenName(),
-                                modal_name: null,
-                            });
-                            router.push("/door/standard/additional");
-                        }}
-                    />
-                </div>
-            }
+            <div className="h-[100px]" />
+            <BottomBar>
+                <Button
+                    onClick={() => {
+                        if (!req.check()) return;
+                        trackClick({
+                            object_type: "button",
+                            object_name: "confirm",
+                            current_page: getScreenName(),
+                            modal_name: null,
+                        });
+                        router.push("/door/standard/additional");
+                    }}
+                >
+                    다음
+                </Button>
+            </BottomBar>
+            {confirm.sheet}
         </div>
     );
 }
-
-function StandardDoorPage() {
-    return (
-        <Suspense fallback={<div>로딩 중...</div>}>
-            <StandardDoorPageContent />
-        </Suspense>
-    );
-}
-
-// 용도 및 장소 선택 시트 컴포넌트
-function DoorLocationSheet({
-    isOpen,
-    onClose,
-    value,
-    onChange,
-}: {
-    isOpen: boolean;
-    onClose: () => void;
-    value: string;
-    onChange: (v: string) => void;
-}) {
-    const options = [
-        { value: Location.KITCHEN, label: "주방" },
-        { value: Location.SHOES, label: "신발장" },
-        { value: Location.BUILT_IN, label: "붙박이장" },
-        { value: Location.BALCONY, label: "발코니 창고문" },
-        { value: Location.ETC, label: "기타 수납장" },
-    ];
-
-    return (
-        <BottomSheet
-            isOpen={isOpen}
-            title="용도 및 장소를 선택해주세요"
-            contentPadding="px-1"
-            children={
-                <div>
-                    <div>
-                        {options.map(option => (
-                            <SelectToggleButton
-                                key={option.value}
-                                label={option.label}
-                                checked={value === option.value}
-                                onClick={() => onChange(option.value)}
-                            />
-                        ))}
-                        {/* <div className="p-5">
-                            <Button
-                                type="Brand"
-                                text="다음"
-                                onClick={() => {
-                                    onClose();
-                                }}
-                            />
-                        </div> */}
-                        <div className="pb-5" />
-                    </div>
-                </div>
-            }
-            onClose={onClose}
-        />
-    );
-}
-
-export default StandardDoorPage;

@@ -1,56 +1,45 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import BottomButton from "@/components/BottomButton/BottomButton";
-import BottomSheet from "@/components/BottomSheet/BottomSheet";
+import NavRow from "@/components/nav/NavRow";
+import Sheet from "@/components/overlay/Sheet";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
-import OrderProcessCard from "@/components/OrderProcessCard/OrderProcessCard";
-
-import ReceiveOptionCard from "./_components/ReceiveOptionCard";
-import { useOrderStore } from "@/store/orderStore";
+import { Button } from "@/components/ui/button";
+import { useCopy } from "@/lib/use-copy";
 import { trackClick } from "@/services/analytics/amplitude";
+import { useOrderStore } from "@/store/orderStore";
 import { getScreenName } from "@/utils/screenName";
-import { track } from "@amplitude/analytics-browser";
+
+import { FACTORY_ADDRESS, takeKeepOrder } from "./_lib/order";
+
+const OPTIONS = [
+  { method: "delivery", icon: "/icons/truck.svg", title: "배송", description: "입력한 주소로 배송해드려요." },
+  { method: "pickup", icon: "/icons/box.svg", title: "직접 픽업", description: "공장에서 포장한 상품을 직접 픽업하세요." },
+] as const;
 
 export default function ReceiveOptionClientPage() {
   const router = useRouter();
-  const [isPickupAddressModalOpen, setIsPickupAddressModalOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const copy = useCopy();
 
+  // 장바구니에서 들어오면 새 주문으로. 주문 화면 「변경」으로 돌아온 것이면 넣어 둔 값을 지킨다.
+  // (개발 모드에서 effect 가 두 번 돌아도 한 번만 — 두 번째에 지우지 않게)
+  const entered = useRef(false);
   useEffect(() => {
-    useOrderStore.getState().clearOrder();
+    if (entered.current) return;
+    entered.current = true;
+    if (!takeKeepOrder()) useOrderStore.getState().clearOrder();
   }, []);
 
-  const handleSelect = (method: "DELIVERY" | "PICK_UP") => {
-
-    if (method === "DELIVERY") {
-      trackClick({
-        object_type: "button",
-        object_name: "delivery",
-        current_page: getScreenName(),
-        modal_name: null,
-      });
-      router.push("/order/delivery");
-    } else {
-      trackClick({
-        object_type: "button",
-        object_name: "pickup",
-        current_page: getScreenName(),
-        modal_name: null,
-      });
-      router.push("/order/pickup");
-    }
-  };
-
-  const handleCopyAddress = () => {
-    navigator.clipboard.writeText("경기도 남양주시 오남읍 양지로139번길 11-14");
-    alert("주소가 복사되었습니다!");
-    setIsPickupAddressModalOpen(false);
+  const select = (o: (typeof OPTIONS)[number]) => {
+    trackClick({ object_type: "button", object_name: o.method, current_page: getScreenName(), modal_name: null });
+    router.push(`/order/${o.method}`);
   };
 
   return (
-    <div className = "pt-[60px]">
+    <div className="pt-[60px]">
       <TopNavigator />
       <div className="p-5">
         <h1 className="text-[23px] font-700">
@@ -59,73 +48,44 @@ export default function ReceiveOptionClientPage() {
           선택해주세요
         </h1>
         <div className="flex w-full flex-col gap-3 py-5">
-          <div id="receive-option-delivery-card" className="w-full">
-            <div className="mt-3">
-              <OrderProcessCard
-                state="enabled"
-                trailing="secondary"
-                icon="truck"
-                iconSize={32}
-                showLeadingIcon={true}
-                showSamedaydeliverySticker={false}
-                showDescriptionLine2={false}
-                showTrailing={false}
-                showBottom={false}
-                title="배송"
-                descriptionLine1="입력한 주소로 배송해드려요."
-                onClick={() => handleSelect("DELIVERY")}
-              />
-            </div>
-          </div>
-          <div id="receive-option-pickup-card" className="w-full">
-            <div className="mt-3">
-              <OrderProcessCard
-                state="enabled"
-                trailing="secondary"
-                icon="box"
-                iconSize={32}
-                showLeadingIcon={true}
-                showSamedaydeliverySticker={false}
-                showDescriptionLine2={false}
-                showTrailing={false}
-                showBottom={false}
-                title="직접 픽업"
-                descriptionLine1="공장에서 포장한 상품을 직접 픽업하세요."
-                onClick={() => handleSelect("PICK_UP")}
-              />
-            </div>
-          </div>
-
+          {OPTIONS.map((o) => (
+            <NavRow
+              key={o.method}
+              card
+              label={
+                <span className="flex items-center gap-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={o.icon} alt="" className="size-8" />
+                  {o.title}
+                </span>
+              }
+              description={o.description}
+              onClick={() => select(o)}
+            />
+          ))}
         </div>
-        <button
-          className="rounded-[10px] bg-gray-100 px-3 py-[9px] font-500"
-          onClick={() => setIsPickupAddressModalOpen(true)}
-        >
+        <Button variant="secondary" size="md" onClick={() => setSheetOpen(true)}>
           픽업주소 (도어링 공장)
-        </button>
-        {isPickupAddressModalOpen && (
-          <BottomSheet
-            isOpen={isPickupAddressModalOpen}
-            title="픽업주소 (도어링 공장)"
-            onClose={() => setIsPickupAddressModalOpen(false)}
-            children={
-              <div>
-                <h2 className="text-sm font-400 text-gray-400">
-                  경기도 남양주시 오남읍 양지로139번길 11-14
-                </h2>
-                <BottomButton
-                  type={"2buttons"}
-                  button1Text="닫기"
-                  button2Text="주소 복사"
-                  button1Type="GrayLarge"
-                  className="px-0"
-                  onButton1Click={() => setIsPickupAddressModalOpen(false)}
-                  onButton2Click={handleCopyAddress}
-                />
+        </Button>
+        <Sheet
+          open={sheetOpen}
+          onOpenChange={setSheetOpen}
+          title="픽업주소 (도어링 공장)"
+          description={FACTORY_ADDRESS}
+          footer={
+            <div className="flex w-full flex-col gap-2">
+              {copy.failed && <p className="select-all text-[14px] text-gray-600">{copy.failed}</p>}
+              <div className="flex gap-3">
+                <Button variant="secondary" className="flex-1" onClick={() => setSheetOpen(false)}>
+                  닫기
+                </Button>
+                <Button className="flex-1" onClick={() => copy.run("factory", FACTORY_ADDRESS)}>
+                  {copy.copied === "factory" ? "복사됨" : "주소 복사"}
+                </Button>
               </div>
-            }
-          />
-        )}
+            </div>
+          }
+        />
       </div>
     </div>
   );

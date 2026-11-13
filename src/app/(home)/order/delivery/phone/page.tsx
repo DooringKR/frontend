@@ -2,7 +2,9 @@
 
 import { Suspense, useEffect } from "react";
 
-import PhoneClientPage from "./PhoneClient";
+import { Loading } from "@/components/state/StateViews";
+
+import RecipientPhoneForm from "../../_components/RecipientPhoneForm";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import { trackView } from "@/services/analytics/amplitude";
@@ -23,9 +25,9 @@ export default function PhonePage() {
   }, []);
 
   return (
-    <Suspense fallback={<div>로딩 중...</div>}>
+    <Suspense fallback={<Loading />}>
       <InitAmplitude />
-      <PhoneClientPage />
+      <RecipientPhoneForm backTo="/order/delivery" />
     </Suspense>
   );
 }

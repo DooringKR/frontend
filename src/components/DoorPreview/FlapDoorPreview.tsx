@@ -2,7 +2,7 @@ import Image from "next/image";
 import React, { useRef, useEffect, useState } from "react";
 
 import { DOOR_COLOR_LIST } from "dooring-core-domain/dist/constants/color";
-import BoringInputField from "../Input/BoringInputField";
+import NumberInput from "@/components/form/NumberInput";
 
 interface FlapDoorPreviewProps {
   DoorWidth: number | null; // 가로 길이, null 경우 입력 필요
@@ -359,9 +359,10 @@ const FlapDoorPreview: React.FC<FlapDoorPreviewProps> = ({
             </div>
             {/* 입력 필드 */}
             <div className="max-w-[150px] flex items-center">
-              <BoringInputField
-                value={adjustedBoringSize[idx] ?? null}
-                onChange={value => handleBoringInputChange(idx, value)}
+              <NumberInput
+                size="sm"
+                value={adjustedBoringSize[idx] ?? ""}
+                onChange={(v) => handleBoringInputChange(idx, v === "" ? null : Number(v))}
                 placeholder="보링 치수 입력(mm)"
                 onFocus={() => setFocusedBoringIndex(idx)}
                 onBlur={() => setFocusedBoringIndex(null)}

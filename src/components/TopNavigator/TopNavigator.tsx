@@ -15,15 +15,18 @@ import ChevronLeft from "public/icons/chevron_left";
 import React from "react";
 import { trackClick } from "@/services/analytics/amplitude";
 import { getScreenName } from "@/utils/screenName";
+import { goBack } from "@/lib/nav/go";
 
 interface TopNavigatorProps {
   title?: string;
+  /** 앞 화면이 없을 때(새 탭으로 바로 열었을 때) 뒤로가 갈 곳 — 기본 홈 */
+  backTo?: string;
   page?: string;
   cartItemCount?: number;
   isLoggedIn?: boolean;
 }
 
-const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, cartItemCount = 0, isLoggedIn = true }) => {
+const TopNavigator: React.FC<TopNavigatorProps> = ({ title, backTo = "/", page, cartItemCount = 0, isLoggedIn = true }) => {
   const router = useRouter();
   return (
     <div
@@ -42,12 +45,14 @@ const TopNavigator: React.FC<TopNavigatorProps> = ({ title, page, cartItemCount 
         </svg>
         // <h3 className="text-xl font-700">바로가구</h3>
       ) : page === MY_PAGE || page === CART_PAGE || page === ORDER_HISTORY_FROM_CONFIRM ? (
-        <button onClick={() => router.replace("/")} className="flex items-center justify-center">
+        <button type="button" aria-label="닫기" onClick={() => router.replace("/")} className="flex items-center justify-center">
           <img src={"/icons/close.svg"} alt="엑스 아이콘" />
         </button>
       ) : (
         <button
-          onClick={() => router.back()}
+          type="button"
+          aria-label="뒤로"
+          onClick={() => goBack(router, backTo)}
           className="flex items-center justify-center rounded-2xl p-3 transition hover:bg-gray-100"
         >
           <ChevronLeft />

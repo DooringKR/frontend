@@ -1,16 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import React from "react";
-
-import {
-  AccessoryCart,
-  CabinetCart,
-  DoorCart,
-  FinishCart,
-  HardwareCart,
-  useSingleCartStore,
-} from "@/store/singleCartStore";
 
 import HomeProductButton from "./HomeProductButton";
 import OrderGuideCard from "./OrderGuideCard";
@@ -33,82 +23,35 @@ const productList = [
   { label: "직접 주문", icon: <CustomOrderIcon />, slug: "custom", image: "/img/type/custom.png" },
 ];
 
+// 「직접 주문」은 고객센터로, 나머지는 품목 입력 화면으로
+const hrefOf = (slug: string) => (slug === "custom" ? "/customer-service" : `/${slug}`);
+
 const HomeProductContainer: React.FC = () => {
-  const router = useRouter();
-  const setCart = useSingleCartStore(state => state.setCart);
-
-  const handleCategoryClick = (slug: string) => {
-    if (slug === "custom") {
-      trackClick({
-        object_type: "button",
-        object_name: "custom",
-        current_page: getScreenName(),
-        modal_name: null,
-      });
-      router.push("/customer-service");
-      return;
-    }
-
-    if (slug === "finish") {
-      trackClick({
-        object_type: "button",
-        object_name: "finish",
-        current_page: getScreenName(),
-        modal_name: null,
-      });
-      router.push(`/finish`);
-    } else if (slug === "hardware") {
-      trackClick({
-        object_type: "button",
-        object_name: "hardware",
-        current_page: getScreenName(),
-        modal_name: null,
-      });
-      router.push(`/hardware`);
-    } else if (slug === "accessory") {
-      trackClick({
-        object_type: "button",
-        object_name: "accessory",
-        current_page: getScreenName(),
-        modal_name: null,
-      });
-      router.push(`/accessory`);
-    } else if (slug === "cabinet") {
-      trackClick({
-        object_type: "button",
-        object_name: "cabinet",
-        current_page: getScreenName(),
-        modal_name: null,
-      });
-      router.push(`/cabinet`);
-    } else if (slug === "door") {
-      trackClick({
-        object_type: "button",
-        object_name: "door",
-        current_page: getScreenName(),
-        modal_name: null,
-      });
-      router.push(`/door`);
-    }
-  };
-
   return (
     <div className="flex flex-col items-start gap-8 px-5">
       <InitAmplitude />
       <div className="text-[20px]/[28px] font-700 text-gray-800">직접 주문</div>
       <div className="grid grid-cols-3 items-stretch justify-items-stretch gap-5 w-full h-full">
-        {productList.map((item, idx) => (
+        {productList.map((item) => (
           <HomeProductButton
             key={item.label}
             amplitudeEventName={`home-product-button-${item.slug}`}
             label={item.label}
             icon={item.icon}
             image={item.image}
-            onClick={() => handleCategoryClick(item.slug)}
+            href={hrefOf(item.slug)}
+            onClick={() =>
+              trackClick({
+                object_type: "button",
+                object_name: item.slug,
+                current_page: getScreenName(),
+                modal_name: null,
+              })
+            }
           />
         ))}
       </div>
-      <OrderGuideCard onClick={() => window.open("https://dooring.notion.site/2a3b6a70ff3980cbb38dddab4b4f1a1c?pvs=74", "_blank")} />
+      <OrderGuideCard href="https://dooring.notion.site/2a3b6a70ff3980cbb38dddab4b4f1a1c?pvs=74" />
     </div>
   );
 };

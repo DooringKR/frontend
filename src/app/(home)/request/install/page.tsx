@@ -3,7 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-import ChoiceCard from "../_components/ChoiceCard";
+import Choose from "@/components/form/Choose";
+import Field from "@/components/form/Field";
+import { useRequired } from "@/components/form/useRequired";
+
 import StepShell from "../_components/StepShell";
 import { nextOf, progressOf, useHydrated } from "../_lib/flow";
 import { useRequestStore } from "../_lib/requestStore";
@@ -16,6 +19,7 @@ export default function InstallPage() {
   const installNeeded = useRequestStore((s) => s.installNeeded);
   const set = useRequestStore((s) => s.set);
   const path = "/request/install";
+  const req = useRequired({ install: installNeeded !== null });
 
   useEffect(() => {
     if (hydrated && situations.length === 0) router.replace("/request");
@@ -25,15 +29,19 @@ export default function InstallPage() {
     <StepShell
       progress={progressOf(situations, path)}
       title="시공도 필요하세요?"
-      nextDisabled={installNeeded === null}
-      onNext={() => router.push(nextOf(situations, path))}
+      onNext={() => req.check() && router.push(nextOf(situations, path))}
     >
-      <ChoiceCard title="시공도 필요해요" checked={installNeeded === true} onClick={() => set({ installNeeded: true })} />
-      <ChoiceCard
-        title="필요 없어요"
-        checked={installNeeded === false}
-        onClick={() => set({ installNeeded: false, travelMinutes: null })}
-      />
+      <Field fieldRef={req.ref("install")} error={req.error("install")}>
+        <Choose
+          aria-label="시공 여부"
+          value={installNeeded === null ? null : installNeeded ? "yes" : "no"}
+          onChange={(v) => set(v === "yes" ? { installNeeded: true } : { installNeeded: false, travelMinutes: null })}
+          options={[
+            { value: "yes", label: "시공도 필요해요" },
+            { value: "no", label: "필요 없어요" },
+          ]}
+        />
+      </Field>
     </StepShell>
   );
 }

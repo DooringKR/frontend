@@ -1,99 +1,64 @@
 "use client";
 
+import { VehicleType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import Button from "@/components/BeforeEditByKi/Button/Button";
-import SelectToggleButton from "@/components/Button/SelectToggleButton";
-import Input from "@/components/Input/Input";
+import Choose from "@/components/form/Choose";
+import Field from "@/components/form/Field";
+import { useRequired } from "@/components/form/useRequired";
+import BottomBar from "@/components/overlay/BottomBar";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
-
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { goAfterSave } from "@/lib/nav/go";
 import { useOrderStore } from "@/store/orderStore";
-import { VehicleType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
-import BottomButton from "@/components/BottomButton/BottomButton";
 
+const OPTIONS = [VehicleType.TRUCK, VehicleType.CAR, VehicleType.DIRECT_INPUT].map((v) => ({ value: v, label: v }));
+
+/** 픽업차량 종류 — 고르고 「저장하기」로 주문에 넣는다 */
 export default function VehicleClientPage() {
   const router = useRouter();
+  const order = useOrderStore((s) => s.order);
+  const updateOrder = useOrderStore((s) => s.updateOrder);
 
-  const order = useOrderStore(state => state.order);
-  const updateOrder = useOrderStore(state => state.updateOrder);
-
-  const [tempVehicleType, setTempVehicleType] = useState(order?.vehicle_type || "");
-  const [tempCustomNote, setTempCustomNote] = useState(order?.vehicle_type_direct_input || "");
-
+  const [vehicle, setVehicle] = useState<VehicleType | null>(order?.vehicle_type || null);
+  const [note, setNote] = useState(order?.vehicle_type_direct_input || "");
   useEffect(() => {
-    setTempVehicleType(order?.vehicle_type || "");
-    setTempCustomNote(order?.vehicle_type_direct_input || "");
-  }, [order]);
+    setVehicle(order?.vehicle_type || null);
+    setNote(order?.vehicle_type_direct_input || "");
+  }, [order?.vehicle_type, order?.vehicle_type_direct_input]);
 
-  const handleSelect = (type: string) => {
-    setTempVehicleType(type);
-  };
-
-  const handleSave = () => {
-    updateOrder({
-      vehicle_type: tempVehicleType,
-      vehicle_type_direct_input: tempVehicleType === VehicleType.DIRECT_INPUT ? tempCustomNote : null,
-    });
-    router.back();
-  };
+  const req = useRequired({
+    vehicle: !!vehicle,
+    note: vehicle !== VehicleType.DIRECT_INPUT || !!note.trim() || "차량을 넣어 주세요",
+  });
 
   return (
     <div className="flex min-h-screen flex-col bg-white pb-5 pt-[60px]">
-      <TopNavigator />
-
-      <div className="flex-1 flex-col overflow-y-auto pb-20">
-        <h1 className="mx-5 mt-5 text-[23px] font-700">픽업차량 종류</h1>
-
-        <div className="mx-1 mt-5 flex flex-col gap-3">
-          <SelectToggleButton
-            label="트럭"
-            onClick={() => handleSelect(VehicleType.TRUCK)}
-            checked={tempVehicleType === VehicleType.TRUCK}
-          />
-          <SelectToggleButton
-            label="승용차"
-            onClick={() => handleSelect(VehicleType.CAR)}
-            checked={tempVehicleType === VehicleType.CAR}
-          />
-
-          <div>
-            <SelectToggleButton
-              label="직접 입력"
-              onClick={() => handleSelect(VehicleType.DIRECT_INPUT)}
-              checked={tempVehicleType === VehicleType.DIRECT_INPUT}
-            />
-            {tempVehicleType === VehicleType.DIRECT_INPUT && (
-              <div className="flex gap-2 px-4 pb-4">
-                <div className="mx-2 h-12 w-1 rounded-full bg-gray-200"></div>
-                <div className="flex flex-1 flex-col">
-                  <Input
-                    label=""
-                    name="customVehicleNote"
-                    type="text"
-                    value={tempCustomNote}
-                    onChange={e => setTempCustomNote(e.target.value)}
-                    placeholder="예: 흰색 다마스"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+      <TopNavigator backTo="/order/pickup" />
+      <div className="flex-1 flex-col overflow-y-auto px-5 pb-20">
+        <h1 className="mt-5 text-[23px] font-700">픽업차량 종류</h1>
+        <Field className="mt-5" fieldRef={req.ref("vehicle")} error={req.error("vehicle")}>
+          <Choose aria-label="픽업차량 종류" value={vehicle} onChange={setVehicle} options={OPTIONS} />
+          {vehicle === VehicleType.DIRECT_INPUT && (
+            <Field fieldRef={req.ref("note")} error={req.error("note")}>
+              <Input aria-invalid={!!req.error("note")} value={note} onChange={(e) => setNote(e.target.value)} placeholder="예: 흰색 다마스" />
+            </Field>
+          )}
+        </Field>
       </div>
-
-      <div className="fixed bottom-0 w-full max-w-[460px] bg-white px-5 py-4 safe-area-pb">
-        <BottomButton
-          type={"1button"}
-          button1Text={"저장하기"}
-          onButton1Click={handleSave}
-          button1Disabled={
-            tempVehicleType === "" ||
-            (tempVehicleType === VehicleType.DIRECT_INPUT && tempCustomNote.trim() === "")
-          }
+      <BottomBar>
+        <Button
+          onClick={() => {
+            if (!req.check()) return;
+            updateOrder({ vehicle_type: vehicle, vehicle_type_direct_input: vehicle === VehicleType.DIRECT_INPUT ? note : null });
+            goAfterSave(router, "/order/pickup");
+          }}
         >
-        </BottomButton>
-      </div>
+          저장하기
+        </Button>
+      </BottomBar>
     </div>
   );
 }

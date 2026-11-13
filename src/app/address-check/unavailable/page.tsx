@@ -3,10 +3,13 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import BottomButton from "@/components/BottomButton/BottomButton";
 import CurrentTime from "@/components/DeliveryTimeCheck/CurrentTime";
+import BottomBar from "@/components/overlay/BottomBar";
+import { ErrorBanner, Loading } from "@/components/state/StateViews";
+import { Button } from "@/components/ui/button";
+import { goBack } from "@/lib/nav/go";
 
-import useAddressStore from "@/store/addressStore";
+import useBizClientStore from "@/store/bizClientStore";
 import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
@@ -20,7 +23,11 @@ export default function UnavailableDeliveryPage() {
   const [remainingMinutes, setRemainingMinutes] = useState<number | null>(null);
   const [arrivalTimeFormatted, setArrivalTimeFormatted] = useState("");
   const [productionTimeFormatted, setProductionTimeFormatted] = useState("");
-  const { address1 } = useAddressStore();
+  // 주소 확인 화면의 「오늘배송 불가」 칩에서만 온다 — 그 칩과 같은 주소(저장된 주소)로 잰다.
+  // 예전엔 아무도 채우지 않는 useAddressStore.address1 을 읽어 「계산 중...」이 끝나지 않았다.
+  const address1 = useBizClientStore((s) => s.bizClient?.road_address) ?? "";
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
   // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
   useEffect(() => {
@@ -51,16 +58,19 @@ export default function UnavailableDeliveryPage() {
   // }, [address1]);
 
   useEffect(() => {
+    if (!address1) return;
     const fetchOnce = async () => {
+      setFailed(false);
       try {
         const { remainingMinutes } = await calculateDeliveryInfo(address1);
         setRemainingMinutes(remainingMinutes);
       } catch (err) {
         console.error("배송 시간 계산 실패:", err);
+        setFailed(true);
       }
     };
     fetchOnce();
-  }, [address1]);
+  }, [address1, attempt]);
 
   useEffect(() => {
     if (remainingMinutes === null) return;
@@ -90,13 +100,7 @@ export default function UnavailableDeliveryPage() {
     return `${hours}시간 ${minutes}분`;
   };
 
-  const handleClickConfirmButton = () => {
-    router.back();
-  };
-
-  const handleClickCustomerServiceButton = () => {
-    router.push("/customer-service");
-  };
+  const calculating = failed ? "-" : <Loading variant="inline" label="계산 중" />;
 
   // const getProductionTime = (): string => {
   //   const now = new Date();
@@ -113,6 +117,7 @@ export default function UnavailableDeliveryPage() {
       <InitAmplitude />
       <div className="flex flex-grow flex-col">
         <div className="p-5">
+          {failed && <ErrorBanner text="도착 시간을 계산하지 못했어요" onRetry={() => setAttempt((n) => n + 1)} className="mb-5" />}
           <div>
             <img
               src="/icons/exclamation-mark.svg"
@@ -133,16 +138,14 @@ export default function UnavailableDeliveryPage() {
                     <span className="text-[17px] font-600">예상 도착시간</span>
                   </div>
                   <span className="text-[17px] font-600 text-blue-500">
-                    {arrivalTimeFormatted ? arrivalTimeFormatted : "계산 중..."}
+                    {arrivalTimeFormatted || calculating}
                   </span>
                 </div>
                 <div className="flex gap-3 py-2">
                   <div className="mx-[14.5px] w-[3px] bg-gray-200"></div>
                   {remainingMinutes !== null && (
                     <span className="mb-7 w-full text-base font-400 text-gray-500">
-                      {remainingMinutes !== null
-                        ? `${address1}까지 ${formatRemainingTime(remainingMinutes)} 걸려요`
-                        : "계산 중이에요..."}
+                      {`${address1}까지 ${formatRemainingTime(remainingMinutes)} 걸려요`}
                     </span>
                   )}
                 </div>
@@ -154,7 +157,7 @@ export default function UnavailableDeliveryPage() {
                     <span className="text-[17px] font-600">주문 확인 및 제작</span>
                   </div>
                   <span className="text-[17px] font-600 text-blue-500">
-                    {productionTimeFormatted ? productionTimeFormatted : "계산 중..."}
+                    {productionTimeFormatted || calculating}
                   </span>
                 </div>
                 <div className="flex gap-3 py-2">
@@ -181,21 +184,19 @@ export default function UnavailableDeliveryPage() {
         <div className="px-5 py-10 font-400 text-gray-500">
           {arrivalTimeFormatted
             ? `${arrivalTimeFormatted} 이후 도착해도 괜찮다면 고객센터에 직접 전화해주세요.`
-            : "계산 중..."}
+            : calculating}
         </div>
       </div>
       <div className="h-[100px]"></div>
-      <div>
-        <BottomButton
-          className="fixed bottom-0 w-full max-w-[460px]"
-          type="2buttons"
-          button1Text="확인했어요"
-          button2Text="고객센터 전화"
-          button1Type="BrandInverse"
-          onButton1Click={handleClickConfirmButton}
-          onButton2Click={handleClickCustomerServiceButton}
-        />
-      </div>
+      <BottomBar>
+        <Button variant="inverse" onClick={() => goBack(router, "/address-check")}>
+          확인했어요
+        </Button>
+        {/* 「고객센터에 직접 전화해주세요」 — 예전엔 이름만 전화이고 고객센터 화면으로 갔다 */}
+        <Button asChild>
+          <a href="tel:0315284002">고객센터 전화</a>
+        </Button>
+      </BottomBar>
     </div>
   );
 }

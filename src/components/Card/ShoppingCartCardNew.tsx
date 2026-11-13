@@ -1,12 +1,14 @@
 "use client";
 
+import { ChevronDown } from "lucide-react";
 import React, { useState } from "react";
-import Image from "next/image";
-import { HingeDirection } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
-import DoorPreviewIcon from "../DoorPreviewIcon/DoorPreviewIcon";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
+
 import QuantitySelector from "../QuantitySelector/QuantitySelector";
-import ToggleButton from "@/components/Button/ToggleButton";
-import { Chip } from "@/components/Chip/Chip";
 
 // ============================================================================
 // Type Definitions (Exported for use in transformers)
@@ -215,6 +217,8 @@ interface ShoppingCartCardNewProps {
   onDecrease?: () => void;
   onIncrease?: () => void;
   onTrash?: () => void;
+  /** 수량 저장 중 — 수량 칸을 막는다 */
+  disabled?: boolean;
 }
 
 // ============================================================================
@@ -429,12 +433,11 @@ const detailRenderers: Record<DetailProductType, (details: any) => React.ReactEl
   피스: renderHardwareDetails,
 };
 
-// ============================================================================
-// Main Component
-// ============================================================================
-
+/**
+ * 장바구니·담기 요약 카드 — 제목 줄(번호 띠·종류·자세히 보기), 펼치면 상세, 아래 금액·수량.
+ * 휴지통(지우기) 확인은 쓰는 쪽이 ConfirmSheet 로 묻는다.
+ */
 const ShoppingCartCardNew: React.FC<ShoppingCartCardNewProps> = ({
-  hasPreviewIcon,
   hasPrice,
   hasStepper,
   detailProductType,
@@ -446,124 +449,60 @@ const ShoppingCartCardNew: React.FC<ShoppingCartCardNewProps> = ({
   onDecrease,
   onIncrease,
   onTrash,
+  disabled,
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [open, setOpen] = useState(false);
   const renderDetails = detailRenderers[detailProductType];
+  const title =
+    detailProductType === "일반문" && (details.data as DoorStandardDetails).is_pair_door ? "일반문 (양문 세트)" : detailProductType;
+  const showPrice = hasPrice && typeof price === "number" && price > 0;
 
-  // ============================================================================
-  // 기본 보기 (축약 상태)
-  // ============================================================================
-  const renderCompactView = () => (
-    <div className="flex w-full flex-col gap-3 rounded-[16px] border-[1px] border-gray-200 bg-white p-[20px] transition-all duration-300">
-      {/* 제목 및 토글 버튼 (오른쪽 정렬) */}
+  return (
+    <Collapsible open={open} onOpenChange={setOpen} className="flex w-full flex-col gap-3 rounded-[16px] border border-gray-200 bg-white p-5">
       <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-[17px] font-600 text-gray-800 flex-1">
+        <div className="flex min-w-0 flex-1 items-center gap-2 text-[17px] font-600 text-gray-800">
           {nickName && (
-            <Chip
-              text={`${nickName}`}
-              color="gray"
-              weight="weak"
-              className="text-[12px]/[16px] px-[6px] py-[1px]"
+            <Badge color="gray" weight="weak" className="text-[12px]/[16px] py-px">
+              {nickName}
+            </Badge>
+          )}
+          <span className={open ? "" : "truncate"}>{title}</span>
+        </div>
+        <CollapsibleTrigger asChild>
+          <Button variant="outline" size="sm" className="shrink-0">
+            <ChevronDown className={cn("transition-transform", open && "rotate-180")} />
+            {open ? "간단 보기" : "자세히 보기"}
+          </Button>
+        </CollapsibleTrigger>
+      </div>
+
+      <CollapsibleContent className="flex flex-col space-y-2 text-[15px] font-400 text-gray-600">{renderDetails(details.data)}</CollapsibleContent>
+
+      {(showPrice || hasStepper) && (
+        <div className={cn("flex items-center justify-between", open && "border-t border-gray-100 pt-2")}>
+          <div>
+            {showPrice && (
+              <div className="text-[18px]/[26px] font-600 text-gray-900">
+                {price.toLocaleString()}
+                <span className="ml-1 text-[13px] font-400 text-gray-500">원</span>
+                {detailProductType !== "롱문" && <span className="ml-1 text-[13px] font-400 text-gray-500">부터~</span>}
+              </div>
+            )}
+          </div>
+          {hasStepper && (
+            <QuantitySelector
+              quantity={quantity}
+              onDecrease={onDecrease}
+              onIncrease={onIncrease}
+              trashable={trashable}
+              onTrash={onTrash}
+              disabled={disabled}
             />
           )}
-          <span className="truncate">
-            {detailProductType === "일반문" && (details.data as DoorStandardDetails).is_pair_door
-              ? "일반문 (양문 세트)"
-              : detailProductType}
-          </span>
-        </div>
-        <ToggleButton
-          isExpanded={isExpanded}
-          onClick={() => setIsExpanded(true)}
-          compactLabel="자세히 보기"
-        />
-      </div>
-
-      {/* 가격 */}
-      {hasPrice && typeof price === "number" && price > 0 && (
-        <div className="flex justify-end text-[18px]/[26px] font-600 text-gray-900">
-          {price.toLocaleString()}
-          <span className="text-[13px] text-gray-500 font-400 ml-1">원</span>
-          {detailProductType !== "롱문" && <span className="text-[13px] text-gray-500 font-400 ml-1">부터~</span>}
         </div>
       )}
-
-      {/* Stepper */}
-      {hasStepper && (
-        <div className="flex items-center justify-end">
-          <QuantitySelector
-            quantity={quantity}
-            onDecrease={onDecrease}
-            onIncrease={onIncrease}
-            trashable={trashable}
-            onTrash={onTrash}
-          />
-        </div>
-      )}
-    </div>
+    </Collapsible>
   );
-
-  // ============================================================================
-  // 상세 보기 (전개 상태)
-  // ============================================================================
-  const renderExpandedView = () => (
-    <div className="flex w-full flex-col gap-3 rounded-[16px] border-[1px] border-gray-200 bg-white p-[20px] transition-all duration-300">
-      {/* 제목 및 토글 버튼 (오른쪽 정렬) */}
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-[17px] font-600 text-gray-800 flex-1">
-          {nickName && (
-            <Chip
-              text={`${nickName}`}
-              color="gray"
-              weight="weak"
-              className="text-[12px]/[16px] px-[6px] py-[1px]"
-            />
-          )}
-          <span>
-            {detailProductType === "일반문" && (details.data as DoorStandardDetails).is_pair_door
-              ? "일반문 (양문 세트)"
-              : detailProductType}
-          </span>
-        </div>
-        <ToggleButton
-          isExpanded={isExpanded}
-          onClick={() => setIsExpanded(false)}
-          expandedLabel="간단 보기"
-        />
-      </div>
-      
-      {/* 상세 정보 */}
-      <div className="flex flex-col text-[15px] font-400 text-gray-600 space-y-2">
-        {renderDetails(details.data)}
-      </div>
-
-      {/* 가격 및 수량 */}
-      <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-        <div>
-          {hasPrice && typeof price === "number" && price > 0 && (
-            <div className="text-[18px]/[26px] font-600 text-gray-900">
-              {price.toLocaleString()}
-              <span className="text-[13px] text-gray-500 font-400 ml-1">원</span>
-              {detailProductType !== "롱문" && <span className="text-[13px] text-gray-500 font-400 ml-1">부터~</span>}
-            </div>
-          )}
-        </div>
-
-        {/* Stepper */}
-        {hasStepper && (
-          <QuantitySelector
-            quantity={quantity}
-            onDecrease={onDecrease}
-            onIncrease={onIncrease}
-            trashable={trashable}
-            onTrash={onTrash}
-          />
-        )}
-      </div>
-    </div>
-  );
-
-  return isExpanded ? renderExpandedView() : renderCompactView();
 };
 
 export default ShoppingCartCardNew;

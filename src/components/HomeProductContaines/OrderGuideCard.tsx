@@ -4,14 +4,16 @@ import React from "react";
 import Image from "next/image";
 
 interface OrderGuideCardProps {
-    onClick?: () => void;
+    /** 새 탭으로 여는 안내 페이지 */
+    href: string;
 }
 
-const OrderGuideCard: React.FC<OrderGuideCardProps> = ({ onClick }) => {
+const OrderGuideCard: React.FC<OrderGuideCardProps> = ({ href }) => {
     return (
-        <button
-            type="button"
-            onClick={onClick}
+        <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
             className="w-full rounded-2xl bg-brand-50 px-5 py-4 flex items-center justify-between"
         >
             <div className="flex items-center gap-5 flex-1">
@@ -33,7 +35,7 @@ const OrderGuideCard: React.FC<OrderGuideCardProps> = ({ onClick }) => {
                     className="text-brand-600"
                 />
             </div>
-        </button>
+        </a>
     );
 };
 

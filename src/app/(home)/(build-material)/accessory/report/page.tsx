@@ -1,18 +1,24 @@
 "use client";
 
-import BottomButton from "@/components/BottomButton/BottomButton";
 import ShoppingCartCardNew from "@/components/Card/ShoppingCartCardNew";
 import Header from "@/components/Header/Header";
 import ProgressBar from "@/components/Progress";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import PaymentNoticeCard from "@/components/PaymentNoticeCard";
+import BottomBar from "@/components/overlay/BottomBar";
+import { EmptyState, Loading } from "@/components/state/StateViews";
+import { Button } from "@/components/ui/button";
+import { ActionError, useAction } from "@/components/ui/use-action";
+import { goAfterSubmit } from "@/lib/nav/go";
+import { setAfterLogin } from "@/utils/afterLogin";
+import { toast } from "sonner";
 import { transformAccessoryToNewCardProps } from "@/utils/transformers/transformAccessoryToNewCardProps";
 
 import { ACCESSORY_CATEGORY_LIST } from "@/constants/category";
 import useItemStore from "@/store/itemStore";
 import useBizClientStore from "@/store/bizClientStore";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { CrudCartItemUsecase } from "@/DDD/usecase/crud_cart_item_usecase";
@@ -38,7 +44,7 @@ import {
     getTotalValueFromCartItems
 } from "@/utils/getCartProductTypes";
 
-function ReportPageContent() {
+export default function ReportPage() {
     const router = useRouter();
     const { item } = useItemStore();
     const bizClient = useBizClientStore(state => state.bizClient);
@@ -46,10 +52,14 @@ function ReportPageContent() {
     const cartItems = useCartItemStore((state) => state.cartItems);
 
     const [quantity, setQuantity] = useState(1);
-    const [isLoading, setIsLoading] = useState(false);
+    // 담으면 장바구니로 넘어가는 동안 계속 막아 둔다(두 번 담기 방지)
+    const add = useAction({ holdOnSuccess: true });
+    // 서버 미리 그리기 때는 저장된 item 이 아직 없다 — 그린 뒤에 「없음」을 가린다
+    const [mounted, setMounted] = useState(false);
 
     // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
     useEffect(() => {
+        setMounted(true);
         // 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
         setScreenName('accessory_report');
         const prev = getPreviousScreenName();
@@ -61,9 +71,10 @@ function ReportPageContent() {
         });
     }, []);
 
-    // 빌드 시점에 item이 비어있을 수 있으므로 안전한 처리
     if (!item || Object.keys(item).length === 0) {
-        return <div>로딩 중...</div>;
+        // 담기에 성공해 item 을 비운 뒤 넘어가는 동안에도 Loading
+        if (!mounted || add.busy) return <Loading />;
+        return <EmptyState text="담을 부속이 없어요" action={{ label: "부속 고르기", onClick: () => router.replace("/accessory") }} />;
     }
 
     // 부속의 경우 고정 가격 또는 0으로 설정 (실제 가격 계산 로직이 있다면 여기에 추가)
@@ -72,6 +83,87 @@ function ReportPageContent() {
     // 카테고리 정보 가져오기
     const currentCategory = ACCESSORY_CATEGORY_LIST.find(cat => cat.slug === item.slug);
     const categoryTitle = currentCategory?.type || item.type || "부속";
+
+    const addToCart = () =>
+        add.run(async () => {
+            if (!bizClient) {
+                trackClick({
+                    object_type: "button",
+                    object_name: "login_from_accessory_report",
+                    current_page: getScreenName(),
+                    modal_name: null,
+                });
+                // 로그인 뒤 이 화면으로 돌아온다(item 은 저장돼 있다)
+                setAfterLogin("/accessory/report");
+                router.push("/start");
+                return;
+            }
+            trackClick({
+                object_type: "button",
+                object_name: "add_to_cart",
+                current_page: getScreenName(),
+                modal_name: null,
+            });
+            if (!cart?.id) throw new Error("장바구니 정보를 불러오지 못했어요. 새로고침 뒤 다시 눌러 주세요");
+            try {
+                const accessory = new Accessory({
+                    accessory_type: item.type,
+                    accessory_madeby: item.accessory_madeby,
+                    accessory_model: item.accessory_model,
+                    accessory_request: item.request ?? undefined,
+                });
+
+                const createdAccessory = await new CrudInteriorMaterialsUsecase(
+                    new InteriorMaterialsSupabaseRepository<Accessory>("Accessory")
+                ).create(accessory);
+
+                const detailProductType = DetailProductType.ACCESSORY;
+
+                const maxNickName = cartItems.reduce((max, item) => {
+                    const num = parseInt(item.nick_name || "0");
+                    return num > max ? num : max;
+                }, 0);
+                const cartItem = new CartItem({
+                    cart_id: cart.id,
+                    item_detail: createdAccessory.id!,
+                    detail_product_type: detailProductType,
+                    item_count: quantity,
+                    unit_price: unitPrice,
+                    nick_name: (maxNickName + 1).toString(),
+                });
+
+                await new CrudCartItemUsecase(new CartItemSupabaseRepository()).create(cartItem);
+
+                // Add to Cart 이벤트 전송 (CartItem 생성 성공 후)
+                const cartQuantityTotalBefore = getTotalQuantityFromCartItems(cartItems);
+                const cartQuantityTypeBefore = cartItems.length;
+                const cartValueBefore = getTotalValueFromCartItems(cartItems);
+
+                // 추가 후 상태 계산 (새 아이템 포함)
+                const productTypesAfter = getProductTypesFromCartItems(cartItems, detailProductType);
+                const detailProductTypesAfter = await getDetailProductTypesFromCartItems(cartItems, detailProductType, accessory);
+
+                await trackAddToCart({
+                    product_type: sortProductTypes(productTypesAfter),
+                    detail_product_type: sortDetailProductTypes(detailProductTypesAfter),
+                    quantity: quantity,
+                    price_unit: unitPrice,
+                    cart_quantity_total_before: cartQuantityTotalBefore,
+                    cart_quantity_type_before: cartQuantityTypeBefore,
+                    cart_value_before: cartValueBefore,
+                });
+
+                // cart_count 증가
+                await new CrudCartUsecase(new CartSupabaseRepository()).incrementCartCount(cart.id, 1);
+                incrementCartCount(1);
+            } catch (error) {
+                console.error("장바구니 담기 실패:", error);
+                throw new Error("장바구니에 담지 못했어요. 다시 눌러 주세요");
+            }
+            toast.success("장바구니에 담았어요");
+            useItemStore.setState({ item: undefined });
+            goAfterSubmit(router, "/cart");
+        });
 
     return (
         <div className="flex flex-col pt-[90px]">
@@ -97,124 +189,11 @@ function ReportPageContent() {
                 {/* 결제 안내 문구 */}
                 <PaymentNoticeCard />
             </div>
-            <div id="accessory-add-to-cart-button">
-                <BottomButton
-                    type={"1button"}
-                    button1Text={
-                        !bizClient
-                            ? "로그인하고 장바구니 담기"
-                            : isLoading
-                                ? "처리 중..."
-                                : "장바구니 담기"
-                    }
-                    className="fixed bottom-0 w-full max-w-[460px]"
-                    button1Disabled={!!bizClient && isLoading}
-                    onButton1Click={async () => {
-                        if (!bizClient) {
-                            trackClick({
-                                object_type: "button",
-                                object_name: "login_from_accessory_report",
-                                current_page: getScreenName(),
-                                modal_name: null,
-                            });
-                            router.push("/start");
-                            return;
-                        }
-                        // 이미 로딩 중이면 중복 클릭 방지
-                        if (isLoading) return;
-
-                        setIsLoading(true);
-                        trackClick({
-                            object_type: "button",
-                            object_name: "add_to_cart",
-                            current_page: getScreenName(),
-                            modal_name: null,
-                        });
-                        console.log(item!);
-                        try {
-
-                            const accessory = new Accessory({
-                                accessory_type: item.type,
-                                accessory_madeby: item.accessory_madeby,
-                                accessory_model: item.accessory_model,
-                                accessory_request: item.request ?? undefined,
-                            });
-
-                            const createdAccessory = await new CrudInteriorMaterialsUsecase(
-                                new InteriorMaterialsSupabaseRepository<Accessory>("Accessory")
-                            ).create(accessory);
-
-                            const detailProductType = DetailProductType.ACCESSORY;
-
-                            const maxNickName = cartItems.reduce((max, item) => {
-                                const num = parseInt(item.nick_name || "0");
-                                return num > max ? num : max;
-                            }, 0);
-                            const cartItem = new CartItem({
-                                cart_id: cart!.id!,
-                                item_detail: createdAccessory.id!,
-                                detail_product_type: detailProductType,
-                                item_count: quantity,
-                                unit_price: unitPrice,
-                                nick_name: (maxNickName + 1).toString(),
-                            });
-
-                            const createdCartItem = await new CrudCartItemUsecase(
-                                new CartItemSupabaseRepository()
-                            ).create(cartItem);
-
-                            console.log(createdCartItem);
-
-                            // Add to Cart 이벤트 전송 (CartItem 생성 성공 후)
-                            const cartQuantityTotalBefore = getTotalQuantityFromCartItems(cartItems);
-                            const cartQuantityTypeBefore = cartItems.length;
-                            const cartValueBefore = getTotalValueFromCartItems(cartItems);
-
-                            // 추가 후 상태 계산 (새 아이템 포함)
-                            const productTypesAfter = getProductTypesFromCartItems(cartItems, detailProductType);
-                            const detailProductTypesAfter = await getDetailProductTypesFromCartItems(cartItems, detailProductType, accessory);
-
-                            await trackAddToCart({
-                                product_type: sortProductTypes(productTypesAfter),
-                                detail_product_type: sortDetailProductTypes(detailProductTypesAfter),
-                                quantity: quantity,
-                                price_unit: unitPrice,
-                                cart_quantity_total_before: cartQuantityTotalBefore,
-                                cart_quantity_type_before: cartQuantityTypeBefore,
-                                cart_value_before: cartValueBefore,
-                            });
-
-                            // cart_count 증가
-                            const cartCountResponse = await new CrudCartUsecase(
-                                new CartSupabaseRepository()
-                            ).incrementCartCount(cart!.id!, 1);
-
-                            console.log("cartCountResponse", cartCountResponse);
-
-                            // 전역 상태 업데이트
-                            incrementCartCount(1);
-                            console.log(cart);
-
-                            // item 상태 초기화
-                            useItemStore.setState({ item: undefined });
-                            router.replace("/cart");
-                        } catch (error: any) {
-                            console.error("장바구니 담기 실패:", error);
-                            setIsLoading(false);
-                        }
-                    }}
-                />
-            </div>
+            <BottomBar top={<ActionError error={add.error} className="mb-3" />}>
+                <Button busy={add.busy} onClick={addToCart}>
+                    {bizClient ? "장바구니 담기" : "로그인하고 장바구니 담기"}
+                </Button>
+            </BottomBar>
         </div>
     );
 }
-
-function ReportPage() {
-    return (
-        <Suspense fallback={<div>로딩 중...</div>}>
-            <ReportPageContent />
-        </Suspense>
-    );
-}
-
-export default ReportPage;

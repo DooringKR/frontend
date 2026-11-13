@@ -1,61 +1,44 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Suspense, useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 
-import BottomButton from "@/components/BottomButton/BottomButton";
-import BottomSheet from "@/components/BottomSheet/BottomSheet";
-import Button from "@/components/Button/Button";
+import Field from "@/components/form/Field";
+import NumberInput from "@/components/form/NumberInput";
+import { useRequired } from "@/components/form/useRequired";
 import Header from "@/components/Header/Header";
+import BottomBar from "@/components/overlay/BottomBar";
 import ProgressBar from "@/components/Progress";
-import BoxedInput from "@/components/Input/BoxedInput";
-import ImageUploadInput from "@/components/Input/ImageUploadInput";
-import BoxedSelect from "@/components/Select/BoxedSelect";
-import SelectToggleButton from "@/components/Button/SelectToggleButton";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
-
-import formatLocation from "@/utils/formatLocation";
-import formatColor from "@/utils/formatColor";
-
+import { Button } from "@/components/ui/button";
 import useItemStore from "@/store/itemStore";
-import { Location } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
-import { useDrawerDoorValidation } from "./hooks/useDrawerDoorValidation";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import { trackClick, trackView } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 
-function DrawerDoorPageContent() {
+import { ColorField, LocationField } from "../../_components/DoorForm";
+import { drawerSizeRules } from "./hooks/drawerRules";
+
+export default function DrawerDoorPage() {
     const router = useRouter();
     const item = useItemStore(state => state.item);
     const updateItem = useItemStore(state => state.updateItem);
 
-    // 초기값을 itemStore에서 읽어오기
     const [doorWidth, setDoorWidth] = useState<number | null>(item?.door_width ?? null);
     const [doorHeight, setDoorHeight] = useState<number | null>(item?.door_height ?? null);
-
     const [door_location, setDoorLocation] = useState(item?.door_location ?? "");
-    const [isDoorLocationSheetOpen, setIsDoorLocationSheetOpen] = useState(false);
-    
-    // 가로 입력 필드 ref
-    const widthInputRef = useRef<HTMLInputElement>(null);
 
-    // 유효성 검사 훅 사용
-    const { widthError, heightError, isFormValid } = useDrawerDoorValidation({
-        DoorWidth: doorWidth,
-        DoorHeight: doorHeight,
+    const size = drawerSizeRules(doorWidth, doorHeight);
+    const req = useRequired({
+        color: !!(item?.color || item?.door_color_direct_input),
+        location: !!door_location,
+        width: size.width,
+        height: size.height,
     });
-
-    // 페이지 진입 시 용도 및 장소 시트 자동 열기 (door_location이 없을 때만)
-    useEffect(() => {
-        if (!door_location) {
-            setIsDoorLocationSheetOpen(true);
-        }
-    }, []);
 
     // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
     useEffect(() => {
-        // 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
         setScreenName('door_drawer');
         const prev = getPreviousScreenName();
         trackView({
@@ -66,173 +49,67 @@ function DrawerDoorPageContent() {
         });
     }, []);
 
-    // 각 필드 변경 시 useItemStore에 저장
-    const handleDoorWidthChange = (newWidth: number | null) => {
-        setDoorWidth(newWidth);
-        updateItem({ door_width: newWidth });
-    };
-
-    const handleDoorHeightChange = (newHeight: number | null) => {
-        setDoorHeight(newHeight);
-        updateItem({ door_height: newHeight });
-    };
-
-    const handleDoorLocationChange = (newLocation: string) => {
-        setDoorLocation(newLocation);
-        updateItem({ door_location: newLocation });
-        
-        // 용도 및 장소 선택 후 시트가 닫히면 가로 입력 필드로 포커스 이동
-        setIsDoorLocationSheetOpen(false);
-        setTimeout(() => {
-            widthInputRef.current?.focus();
-        }, 300); // 시트 닫히는 애니메이션 후 포커스 이동
-    };
+    const num = (v: string) => (v ? Number(v) : null);
 
     return (
         <div className="flex min-h-screen flex-col pt-[90px]">
             <InitAmplitude />
             <TopNavigator />
             <ProgressBar progress={60} />
-            <Header
-                title={
-                    "서랍 마에다 정보를 입력해주세요"
-                }
-            />
+            <Header title="서랍 마에다 정보를 입력해주세요" />
             <div className="flex flex-1 flex-col gap-5 px-5">
-                <BoxedSelect
-                    label={<><span>색상</span><span className="text-orange-500 ml-1">*</span></>}
-                    options={[]}
-                    value={formatColor(item?.color ?? "") || item?.door_color_direct_input || ""}
-                    onClick={() => router.back()}
-                    onChange={() => { }}
-                    truncate={true}
-                />
-
-                <BoxedSelect
-                    default_label="용도 ∙ 장소"
-                    label={<><span>용도 ∙ 장소</span><span className="text-orange-500 ml-1">*</span></>}
-                    options={[]}
-                    value={door_location ? formatLocation(door_location) : ""}
-                    onClick={() => setIsDoorLocationSheetOpen(true)}
-                    onChange={() => { }}
-                />
-                <DoorLocationSheet
-                    isOpen={isDoorLocationSheetOpen}
-                    onClose={() => setIsDoorLocationSheetOpen(false)}
+                <ColorField fieldRef={req.ref("color")} error={req.error("color")} onClick={() => router.push("/door/color")} />
+                <LocationField
                     value={door_location}
-                    onChange={handleDoorLocationChange}
-                />
-
-                {/* 서랍 폼 내용 */}
-                <BoxedInput
-                    ref={widthInputRef}
-                    type="number"
-                    label={<><span>가로 길이 (mm)</span><span className="text-orange-500 ml-1">*</span></>}
-                    placeholder="가로 길이를 입력해주세요"
-                    value={doorWidth}
-                    onChange={e => {
-                        const value = e.target.value;
-                        handleDoorWidthChange(value ? Number(value) : null);
+                    onChange={v => {
+                        setDoorLocation(v);
+                        updateItem({ door_location: v });
                     }}
-                    error={!!widthError}
-                    helperText={widthError}
+                    fieldRef={req.ref("location")}
+                    error={req.error("location")}
                 />
-                <BoxedInput
-                    type="number"
-                    label={<><span>세로 길이 (mm)</span><span className="text-orange-500 ml-1">*</span></>}
-                    placeholder="세로 길이를 입력해주세요"
-                    value={doorHeight}
-                    onChange={e => {
-                        const value = e.target.value;
-                        handleDoorHeightChange(value ? Number(value) : null);
-                    }}
-                    error={!!heightError}
-                    helperText={heightError}
-                />
-            </div>
-            <div className="h-[100px]"></div>
-            {!isDoorLocationSheetOpen &&
-                <div id="drawer-door-next-button">
-                    <BottomButton
-                        type={"1button"}
-                        button1Text={"다음"}
-                        className="fixed bottom-0 w-full max-w-[460px]"
-                        button1Disabled={isFormValid() || !door_location}
-                        onButton1Click={() => {
-                            trackClick({
-                                object_type: "button",
-                                object_name: "confirm",
-                                current_page: getScreenName(),
-                                modal_name: null,
-                            });
-                            router.push("/door/drawer/additional");
+                <Field label="가로 길이" required fieldRef={req.ref("width")} error={req.error("width")}>
+                    <NumberInput
+                        unit="mm"
+                        placeholder="가로 길이를 입력해주세요"
+                        aria-invalid={!!req.error("width")}
+                        value={doorWidth}
+                        onChange={v => {
+                            setDoorWidth(num(v));
+                            updateItem({ door_width: num(v) });
                         }}
                     />
-                </div>
-            }
+                </Field>
+                <Field label="세로 길이" required fieldRef={req.ref("height")} error={req.error("height")}>
+                    <NumberInput
+                        unit="mm"
+                        placeholder="세로 길이를 입력해주세요"
+                        aria-invalid={!!req.error("height")}
+                        value={doorHeight}
+                        onChange={v => {
+                            setDoorHeight(num(v));
+                            updateItem({ door_height: num(v) });
+                        }}
+                    />
+                </Field>
+            </div>
+            <div className="h-[100px]" />
+            <BottomBar>
+                <Button
+                    onClick={() => {
+                        if (!req.check()) return;
+                        trackClick({
+                            object_type: "button",
+                            object_name: "confirm",
+                            current_page: getScreenName(),
+                            modal_name: null,
+                        });
+                        router.push("/door/drawer/additional");
+                    }}
+                >
+                    다음
+                </Button>
+            </BottomBar>
         </div>
     );
 }
-
-function DrawerDoorPage() {
-    return (
-        <Suspense fallback={<div>로딩 중...</div>}>
-            <DrawerDoorPageContent />
-        </Suspense>
-    );
-}
-
-// 용도 및 장소 선택 시트 컴포넌트
-function DoorLocationSheet({
-    isOpen,
-    onClose,
-    value,
-    onChange,
-}: {
-    isOpen: boolean;
-    onClose: () => void;
-    value: string;
-    onChange: (v: string) => void;
-}) {
-    const options = [
-        { value: Location.KITCHEN, label: "주방" },
-        { value: Location.SHOES, label: "신발장" },
-        { value: Location.BUILT_IN, label: "붙박이장" },
-        { value: Location.BALCONY, label: "발코니 창고문" },
-        { value: Location.ETC, label: "기타 수납장" },
-    ];
-
-    return (
-        <BottomSheet
-            isOpen={isOpen}
-            title="용도 및 장소를 선택해주세요"
-            contentPadding="px-1"
-            children={
-                <div>
-                    <div>
-                        {options.map(option => (
-                            <SelectToggleButton
-                                key={option.value}
-                                label={option.label}
-                                checked={value === option.value}
-                                onClick={() => onChange(option.value)}
-                            />
-                        ))}
-                        <div className="p-5">
-                            <Button
-                                type="Brand"
-                                text="다음"
-                                onClick={() => {
-                                    onClose();
-                                }}
-                            />
-                        </div>
-                    </div>
-                </div>
-            }
-            onClose={onClose}
-        />
-    );
-}
-
-export default DrawerDoorPage;

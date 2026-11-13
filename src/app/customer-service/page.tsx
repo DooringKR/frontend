@@ -1,8 +1,9 @@
 "use client";
 
 import { CUSTOMER_SERVICE_PAGE } from "@/constants/pageName";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
+import Notice from "@/components/state/Notice";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import ContactStatusChip from "./components/contactStatusChip";
@@ -10,11 +11,8 @@ import ContactStatusChip from "./components/contactStatusChip";
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import { trackClick, trackView } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
-import { track } from "@amplitude/analytics-browser";
 
 function CustomerServicePage() {
-  const [isContactAvailable, setIsContactAvailable] = useState(true);
-
   // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
   useEffect(() => {
     // 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
@@ -43,54 +41,52 @@ function CustomerServicePage() {
             </h1>
           </div>
           <div className="pb-[100px] pt-10">
-            <div
-              className="flex cursor-pointer justify-between py-[10px]"
-              onClick={() => {
-                window.open("tel:031-528-4002", "_blank");
+            <a
+              href="tel:0315284002"
+              className="flex justify-between py-[10px]"
+              onClick={() =>
                 trackClick({
                   object_type: "button",
                   object_name: "call",
                   current_page: getScreenName(),
                   modal_name: null,
-                });
-              }}
+                })
+              }
             >
               <div className="flex gap-2">
                 <img src={"/icons/phone.svg"} alt="전화기 아이콘" />
                 <span className="text-[17px] font-600">전화 문의</span>
               </div>
               <ContactStatusChip isContactAvailable={false} />
-            </div>
-            <div
-              className="flex cursor-pointer justify-between py-[10px]"
-              onClick={() => {
-                window.open(
-                  "https://pf.kakao.com/_BlAHG",
-                  "_blank",
-                );
-
+            </a>
+            <a
+              href="https://pf.kakao.com/_BlAHG"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex justify-between py-[10px]"
+              onClick={() =>
                 trackClick({
                   object_type: "button",
                   object_name: "kakaotalkchannel",
                   current_page: getScreenName(),
                   modal_name: null,
-                });
-              }}
+                })
+              }
             >
               <div className="flex gap-2">
                 <img src={"/icons/kakaoTalk.svg"} alt="카카오톡 아이콘" />
                 <span className="text-[17px] font-600">카카오톡 채널</span>
               </div>
-              <ContactStatusChip isContactAvailable={isContactAvailable} />
-            </div>
+              <ContactStatusChip isContactAvailable />
+            </a>
           </div>
         </div>
-        <div className="h-full grow bg-gray-50 px-5 py-5 font-400 text-gray-500">
-          <h4>전화 문의 ∙ 카카오톡 채널 바로 연결 운영 시간</h4>
-          <h5>∙ 평일, 토요일 : 09~18시 </h5>
-          <h5>∙ 일요일, 공휴일은 운영하지 않아요.</h5>
-          <br />
-          <p>* 운영 시간이 아니어도 바로가구와 연락할 수 있어요. 조금 느리더라도 양해해주세요.</p>
+        <div className="px-5 pb-10">
+          <Notice tone="gray" title="전화 문의 ∙ 카카오톡 채널 바로 연결 운영 시간">
+            <p>∙ 평일, 토요일 : 09~18시</p>
+            <p>∙ 일요일, 공휴일은 운영하지 않아요.</p>
+            <p className="mt-2">운영 시간이 아니어도 바로가구와 연락할 수 있어요. 조금 느리더라도 양해해주세요.</p>
+          </Notice>
         </div>
       </div>
     </>

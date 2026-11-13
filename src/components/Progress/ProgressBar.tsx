@@ -1,27 +1,15 @@
-import React from 'react';
+import { Progress } from "@/components/ui/progress";
 
 export type ProgressValue = 0 | 20 | 40 | 60 | 80 | 100;
 
-interface ProgressBarProps {
-  progress: ProgressValue;
-  className?: string;
-}
-
-export default function ProgressBar({ progress, className = '' }: ProgressBarProps) {
-
+/**
+ * 단계 진행 막대 — 위 바(TopNavigator) 바로 밑에 붙는다. 막대는 shadcn Progress.
+ */
+export default function ProgressBar({ progress, className = "" }: { progress: ProgressValue; className?: string }) {
   return (
-    <div className="fixed top-[60px] z-40 w-full max-w-[460px] bg-white flex justify-center items-center px-5">
-        <div className="flex-1 h-1.5 relative">
-            <div className="w-full h-1.5 left-0 top-0 absolute bg-gray-100 rounded-sm" />
-            <div 
-              className="h-1.5 left-0 top-0 absolute bg-gradient-to-r from-blue-500 to-blue-600 rounded-sm" 
-              style={{ width: `${progress}%` }}
-            />
-        </div>
-        <div className="w-12 pl-2 flex justify-end items-center gap-2.5">
-            <div className="flex-1 text-right justify-start text-blue-600 text-sm font-medium font-['Pretendard'] leading-5">{progress}%</div>
-        </div>
+    <div className={`fixed top-[60px] z-40 flex w-full max-w-[460px] items-center bg-white px-5 ${className}`}>
+      <Progress value={progress} aria-label="진행" className="flex-1" />
+      <span className="w-12 pl-2 text-right text-[14px]/5 font-500 text-blue-600">{progress}%</span>
     </div>
-
   );
 }

@@ -2,8 +2,8 @@ import Image from "next/image";
 import React, { useRef, useEffect, useState } from "react";
 
 import { DOOR_COLOR_LIST } from "dooring-core-domain/dist/constants/color";
-import BoringInputField from "../Input/BoringInputField";
-import { Chip } from "../Chip/Chip";
+import NumberInput from "@/components/form/NumberInput";
+import { Badge } from "@/components/ui/badge";
 
 interface PairDoorPreviewProps {
   DoorWidth: number | null; // 가로 길이, null 경우 입력 필요
@@ -105,10 +105,11 @@ const PairDoorPreview: React.FC<PairDoorPreviewProps> = ({
         className="relative flex items-center justify-center"
       >
         <div className="flex items-center w-full pl-3">
-          <BoringInputField
+          <NumberInput
+            size="sm"
             placeholder="보링(mm)"
-            value={adjustedBoringSize[idx] ?? null}
-            onChange={value => handleBoringInputChange(idx, value)}
+            value={adjustedBoringSize[idx] ?? ""}
+            onChange={(v) => handleBoringInputChange(idx, v === "" ? null : Number(v))}
             onFocus={() => setFocusedBoringIndex(idx)}
             onBlur={() => setFocusedBoringIndex(null)}
           />
@@ -422,7 +423,7 @@ const PairDoorPreview: React.FC<PairDoorPreviewProps> = ({
       {/* 가로/세로 길이를 이미지 아래에 Chip으로 표시 (grid 밖에서 자연스럽게 배치) */}
       <div className="flex w-full justify-center pt-3 gap-4">
         <div className="flex items-center gap-2">
-          <Chip text="가로" color="gray" weight="weak" />
+          <Badge color="gray">가로</Badge>
           <div className="text-[17px]">
             {DoorWidth !== undefined && DoorWidth !== null && DoorWidth !== 0 ? (
               <span className="font-500 text-gray-800">{DoorWidth * 2}mm ({DoorWidth} × 2)</span>
@@ -432,7 +433,7 @@ const PairDoorPreview: React.FC<PairDoorPreviewProps> = ({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Chip text="세로" color="gray" weight="weak" />
+          <Badge color="gray">세로</Badge>
           <div className="text-[17px]">
             {DoorHeight !== undefined && DoorHeight !== null && DoorHeight !== 0 ? (
               <span className="font-500 text-gray-800">{DoorHeight}mm</span>

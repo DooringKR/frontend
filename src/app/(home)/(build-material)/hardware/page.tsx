@@ -1,104 +1,65 @@
-// 홈에서 하드웨어 선택 시 오는 페이지
-// '하드웨어 종류를 선택해주세요'
-
 "use client";
 
-import { HARDWARE_CATEGORY_LIST } from "@/constants/category";
-import Image from "next/image";
+import { ProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 import { useRouter } from "next/navigation";
-import { Suspense, useEffect } from "react";
-
-import Header from "@/components/Header/Header";
-import ProgressBar from "@/components/Progress";
-import TopNavigator from "@/components/TopNavigator/TopNavigator";
-import { HardwareType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
-import useItemStore from "@/store/itemStore";
-import { DetailProductType, ProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
+import { useEffect, useState } from "react";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
+import NavTiles from "@/components/nav/NavTiles";
+import Header from "@/components/Header/Header";
+import ConfirmSheet from "@/components/overlay/ConfirmSheet";
+import ProgressBar from "@/components/Progress";
+import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import { HARDWARE_CATEGORY_LIST } from "@/constants/category";
 import { trackClick, trackView } from "@/services/analytics/amplitude";
-import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
+import useItemStore from "@/store/itemStore";
+import { getPreviousScreenName, getScreenName, setScreenName } from "@/utils/screenName";
 
-function HardwareCategoryPage() {
-  const router = useRouter();
-  const hardwarecategory = HARDWARE_CATEGORY_LIST;
-  const setItem = useItemStore(state => state.setItem);
+/** 하드웨어 종류 — 고르면 바로 입력 화면. 같은 종류면 넣던 값을 그대로 두고, 다른 종류로 바꾸면 넣던 값이 지워져 먼저 묻는다 */
+export default function HardwareCategoryPage() {
+    const router = useRouter();
+    const [replacing, setReplacing] = useState<string | null>(null);
 
-  // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
-  useEffect(() => {
-      // 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
-      setScreenName('hardware');
-      const prev = getPreviousScreenName();
-      trackView({
-          object_type: "screen",
-          object_name: null,
-          current_screen: typeof window !== 'undefined' ? window.screen_name ?? null : null,
-          previous_screen: prev,
-      });
-  }, []);
+    useEffect(() => {
+        setScreenName("hardware");
+        trackView({
+            object_type: "screen",
+            object_name: null,
+            current_screen: typeof window !== "undefined" ? window.screen_name ?? null : null,
+            previous_screen: getPreviousScreenName(),
+        });
+    }, []);
 
-  // const category = CATEGORY_LIST.find(item => item.slug === type);
-  // let header;
-  // if (category) header = category.name;
+    const start = (slug: string) => {
+        useItemStore.getState().setItem({ category: ProductType.HARDWARE, type: HARDWARE_CATEGORY_LIST.find((c) => c.slug === slug)?.type });
+        router.push(`/hardware/${slug}`);
+    };
+    const pick = (slug: string) => {
+        trackClick({ object_type: "button", object_name: slug, current_page: getScreenName(), modal_name: null });
+        const item = useItemStore.getState().item;
+        if (item?.category !== ProductType.HARDWARE) return start(slug);
+        if (item.type === HARDWARE_CATEGORY_LIST.find((c) => c.slug === slug)?.type) return router.push(`/hardware/${slug}`);
+        const filled = Object.entries(item).some(([k, v]) => k !== "category" && k !== "type" && v != null && v !== "");
+        return filled ? setReplacing(slug) : start(slug);
+    };
 
-  // // 카테고리별 리스트 매핑
-  // const categoryLists = { hardware: HARDWARE_CATEGORY_LIST};
-
-  // const categories = categoryLists[type as keyof typeof categoryLists] || [];
-
-  return (
-    <div className="flex flex-col pt-[90px]">
-      <InitAmplitude />
-      <TopNavigator />
-      <ProgressBar progress={20} />
-      <Header size="Large" title={`하드웨어 종류를 선택해주세요`} />
-      <div className="grid w-full grid-cols-2 gap-x-3 gap-y-[40px] px-5 pb-5 pt-10">
-        {hardwarecategory.map((category, idx) => (
-          <div
-            key={category.slug}
-            className="flex flex-1 cursor-pointer flex-col items-center gap-2"
-            onClick={() => {
-
-              trackClick({
-                  object_type: "button",
-                  object_name: category.slug,
-                  current_page: getScreenName(),
-                  modal_name: null,
-              });
-              setItem({
-                category: ProductType.HARDWARE,
-                type: category.type as HardwareType,
-              })
-              router.push(`/hardware/${category.slug}`);
-            }}
-          >
-            <div className="relative aspect-square w-full">
-              <Image
-                src={category.image}
-                alt={category.type || ''}
-                fill
-                style={{
-                  objectFit: "contain",
-                }}
-                className="w-full h-full object-cover rounded-[28px] border-[2px] border-[rgba(3,7,18,0.05)]"
-              />
+    return (
+        <div className="flex flex-col pt-[90px]">
+            <InitAmplitude />
+            <TopNavigator />
+            <ProgressBar progress={20} />
+            <Header size="Large" title="하드웨어 종류를 선택해주세요" />
+            <div className="px-5 pt-10">
+                <NavTiles items={HARDWARE_CATEGORY_LIST.map((c) => ({ key: c.slug, label: c.type ?? "", image: c.image, onClick: () => pick(c.slug) }))} />
             </div>
-            <div className="text-center text-[17px]/[24px] font-500 text-gray-500">
-              {category.type || ''}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+            <ConfirmSheet
+                open={replacing !== null}
+                onOpenChange={(o) => !o && setReplacing(null)}
+                title="종류를 바꿀까요?"
+                description="입력한 내용이 지워져요."
+                confirmLabel="바꾸기"
+                onConfirm={() => replacing && start(replacing)}
+            />
+        </div>
+    );
 }
-
-function OrderPage() {
-  return (
-    <Suspense fallback={<div>로딩 중...</div>}>
-      <HardwareCategoryPage />
-    </Suspense>
-  );
-}
-
-export default OrderPage;

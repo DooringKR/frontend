@@ -1,29 +1,40 @@
 "use client";
 
-import { DOOR_CATEGORY_LIST } from "@/constants/category";
-import Image from "next/image";
+import { ProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
+import { DoorType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import { useRouter } from "next/navigation";
-import { Suspense, useEffect } from "react";
+import { useEffect } from "react";
 
 import Header from "@/components/Header/Header";
-import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import NavTiles from "@/components/nav/NavTiles";
+import { useConfirm } from "@/components/overlay/ConfirmSheet";
 import ProgressBar from "@/components/Progress";
-import { DoorType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
-import useItemStore from "@/store/itemStore";
-import { ProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
+import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import { DOOR_CATEGORY_LIST } from "@/constants/category";
+import useItemStore, { type BaseItem } from "@/store/itemStore";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import { trackClick, trackView } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 
-function DoorCategoryPage() {
+const label = (type: string) => (type === DoorType.DRAWER ? "서랍 마에다" : type);
+
+/** 종류 말고 넣은 값이 있는지(다른 종류를 고르면 통째로 지워진다) */
+const hasInput = (item: BaseItem | null) =>
+    !!item &&
+    Object.entries(item).some(
+        ([k, v]) => k !== "category" && k !== "type" && v != null && v !== "" && v !== false && !(Array.isArray(v) && v.length === 0),
+    );
+
+export default function DoorCategoryPage() {
     const router = useRouter();
-    const doorcategory = DOOR_CATEGORY_LIST;
+    const item = useItemStore(state => state.item);
     const setItem = useItemStore(state => state.setItem);
+    const confirm = useConfirm();
+    const picked = item?.category === ProductType.DOOR ? (DOOR_CATEGORY_LIST.find(c => c.type === item.type)?.slug ?? null) : null;
 
     // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
     useEffect(() => {
-        // 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
         setScreenName('door');
         const prev = getPreviousScreenName();
         trackView({
@@ -34,58 +45,42 @@ function DoorCategoryPage() {
         });
     }, []);
 
+    const pick = (slug: string) => {
+        const category = DOOR_CATEGORY_LIST.find(c => c.slug === slug)!;
+        trackClick({
+            object_type: "button",
+            object_name: category.slug,
+            current_page: getScreenName(),
+            modal_name: null,
+        });
+        // 같은 종류면 넣던 값을 그대로 두고 넘어간다. 다른 종류로 바꾸면 넣던 값이 지워져 먼저 묻는다.
+        if (picked === slug) return router.push("/door/color");
+        const apply = () => {
+            setItem({ category: ProductType.DOOR, type: category.type as DoorType });
+            router.push("/door/color");
+        };
+        if (hasInput(item)) confirm.ask("넣은 내용을 지우고 종류를 바꿀까요?", apply, { confirmLabel: "바꾸기" });
+        else apply();
+    };
+
     return (
         <div className="flex flex-col pt-[90px]">
             <InitAmplitude />
             <TopNavigator />
             <ProgressBar progress={20} />
-            <Header size="Large" title={`문 종류를 선택해주세요`} />
-            <div className="grid w-full grid-cols-2 gap-x-3 gap-y-[40px] px-5 pb-5 pt-10">
-                {doorcategory.map((category, idx) => (
-                    <div
-                        key={category.slug}
-                        className="flex flex-1 cursor-pointer flex-col items-center gap-2"
-                        onClick={() => {
-                            trackClick({
-                                object_type: "button",
-                                object_name: category.slug,
-                                current_page: getScreenName(),
-                                modal_name: null,
-                            });
-                            setItem({
-                                category: ProductType.DOOR,
-                                type: category.type as DoorType,
-                            });
-                            router.push(`/door/color`);
-                        }}
-                    >
-                        <div className="relative aspect-square w-full">
-                            <Image
-                                src={category.image}
-                                alt={category.type === DoorType.DRAWER ? '서랍 마에다' : (category.type || '')}
-                                fill
-                                style={{
-                                    objectFit: "contain",
-                                }}
-                                className="w-full h-full object-cover rounded-[28px] border-[2px] border-[rgba(3,7,18,0.05)]"
-                            />
-                        </div>
-                        <div className="text-center text-[17px]/[24px] font-500 text-gray-500">
-                            {category.type === DoorType.DRAWER ? '서랍 마에다' : (category.type || '')}
-                        </div>
-                    </div>
-                ))}
+            <Header size="Large" title="문 종류를 선택해주세요" />
+            <div className="px-5 pb-5 pt-10">
+                <NavTiles
+                    items={DOOR_CATEGORY_LIST.map(c => ({
+                        key: c.slug,
+                        label: label(c.type ?? ""),
+                        image: c.image,
+                        selected: picked === c.slug,
+                        onClick: () => pick(c.slug),
+                    }))}
+                />
             </div>
+            {confirm.sheet}
         </div>
     );
 }
-
-function OrderPage() {
-    return (
-        <Suspense fallback={<div>로딩 중...</div>}>
-            <DoorCategoryPage />
-        </Suspense>
-    );
-}
-
-export default OrderPage;

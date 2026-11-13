@@ -3,7 +3,10 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-import ChoiceCard from "../_components/ChoiceCard";
+import Choose from "@/components/form/Choose";
+import Field from "@/components/form/Field";
+import { useRequired } from "@/components/form/useRequired";
+
 import StepShell from "../_components/StepShell";
 import { nextOf, progressOf, useHydrated } from "../_lib/flow";
 import { emptyPart, useRequestStore } from "../_lib/requestStore";
@@ -19,27 +22,28 @@ export default function SituationPickPage() {
   const part = useRequestStore((s) => (situation ? s.parts[situation.slug] : undefined)) ?? emptyPart();
   const setPart = useRequestStore((s) => s.setPart);
   const path = `/request/${slug}`;
+  const req = useRequired({ buttons: part.buttons.length > 0 || "하나 이상 골라 주세요" });
 
   useEffect(() => {
     if (hydrated && (!situation || !situations.includes(situation.slug))) router.replace("/request");
   }, [hydrated, situation, situations, router]);
   if (!situation) return null;
 
-  const toggle = (b: string) => {
-    const cur = useRequestStore.getState().parts[situation.slug]?.buttons ?? [];
-    setPart(situation.slug, { buttons: cur.includes(b) ? cur.filter((x) => x !== b) : [...cur, b] });
-  };
-
   return (
     <StepShell
       progress={progressOf(situations, path)}
       title={situation.name}
-      nextDisabled={part.buttons.length === 0}
-      onNext={() => router.push(nextOf(situations, path))}
+      onNext={() => req.check() && router.push(nextOf(situations, path))}
     >
-      {situation.buttons.map((b) => (
-        <ChoiceCard key={b} title={b} checked={part.buttons.includes(b)} onClick={() => toggle(b)} />
-      ))}
+      <Field fieldRef={req.ref("buttons")} error={req.error("buttons")}>
+        <Choose
+          multiple
+          aria-label={situation.name}
+          value={part.buttons}
+          onChange={(v) => setPart(situation.slug, { buttons: v })}
+          options={situation.buttons.map((b) => ({ value: b, label: b }))}
+        />
+      </Field>
     </StepShell>
   );
 }

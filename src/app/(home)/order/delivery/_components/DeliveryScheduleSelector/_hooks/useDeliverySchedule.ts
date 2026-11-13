@@ -1,44 +1,40 @@
 import { useEffect, useState } from "react";
-import { useOrderStore } from "@/store/orderStore";
+
 import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 
-export function useDeliverySchedule() {
-    const order = useOrderStore(state => state.order);
-    const updateOrder = useOrderStore(state => state.updateOrder);
+/**
+ * 주소로 오늘배송 가능 여부를 잰다. 18시 전에 도착하면 가능.
+ * minutes: null = 재는 중(주소가 없거나 실패면 status 로 가른다).
+ */
+export function useDeliverySchedule(roadAddress: string | undefined) {
+  const [minutes, setMinutes] = useState<number | null>(null);
+  const [status, setStatus] = useState<"idle" | "loading" | "done" | "failed">(roadAddress?.trim() ? "loading" : "idle");
 
-    const [expectedArrivalMinutes, setExpectedArrivalMinutes] = useState<number | null>(null);
-    const [isTodayDeliveryAvailable, setIsTodayDeliveryAvailable] = useState(false);
-
-    // 오늘배송 가능 여부 계산
-    useEffect(() => {
-        const fetchDeliveryInfo = async () => {
-            const { remainingMinutes } = await calculateDeliveryInfo(order.road_address!);
-
-            setExpectedArrivalMinutes(remainingMinutes);
-            if (remainingMinutes === null) return;
-
-            const now = new Date();
-            const arrivalDate = new Date(now);
-            arrivalDate.setMinutes(now.getMinutes() + remainingMinutes);
-
-            const todayDeadline = new Date();
-            todayDeadline.setHours(18, 0, 0, 0); // 오늘 18:00:00
-
-            const isTodayAvailable = arrivalDate.getTime() < todayDeadline.getTime();
-            console.log("🚚 예상 도착시간:", arrivalDate.toLocaleTimeString());
-            console.log("🚫 오늘배송 가능 여부:", isTodayAvailable);
-            setIsTodayDeliveryAvailable(isTodayAvailable);
-
-            // 오늘 배송 불가능하면 자동으로 다른 날 배송으로 전환
-            if (!isTodayAvailable && order?.is_today_delivery === true) {
-                updateOrder({ is_today_delivery: false, delivery_arrival_time: null });
-            }
-        };
-        fetchDeliveryInfo();
-    }, [expectedArrivalMinutes, order?.is_today_delivery, updateOrder]);
-
-    return {
-        expectedArrivalMinutes,
-        isTodayDeliveryAvailable,
+  useEffect(() => {
+    if (!roadAddress?.trim()) {
+      setStatus("idle");
+      return;
+    }
+    let cancelled = false;
+    setStatus("loading");
+    calculateDeliveryInfo(roadAddress)
+      .then(({ remainingMinutes }) => {
+        if (cancelled) return;
+        setMinutes(remainingMinutes);
+        setStatus(remainingMinutes == null ? "failed" : "done");
+      })
+      .catch((e) => {
+        console.error("오늘배송 계산 실패:", e);
+        if (!cancelled) setStatus("failed");
+      });
+    return () => {
+      cancelled = true;
     };
-} 
+  }, [roadAddress]);
+
+  const todayDeadline = new Date();
+  todayDeadline.setHours(18, 0, 0, 0);
+  const available = status === "done" && minutes != null && Date.now() + minutes * 60_000 < todayDeadline.getTime();
+
+  return { minutes: status === "done" ? minutes : null, status, available };
+}

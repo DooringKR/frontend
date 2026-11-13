@@ -2,9 +2,10 @@
 
 import { useRouter } from "next/navigation";
 
-import BottomButton from "@/components/BottomButton/BottomButton";
+import BottomBar from "@/components/overlay/BottomBar";
 import Header from "@/components/Header/Header";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import { Button } from "@/components/ui/button";
 
 /** 접수 완료 */
 export default function RequestDonePage() {
@@ -13,15 +14,12 @@ export default function RequestDonePage() {
     <div className="flex flex-col pt-[60px]">
       <TopNavigator />
       <Header title="주문이 접수됐어요" subtitle="담당자가 연락드려요" />
-      <BottomButton
-        type="2buttons"
-        button1Text="주문 내역"
-        button2Text="홈으로"
-        button1Type="GrayLarge"
-        className="fixed bottom-0 w-full max-w-[460px]"
-        onButton1Click={() => router.replace("/order-history")}
-        onButton2Click={() => router.replace("/")}
-      />
+      <BottomBar>
+        <Button variant="secondary" onClick={() => router.replace("/order-history")}>
+          주문 내역
+        </Button>
+        <Button onClick={() => router.replace("/")}>홈으로</Button>
+      </BottomBar>
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import React from "react";
 
+import { Badge } from "@/components/ui/badge";
+
 import CarIcon from "../icon/Car";
 
 // 내일의 요일을 계산하는 함수
@@ -26,40 +28,34 @@ const DeliveryScheduleDisplay: React.FC<DeliveryScheduleDisplayProps> = ({
     case "today":
       return (
         <div className="flex flex-row items-center gap-2">
-          <div className="flex flex-row items-center justify-center gap-1 rounded-[8px] bg-brand-50 px-2 py-[3px]">
+          <Badge color="blue" className="gap-1">
             <CarIcon />
-            <div className="h-[22px] text-[15px] font-500 text-brand-600">오늘배송 가능</div>
-          </div>
+            오늘배송 가능
+          </Badge>
           <div className="h-[22px] text-[16px] font-500 text-[#3B82F6]">∙</div>
           <div className="h-[22px] text-[16px] font-500 text-[#3B82F6]">
-            {timeLimit === "배송 정보 계산 중..." ? "배송 가능 여부를 확인 중입니다..." : timeLimit}
+            {timeLimit}
           </div>
         </div>
       );
     case "tomorrow":
       return (
         <div className="flex flex-row items-center gap-2">
-          <div className="h-[28px] rounded-[8px] bg-brand-50 px-2 py-[3px] text-[15px] font-500 text-brand-600">
-            내일({getTomorrowDayOfWeek()}) 도착 보장
-          </div>
+          <Badge color="blue">내일({getTomorrowDayOfWeek()}) 도착 보장</Badge>
           <div className="h-[22px] text-[16px] font-500 text-[#3B82F6]">∙</div>
           <div className="h-[22px] text-[16px] font-500 text-[#3B82F6]">
-            {timeLimit === "배송 정보 계산 중..." ? "배송 가능 여부를 확인 중입니다..." : timeLimit}
+            {timeLimit}
           </div>
         </div>
       );
     case "other":
       return (
-        <div className="sm:flex-col flex flex-row flex-wrap gap-2">
-          <div className="rounded-[8px] bg-gray-50 px-2 py-1 text-[15px]/[22px] font-500 text-gray-500">
-            {arrivalDate} 도착 보장
-          </div>
+        <div className="flex flex-row flex-wrap gap-2">
+          <Badge color="gray">{arrivalDate} 도착 보장</Badge>
           <div className="flex flex-row items-center gap-2">
             <div className="h-[22px] text-[16px] font-500 text-gray-400">∙</div>
             <div className="h-[22px] text-[16px] font-500 text-gray-400">
-              {timeLimit === "배송 정보 계산 중..."
-                ? "배송 가능 여부를 확인 중입니다..."
-                : timeLimit}
+              {timeLimit}
             </div>
           </div>
         </div>

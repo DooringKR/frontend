@@ -3,8 +3,9 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import BoxedInput from "@/components/Input/BoxedInput";
-import ImageUploadInput from "@/components/Input/ImageUploadInput";
+import Field from "@/components/form/Field";
+import PhotoPick from "@/components/form/PhotoPick";
+import { Input } from "@/components/ui/input";
 
 import StepShell from "../../_components/StepShell";
 import { nextOf, progressOf, useHydrated } from "../../_lib/flow";
@@ -38,29 +39,26 @@ export default function SituationDetailPage() {
       subtitle={part.buttons.join(", ")}
       onNext={() => router.push(nextOf(situations, path))}
     >
-      <ImageUploadInput
-        label="현장 사진"
-        placeholder="사진을 첨부해주세요"
-        value={photos}
-        maxFiles={5}
-        onChange={(files) => {
-          setPhotos(files);
-          photoStore.set(situation.slug, files);
-        }}
-      />
-      <BoxedInput
-        label="대략적인 양"
-        placeholder="예) 문짝 2장, 하부장 1m"
-        value={part.amountNote}
-        onChange={(e) => setPart(situation.slug, { amountNote: e.target.value })}
-        placeholderClassName="placeholder-gray-500"
-      />
-      <BoxedInput
-        label="메모"
-        value={part.memo}
-        onChange={(e) => setPart(situation.slug, { memo: e.target.value })}
-        placeholderClassName="placeholder-gray-500"
-      />
+      <Field label="현장 사진 (선택)">
+        <PhotoPick
+          value={photos}
+          maxFiles={5}
+          onChange={(files) => {
+            setPhotos(files);
+            photoStore.set(situation.slug, files);
+          }}
+        />
+      </Field>
+      <Field label="대략적인 양">
+        <Input
+          placeholder="예) 문짝 2장, 하부장 1m"
+          value={part.amountNote}
+          onChange={(e) => setPart(situation.slug, { amountNote: e.target.value })}
+        />
+      </Field>
+      <Field label="메모">
+        <Input value={part.memo} onChange={(e) => setPart(situation.slug, { memo: e.target.value })} />
+      </Field>
     </StepShell>
   );
 }

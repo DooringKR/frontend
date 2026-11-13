@@ -1,11 +1,15 @@
 "use client";
 
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import React, { useState, useEffect, useRef } from "react";
 import { BarogaguBanner } from "dooring-core-domain/dist/models/Barogagu/BarogaguBanner";
 import { supabase } from "@/lib/supabase";
 
 import BannerPagination from "@/components/Banner/_components/Pagination";
+import { ErrorBanner } from "@/components/state/StateViews";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useBarogaguBanners } from "../_hooks/useBarogaguBanners";
 import useBizClientStore from "@/store/bizClientStore";
 
@@ -19,7 +23,7 @@ const EXCLUDED_PHONE_NUMBERS = [
 ];
 
 const HomeBanner: React.FC = () => {
-    const { banners, loading, error } = useBarogaguBanners();
+    const { banners, loading, error, reload } = useBarogaguBanners();
     const phoneNumber = useBizClientStore(state => state.getPhoneNumber());
 
     // 개발자/테스트 계정 체크
@@ -204,45 +208,37 @@ const HomeBanner: React.FC = () => {
         };
     }, [total, isPaused]);
 
-    const handleBannerClick = async (banner: BarogaguBanner) => {
+    // 클릭 수는 기다리지 않고 센다 — 링크는 <a> 로 바로 열린다(예전엔 저장을 await 한 뒤 window.open 이라 팝업이 막혔다)
+    const countClick = async (banner: BarogaguBanner) => {
         // 제외된 계정이면 clicks 업데이트하지 않음
-        if (!isExcludedAccount && banner.id) {
-            try {
-                // 현재 clicks 값을 가져와서 증가
-                const { data: currentBanner, error: fetchError } = await supabase
+        if (isExcludedAccount || !banner.id) return;
+        try {
+            // 현재 clicks 값을 가져와서 증가
+            const { data: currentBanner, error: fetchError } = await supabase
+                .from('BarogaguBanner')
+                .select('clicks')
+                .eq('id', banner.id)
+                .single();
+
+            if (!fetchError && currentBanner) {
+                const newClicks = (currentBanner.clicks || 0) + 1;
+                await supabase
                     .from('BarogaguBanner')
-                    .select('clicks')
-                    .eq('id', banner.id)
-                    .single();
-
-                if (!fetchError && currentBanner) {
-                    const newClicks = (currentBanner.clicks || 0) + 1;
-                    await supabase
-                        .from('BarogaguBanner')
-                        .update({ clicks: newClicks })
-                        .eq('id', banner.id);
-                }
-            } catch (error) {
-                console.error("배너 클릭 카운트 업데이트 실패:", error);
-                // 에러가 발생해도 배너 클릭 동작은 계속 진행
+                    .update({ clicks: newClicks })
+                    .eq('id', banner.id);
             }
-        }
-
-        // 배너 링크 열기
-        if (banner.hyperlink) {
-            window.open(banner.hyperlink, '_blank', 'noopener,noreferrer');
+        } catch (error) {
+            console.error("배너 클릭 카운트 업데이트 실패:", error);
         }
     };
 
-    // 로딩 중
+    // 로딩 중 — 배너 자리(1200x400)를 미리 잡아 다 읽힌 뒤 아래가 밀리지 않게
     if (loading) {
-        return null;
+        return <Skeleton className="aspect-[3/1] w-full" />;
     }
 
-    // 에러 발생 시
     if (error) {
-        console.error("배너 로드 에러:", error);
-        return null;
+        return <ErrorBanner text="배너를 불러오지 못했어요" onRetry={reload} className="mx-5" />;
     }
 
     // 배너가 없으면 렌더링하지 않음
@@ -290,34 +286,21 @@ const HomeBanner: React.FC = () => {
                                 width: "100%",
                                 flexShrink: 0,
                                 position: "relative",
-                                cursor: banner.hyperlink ? "pointer" : "default",
                             }}
-                            onClick={() => handleBannerClick(banner)}
                         >
-                            <Image
-                                src={banner.banner_image_url!}
-                                alt={banner.code || `배너 ${idx + 1}`}
-                                width={1200}
-                                height={400}
-                                style={{
-                                    width: "100%",
-                                    height: "auto",
-                                    objectFit: "contain",
-                                    transition: banner.hyperlink ? "opacity 0.2s ease" : "none",
-                                } as React.CSSProperties}
-                                priority={idx === 1}
-                                draggable={false}
-                                onMouseEnter={(e) => {
-                                    if (banner.hyperlink) {
-                                        e.currentTarget.style.opacity = "0.9";
-                                    }
-                                }}
-                                onMouseLeave={(e) => {
-                                    if (banner.hyperlink) {
-                                        e.currentTarget.style.opacity = "1";
-                                    }
-                                }}
-                            />
+                            {banner.hyperlink ? (
+                                <a
+                                    href={banner.hyperlink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={() => void countClick(banner)}
+                                    className="block transition-opacity hover:opacity-90"
+                                >
+                                    <BannerImage banner={banner} idx={idx} />
+                                </a>
+                            ) : (
+                                <BannerImage banner={banner} idx={idx} />
+                            )}
                         </div>
                     );
                 })}
@@ -341,65 +324,12 @@ const HomeBanner: React.FC = () => {
                     onMouseEnter={() => setIsPaused(true)}
                     onMouseLeave={() => setIsPaused(false)}
                 >
-                    {/* 이전 버튼 */}
-                    <button
-                        onClick={goToPrevious}
-                        style={{
-                            background: "none",
-                            border: "none",
-                            width: 40,
-                            height: 40,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            cursor: "pointer",
-                            transition: "all 0.2s ease",
-                            pointerEvents: "auto",
-                            opacity: 0.4,
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.opacity = "0.7";
-                            e.currentTarget.style.transform = "scale(1.2)";
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.opacity = "0.4";
-                            e.currentTarget.style.transform = "scale(1)";
-                        }}
-                    >
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M15 18L9 12L15 6" stroke="#1E1E1E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                    </button>
-
-                    {/* 다음 버튼 */}
-                    <button
-                        onClick={goToNext}
-                        style={{
-                            background: "none",
-                            border: "none",
-                            width: 40,
-                            height: 40,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            cursor: "pointer",
-                            transition: "all 0.2s ease",
-                            pointerEvents: "auto",
-                            opacity: 0.4,
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.opacity = "0.7";
-                            e.currentTarget.style.transform = "scale(1.2)";
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.opacity = "0.4";
-                            e.currentTarget.style.transform = "scale(1)";
-                        }}
-                    >
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M9 18L15 12L9 6" stroke="#1E1E1E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                    </button>
+                    <Button variant="ghost" size="icon" aria-label="이전 배너" onClick={goToPrevious} className="pointer-events-auto opacity-40 hover:opacity-70">
+                        <ChevronLeft />
+                    </Button>
+                    <Button variant="ghost" size="icon" aria-label="다음 배너" onClick={goToNext} className="pointer-events-auto opacity-40 hover:opacity-70">
+                        <ChevronRight />
+                    </Button>
                 </div>
             )}
 
@@ -433,5 +363,19 @@ const HomeBanner: React.FC = () => {
         </div>
     );
 };
+
+function BannerImage({ banner, idx }: { banner: BarogaguBanner; idx: number }) {
+    return (
+        <Image
+            src={banner.banner_image_url!}
+            alt={banner.code || `배너 ${idx + 1}`}
+            width={1200}
+            height={400}
+            style={{ width: "100%", height: "auto", objectFit: "contain" }}
+            priority={idx === 1}
+            draggable={false}
+        />
+    );
+}
 
 export default HomeBanner;

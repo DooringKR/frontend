@@ -1,6 +1,10 @@
 "use client";
 
+import { ChevronDown } from "lucide-react";
 import { useState } from "react";
+
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Separator } from "@/components/ui/separator";
 
 const faqData = [
     {
@@ -25,54 +29,28 @@ const faqData = [
     }
 ];
 
+/** 자주 묻는 질문 — 한 번에 하나만 펼친다. 질문 줄 전체가 펼치기 버튼. */
 export default function FaqCard() {
     const [openIndex, setOpenIndex] = useState<number | null>(null);
-
-    const handleToggle = (index: number) => {
-        setOpenIndex(openIndex === index ? null : index);
-    };
 
     return (
         <div className="px-2 py-[40px] flex flex-col">
             <div className="px-4 text-[20px]/[28px] font-700 text-gray-800">자주 묻는 질문</div>
             {faqData.map((faq, index) => {
                 const isOpen = openIndex === index;
-                const isFirst = index === 0;
-                const isLast = index === faqData.length - 1;
-
                 return (
-                    <div key={index}>
-                        <div className={`${isOpen ? 'mt-2' : isFirst ? 'mt-2 mb-2' : isLast ? 'my-2' : 'my-2'} px-4 py-3 flex justify-between gap-[10px] items-center`}>
-                            <div className={`text-[17px]/[24px] font-500 ${isOpen ? 'text-blue-500' : 'text-gray-500'}`}>
-                                {faq.question}
-                            </div>
-                            <div
-                                className="cursor-pointer w-6 h-6 flex items-center justify-center"
-                                onClick={() => handleToggle(index)}
-                            >
-                                {isOpen ? (
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="8" viewBox="0 0 14 8" fill="none">
-                                        <path d="M13 1L7 7L1 1" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                ) : (
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="8" height="14" viewBox="0 0 8 14" fill="none">
-                                        <path d="M1 1L7 7L1 13" stroke="#99A1AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                )}
-                            </div>
-                        </div>
-                        {isOpen && (
-                            <div className="px-3 pb-3 text-[16px]/[22px] font-400 text-gray-500">
-                                {faq.answer}
-                            </div>
-                        )}
-                        {!isLast && (
-                            <div className="mx-4 h-[1px] bg-gray-200"></div>
-                        )}
-                    </div>
+                    <Collapsible key={index} open={isOpen} onOpenChange={(o) => setOpenIndex(o ? index : null)}>
+                        <CollapsibleTrigger
+                            className={`${isOpen ? "mt-2" : "my-2"} flex w-full items-center justify-between gap-[10px] px-4 py-3 text-left`}
+                        >
+                            <span className={`text-[17px]/[24px] font-500 ${isOpen ? "text-blue-500" : "text-gray-500"}`}>{faq.question}</span>
+                            <ChevronDown className={`size-5 shrink-0 transition-transform ${isOpen ? "rotate-180 text-blue-500" : "-rotate-90 text-gray-400"}`} />
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="px-3 pb-3 text-[16px]/[22px] font-400 text-gray-500">{faq.answer}</CollapsibleContent>
+                        {index < faqData.length - 1 && <Separator className="mx-4 w-auto" />}
+                    </Collapsible>
                 );
             })}
         </div>
     );
 }
-

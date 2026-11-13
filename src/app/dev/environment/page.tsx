@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import Button from "@/components/Button/Button";
+import { goBack } from "@/lib/nav/go";
+import { useCopy } from "@/lib/use-copy";
 
 export default function DevEnvironmentPage() {
     const router = useRouter();
@@ -35,12 +35,7 @@ export default function DevEnvironmentPage() {
         setEnvInfo(info);
     }, []);
 
-    const copyToClipboard = () => {
-        const text = JSON.stringify(envInfo, null, 2);
-        navigator.clipboard.writeText(text).then(() => {
-            alert("환경 정보가 클립보드에 복사되었습니다.");
-        });
-    };
+    const copy = useCopy();
 
     return (
         <div className="min-h-screen bg-black text-green-400 font-mono overflow-hidden relative">
@@ -64,7 +59,7 @@ export default function DevEnvironmentPage() {
                         <h1 className="text-xl font-bold text-green-400 font-mono">SYSTEM ENVIRONMENT</h1>
                     </div>
                     <button
-                        onClick={() => router.back()}
+                        onClick={() => goBack(router, "/dev/login")}
                         className="bg-gray-500/20 border-2 border-gray-500 text-gray-400 font-mono py-2 px-4 rounded hover:bg-gray-500/30 hover:border-gray-400 transition-all duration-300"
                     >
                         [BACK]
@@ -77,12 +72,13 @@ export default function DevEnvironmentPage() {
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-lg font-semibold text-green-400 font-mono">[SYSTEM DATA]</h2>
                                 <button
-                                    onClick={copyToClipboard}
+                                    onClick={() => copy.run("env", JSON.stringify(envInfo, null, 2))}
                                     className="bg-green-500/20 border-2 border-green-500 text-green-400 font-mono py-2 px-4 rounded hover:bg-green-500/30 hover:border-green-400 transition-all duration-300"
                                 >
-                                    [COPY]
+                                    {copy.copied === "env" ? "[COPIED]" : "[COPY]"}
                                 </button>
                             </div>
+                            {copy.failed && <p role="alert" className="mb-2 text-sm text-red-400">[ERROR] 복사가 막혔어요. 아래 내용을 직접 골라 복사하세요.</p>}
                             <pre className="text-sm text-green-300 overflow-x-auto bg-black/50 p-4 rounded border border-green-500/30">
                                 {JSON.stringify(envInfo, null, 2)}
                             </pre>

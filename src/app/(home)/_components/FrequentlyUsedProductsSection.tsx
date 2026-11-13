@@ -2,15 +2,12 @@
 
 import React from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import useItemStore from "@/store/itemStore";
 
 const FrequentlyUsedProductsSection: React.FC = () => {
-    const router = useRouter();
-
+    // 롱문 고르면 품목을 먼저 정해 두고 색 화면으로 간다(Link)
     const handleLongDoorClick = () => {
-        // 롱문 클릭 시 동작 (예: 문짝 주문 페이지로 이동)
-        router.push("/longdoor/color");
         useItemStore.setState({
             item: {
                 type: "롱문",
@@ -25,8 +22,8 @@ const FrequentlyUsedProductsSection: React.FC = () => {
 
                 <div className="flex flex-col gap-3">
                     {/* 롱문 카드 */}
-                    <button
-                        type="button"
+                    <Link
+                        href="/longdoor/color"
                         onClick={handleLongDoorClick}
                         className="w-full pb-5 pt-5 flex items-center justify-between gap-5"
                     >
@@ -57,7 +54,7 @@ const FrequentlyUsedProductsSection: React.FC = () => {
                                 className="text-gray-600"
                             />
                         </div>
-                    </button>
+                    </Link>
                 </div>
             </div>
         </div>

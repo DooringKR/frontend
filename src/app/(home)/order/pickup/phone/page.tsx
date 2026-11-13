@@ -1,11 +1,13 @@
 "use client";
 
 import { Suspense, useEffect } from "react";
+
+import { Loading } from "@/components/state/StateViews";
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import { trackView } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
 
-import PhoneClientPage from "./PhoneClient";
+import RecipientPhoneForm from "../../_components/RecipientPhoneForm";
 
 export default function PhonePage() {
   // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
@@ -22,9 +24,9 @@ export default function PhonePage() {
   }, []);
 
   return (
-    <Suspense fallback={<div>로딩 중...</div>}>
+    <Suspense fallback={<Loading />}>
       <InitAmplitude />
-      <PhoneClientPage />
+      <RecipientPhoneForm backTo="/order/pickup" />
     </Suspense>
   );
 }

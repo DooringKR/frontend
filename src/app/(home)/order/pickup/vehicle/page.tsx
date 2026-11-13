@@ -2,6 +2,8 @@
 
 import { Suspense, useEffect } from "react";
 
+import { Loading } from "@/components/state/StateViews";
+
 import VehicleClientPage from "./VehicleClient";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
@@ -23,7 +25,7 @@ export default function VehiclePage() {
   }, []);
 
   return (
-    <Suspense fallback={"로딩중..."}>
+    <Suspense fallback={<Loading />}>
       <InitAmplitude />
       <VehicleClientPage />
     </Suspense>

@@ -1,37 +1,46 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { Suspense, useEffect } from "react";
-import TopNavigator from "@/components/TopNavigator/TopNavigator";
-import Header from "@/components/Header/Header";
-import ProgressBar from "@/components/Progress";
-import Image from "next/image";
-import { CABINET_CATEGORY_LIST } from "@/constants/category";
-
-import useItemStore from "@/store/itemStore";
 import { ProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
+import NavTiles from "@/components/nav/NavTiles";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
+import Header from "@/components/Header/Header";
+import ConfirmSheet from "@/components/overlay/ConfirmSheet";
+import ProgressBar from "@/components/Progress";
+import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import { CABINET_CATEGORY_LIST } from "@/constants/category";
 import { trackClick, trackView } from "@/services/analytics/amplitude";
-import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
+import useItemStore from "@/store/itemStore";
+import { getPreviousScreenName, getScreenName, setScreenName } from "@/utils/screenName";
 
-function CabinetCategoryPage() {
+type Category = (typeof CABINET_CATEGORY_LIST)[number];
+
+/** 부분장 종류 — 고르면 새 부분장으로 시작한다. 색을 이미 고른 부분장이 있으면 지워도 되는지 먼저 묻는다 */
+export default function CabinetCategoryPage() {
 	const router = useRouter();
-	const cabinetCategories = CABINET_CATEGORY_LIST;
-	const setItem = useItemStore(state => state.setItem);
+	const item = useItemStore((state) => state.item);
+	const setItem = useItemStore((state) => state.setItem);
+	const [pending, setPending] = useState<Category | null>(null);
+	const entered = item?.category === ProductType.CABINET && !!(item.color || item.cabinet_color_direct_input);
 
 	// 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
-    useEffect(() => {
-        // 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
-        setScreenName('cabinet');
-        const prev = getPreviousScreenName();
-        trackView({
-            object_type: "screen",
-            object_name: null,
-            current_screen: typeof window !== 'undefined' ? window.screen_name ?? null : null,
-            previous_screen: prev,
-        });
-    }, []);
+	useEffect(() => {
+		setScreenName("cabinet");
+		const prev = getPreviousScreenName();
+		trackView({
+			object_type: "screen",
+			object_name: null,
+			current_screen: typeof window !== "undefined" ? window.screen_name ?? null : null,
+			previous_screen: prev,
+		});
+	}, []);
+
+	const start = (category: Category) => {
+		setItem({ category: ProductType.CABINET, type: category.type });
+		router.push(`/cabinet/color`);
+	};
 
 	return (
 		<div className="flex flex-col pt-[90px]">
@@ -39,50 +48,29 @@ function CabinetCategoryPage() {
 			<TopNavigator />
 			<ProgressBar progress={20} />
 			<Header size="Large" title="부분장을 선택해주세요" />
-			<div className="grid w-full grid-cols-2 gap-x-3 gap-y-[40px] px-5 pb-5 pt-10">
-				{cabinetCategories.map((category) => (
-					<div
-						key={category.slug}
-						className="flex flex-1 cursor-pointer flex-col items-center gap-2"
-						onClick={() => {
-							trackClick({
-								object_type: "button",
-								object_name: category.slug,
-								current_page: getScreenName(),
-								modal_name: null,
-							});
-							setItem({
-								category: ProductType.CABINET,
-								type: category.type,
-							})
-							router.push(`/cabinet/color`);
-						}}
-					>
-						<div className="relative aspect-square w-full">
-							<Image
-								src={category.image}
-								alt={category.type || ''}
-								fill
-								style={{ objectFit: "contain" }}
-								className="w-full h-full object-cover rounded-[28px] border-[2px] border-[rgba(3,7,18,0.05)]"
-							/>
-						</div>
-						<div className="text-center text-[17px]/[24px] font-500 text-gray-500">
-							{category.type || ''}
-						</div>
-					</div>
-				))}
+			<div className="px-5 pb-5 pt-10">
+				<NavTiles
+					items={CABINET_CATEGORY_LIST.map((category) => ({
+						key: category.slug,
+						label: category.type || "",
+						image: category.image,
+						onClick: () => {
+							trackClick({ object_type: "button", object_name: category.slug, current_page: getScreenName(), modal_name: null });
+							if (entered) setPending(category);
+							else start(category);
+						},
+					}))}
+				/>
 			</div>
+			<ConfirmSheet
+				open={!!pending}
+				onOpenChange={(o) => !o && setPending(null)}
+				title="입력한 내용을 지울까요?"
+				description="부분장 종류를 다시 고르면 지금까지 넣은 색상·치수가 지워져요."
+				confirmLabel="지우고 고르기"
+				destructive
+				onConfirm={() => pending && start(pending)}
+			/>
 		</div>
 	);
 }
-
-function CabinetPage() {
-	return (
-		<Suspense fallback={<div>로딩 중...</div>}>
-			<CabinetCategoryPage />
-		</Suspense>
-	);
-}
-
-export default CabinetPage;

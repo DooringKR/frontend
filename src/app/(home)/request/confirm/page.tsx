@@ -3,7 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import BoxedInput from "@/components/Input/BoxedInput";
+import Field from "@/components/form/Field";
+import { Input } from "@/components/ui/input";
+import { ActionError, useAction } from "@/components/ui/use-action";
 import useBizClientStore from "@/store/bizClientStore";
 import { setAfterLogin } from "@/utils/afterLogin";
 import { getTravelTimeInMinutes, warehouseLocation } from "@/utils/CheckDeliveryTime";
@@ -33,8 +35,7 @@ export default function ConfirmPage() {
   // 구 바로가구와 같은 판단 — 회원 정보(BizClient)가 있으면 로그인한 것
   const loggedIn = !!useBizClientStore((b) => b.bizClient);
   const [orderId, setOrderId] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
+  const send = useAction({ holdOnSuccess: true });
 
   useEffect(() => {
     if (!hydrated) return;
@@ -57,31 +58,30 @@ export default function ConfirmPage() {
     router.push("/start");
   };
 
-  const submit = async () => {
-    setBusy(true);
-    setError("");
-    try {
-      if (!loggedIn) return await toLogin();
-      const id = orderId ?? (await saveOrder());
-      setOrderId(id);
-      await sendOrder(id);
-      useRequestStore.getState().reset();
-      router.replace("/request/done");
-    } catch (e) {
-      if (e instanceof NotLoggedIn) await toLogin();
-      else setError((e as Error).message);
-    } finally {
-      setBusy(false);
-    }
-  };
+  // 연타 막기·도는 표시·실패는 버튼 바로 위(useAction). 성공하면 넘어가는 동안 계속 막아 둔다.
+  const submit = () =>
+    send.run(async () => {
+      try {
+        if (!loggedIn) return await toLogin();
+        const id = orderId ?? (await saveOrder());
+        setOrderId(id);
+        await sendOrder(id);
+        useRequestStore.getState().reset();
+        router.replace("/request/done");
+      } catch (e) {
+        if (e instanceof NotLoggedIn) return await toLogin();
+        throw e;
+      }
+    });
 
   return (
     <StepShell
       progress={progressOf(s.situations, "/request/confirm")}
       title="주문 내용을 확인해주세요"
-      nextText={busy ? "접수하는 중…" : orderId ? "다시 보내기" : loggedIn ? "주문하기" : "로그인하고 주문하기"}
-      nextDisabled={busy}
+      nextText={orderId ? "다시 보내기" : loggedIn ? "주문하기" : "로그인하고 주문하기"}
+      busy={send.busy}
       onNext={submit}
+      bottomTop={<ActionError error={send.error} className="mb-3" />}
     >
       <div className="flex flex-col divide-y divide-gray-100">
         {picked.map((x) => {
@@ -121,13 +121,9 @@ export default function ConfirmPage() {
         </div>
       )}
 
-      <BoxedInput
-        label="요청사항"
-        value={s.requestNote}
-        onChange={(e) => s.set({ requestNote: e.target.value })}
-        placeholderClassName="placeholder-gray-500"
-      />
-      {error && <p className="text-[14px] text-red-500">{error}</p>}
+      <Field label="요청사항">
+        <Input value={s.requestNote} onChange={(e) => s.set({ requestNote: e.target.value })} />
+      </Field>
     </StepShell>
   );
 }

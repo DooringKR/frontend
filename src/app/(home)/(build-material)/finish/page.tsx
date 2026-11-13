@@ -1,98 +1,65 @@
 "use client";
 
-import {
-    ACCESSORY_CATEGORY_LIST,
-    CABINET_CATEGORY_LIST,
-    CATEGORY_LIST,
-    DOOR_CATEGORY_LIST,
-    HARDWARE_CATEGORY_LIST,
-    FINISH_CATEGORY_LIST,
-} from "@/constants/category";
-import Image from "next/image";
+import { ProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 import { useRouter } from "next/navigation";
-import { Suspense, useEffect } from "react";
-
-import Header from "@/components/Header/Header";
-import ProgressBar from "@/components/Progress";
-import TopNavigator from "@/components/TopNavigator/TopNavigator";
-import { AccessoryType, FinishType } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
-import useItemStore from "@/store/itemStore";
-import { DetailProductType, ProductType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
+import { useEffect, useState } from "react";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
+import NavTiles from "@/components/nav/NavTiles";
+import Header from "@/components/Header/Header";
+import ConfirmSheet from "@/components/overlay/ConfirmSheet";
+import ProgressBar from "@/components/Progress";
+import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import { FINISH_CATEGORY_LIST } from "@/constants/category";
 import { trackClick, trackView } from "@/services/analytics/amplitude";
-import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
+import useItemStore from "@/store/itemStore";
+import { getPreviousScreenName, getScreenName, setScreenName } from "@/utils/screenName";
 
-function DoorCategoryPage() {
+/** 마감재 종류 — 고르면 바로 색 화면. 같은 종류면 넣던 값을 그대로 두고, 다른 종류로 바꾸면 넣던 값이 지워져 먼저 묻는다 */
+export default function FinishCategoryPage() {
     const router = useRouter();
-    const finishcategory = FINISH_CATEGORY_LIST;
-    const setItem = useItemStore(state => state.setItem);
+    const [replacing, setReplacing] = useState<string | null>(null);
 
-    // 페이지 진입 View 이벤트 트래킹 (마운트 시 1회)
     useEffect(() => {
-        // 전역 screen_name 설정 (이전 화면명을 보존 후 현재 설정)
-        setScreenName('finish');
-        const prev = getPreviousScreenName();
+        setScreenName("finish");
         trackView({
             object_type: "screen",
             object_name: null,
-            current_screen: typeof window !== 'undefined' ? window.screen_name ?? null : null,
-            previous_screen: prev,
+            current_screen: typeof window !== "undefined" ? window.screen_name ?? null : null,
+            previous_screen: getPreviousScreenName(),
         });
     }, []);
+
+    const start = (slug: string) => {
+        useItemStore.getState().setItem({ category: ProductType.FINISH, type: FINISH_CATEGORY_LIST.find((c) => c.slug === slug)?.type });
+        router.push("/finish/color");
+    };
+    const pick = (slug: string) => {
+        trackClick({ object_type: "button", object_name: slug, current_page: getScreenName(), modal_name: null });
+        const item = useItemStore.getState().item;
+        if (item?.category !== ProductType.FINISH) return start(slug);
+        if (item.type === FINISH_CATEGORY_LIST.find((c) => c.slug === slug)?.type) return router.push("/finish/color");
+        const filled = Object.entries(item).some(([k, v]) => k !== "category" && k !== "type" && v != null && v !== "");
+        return filled ? setReplacing(slug) : start(slug);
+    };
 
     return (
         <div className="flex flex-col pt-[90px]">
             <InitAmplitude />
             <TopNavigator />
             <ProgressBar progress={20} />
-            <Header size="Large" title={`마감재 종류를 선택해주세요`} />
-            <div className="grid w-full grid-cols-2 gap-x-3 gap-y-[40px] px-5 pb-5 pt-10">
-                {finishcategory.map((category, idx) => (
-                    <div
-                        key={category.slug}
-                        className="flex flex-1 cursor-pointer flex-col items-center gap-2"
-                        onClick={() => {
-                            trackClick({
-                                object_type: "button",
-                                object_name: category.slug,
-                                current_page: getScreenName(),
-                                modal_name: null,
-                            });
-                            setItem({
-                                category: ProductType.FINISH,
-                                type: category.type as FinishType,
-                            });
-                            router.push(`/finish/color`);
-                        }}
-                    >
-                        <div className="relative aspect-square w-full">
-                            <Image
-                                src={category.image}
-                                alt={category.type || ''}
-                                fill
-                                style={{
-                                    objectFit: "contain",
-                                }}
-                                className="w-full h-full object-cover rounded-[28px] border-[2px] border-[rgba(3,7,18,0.05)]"
-                            />
-                        </div>
-                        <div className="text-center text-[17px]/[24px] font-500 text-gray-500">
-                            {category.type || ''}
-                        </div>
-                    </div>
-                ))}
+            <Header size="Large" title="마감재 종류를 선택해주세요" />
+            <div className="px-5 pt-10">
+                <NavTiles items={FINISH_CATEGORY_LIST.map((c) => ({ key: c.slug, label: c.type ?? "", image: c.image, onClick: () => pick(c.slug) }))} />
             </div>
+            <ConfirmSheet
+                open={replacing !== null}
+                onOpenChange={(o) => !o && setReplacing(null)}
+                title="종류를 바꿀까요?"
+                description="입력한 내용이 지워져요."
+                confirmLabel="바꾸기"
+                onConfirm={() => replacing && start(replacing)}
+            />
         </div>
     );
 }
-
-function OrderPage() {
-    return (
-        <Suspense fallback={<div>로딩 중...</div>}>
-            <DoorCategoryPage />
-        </Suspense>
-    );
-}
-
-export default OrderPage;

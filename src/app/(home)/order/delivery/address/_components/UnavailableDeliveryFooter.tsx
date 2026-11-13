@@ -1,10 +1,8 @@
-"use client";
+import { Button } from "@/components/ui/button";
+
+import { CS_TEL } from "../../../_lib/order";
 
 function UnavailableDeliveryFooter() {
-  const handleClick = () => {
-    window.open("tel:031-528-4002", "_blank");
-  };
-
   return (
     <div className="flex flex-col gap-2 rounded-xl bg-gray-50 p-4">
       <span className="text-[15px] font-500 text-gray-500">
@@ -12,12 +10,9 @@ function UnavailableDeliveryFooter() {
         <br />
         고객센터에 직접 전화해주세요.
       </span>
-      <button
-        onClick={handleClick}
-        className="w-fit rounded-[10px] border border-gray-200 bg-white px-3 py-[9px]"
-      >
-        고객센터 전화하기
-      </button>
+      <Button asChild variant="outline" size="md" className="w-fit">
+        <a href={CS_TEL}>고객센터 전화하기</a>
+      </Button>
     </div>
   );
 }

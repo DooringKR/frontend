@@ -18,7 +18,6 @@ export function getAddressIndicatorProps(
         return {
             address: bizClient?.road_address,
             deliverySchedule: "",
-            timeLimit: "배송 정보 계산 중...",
             isLoading: true,
         };
     }
