@@ -3,7 +3,6 @@
 import Link from "next/link";
 import InstagramIcon from "public/icons/instagram";
 import NaverBlogIcon from "public/icons/naver-blog";
-import KakaoIcon from "public/icons/kakao";
 
 function Footer() {
   return (
@@ -36,15 +35,6 @@ function Footer() {
         >
           <NaverBlogIcon />
         </Link>
-        <Link
-          href="https://pf.kakao.com/_BlAHG"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-gray-400 hover:text-gray-600 transition-colors"
-          aria-label="카카오톡"
-        >
-          <KakaoIcon />
-        </Link>
       </div>
 
       <div className="flex justify-between items-center">
@@ -57,10 +47,6 @@ function Footer() {
             className="underline cursor-pointer hover:text-gray-600 transition-colors"
           >
             환불규정
-          </Link>
-          {/* 넓은 화면(1024 이상)은 떠 있는 「문의하기」 버튼이 대신한다 */}
-          <Link href="/customer-service" className="underline hover:text-gray-600 transition-colors [@media(min-width:1024px)]:hidden">
-            고객센터
           </Link>
         </div>
       </div>

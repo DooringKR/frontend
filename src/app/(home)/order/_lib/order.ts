@@ -5,7 +5,6 @@ import { goBack } from "@/lib/nav/go";
 /** 도어링 공장(픽업 주소) — 받는 방법 시트·픽업 화면·픽업 완료 화면이 같은 글을 복사한다 */
 export const FACTORY_ADDRESS = "경기도 남양주시 오남읍 양지로139번길 11-14";
 export const BANK_ACCOUNT = "IBK기업은행 52307836904011";
-export const CS_TEL = "tel:031-528-4002";
 export const KAKAO_CHANNEL = "https://pf.kakao.com/_BlAHG";
 
 /* ── 날짜·시각: store 에는 Date(로컬 시각) 그대로, 칸에는 'YYYY-MM-DD'·'HH:MM' ── */

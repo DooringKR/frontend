@@ -192,10 +192,6 @@ export default function UnavailableDeliveryPage() {
         <Button variant="inverse" onClick={() => goBack(router, "/address-check")}>
           확인했어요
         </Button>
-        {/* 「고객센터에 직접 전화해주세요」 — 예전엔 이름만 전화이고 고객센터 화면으로 갔다 */}
-        <Button asChild>
-          <a href="tel:0315284002">고객센터 전화</a>
-        </Button>
       </BottomBar>
     </div>
   );

@@ -102,14 +102,6 @@ function BridgePage() {
             </div>
           </div>
         </Link>
-        <div className="h-5"></div>
-        {/* 전화 주문 */}
-        <a
-          href="tel:0315284002"
-          className="w-full rounded-[12px] bg-white px-4 py-3 text-center font-pretendard font-semibold text-[#364153] text-[17px] leading-[24px]"
-        >
-          전화 주문
-        </a>
       </div>
     </>
   );

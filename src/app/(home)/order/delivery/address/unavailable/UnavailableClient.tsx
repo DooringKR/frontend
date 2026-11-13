@@ -17,8 +17,6 @@ import { goBack } from "@/lib/nav/go";
 import { useOrderStore } from "@/store/orderStore";
 import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 
-import { CS_TEL } from "../../../_lib/order";
-import UnavailableDeliveryFooter from "../_components/UnavailableDeliveryFooter";
 
 function UnavailableClientPage() {
   const router = useRouter();
@@ -151,15 +149,11 @@ function UnavailableClientPage() {
             </div>
           </div>
         </div>
-        <UnavailableDeliveryFooter />
       </div>
       <div className="h-[100px]"></div>
       <BottomBar>
         <Button variant="inverse" onClick={() => goBack(router, "/order/delivery/address")}>
           확인했어요
-        </Button>
-        <Button asChild>
-          <a href={CS_TEL}>고객센터 전화하기</a>
         </Button>
       </BottomBar>
     </div>

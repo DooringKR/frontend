@@ -39,7 +39,6 @@ export const PART_FILES = [
   R`src/app/dev/`,
   // 업무 컴포넌트를 ui 위에 다시 짠 것 — 안쪽은 그 컴포넌트의 자리
   R`src/components/(PaymentNoticeCard|DeliveryTimeCheck|BottomNavigation)/`,
-  R`src/app/customer-service/components/contactStatusChip`,
 ];
 
 export const BEHAVIORS: Behavior[] = [

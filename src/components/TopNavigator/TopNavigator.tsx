@@ -2,15 +2,12 @@
 
 import {
   CART_PAGE,
-  CUSTOMER_SERVICE_PAGE,
   HOME_PAGE,
-  LICENSE_PAGE,
   MY_PAGE,
   ORDER_HISTORY_FROM_CONFIRM,
 } from "@/constants/pageName";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import HeadphonesIcon from "public/icons/Headphones";
 import ChevronLeft from "public/icons/chevron_left";
 import React from "react";
 import { trackClick } from "@/services/analytics/amplitude";
@@ -62,23 +59,8 @@ const TopNavigator: React.FC<TopNavigatorProps> = ({ title, backTo = "/", page, 
       {/* Title */}
       <h1 className="text-[17px] font-[500] text-gray-600">{title}</h1>
 
-      {/* Headphones Icon */}
-
-      {page === CUSTOMER_SERVICE_PAGE ||
-        page === HOME_PAGE ||
-        page === MY_PAGE ||
-        page === LICENSE_PAGE ? (
-        <div className="h-6 w-6"></div>
-      ) : (
-        <Link href={"/customer-service"}>
-          <button
-            className="flex items-center justify-center rounded-2xl p-3 transition hover:bg-gray-100"
-            onMouseEnter={() => console.log("🎧 Headphones hovered!")}
-          >
-            <HeadphonesIcon />
-          </button>
-        </Link>
-      )}
+      {/* 「문의하기」는 숨긴다 — 문의는 주문 흐름으로만 받는다(2026-11-13). 제목이 가운데 오게 자리만 둔다 */}
+      <div className="h-6 w-6"></div>
 
       {page === HOME_PAGE ? (
         <div className="flex">

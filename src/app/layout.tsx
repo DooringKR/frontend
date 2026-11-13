@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 
-import FloatingButton from "@/components/FloatingButton";
 import { isMaintenanceMode } from "@/lib/utils";
 
 import "./globals.css";
@@ -116,7 +115,6 @@ function RootLayout({
       <body className="min-h-screen bg-gray-100">
         <div className="mx-auto min-h-screen max-w-[460px] bg-white shadow-[0_0_20px_0_rgba(3,7,18,0.10)]">{children}</div>
         {/* 우측 하단 고정 버튼 */}
-        <FloatingButton />
         {/* 잠깐 뜨는 결과(성공만) — 실패는 누른 자리 옆(ActionError) */}
         <Toaster position="top-center" />
       </body>

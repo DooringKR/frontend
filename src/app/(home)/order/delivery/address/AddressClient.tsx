@@ -18,7 +18,6 @@ import { useOrderStore } from "@/store/orderStore";
 import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 import { getScreenName } from "@/utils/screenName";
 
-import { CS_TEL } from "../../_lib/order";
 
 /**
  * 배송 주소 — 주소 검색 + 상세 주소. 주소를 바꾸면 오늘배송 가능 여부를 다시 잰다.
@@ -116,11 +115,7 @@ export default function AddressClientPage() {
         title="주소를 정말 바꿀까요?"
         description={
           <>
-            바뀐 주소는 오늘배송이 불가해요. 20시 31분 이후 도착해도 괜찮다면{" "}
-            <a href={CS_TEL} className="font-500 text-primary underline">
-              고객센터에 직접 전화
-            </a>
-            해주세요.
+            바뀐 주소는 오늘배송이 불가해요.
           </>
         }
         cancelLabel="닫기"

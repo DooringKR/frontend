@@ -5,7 +5,6 @@ import React from "react";
 import HomeProductButton from "./HomeProductButton";
 import OrderGuideCard from "./OrderGuideCard";
 import AttachedIcon from "./Icons/Attached";
-import CustomOrderIcon from "./Icons/CustomOrder";
 import DoorIcon from "./Icons/Door";
 import FinishingMaterialsIcon from "./Icons/FinishingMaterials";
 import HardWareIcon from "./Icons/HardWare";
@@ -20,11 +19,10 @@ const productList = [
   { label: "부분장", icon: <SectionHeadIcon />, slug: "cabinet", image: "/img/type/cabinet.png" },
   { label: "가구 부속", icon: <AttachedIcon />, slug: "accessory", image: "/img/type/accessory.png" },
   { label: "가구 하드웨어", icon: <HardWareIcon />, slug: "hardware", image: "/img/type/hardware.png" },
-  { label: "직접 주문", icon: <CustomOrderIcon />, slug: "custom", image: "/img/type/custom.png" },
 ];
 
-// 「직접 주문」은 고객센터로, 나머지는 품목 입력 화면으로
-const hrefOf = (slug: string) => (slug === "custom" ? "/customer-service" : `/${slug}`);
+// 품목 입력 화면으로(「직접 주문」 → 고객센터 칸은 문의 창구라 뺐다, 2026-11-13)
+const hrefOf = (slug: string) => `/${slug}`;
 
 const HomeProductContainer: React.FC = () => {
   return (

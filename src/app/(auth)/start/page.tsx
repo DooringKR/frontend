@@ -239,21 +239,6 @@ function LoginPageContent() {
                         카카오로 시작하기
                     </Button>
                     <ActionError error={kakao.error} className="text-center" />
-                    <Button asChild variant="outline" size="md" className="w-[300px] h-[40px]">
-                        <a
-                            href="tel:0315284002"
-                            onClick={() =>
-                                trackClick({
-                                    object_type: "button",
-                                    object_name: "phone",
-                                    current_page: getScreenName() ?? 'start',
-                                    modal_name: null,
-                                })
-                            }
-                        >
-                            눌러서 전화 연결
-                        </a>
-                    </Button>
                     <Button variant="secondary" onClick={() => {
                             setTestId("");
                             setTestPw("");

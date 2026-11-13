@@ -1,5 +1,5 @@
 {
-  "at": "2026-11-13T07:03:42.782Z",
+  "at": "2026-11-13T08:17:31.442Z",
   "rows": [
     {
       "id": "load",
@@ -131,15 +131,15 @@
     },
     {
       "id": "notice",
-      "comp": 25,
-      "compFiles": 19,
+      "comp": 24,
+      "compFiles": 18,
       "raw": 0,
       "rawWhere": []
     },
     {
       "id": "statuslabel",
-      "comp": 20,
-      "compFiles": 14,
+      "comp": 18,
+      "compFiles": 13,
       "raw": 0,
       "rawWhere": []
     },
@@ -180,8 +180,8 @@
     },
     {
       "id": "button",
-      "comp": 73,
-      "compFiles": 50,
+      "comp": 69,
+      "compFiles": 49,
       "raw": 0,
       "rawWhere": []
     },
@@ -194,8 +194,8 @@
     },
     {
       "id": "back",
-      "comp": 59,
-      "compFiles": 49,
+      "comp": 58,
+      "compFiles": 48,
       "raw": 0,
       "rawWhere": []
     },
@@ -215,8 +215,8 @@
     },
     {
       "id": "tel",
-      "comp": 4,
-      "compFiles": 4,
+      "comp": 0,
+      "compFiles": 0,
       "raw": 0,
       "rawWhere": []
     },
