@@ -13,6 +13,7 @@ import PickUpAddressCard from "./_components/PickUpAddressCard";
 import PickupScheduleSelector from "./_components/PickupScheduleSelector/PickupScheduleSelector";
 
 import { useOrderStore } from "@/store/orderStore";
+import { clearUrgent, withUrgentMemo } from "@/app/(home)/request/_lib/diy";
 import { PickUpOrder } from "dooring-core-domain/dist/models/BizClientCartAndOrder/Order/PickUpOrder";
 import useBizClientStore from "@/store/bizClientStore";
 import useCartItemStore from "@/store/cartItemStore";
@@ -133,13 +134,14 @@ export default function PickUpClientPage() {
         generateEstimateUC
       );
       console.log('[PickUpOrderSubmit] Export usecase injected');
-      const response = await createOrderUsecase.execute(order, cart!.id!);
+      const response = await createOrderUsecase.execute(withUrgentMemo(order), cart!.id!);
 
       if (!response.success) {
         alert(response.message);
         setIsLoading(false);
         return;
       }
+      clearUrgent();
 
       // 2. DB에서 장바구니 아이템 삭제 (세트상품이 있으면 세트상품만 삭제)
       const itemsToDelete = hasSetProducts ? setProducts : cartItems;

@@ -6,16 +6,18 @@ import { useOrderHistory } from "./hooks/useOrderHistory";
 import { usePagination } from "./hooks/usePagination";
 import { OrderCard } from "./components/OrderCard";
 import { Pagination } from "./components/Pagination";
+import { SituationOrderList } from "./components/SituationOrderList";
 
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import { trackView } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const ITEMS_PER_PAGE = 5; // 한 페이지당 표시할 주문 수
 
 function OrderHistoryPage() {
     const { ordersWithItems, loading, error } = useOrderHistory();
+    const [situationCount, setSituationCount] = useState(0);
     const { currentPage, totalPages, startIndex, endIndex, handlePageChange } = usePagination(
         ordersWithItems.length,
         ITEMS_PER_PAGE
@@ -68,8 +70,9 @@ function OrderHistoryPage() {
             <InitAmplitude />
             <Header title="주문내역" size="Medium" />
             <div className="flex-1 overflow-y-auto pb-[100px] px-5 pt-5 gap-5">
+                <SituationOrderList onCount={setSituationCount} />
                 {ordersWithItems.length === 0 ? (
-                    <div className="flex items-center justify-center h-full">
+                    situationCount > 0 ? null : <div className="flex items-center justify-center h-full">
                         <div className="text-center text-gray-500">
                             <div className="mb-2">주문 내역이 없습니다</div>
                             <div className="text-sm">첫 번째 주문을 해보세요!</div>

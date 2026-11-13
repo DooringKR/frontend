@@ -2,9 +2,11 @@
 
 import { useEffect } from "react";
 
+import { useRouter } from "next/navigation";
+
 import AddressIndicator from "@/components/AddressIndicator/AddressIndicator";
 import BottomNavigation from "@/components/BottomNavigation/BottomNavigation";
-import HomeProductContainer from "@/components/HomeProductContaines/HomeProductContainer";
+import Button from "@/components/Button/Button";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 
 import useBizClientStore from "@/store/bizClientStore";
@@ -17,7 +19,6 @@ import HomeScreenPaymentNoticeCard from "@/components/PaymentNoticeCard/HomeScre
 import ProductLiabilityInsuranceCard from "./_components/ProductLiabilityInsuranceCard";
 import FaqCard from "./_components/FaqCard";
 import ProductionCaseListCard from "./_components/ProductionCaseListCard";
-import FrequentlyUsedProductsSection from "./_components/FrequentlyUsedProductsSection";
 
 import { useDeliveryInfo } from "./_hooks/useDeliveryInfo";
 import { useSessionCheck } from "./_hooks/useSessionCheck";
@@ -29,6 +30,7 @@ import { trackView } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
 
 export default function Page() {
+  const router = useRouter();
   const bizClient = useBizClientStore(state => state.bizClient);
   const cartItemCount = useCartItemStore(state => state.cartItems.length);
 
@@ -75,9 +77,10 @@ export default function Page() {
 
       <main className="mb-[40px] mt-10 flex flex-grow flex-col gap-7">
         {bizClient && <AddressIndicator {...addressIndicatorProps} />}
-        <FrequentlyUsedProductsSection />
-        {/* <div className="w-full h-5 bg-gray-100"></div> */}
-        <HomeProductContainer />
+        {/* 품목 메뉴는 상황 주문 화면 1의 DIY 로 옮겼다(/diy, 2026-11-13) */}
+        <div className="px-5">
+          <Button type="Brand" text="주문하기" className="w-full" onClick={() => router.push("/request")} />
+        </div>
         <div className="px-5 pb-10">
           <HomeScreenPaymentNoticeCard
             className="w-full"

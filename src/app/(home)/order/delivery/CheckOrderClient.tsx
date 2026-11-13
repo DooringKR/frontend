@@ -23,6 +23,7 @@ import useBizClientStore from "@/store/bizClientStore";
 import useCartItemStore from "@/store/cartItemStore";
 import useCartStore from "@/store/cartStore";
 import { useOrderStore } from "@/store/orderStore";
+import { clearUrgent, withUrgentMemo } from "@/app/(home)/request/_lib/diy";
 import { calculateDeliveryInfo } from "@/utils/caculateDeliveryInfo";
 
 import DeliveryAddressCard from "./_components/DeliveryAddressCard";
@@ -182,13 +183,14 @@ function CheckOrderClientPage() {
       );
       console.log("[OrderSubmit] Export usecase injected");
 
-      const response = await createOrderUsecase.execute(order!, cart!.id!);
+      const response = await createOrderUsecase.execute(withUrgentMemo(order!), cart!.id!);
 
       if (!response.success) {
         alert(response.message);
         setIsLoading(false);
         return;
       }
+      clearUrgent();
 
       // 2. DB에서 장바구니 아이템 삭제 (세트상품이 있으면 세트상품만 삭제)
       const itemsToDelete = hasSetProducts ? setProducts : cartItems;
