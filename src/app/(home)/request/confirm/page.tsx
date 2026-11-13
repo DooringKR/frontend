@@ -4,12 +4,14 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import BoxedInput from "@/components/Input/BoxedInput";
+import useBizClientStore from "@/store/bizClientStore";
+import { setAfterLogin } from "@/utils/afterLogin";
 import { getTravelTimeInMinutes, warehouseLocation } from "@/utils/CheckDeliveryTime";
 
 import StepShell from "../_components/StepShell";
 import { progressOf, useHydrated } from "../_lib/flow";
 import { useRequestStore } from "../_lib/requestStore";
-import { NotLoggedIn, saveOrder, sendOrder } from "../_lib/submit";
+import { NotLoggedIn, saveOrder, sendOrder, uploadPendingPhotos } from "../_lib/submit";
 import { SITUATIONS, travelFeeOf, URGENT_FEE } from "../_lib/situations";
 
 const won = (n: number) => `${n.toLocaleString("ko-KR")}원`;
@@ -28,6 +30,8 @@ export default function ConfirmPage() {
   const router = useRouter();
   const hydrated = useHydrated();
   const s = useRequestStore();
+  // 구 바로가구와 같은 판단 — 회원 정보(BizClient)가 있으면 로그인한 것
+  const loggedIn = !!useBizClientStore((b) => b.bizClient);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -46,17 +50,25 @@ export default function ConfirmPage() {
   const picked = SITUATIONS.filter((x) => s.situations.includes(x.slug));
   const r = s.receive;
 
+  /** 로그인을 강제하지 않고 왔으면 여기서 로그인 화면으로 — 사진을 먼저 올려 두고, 로그인 뒤 이 화면으로 돌아온다 */
+  const toLogin = async () => {
+    await uploadPendingPhotos().catch(() => undefined);
+    setAfterLogin("/request/confirm");
+    router.push("/start");
+  };
+
   const submit = async () => {
     setBusy(true);
     setError("");
     try {
-      const id = orderId ?? (await saveOrder(useRequestStore.getState()));
+      if (!loggedIn) return await toLogin();
+      const id = orderId ?? (await saveOrder());
       setOrderId(id);
       await sendOrder(id);
       useRequestStore.getState().reset();
       router.replace("/request/done");
     } catch (e) {
-      if (e instanceof NotLoggedIn) router.push("/start");
+      if (e instanceof NotLoggedIn) await toLogin();
       else setError((e as Error).message);
     } finally {
       setBusy(false);
@@ -67,7 +79,7 @@ export default function ConfirmPage() {
     <StepShell
       progress={progressOf(s.situations, "/request/confirm")}
       title="주문 내용을 확인해주세요"
-      nextText={busy ? "접수하는 중…" : orderId ? "다시 보내기" : "주문하기"}
+      nextText={busy ? "접수하는 중…" : orderId ? "다시 보내기" : loggedIn ? "주문하기" : "로그인하고 주문하기"}
       nextDisabled={busy}
       onNext={submit}
     >

@@ -26,6 +26,7 @@ import { trackViewUnstable, trackClickUnstable, trackClickAndWaitUnstable } from
 import { setScreenName, getPreviousScreenName, getScreenName } from "@/utils/screenName";
 import Modal from "@/components/Modal/Modal";
 import BoxedInput from "@/components/Input/BoxedInput";
+import { takeAfterLogin } from "@/utils/afterLogin";
 
 // dev 로그인과 동일한 개발자 계정 (테스트 가입 시 ID: test, PW: test1234 입력하면 이 계정으로 로그인)
 const DEV_EMAIL = "dooringbizclient@dooring.com";
@@ -68,7 +69,7 @@ function LoginPageContent() {
 
                 if (user && bizClient) {
                     console.log('📡 유저 로그인 되어있음');
-                    router.push(`/`);
+                    router.push(takeAfterLogin() ?? "/");
                     return;
                 } else if (user && !bizClient) {
                     // 1. 유저는 로그인되어 있지만 bizClient가 없는 경우 - 로그아웃 처리
@@ -156,7 +157,7 @@ function LoginPageContent() {
             setIsTestLoginOpen(false);
             setTestId("");
             setTestPw("");
-            router.push("/");
+            router.push(takeAfterLogin() ?? "/");
         } catch (err) {
             console.error("테스트 로그인 오류:", err);
             setTestLoginError("로그인 처리 중 오류가 발생했습니다.");

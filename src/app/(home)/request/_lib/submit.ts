@@ -6,7 +6,7 @@
 import { SupabaseUploadImageUsecase } from "@/DDD/usecase/upload_image_usecase";
 import { supabase } from "@/lib/supabase";
 
-import { photoStore, type RequestState } from "./requestStore";
+import { photoStore, useRequestStore } from "./requestStore";
 import { SITUATIONS, travelFeeOf } from "./situations";
 
 const BUCKET_PATH = "/object/public/customer-input-image/";
@@ -19,13 +19,29 @@ async function uploadPhotos(files: File[]): Promise<string[]> {
   return urls.map((u) => decodeURIComponent(u.slice(u.indexOf(BUCKET_PATH) + BUCKET_PATH.length)));
 }
 
+/**
+ * 고른 사진을 올리고 경로를 입력값에 남긴다(이미 올린 상황은 건너뛴다).
+ * 주문 직전 로그인하러 다녀오면 메모리의 사진이 사라지므로, 로그인 화면으로 보내기 전에도 부른다.
+ */
+export async function uploadPendingPhotos(): Promise<void> {
+  const s = useRequestStore.getState();
+  const paths = { ...s.photoPaths };
+  for (const x of SITUATIONS.filter((x) => s.situations.includes(x.slug))) {
+    const files = photoStore.get(x.slug) ?? [];
+    if (files.length && !paths[x.slug]?.length) paths[x.slug] = await uploadPhotos(files);
+  }
+  s.set({ photoPaths: paths });
+}
+
 /** 저장만 — 주문 id 를 돌려준다 */
-export async function saveOrder(s: RequestState): Promise<string> {
+export async function saveOrder(): Promise<string> {
   const { data } = await supabase.auth.getSession();
   if (!data.session) throw new NotLoggedIn();
 
+  await uploadPendingPhotos();
+  const s = useRequestStore.getState();
   const picked = SITUATIONS.filter((x) => s.situations.includes(x.slug));
-  const photoPaths = await Promise.all(picked.map((x) => uploadPhotos(photoStore.get(x.slug) ?? [])));
+  const photoPaths = picked.map((x) => s.photoPaths[x.slug] ?? []);
 
   const minutes = s.installNeeded ? s.travelMinutes : null;
   const { data: order, error } = await supabase

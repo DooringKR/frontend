@@ -16,6 +16,7 @@ import useCartStore from '@/store/cartStore';
 import { CrudCartUsecase } from '@/DDD/usecase/crud_cart_usecase';
 import { setAmplitudeUserId, setAmplitudeUserProperties, trackSignup } from '@/services/analytics/amplitude';
 import { formatBusinessTypeToEnglish } from '@/utils/formatBusinessType';
+import { takeAfterLogin } from '@/utils/afterLogin';
 
 // 콜백 처리 컴포넌트를 분리
 function AuthCallbackContent() {
@@ -87,7 +88,7 @@ function AuthCallbackContent() {
 
                             useSignupStore.setState({ businessType: null, phoneNumber: null });
                             console.log('🔄 / (홈) 페이지로 이동 시작');
-                            router.push('/');
+                            router.push(takeAfterLogin() ?? '/');
                         } catch (error) {
                             console.error('💥 Unexpected error:', error);
                             useSignupStore.setState({ businessType: null, phoneNumber: null });
@@ -194,7 +195,7 @@ function AuthCallbackContent() {
                                 providers: provider,
                             });
 
-                            router.push('/');
+                            router.push(takeAfterLogin() ?? '/');
                         } else {
                             // bizClient가 존재하지 않으면 회원가입 페이지로
                             router.push('/signup');

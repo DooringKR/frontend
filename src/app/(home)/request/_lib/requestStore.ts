@@ -46,6 +46,8 @@ export interface RequestState {
   preferredDate: string;
   receive: ReceiveInput | null;
   requestNote: string;
+  /** 이미 올린 사진 경로 — 주문 직전 로그인하러 다녀오면 메모리의 사진이 사라져서, 떠나기 전에 올려 둔다 */
+  photoPaths: Partial<Record<SituationSlug, string[]>>;
   set: (patch: Partial<RequestState>) => void;
   setPart: (slug: SituationSlug, patch: Partial<PartInput>) => void;
   reset: () => void;
@@ -71,6 +73,7 @@ const EMPTY = {
   preferredDate: "",
   receive: null,
   requestNote: "",
+  photoPaths: {},
 };
 
 export const useRequestStore = create<RequestState>()(
