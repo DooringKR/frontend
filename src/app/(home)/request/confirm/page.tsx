@@ -85,7 +85,7 @@ export default function ConfirmPage() {
           {[s.roadAddress, s.detailAddress].filter(Boolean).join(" ")}
           {`\n${s.pyeong} · 주차 ${s.parking} · 엘리베이터 ${s.elevator ? "있음" : "없음"}`}
         </Row>
-        <Row label="담당자">{`${s.contactName} ${s.contactPhone}\n통화 ${s.callTime}${s.accessInfo ? `\n출입 ${s.accessInfo}` : ""}`}</Row>
+        <Row label="담당자">{`${s.contactName} ${s.contactPhone}${s.callTime ? `\n통화 ${s.callTime}` : ""}${s.accessInfo ? `\n출입 ${s.accessInfo}` : ""}`}</Row>
         {s.installNeeded ? (
           <Row label="시공 날짜">{s.urgent ? "3일 이내" : s.preferredDate}</Row>
         ) : (
