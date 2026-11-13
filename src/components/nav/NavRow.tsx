@@ -35,7 +35,8 @@ export default function NavRow({
   const cls = cn(
     "flex w-full items-center justify-between gap-3 text-left transition-colors",
     card ? "rounded-[12px] border px-5 py-4" : "px-5 py-4",
-    disabled ? "cursor-not-allowed border-gray-100 bg-muted text-gray-300" : "border-border bg-background hover:bg-muted",
+    // 막힌 줄은 누름을 아래로 통과시킨다 — 막힌 버튼은 브라우저가 누름 신호를 안 보내 슬라이드 안에서 밀기가 안 먹었다(2026-11-13)
+    disabled ? "pointer-events-none border-gray-100 bg-muted text-gray-300" : "border-border bg-background hover:bg-muted",
     className,
   );
   const body = (

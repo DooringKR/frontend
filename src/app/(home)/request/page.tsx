@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import Choose from "@/components/form/Choose";
@@ -58,6 +58,10 @@ export default function RequestStartPage() {
   const [photoError, setPhotoError] = useState<Partial<Record<SituationSlug, string>>>({});
   /** 다음을 눌러 봤는데 안 고른 곳 — 「situations」 또는 상황 slug */
   const [missed, setMissed] = useState<Set<string>>(new Set());
+  /** 다음 단계에서 「이전」으로 왔으면(?at=last) 마지막 장부터 */
+  const wantLast = useRef(false);
+  /** 슬라이드 묶음 높이 맞추기 — 장이 바뀌어 제목 줄 높이가 달라진 뒤(그린 뒤)에도 다시 부른다 */
+  const fitRef = useRef<() => void>(() => {});
 
   const buttonsOf = (slug: SituationSlug) => s.parts[slug]?.buttons ?? [];
   const invalid = (key: string) =>
@@ -71,12 +75,17 @@ export default function RequestStartPage() {
       setAt(api.selectedScrollSnap());
       window.scrollTo({ top: 0 });
     };
-    // 슬라이드 묶음 높이 = 지금 보이는 장 높이. 안 그러면 짧은 장을 보는데도 가장 긴 장만큼 페이지가 길어져
-    // 스크롤바가 생기고 틀이 움직였다. 장 안 내용이 바뀌어도(사진·고를 곳 표시) 다시 맞춘다.
+    // 슬라이드 묶음 높이 = max(지금 장 높이, 아래 버튼까지 남은 화면).
+    //  - 가장 긴 장을 따르면 짧은 장에서도 페이지가 길어져 스크롤바가 생기고 틀이 움직였다.
+    //  - 지금 장 높이만 쓰면 짧은 장(칸 4개 = 88px) 아래 빈 곳을 밀어도 안 넘어갔다(2026-11-13 사용자).
+    // 장 안 내용이 바뀌거나(사진·고를 곳 표시) 창 크기가 바뀌어도 다시 맞춘다.
     const fit = () => {
-      const h = api.slideNodes()[api.selectedScrollSnap()]?.offsetHeight;
-      if (h) api.containerNode().style.height = `${h}px`;
+      const h = api.slideNodes()[api.selectedScrollSnap()]?.offsetHeight ?? 0;
+      const top = api.rootNode().getBoundingClientRect().top + window.scrollY;
+      const room = window.innerHeight - top - 110; // 아래 고정 버튼 칸
+      api.containerNode().style.height = `${Math.max(h, room)}px`;
     };
+    fitRef.current = fit;
     let ro = new ResizeObserver(fit);
     const watch = () => {
       ro.disconnect();
@@ -85,17 +94,34 @@ export default function RequestStartPage() {
       fit();
     };
     watch();
+    window.addEventListener("resize", fit);
     api.on("select", onSelect).on("select", fit).on("reInit", watch);
     return () => {
       ro.disconnect();
+      window.removeEventListener("resize", fit);
       api.off("select", onSelect).off("select", fit).off("reInit", watch);
     };
   }, [api]);
 
-  // 단계 줄에서 왔으면(/request?from=steps) 안내만, 처음 들어왔으면 작성하던 주문을 이어서 할지 묻는다
+  // 「이전」으로 돌아왔으면 마지막 장으로 — 기기 입력값을 읽어 장이 다 생기고 embla 가 다시 잰 뒤
+  useEffect(() => {
+    if (!api || !hydrated || !wantLast.current) return;
+    const id = requestAnimationFrame(() => {
+      api.scrollTo(api.scrollSnapList().length - 1, true);
+      wantLast.current = false;
+    });
+    return () => cancelAnimationFrame(id);
+  }, [api, hydrated, slides.length]);
+
+  // 단계 줄에서 왔으면(/request?from=steps) 안내만, 다음 단계의 「이전」으로 왔으면(?at=last) 마지막 장,
+  // 처음 들어왔으면 작성하던 주문을 이어서 할지 묻는다
   useEffect(() => {
     if (!hydrated) return;
-    if (window.location.search.includes("from=steps")) {
+    if (window.location.search.includes("at=last")) {
+      wantLast.current = true;
+      router.replace("/request");
+      markAskedDraft();
+    } else if (window.location.search.includes("from=steps")) {
       router.replace("/request");
       if (useRequestStore.getState().situations.length > 0) toast(SWIPE_HINT);
       markAskedDraft();
@@ -145,6 +171,9 @@ export default function RequestStartPage() {
   const cur = slides[Math.min(at, slides.length - 1)];
   const title = cur.kind === "pick" ? "어떤 상황인가요?" : cur.s.name;
   const subtitle = cur.kind === "detail" ? buttonsOf(cur.s.slug).join(", ") : undefined;
+  // 자세히 장은 제목 밑에 고른 버튼 줄이 붙어 슬라이드가 내려간다 — 그린 뒤 다시 맞춘다(안 그러면 16px 넘쳐 스크롤바)
+  useLayoutEffect(() => fitRef.current(), [at, subtitle]);
+
   const savedAt = s.savedAt
     ? new Date(s.savedAt).toLocaleString("ko-KR", {
         month: "long",
@@ -161,6 +190,7 @@ export default function RequestStartPage() {
       subtitle={subtitle}
       onNext={next}
       onPickSituation={toFirstSlide}
+      onBack={() => (at > 0 ? api?.scrollPrev() : router.push("/"))} // 첫 장의 「이전」은 흐름 밖(홈) — 기록상 뒤로면 다음 단계로 갈 수 있다
     >
       {/* 몇 장 중 몇째 — shadcn Carousel 예시의 「현재 / 전체」 글(text-sm text-muted-foreground) 그대로 */}
       <p className="-mb-2 text-center text-sm text-muted-foreground" aria-live="polite">

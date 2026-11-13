@@ -21,9 +21,13 @@ interface TopNavigatorProps {
   page?: string;
   cartItemCount?: number;
   isLoggedIn?: boolean;
+  /** 왼쪽 버튼을 페이지 뒤로가 아니라 이 동작으로(상황 주문 흐름의 「이전」 — 앞 장·앞 단계, 2026-11-13) */
+  onBack?: () => void;
+  /** 화살표 옆 글 — 페이지 뒤로가 아니라는 걸 보이게 */
+  backLabel?: string;
 }
 
-const TopNavigator: React.FC<TopNavigatorProps> = ({ title, backTo = "/", page, cartItemCount = 0, isLoggedIn = true }) => {
+const TopNavigator: React.FC<TopNavigatorProps> = ({ title, backTo = "/", page, cartItemCount = 0, isLoggedIn = true, onBack, backLabel }) => {
   const router = useRouter();
   return (
     <div
@@ -48,11 +52,12 @@ const TopNavigator: React.FC<TopNavigatorProps> = ({ title, backTo = "/", page, 
       ) : (
         <button
           type="button"
-          aria-label="뒤로"
-          onClick={() => goBack(router, backTo)}
-          className="flex items-center justify-center rounded-2xl p-3 transition hover:bg-gray-100"
+          aria-label={backLabel ?? "뒤로"}
+          onClick={() => (onBack ? onBack() : goBack(router, backTo))}
+          className="-ml-3 flex items-center justify-center gap-0.5 rounded-2xl p-3 transition hover:bg-gray-100"
         >
           <ChevronLeft />
+          {backLabel && <span className="text-[16px] font-500 text-gray-600">{backLabel}</span>}
         </button>
       )}
 

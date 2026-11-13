@@ -66,6 +66,13 @@ export const markAskedDraft = () => {
   }
 };
 
+/** 「이전」이 갈 곳 — 앞 단계(확인 화면은 마지막 단계). 상황 입력으로 돌아가면 마지막 장(at=last) */
+export function prevPathOf(key: StepKey | null): string {
+  const i = key ? STEPS.findIndex((x) => x.key === key) : STEPS.length;
+  const prev = STEPS[Math.max(0, i - 1)];
+  return prev.key === "situation" ? "/request?at=last" : prev.path;
+}
+
 /** 다음 단계 화면(마지막 단계 다음은 확인) */
 export const nextPathOf = (key: StepKey) => STEPS[STEPS.findIndex((x) => x.key === key) + 1]?.path ?? CONFIRM_PATH;
 

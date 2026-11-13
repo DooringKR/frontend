@@ -4,13 +4,21 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import Header from "@/components/Header/Header";
-import BottomBar from "@/components/overlay/BottomBar";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
+import BottomBar from "@/components/overlay/BottomBar";
 import { Button } from "@/components/ui/button";
 
-import { askedDraft, CONFIRM_PATH, firstIncompleteIndex, markAskedDraft, STEPS, useHydrated, type StepKey } from "../_lib/flow";
+import {
+  CONFIRM_PATH,
+  STEPS,
+  type StepKey,
+  askedDraft,
+  firstIncompleteIndex,
+  markAskedDraft,
+  prevPathOf,
+  useHydrated,
+} from "../_lib/flow";
 import { useRequestStore } from "../_lib/requestStore";
-
 import StepRow from "./StepRow";
 
 /**
@@ -19,6 +27,7 @@ import StepRow from "./StepRow";
  * 앞 단계가 안 끝났는데 주소로 바로 들어오면 첫 미완료 단계로 돌려보낸다. 연 화면은 「이어서 하기」를 위해 남긴다.
  * 단계 화면에는 늘 「주문하기」가 있다(2026-11-13 사용자 — 확인 화면을 단계 줄에 넣는 대신):
  * 덜 끝났으면 막힌 모양이고 누르면 단계 줄의 덜 끝난 단계를 강조, 다 끝났으면 확인 화면으로.
+ * 왼쪽 위 버튼은 「이전」 — 페이지 뒤로가 아니라 앞 단계로(상황 입력은 화면이 앞 장으로 넘김). 브라우저 뒤로는 그대로 페이지 기록.
  */
 export default function StepShell({
   step,
@@ -32,6 +41,7 @@ export default function StepShell({
   bottomTop,
   highlight = false,
   onPickSituation,
+  onBack,
 }: {
   /** 단계 줄에서 지금 단계(확인 화면은 null) */
   step: StepKey | null;
@@ -47,17 +57,19 @@ export default function StepShell({
   bottomTop?: React.ReactNode;
   highlight?: boolean;
   onPickSituation?: () => void;
+  /** 「이전」을 화면이 직접(상황 입력 — 앞 장) */
+  onBack?: () => void;
 }) {
   const router = useRouter();
   const path = usePathname();
   const hydrated = useHydrated();
-  const allDone = useRequestStore((s) => firstIncompleteIndex(s) >= STEPS.length) && hydrated;
+  const allDone = useRequestStore(s => firstIncompleteIndex(s) >= STEPS.length) && hydrated;
   const [askedOrder, setAskedOrder] = useState(false);
 
   useEffect(() => {
     if (!hydrated) return;
     const first = firstIncompleteIndex(useRequestStore.getState());
-    const at = step ? STEPS.findIndex((x) => x.key === step) : -1;
+    const at = step ? STEPS.findIndex(x => x.key === step) : -1;
     if (at > first) return router.replace(STEPS[first].path);
     // 화면 1은 「이어서 하기」를 묻기 전이면 남기지 않는다(물음이 옛 화면으로 보내야 하니까)
     if (path !== "/request") markAskedDraft();
@@ -68,9 +80,15 @@ export default function StepShell({
 
   return (
     <div className="flex flex-col pt-[112px]">
-      <TopNavigator />
+      <TopNavigator backLabel="이전" onBack={onBack ?? (() => router.push(prevPathOf(step)))} />
       {/* 단계 줄은 기기 입력값을 읽은 뒤에 그린다 */}
-      {hydrated && <StepRow current={step} highlight={highlight || askedOrder} onPickSituation={onPickSituation} />}
+      {hydrated && (
+        <StepRow
+          current={step}
+          highlight={highlight || askedOrder}
+          onPickSituation={onPickSituation}
+        />
+      )}
       <Header title={title} subtitle={subtitle} />
       <div className="h-5" />
       <div className="flex flex-col gap-5 px-5">{children}</div>
@@ -102,4 +120,3 @@ export default function StepShell({
     </div>
   );
 }
-
