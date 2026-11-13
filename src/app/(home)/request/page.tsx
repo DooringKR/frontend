@@ -26,6 +26,16 @@ import { SITUATIONS, type Situation, type SituationSlug } from "./_lib/situation
 import { photoUrlOf, uploadPhotos } from "./_lib/submit";
 
 const SWIPE_HINT = "옆으로 밀면 세부 정보를 바꿀 수 있어요";
+/** 밀기 안내는 이 기기에서 한 번만(2026-11-13 사용자 「매번 보여주지 마라」) */
+const hintOnce = () => {
+  try {
+    if (localStorage.getItem("situation-swipe-hint") === "1") return;
+    localStorage.setItem("situation-swipe-hint", "1");
+  } catch {
+    return;
+  }
+  toast(SWIPE_HINT);
+};
 
 type Slide =
   | { kind: "pick" }
@@ -123,7 +133,7 @@ export default function RequestStartPage() {
       markAskedDraft();
     } else if (window.location.search.includes("from=steps")) {
       router.replace("/request");
-      if (useRequestStore.getState().situations.length > 0) toast(SWIPE_HINT);
+      if (useRequestStore.getState().situations.length > 0) hintOnce();
       markAskedDraft();
     } else if (!askedDraft() && hasDraft(useRequestStore.getState())) setAskOpen(true);
     else markAskedDraft();
@@ -132,7 +142,7 @@ export default function RequestStartPage() {
 
   const toFirstSlide = () => {
     api?.scrollTo(0);
-    if (picked.length > 0) toast(SWIPE_HINT);
+    if (picked.length > 0) hintOnce();
   };
 
   const next = () => {

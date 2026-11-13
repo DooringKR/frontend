@@ -96,7 +96,8 @@ export default function StepShell({
       {step ? (
         <BottomBar top={bottomTop}>
           <Button
-            variant="inverse"
+            // 마지막 단계(수령인)에서 다 끝났으면 「다음」과 같은 일(확인 화면)이라 같은 색으로(2026-11-13 사용자)
+            variant={allDone && step === STEPS[STEPS.length - 1].key ? "default" : "inverse"}
             aria-disabled={!allDone || undefined}
             onClick={() => (allDone ? router.push(CONFIRM_PATH) : setAskedOrder(true))}
           >
