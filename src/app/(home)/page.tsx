@@ -27,6 +27,7 @@ import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import { trackView } from "@/services/analytics/amplitude";
 import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
 import { Button } from "@/components/ui/button";
+import BottomBar from "@/components/overlay/BottomBar";
 
 export default function Page() {
   const bizClient = useBizClientStore(state => state.bizClient);
@@ -76,11 +77,6 @@ export default function Page() {
       <main className="mb-[40px] mt-10 flex flex-grow flex-col gap-7">
         {bizClient && <AddressIndicator {...addressIndicatorProps} />}
         {/* 품목 메뉴는 상황 주문 화면 1의 DIY 로 옮겼다(/diy, 2026-11-13) */}
-        <div className="px-5">
-          <Button asChild className="w-full">
-            <Link href="/request">주문하기</Link>
-          </Button>
-        </div>
         <div className="px-5 pb-10">
           <PaymentNoticeCard />
         </div>
@@ -97,6 +93,13 @@ export default function Page() {
       </main>
 
       <Footer />
+      {/* 주문하기는 아래 고정 — 로그인하면 탭바(63px) 위에 뜬다(2026-11-13 QA). 아래 여백은 버튼·탭바에 가리지 않게 */}
+      <div className={bizClient ? "h-[153px]" : "h-[90px]"} />
+      <BottomBar className={bizClient ? "bottom-[63px]" : undefined}>
+        <Button asChild>
+          <Link href="/request">주문하기</Link>
+        </Button>
+      </BottomBar>
       {bizClient && <BottomNavigation />}
     </div>
   );
