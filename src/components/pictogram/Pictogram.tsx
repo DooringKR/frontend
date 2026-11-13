@@ -4,7 +4,8 @@ export type { PictogramName };
 
 /**
  * 선택지 그림(2026-11-13) — 물체를 3D 로 놓고 원근 투영해 그린 것(scripts/pictograms). 단색 lucide 와 달리 위계가 있다:
- * 강조할 부분은 브랜드 파랑 굵은 선 + 옅은 파랑 면(급한 수습만 빨강), 나머지는 회색 가는 선, 면은 방향마다 4단 밝기·열린 안쪽은 더 진하게.
+ * 강조할 부분은 브랜드 파랑 선(1.4) + 옅은 파랑 면(급한 수습만 빨강), 나머지는 회색 가는 선(1), 면은 방향마다 4단 밝기·열린 안쪽은 더 진하게.
+ * 배송·엘리베이터·계단은 파랑 단색(scene mono). 선 굵기는 scripts/pictograms/engine.js 의 STROKE 와 같이 바꾼다.
  * 모양을 바꾸려면 scripts/pictograms/scenes.js 를 고치고 `node scripts/pictograms/gen.mjs` 로 paths.ts 를 다시 만든다.
  */
 const FILL: Record<string, string[]> = {
@@ -16,12 +17,12 @@ const FILL: Record<string, string[]> = {
   k: ["hsl(0 70% 88%)", "hsl(0 62% 82%)", "hsl(0 55% 76%)", "hsl(0 50% 70%)"],
 };
 const STROKE: Record<string, [string, number]> = {
-  g: ["#8a8a94", 1.5],
-  b: ["hsl(var(--primary))", 2],
-  r: ["hsl(var(--destructive))", 2],
-  gl: ["#a3a3ad", 1.25],
-  bl: ["hsl(216 100% 64%)", 1.5],
-  rl: ["hsl(0 84% 62%)", 1.75],
+  g: ["#8a8a94", 1],
+  b: ["hsl(var(--primary))", 1.4],
+  r: ["hsl(var(--destructive))", 1.4],
+  gl: ["#a3a3ad", 0.75],
+  bl: ["hsl(216 100% 64%)", 1],
+  rl: ["hsl(0 84% 62%)", 1],
 };
 
 export default function Pictogram({ name, size = 32, className }: { name: PictogramName; size?: number; className?: string }) {

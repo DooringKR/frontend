@@ -35,6 +35,15 @@ function dome(c, r, h, role, o={}){
   for(let j=0;j<=M;j++) for(let k=0;k<N;k++){const m=(k+1)%N,b=j*N,t=(j+1)*N;F.push({i:[b+k,b+m,t+m,t+k],smooth:true});}
   return {kind:'poly', V, F, role, curved:true, convex:true, ...o};
 }
+function sphere(c, r, role, o={}){
+  const N=14, M=7, V=[], F=[];
+  for(let j=0;j<=M;j++){const p=R(-90+180*j/M), rr=r*Math.cos(p), y=c[1]+r*Math.sin(p);
+    for(let k=0;k<N;k++){const q=2*Math.PI*k/N;V.push([c[0]+rr*Math.cos(q),y,c[2]+rr*Math.sin(q)]);}}
+  for(let j=0;j<M;j++) for(let k=0;k<N;k++){const m=(k+1)%N,b=j*N,t=(j+1)*N;F.push({i:[b+k,b+m,t+m,t+k],smooth:true});}
+  return {kind:'poly', V, F, role, curved:true, convex:true, ...o};
+}
+// 두 점을 잇는 원통(팔·다리)
+const rod=(a,b,r,role,o={})=>cyl(a,sub(b,a),r,len(sub(b,a)),role,{n:12,...o});
 const line=(pts,role='g',o={})=>({kind:'line', V:pts, role, ...o});
 // 문 — 세로 경첩(hx), 닫혔을 때 side 방향(+1 오른쪽)으로 w, 앞(+z)으로 a 도 열림
 const doorV=(hx,side,y0,y1,z,w,a)=>{const fx=hx+side*w*Math.cos(R(a)),fz=z+w*Math.sin(R(a));return [[hx,y0,z],[fx,y0,fz],[fx,y1,fz],[hx,y1,z]]};
@@ -76,12 +85,13 @@ function render(scene){
   const items=[]; // {f,s,pts2d,closed}
   const facing=(n,p)=>dot(n,sub(cam,p))>0;
   const order=[...scene.objs].map((o,k)=>({o,k,d:dist(cen(o.V))})).sort((a,b)=>(a.o.z||0)-(b.o.z||0)||b.d-a.d);
+  const mono=!!scene.mono, T1=t=>mono?1:t;
   for(const {o} of order){
-    const r=o.role;
+    const r=mono?'b':o.role;
     if(o.kind==='line'){ items.push({f:'',s:r+'l',pts:o.V.map(P),closed:!!o.closed,w:o.w}); continue; }
     if(o.kind==='panel'){
       let n=norm(cross(sub(o.V[1],o.V[0]),sub(o.V[2],o.V[0]))); if(!facing(n,o.V[0])) n=mul(n,-1);
-      items.push({f:(o.fill||r)+tone(dot(n,L)+(o.dk||0)),s:o.stroke??r,pts:o.V.map(P),closed:true}); continue;
+      items.push({f:(mono?(o.fill==='i'||o.fill==='j'?'j':'b'):(o.fill||r))+T1(tone(dot(n,L)+(o.dk||0))),s:mono?'b':(o.stroke??r),pts:o.V.map(P),closed:true}); continue;
     }
     const C=cen(o.V);
     const faces=o.F.map(f=>{const ps=f.i.map(i=>o.V[i]);let n=norm(cross(sub(ps[1],ps[0]),sub(ps[2],ps[0])));
@@ -92,23 +102,23 @@ function render(scene){
     const shell=faces.filter(f=>f!==opened);
     if(o.open){ // 안쪽 면: 법선 뒤집어 보이는 것만, 앞 테두리 안으로 잘라 진하게
       const ins=shell.map(f=>({...f,n:mul(f.n,-1)})).filter(f=>facing(f.n,f.c)).sort((a,b)=>dist(b.c)-dist(a.c));
-      for(const f of ins){const q=clipPoly(f.ps.map(P),rim); if(q.length>2) items.push({f:(r==='g'?'i':r==='b'?'j':'k')+Math.min(3,tone(dot(f.n,L))+1),s:'',pts:q,closed:true});}
+      for(const f of ins){const q=clipPoly(f.ps.map(P),rim); if(q.length>2) items.push({f:(r==='g'?'i':r==='b'?'j':'k')+(mono?1:Math.min(3,tone(dot(f.n,L))+1)),s:'',pts:q,closed:true});}
     }
     const vis=(o.shell===false?[]:shell).filter(f=>facing(f.n,f.c)).sort((a,b)=>dist(b.c)-dist(a.c));
     if(o.curved){
-      for(const f of vis) items.push({f:r+tone(dot(f.n,L)),s:'',pts:f.ps.map(P),closed:true,seam:true});
+      for(const f of vis) items.push({f:r+T1(tone(dot(f.n,L))),s:'',pts:f.ps.map(P),closed:true,seam:true});
       items.push({f:'',s:r,pts:hull(o.V.map(P)),closed:true});
       for(const f of vis) if(!f.smooth) items.push({f:'',s:r,pts:f.ps.map(P),closed:true});
     } else {
-      for(const f of vis) items.push({f:r+tone(dot(f.n,L)),s:r,pts:f.ps.map(P),closed:true});
+      for(const f of vis) items.push({f:r+T1(tone(dot(f.n,L))),s:r,pts:f.ps.map(P),closed:true});
       if(rim) items.push({f:'',s:r,pts:rim,closed:true});
     }
-    for(const ln of o.lines||[]) items.push({f:'',s:(ln.role||r)+'l',pts:ln.pts.map(P),closed:false});
+    for(const ln of o.lines||[]) items.push({f:'',s:(mono?'b':(ln.role||r))+'l',pts:ln.pts.map(P),closed:false});
   }
   // 24 칸 맞추기
   const xs=items.flatMap(it=>it.pts.map(p=>p[0])), ys=items.flatMap(it=>it.pts.map(p=>p[1]));
   const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
-  const pad=scene.pad??1.6, sc=Math.min((24-2*pad)/(x1-x0),(24-2*pad)/(y1-y0)), ox=(24-(x1-x0)*sc)/2, oy=(24-(y1-y0)*sc)/2;
+  const pad=scene.pad??1.2, sc=Math.min((24-2*pad)/(x1-x0),(24-2*pad)/(y1-y0)), ox=(24-(x1-x0)*sc)/2, oy=(24-(y1-y0)*sc)/2;
   const T=p=>`${+((p[0]-x0)*sc+ox).toFixed(1)} ${+((p[1]-y0)*sc+oy).toFixed(1)}`;
   return items.map(it=>({f:it.f,s:it.s,seam:it.seam,d:'M'+it.pts.map(T).join('L')+(it.closed?'Z':'')}));
 }
@@ -119,7 +129,7 @@ const PAL={
   b:['hsl(214 100% 98%)','hsl(214 95% 93%)','hsl(214 88% 86%)','hsl(214 80% 79%)'], j:['hsl(214 80% 88%)','hsl(214 70% 82%)','hsl(214 62% 76%)','hsl(214 55% 70%)'],
   r:['hsl(0 100% 98%)','hsl(0 92% 94%)','hsl(0 86% 88%)','hsl(0 80% 82%)'], k:['hsl(0 70% 88%)','hsl(0 62% 82%)','hsl(0 55% 76%)','hsl(0 50% 70%)'],
 };
-const STROKE={g:['#8a8a94',1.5], b:['hsl(216 100% 58%)',2], r:['hsl(0 84% 58%)',2], gl:['#a3a3ad',1.25], bl:['hsl(216 100% 64%)',1.5], rl:['hsl(0 84% 62%)',1.75]};
+const STROKE={g:['#8a8a94',1], b:['hsl(216 100% 58%)',1.4], r:['hsl(0 84% 58%)',1.4], gl:['#a3a3ad',0.75], bl:['hsl(216 100% 64%)',1], rl:['hsl(0 84% 62%)',1]};
 function toSvg(items,size){
   const fill=c=>c?PAL[c[0]][+c[1]]:'none';
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke-linecap="round" stroke-linejoin="round">`+
