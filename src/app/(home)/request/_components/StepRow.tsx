@@ -32,7 +32,7 @@ export default function StepRow({
 
   return (
     <TooltipProvider>
-      <nav aria-label="단계" className="fixed top-[60px] z-40 flex h-[52px] w-full max-w-[460px] items-center gap-1.5 bg-white px-5">
+      <nav aria-label="단계" className="fixed top-[60px] z-40 flex h-[52px] w-full max-w-[460px] items-center justify-center gap-1.5 bg-white px-5">
         {STEPS.map((x, i) => {
           const red = highlight && !done[x.key];
           const here = x.key === current;
