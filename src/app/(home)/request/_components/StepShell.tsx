@@ -1,14 +1,14 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import Header from "@/components/Header/Header";
 import BottomBar from "@/components/overlay/BottomBar";
 import TopNavigator from "@/components/TopNavigator/TopNavigator";
 import { Button } from "@/components/ui/button";
 
-import { askedDraft, firstIncompleteIndex, markAskedDraft, STEPS, useHydrated, type StepKey } from "../_lib/flow";
+import { askedDraft, CONFIRM_PATH, firstIncompleteIndex, markAskedDraft, STEPS, useHydrated, type StepKey } from "../_lib/flow";
 import { useRequestStore } from "../_lib/requestStore";
 
 import StepRow from "./StepRow";
@@ -17,6 +17,8 @@ import StepRow from "./StepRow";
  * 상황 주문 한 화면 — 위 바·단계 줄·제목·아래 고정 버튼.
  * 다음 버튼은 늘 눌린다(필수값은 화면이 useRequired 로 확인 — 빈 칸으로 옮겨 가 알린다). 보내는 중에만 막는다(busy).
  * 앞 단계가 안 끝났는데 주소로 바로 들어오면 첫 미완료 단계로 돌려보낸다. 연 화면은 「이어서 하기」를 위해 남긴다.
+ * 단계 화면에는 늘 「주문하기」가 있다(2026-11-13 사용자 — 확인 화면을 단계 줄에 넣는 대신):
+ * 덜 끝났으면 막힌 모양이고 누르면 단계 줄의 덜 끝난 단계를 강조, 다 끝났으면 확인 화면으로.
  */
 export default function StepShell({
   step,
@@ -49,6 +51,8 @@ export default function StepShell({
   const router = useRouter();
   const path = usePathname();
   const hydrated = useHydrated();
+  const allDone = useRequestStore((s) => firstIncompleteIndex(s) >= STEPS.length) && hydrated;
+  const [askedOrder, setAskedOrder] = useState(false);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -66,17 +70,34 @@ export default function StepShell({
     <div className="flex flex-col pt-[112px]">
       <TopNavigator />
       {/* 단계 줄은 기기 입력값을 읽은 뒤에 그린다 */}
-      {hydrated && <StepRow current={step} highlight={highlight} onPickSituation={onPickSituation} />}
+      {hydrated && <StepRow current={step} highlight={highlight || askedOrder} onPickSituation={onPickSituation} />}
       <Header title={title} subtitle={subtitle} />
       <div className="h-5" />
       <div className="flex flex-col gap-5 px-5">{children}</div>
       <div className="h-[100px]" />
-      {onNext && (
+      {step ? (
         <BottomBar top={bottomTop}>
-          <Button busy={busy} aria-disabled={nextLooksDisabled || undefined} onClick={onNext}>
-            {nextText}
+          <Button
+            variant="inverse"
+            aria-disabled={!allDone || undefined}
+            onClick={() => (allDone ? router.push(CONFIRM_PATH) : setAskedOrder(true))}
+          >
+            주문하기
           </Button>
+          {onNext && (
+            <Button busy={busy} onClick={onNext}>
+              {nextText}
+            </Button>
+          )}
         </BottomBar>
+      ) : (
+        onNext && (
+          <BottomBar top={bottomTop}>
+            <Button busy={busy} aria-disabled={nextLooksDisabled || undefined} onClick={onNext}>
+              {nextText}
+            </Button>
+          </BottomBar>
+        )
       )}
     </div>
   );

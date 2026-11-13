@@ -180,13 +180,6 @@ export default function UnavailableDeliveryPage() {
           </div>
         </div>
       </div>
-      <div className="flex-grow justify-end bg-gray-50">
-        <div className="px-5 py-10 font-400 text-gray-500">
-          {arrivalTimeFormatted
-            ? `${arrivalTimeFormatted} 이후 도착해도 괜찮다면 고객센터에 직접 전화해주세요.`
-            : calculating}
-        </div>
-      </div>
       <div className="h-[100px]"></div>
       <BottomBar>
         <Button variant="inverse" onClick={() => goBack(router, "/address-check")}>

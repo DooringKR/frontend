@@ -7,6 +7,7 @@ import Field from "@/components/form/Field";
 import PhoneInput from "@/components/form/PhoneInput";
 import { useRequired } from "@/components/form/useRequired";
 import { Input } from "@/components/ui/input";
+
 import useBizClientStore from "@/store/bizClientStore";
 import { formatPhoneNumber } from "@/utils/formatPhoneNumber";
 
@@ -23,7 +24,7 @@ export default function ContactPage() {
   const router = useRouter();
   const hydrated = useHydrated();
   const s = useRequestStore();
-  const myPhone = useBizClientStore((b) => b.bizClient?.phone_number ?? "");
+  const myPhone = useBizClientStore(b => b.bizClient?.phone_number ?? "");
 
   useEffect(() => {
     if (hydrated && !s.contactPhone && myPhone) s.set({ contactPhone: formatPhoneNumber(myPhone) });
@@ -43,17 +44,33 @@ export default function ContactPage() {
       title="수령인을 알려주세요"
       onNext={() => req.check() && router.push(nextPathOf("recipient"))}
     >
-      <Field label="수령인 이름" required fieldRef={req.ref("name")} error={req.error("name")}>
-        <Input aria-invalid={!!req.error("name")} value={s.contactName} onChange={(e) => s.set({ contactName: e.target.value })} />
+      <Field label="수령인 이름" fieldRef={req.ref("name")}>
+        <Input
+          aria-invalid={!!req.error("name")}
+          value={s.contactName}
+          onChange={e => s.set({ contactName: e.target.value })}
+        />
       </Field>
-      <Field label="수령인 연락처" required fieldRef={req.ref("phone")} error={req.error("phone")}>
-        <PhoneInput aria-invalid={!!req.error("phone")} value={s.contactPhone} onChange={(v) => s.set({ contactPhone: v })} />
+      <Field label="수령인 연락처" fieldRef={req.ref("phone")}>
+        <PhoneInput
+          aria-invalid={!!req.error("phone")}
+          value={s.contactPhone}
+          onChange={v => s.set({ contactPhone: v })}
+        />
       </Field>
       <Field label="통화 가능 시간 (선택)">
-        <Input placeholder="예) 평일 오전, 오후 2시 이후" value={s.callTime} onChange={(e) => s.set({ callTime: e.target.value })} />
+        <Input
+          placeholder="예) 평일 오전, 오후 2시 이후"
+          value={s.callTime}
+          onChange={e => s.set({ callTime: e.target.value })}
+        />
       </Field>
       <Field label="출입 정보 (선택)">
-        <Input placeholder="예) 공동현관 #1234, 현관 5678" value={s.accessInfo} onChange={(e) => s.set({ accessInfo: e.target.value })} />
+        <Input
+          placeholder="예) 공동현관 #1234, 현관 5678"
+          value={s.accessInfo}
+          onChange={e => s.set({ accessInfo: e.target.value })}
+        />
       </Field>
     </StepShell>
   );

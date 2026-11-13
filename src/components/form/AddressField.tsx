@@ -46,7 +46,7 @@ export default function AddressField({
         <span className={cn("truncate", value ? "text-gray-700" : "text-gray-400")}>{ready ? value || placeholder : "불러오는 중"}</span>
         <Search className="size-5 shrink-0 text-gray-400" />
       </button>
-      <Script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" strategy="afterInteractive" onLoad={() => setReady(true)} />
+      <Script src="//t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" strategy="afterInteractive" onLoad={() => setReady(true)} />
     </>
   );
 }

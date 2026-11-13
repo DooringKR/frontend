@@ -271,7 +271,8 @@ function LoginPageContent() {
                         }
                     }}
                 >
-                    고객센터 전화번호 : 031-528-4002
+                    {/* 문의 창구는 숨겼다(2026-11-13) — 글은 지우고 개발자 로그인으로 가는 숨은 자리만 둔다 */}
+                    <span className="block h-5" />
                 </div>
 
             </div>

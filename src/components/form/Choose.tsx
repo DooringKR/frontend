@@ -14,6 +14,7 @@ import { cn, imageSrc } from "@/lib/utils";
  *  - 줄(cards): 그 밖은 카드 줄(이름 + 설명 + 고름 표시).
  *  - 시트(sheet): 선택지가 9개 이상이면 칸 하나를 누르면 시트에 목록.
  * emphasized = 눈에 띄게(화면 1 「현장 급한 수습」), disabled = 지금은 못 고름(이유는 화면이 보인다).
+ * aria-invalid = 골라야 하는데 안 고름 — 글 대신 선택지 테두리를 빨갛게(shadcn 입력칸 오류 표시와 같은 방식, 2026-11-13).
  */
 export interface ChooseOption<V extends string> {
   value: V;
@@ -37,6 +38,7 @@ export type ChooseProps<V extends string> = (Single<V> | Multi<V>) & {
   title?: string;
   className?: string;
   "aria-label"?: string;
+  "aria-invalid"?: boolean;
 };
 
 const FIT: Record<number, number> = { 2: 10, 3: 7, 4: 5, 5: 5, 6: 5 };
@@ -64,13 +66,15 @@ export default function Choose<V extends string>(props: ChooseProps<V>) {
     style: { gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` },
     "aria-label": props["aria-label"],
   };
+  const invalid = props["aria-invalid"] || undefined;
   const items = options.map((o) =>
     shape === "cells" ? (
       <ToggleGroupItem
         key={o.value}
         value={o.value}
         disabled={o.disabled}
-        className="h-10 rounded-[12px] bg-secondary px-2 text-[16px] font-500 text-secondary-foreground hover:bg-gray-200 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground"
+        aria-invalid={invalid}
+        className="h-10 rounded-[12px] border border-transparent bg-secondary px-2 text-[16px] font-500 text-secondary-foreground hover:bg-gray-200 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-[3px] aria-[invalid=true]:ring-destructive/20"
       >
         {o.label}
       </ToggleGroupItem>
@@ -79,8 +83,9 @@ export default function Choose<V extends string>(props: ChooseProps<V>) {
         key={o.value}
         value={o.value}
         disabled={o.disabled}
+        aria-invalid={invalid}
         className={cn(
-          "flex h-auto w-full items-start justify-between gap-3 rounded-[12px] border px-5 py-4 text-left transition-colors",
+          "flex h-auto w-full items-start justify-between gap-3 rounded-[12px] border px-5 py-4 text-left transition-colors aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-[3px] aria-[invalid=true]:ring-destructive/20",
           o.disabled
             ? "border-gray-100 bg-muted text-gray-300"
             : picked(o.value)

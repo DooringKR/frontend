@@ -8,6 +8,14 @@
  * primary = brand-500 #2b7fff, accent = brand-100/brand-600(BrandInverse), secondary = gray-100/gray-700,
  * border·input = gray-200, ring = brand-200, muted = gray-50/gray-500, destructive = red-500, 둥글기 12px.
  */
+/*
+ * 스크롤바 자리를 늘 비워 둔다(2026-11-13) — 화면마다(상황 입력은 고른 개수마다) 스크롤바가 생겼다 없어지며
+ * 가운데 460 틀이 스크롤바 폭(약 15px)의 절반만큼 좌우로 움직이던 것. 휴대폰은 스크롤바가 겹쳐 떠서 상관없다.
+ */
+html {
+  scrollbar-gutter: stable;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

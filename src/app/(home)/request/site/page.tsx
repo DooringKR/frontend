@@ -57,7 +57,7 @@ export default function SitePage() {
       title="현장 정보를 알려주세요"
       onNext={() => req.check() && router.push(nextPathOf("site"))}
     >
-      <Field label="주소" required fieldRef={req.ref("address")} error={req.error("address")}>
+      <Field label="주소" fieldRef={req.ref("address")}>
         <AddressField
           value={s.roadAddress}
           onPick={pickAddress}
@@ -69,20 +69,16 @@ export default function SitePage() {
           onChange={e => s.set({ detailAddress: e.target.value })}
         />
       </Field>
-      <Field
-        label="건물 종류"
-        required
-        fieldRef={req.ref("building")}
-        error={req.error("building")}
-      >
+      <Field label="건물 종류" fieldRef={req.ref("building")}>
         <Choose
+          aria-invalid={!!req.error("building")}
           aria-label="건물 종류"
           value={s.buildingType}
           onChange={v => s.set({ buildingType: v })}
           options={BUILDING.map(b => ({ value: b, label: b }))}
         />
       </Field>
-      <Field label="평형" required fieldRef={req.ref("pyeong")} error={req.error("pyeong")}>
+      <Field label="평형" fieldRef={req.ref("pyeong")}>
         <Input
           placeholder="예) 33평형"
           aria-invalid={!!req.error("pyeong")}
@@ -92,21 +88,18 @@ export default function SitePage() {
       </Field>
       {install && (
         <>
-          <Field label="주차" required fieldRef={req.ref("parking")} error={req.error("parking")}>
+          <Field label="주차" fieldRef={req.ref("parking")}>
             <Choose
+              aria-invalid={!!req.error("parking")}
               aria-label="주차"
               value={s.parking}
               onChange={v => s.set({ parking: v })}
               options={PARKING.map(p => ({ value: p, label: p }))}
             />
           </Field>
-          <Field
-            label="엘리베이터"
-            required
-            fieldRef={req.ref("elevator")}
-            error={req.error("elevator")}
-          >
+          <Field label="엘리베이터" fieldRef={req.ref("elevator")}>
             <Choose
+              aria-invalid={!!req.error("elevator")}
               aria-label="엘리베이터"
               value={s.elevator === null ? null : s.elevator ? "yes" : "no"}
               onChange={v => s.set({ elevator: v === "yes" })}
