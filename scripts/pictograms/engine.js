@@ -14,6 +14,13 @@ function prism(profile, z0, z1, role, o={}){
   return {kind:'poly', V, F, role, ...o};
 }
 const box=(x0,y0,z0,x1,y1,z1,role,o={})=>prism([[x0,y0],[x1,y0],[x1,y1],[x0,y1]],z0,z1,role,o);
+// x 방향으로 밀어낸 것 — (z,y) 윤곽, 바닥 y0 위에(신발)
+function prismX(profile, x0, x1, y0, role, o={}){
+  const n=profile.length, V=[...profile.map(([z,y])=>[x0,y0+y,z]), ...profile.map(([z,y])=>[x1,y0+y,z])];
+  const F=[{i:[...Array(n).keys()]}, {i:[...Array(n).keys()].map(k=>k+n)}];
+  for(let k=0;k<n;k++){const m=(k+1)%n; F.push({i:[k,m,m+n,k+n]});}
+  return {kind:'poly', V, F, role, convex:true, ...o};
+}
 // 판(두께 없는 면) — 양면
 const panel=(pts,role,o={})=>({kind:'panel', V:pts, role, ...o});
 // 원통(축 방향 아무거나) — 옆면은 매끈(선 없음), 윤곽만 긋는다
