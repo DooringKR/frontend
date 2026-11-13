@@ -34,13 +34,17 @@ export function progressOf(situations: SituationSlug[], path: string): ProgressV
   return (Math.max(1, Math.round((at / steps.length) * 5)) * 20) as ProgressValue;
 }
 
-/** 탭에 둔 입력값을 다 읽었는지 — 읽기 전에 「고른 게 없다」고 첫 화면으로 돌려보내지 않게 */
+/**
+ * 탭에 둔 입력값을 다 읽었는지 — 읽기 전에 「고른 게 없다」고 첫 화면으로 돌려보내지 않게.
+ * 서버(미리 그리기)에는 sessionStorage 가 없어 persist 가 붙지 않는다 — 그땐 아직 안 읽은 것으로 둔다.
+ */
 export function useHydrated(): boolean {
-  const [done, setDone] = useState(() => useRequestStore.persist.hasHydrated());
+  const [done, setDone] = useState(() => useRequestStore.persist?.hasHydrated() ?? false);
   useEffect(() => {
-    if (done) return;
-    const off = useRequestStore.persist.onFinishHydration(() => setDone(true));
-    setDone(useRequestStore.persist.hasHydrated());
+    const p = useRequestStore.persist;
+    if (done || !p) return;
+    const off = p.onFinishHydration(() => setDone(true));
+    setDone(p.hasHydrated());
     return off;
   }, [done]);
   return done;
