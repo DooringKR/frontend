@@ -54,6 +54,7 @@ export async function saveOrder(): Promise<string> {
       detail_address: s.detailAddress.trim() || null,
       lat: s.lat,
       lon: s.lon,
+      building_type: s.buildingType,
       pyeong: s.pyeong.trim() || null,
       contact_name: s.contactName.trim() || null,
       contact_phone: s.contactPhone.trim() || null,

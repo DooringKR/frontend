@@ -12,6 +12,8 @@ import { nextOf, progressOf, useHydrated } from "../_lib/flow";
 import { useRequestStore } from "../_lib/requestStore";
 
 const PARKING = ["가능", "불가", "유료"] as const;
+/** 현장허브 「건물 종류」 select 선택지 그대로(어드민 0141) */
+const BUILDING = ["아파트", "단독주택", "빌라/다세대주택", "오피스텔/상업공간"] as const;
 
 /** 고르는 칸 한 줄 — 구 바로가구 버튼 모양(GrayMedium·BrandInverse) */
 function Pick<T extends string | boolean>({
@@ -28,13 +30,13 @@ function Pick<T extends string | boolean>({
   return (
     <div className="flex flex-col gap-2">
       <div className="text-[14px] font-400 text-gray-600">{label}</div>
-      <div className="flex gap-2">
+      <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${options.length > 3 ? 2 : options.length}, minmax(0, 1fr))` }}>
         {options.map((o) => (
           <button
             key={String(o.value)}
             type="button"
             onClick={() => onChange(o.value)}
-            className={`h-[40px] flex-1 rounded-[12px] text-[16px] font-500 ${
+            className={`h-[40px] rounded-[12px] text-[16px] font-500 ${
               value === o.value ? "bg-brand-100 text-brand-600" : "bg-gray-100 text-gray-700"
             }`}
           >
@@ -46,7 +48,7 @@ function Pick<T extends string | boolean>({
   );
 }
 
-/** 현장 — 주소(Daum 검색)·상세 주소·평형·주차·엘리베이터. 시공이 필요하면 주소로 공장→현장 시간을 잰다(출장비) */
+/** 현장 — 주소(Daum 검색)·상세 주소·건물 종류·평형·주차·엘리베이터. 시공이 필요하면 주소로 공장→현장 시간을 잰다(출장비) */
 export default function SitePage() {
   const router = useRouter();
   const hydrated = useHydrated();
@@ -69,7 +71,7 @@ export default function SitePage() {
     }
   };
 
-  const ready = !!s.roadAddress && !!s.pyeong.trim() && s.parking !== null && s.elevator !== null;
+  const ready = !!s.roadAddress && !!s.buildingType && !!s.pyeong.trim() && s.parking !== null && s.elevator !== null;
 
   return (
     <StepShell
@@ -88,6 +90,12 @@ export default function SitePage() {
           placeholderClassName="placeholder-gray-500"
         />
       </div>
+      <Pick
+        label="건물 종류"
+        options={BUILDING.map((b) => ({ value: b, text: b }))}
+        value={s.buildingType}
+        onChange={(v) => s.set({ buildingType: v })}
+      />
       <BoxedInput
         label="평형"
         placeholder="예) 33평형"

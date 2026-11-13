@@ -35,6 +35,8 @@ export interface RequestState {
   detailAddress: string;
   lat: number | null;
   lon: number | null;
+  /** 현장허브 「건물 종류」 선택지 그대로 — 허브 「주소·출입정보」 완료 조건이라 받는다 */
+  buildingType: string | null;
   pyeong: string;
   parking: "가능" | "불가" | "유료" | null;
   elevator: boolean | null;
@@ -62,6 +64,7 @@ const EMPTY = {
   detailAddress: "",
   lat: null,
   lon: null,
+  buildingType: null,
   pyeong: "",
   parking: null,
   elevator: null,
