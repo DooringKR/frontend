@@ -32,7 +32,7 @@ export default function Pictogram({ name, size = 32, className }: { name: Pictog
       {PICTOGRAMS[name].map(([f, s, d], i) => {
         const fill = f ? FILL[f[0]][+f[1]] : "none";
         // ~ = 둥근 면 조각 사이 틈 메우기(같은 색 아주 가는 선)
-        const [stroke, width] = s === "~" ? [fill, 0.3] : s ? STROKE[s] : [undefined, undefined];
+        const [stroke, width] = s === "~" ? [fill, 0.3] : (STROKE[s] ?? []);
         return <path key={i} d={d} fill={fill} stroke={stroke} strokeWidth={width} />;
       })}
     </svg>

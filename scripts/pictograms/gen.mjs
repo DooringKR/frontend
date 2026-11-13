@@ -11,10 +11,20 @@ for (const f of ["engine.js", "scenes.js"]) vm.runInContext(fs.readFileSync(path
 const scenes = vm.runInContext("SCENES", ctx);
 const render = vm.runInContext("render", ctx);
 
+const FILLS = new Set([..."gibjrk"].flatMap((c) => [0, 1, 2, 3].map((n) => c + n)));
+const STROKES = new Set(["", "~", "g", "b", "r", "gl", "bl", "rl"]);
+const bad = (name, items) => items.filter(([f, s]) => (f && !FILLS.has(f)) || !STROKES.has(s)).map(([f, s]) => `${name}: 칠 ${f || "-"} 선 ${s || "-"}`);
+const errors = [];
 let body = "";
 for (const [name, sc] of Object.entries(scenes)) {
   const items = render(sc).map((it) => [it.f, it.seam ? "~" : it.s, it.d]);
+  errors.push(...bad(name, items));
   body += `  /** ${sc.label} */\n  ${name}: ${JSON.stringify(items)},\n`;
+}
+// 쓰기 전에 멈춤 — Pictogram 컴포넌트 표에 없는 코드는 화면을 죽인다(2026-11-13 운영 빌드 실패: 창고문 환기 구멍 선 j)
+if (errors.length) {
+  console.error("Pictogram 표에 없는 코드:\n" + errors.join("\n"));
+  process.exit(1);
 }
 const names = Object.keys(scenes);
 const out =

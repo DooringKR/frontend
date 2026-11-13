@@ -98,7 +98,7 @@ function render(scene){
     if(o.kind==='line'){ items.push({f:'',s:r+'l',pts:o.V.map(P),closed:!!o.closed,w:o.w}); continue; }
     if(o.kind==='panel'){
       let n=norm(cross(sub(o.V[1],o.V[0]),sub(o.V[2],o.V[0]))); if(!facing(n,o.V[0])) n=mul(n,-1);
-      items.push({f:(mono?(o.fill==='i'||o.fill==='j'?'j':'b'):(o.fill||r))+T1(tone(dot(n,L)+(o.dk||0))),s:mono?'b':(o.stroke??r),pts:o.V.map(P),closed:true}); continue;
+      items.push({f:(mono?(o.fill==='i'||o.fill==='j'?'j':'b'):(o.fill||r))+T1(tone(dot(n,L)+(o.dk||0))),s:mono?'b':(o.stroke??('gbr'.includes(r)?r:'')),pts:o.V.map(P),closed:true}); continue;
     }
     const C=cen(o.V);
     const faces=o.F.map(f=>{const ps=f.i.map(i=>o.V[i]);let n=norm(cross(sub(ps[1],ps[0]),sub(ps[2],ps[0])));
