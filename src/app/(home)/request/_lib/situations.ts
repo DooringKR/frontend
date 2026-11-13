@@ -4,6 +4,8 @@
  * 버튼 이름은 바로키친 어드민 /api/barogagu/intake 가 현장허브 「가구 구성」으로 옮길 때 그대로 쓴다 — 바꾸면 어드민도 같이.
  */
 
+import type { PictogramName } from "@/components/pictogram/Pictogram";
+
 export type SituationSlug = "partial" | "door" | "cabinet";
 
 export interface Situation {
@@ -12,18 +14,34 @@ export interface Situation {
   name: "부분가구 추가" | "문짝 교체 또는 설치" | "장 일부 또는 전체 교체";
   /** 화면 2 버튼 — 한 상황 안에서 여러 개 고를 수 있다 */
   buttons: string[];
+  pictogram: PictogramName;
 }
 
 /** 둘째 묶음(서로 같이 고를 수 있다). 이 차례대로 상황 페이지가 이어진다 */
 export const SITUATIONS: Situation[] = [
-  { slug: "partial", name: "부분가구 추가", buttons: ["창고문", "냉장고장", "서랍장", "식기세척기장"] },
-  { slug: "door", name: "문짝 교체 또는 설치", buttons: ["신발장·붙박이장 롱문만 교체", "화장대장"] },
+  { slug: "partial", name: "부분가구 추가", buttons: ["창고문", "냉장고장", "서랍장", "식기세척기장"], pictogram: "partial" },
+  { slug: "door", name: "문짝 교체 또는 설치", buttons: ["신발장·붙박이장 롱문만 교체", "화장대장"], pictogram: "door" },
   {
     slug: "cabinet",
     name: "장 일부 또는 전체 교체",
     buttons: ["냉장고장 플랩문 교체", "전체 교체", "신발장 전체 교체", "식세기 자리에 장 채우기"],
+    pictogram: "cabinet",
   },
 ];
+
+/** 화면 2 버튼 그림 — 버튼 이름은 어드민과 맞물려 있어 그림은 따로 둔다 */
+export const BUTTON_PICTOGRAM: Record<string, PictogramName> = {
+  창고문: "storage",
+  냉장고장: "fridge",
+  서랍장: "drawer",
+  식기세척기장: "dish",
+  "신발장·붙박이장 롱문만 교체": "longdoor",
+  화장대장: "vanity",
+  "냉장고장 플랩문 교체": "flap",
+  "전체 교체": "whole",
+  "신발장 전체 교체": "shoes",
+  "식세기 자리에 장 채우기": "fill",
+};
 
 export const situationOf = (slug: string) => SITUATIONS.find((s) => s.slug === slug) ?? null;
 

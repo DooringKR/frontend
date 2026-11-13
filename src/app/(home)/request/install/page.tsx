@@ -7,6 +7,7 @@ import Choose from "@/components/form/Choose";
 import DateField from "@/components/form/DateField";
 import Field from "@/components/form/Field";
 import { useRequired } from "@/components/form/useRequired";
+import Pictogram from "@/components/pictogram/Pictogram";
 import { Input } from "@/components/ui/input";
 
 import StepShell from "../_components/StepShell";
@@ -66,8 +67,8 @@ export default function InstallPage() {
             )
           }
           options={[
-            { value: "yes", label: "시공도 필요해요" },
-            { value: "no", label: "필요 없어요" },
+            { value: "yes", label: "시공도 필요해요", image: <Pictogram name="install" /> },
+            { value: "no", label: "필요 없어요", image: <Pictogram name="noinstall" /> },
           ]}
         />
       </Field>
@@ -100,8 +101,8 @@ export default function InstallPage() {
               value={r?.method ?? null}
               onChange={v => setReceive({ method: v })}
               options={[
-                { value: "delivery" as const, label: "배송" },
-                { value: "pickup" as const, label: "직접 픽업" },
+                { value: "delivery" as const, label: "배송", image: <Pictogram name="delivery" /> },
+                { value: "pickup" as const, label: "직접 픽업", image: <Pictogram name="pickup" /> },
               ]}
             />
           </Field>

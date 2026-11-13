@@ -41,7 +41,7 @@ export default function NavRow({
   );
   const body = (
     <>
-      {icon && <span className="shrink-0 text-gray-500">{icon}</span>}
+      {icon && <span className={cn("shrink-0 text-gray-500", disabled && "opacity-40")}>{icon}</span>}
       <span className="flex min-w-0 flex-1 flex-col gap-1">
         <span className={cn("text-[17px] font-600", disabled ? "" : "text-gray-800")}>{label}</span>
         {description && <span className={cn("text-[14px]", disabled ? "" : "text-gray-500")}>{description}</span>}

@@ -8,6 +8,7 @@ import Choose from "@/components/form/Choose";
 import Field from "@/components/form/Field";
 import PhotoPick from "@/components/form/PhotoPick";
 import NavRow from "@/components/nav/NavRow";
+import Pictogram from "@/components/pictogram/Pictogram";
 import Sheet from "@/components/overlay/Sheet";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,7 +23,7 @@ import { Separator } from "@/components/ui/separator";
 import StepShell from "./_components/StepShell";
 import { askedDraft, markAskedDraft, nextPathOf, useHydrated } from "./_lib/flow";
 import { emptyPart, hasDraft, useRequestStore } from "./_lib/requestStore";
-import { SITUATIONS, type Situation, type SituationSlug } from "./_lib/situations";
+import { BUTTON_PICTOGRAM, SITUATIONS, type Situation, type SituationSlug } from "./_lib/situations";
 import { photoUrlOf, uploadPhotos } from "./_lib/submit";
 
 const SWIPE_HINT = "옆으로 밀면 세부 정보를 바꿀 수 있어요";
@@ -221,6 +222,7 @@ export default function RequestStartPage() {
                       value: "urgent",
                       label: "현장 급한 수습",
                       emphasized: true,
+                      image: <Pictogram name="urgent" />,
                       description: (
                         <>
                           3일 이내 · 15만 원 추가
@@ -240,18 +242,20 @@ export default function RequestStartPage() {
                   aria-invalid={invalid("situations")}
                   value={s.situations}
                   onChange={v => s.set({ situations: v })}
-                  options={SITUATIONS.map(x => ({ value: x.slug, label: x.name }))}
+                  options={SITUATIONS.map(x => ({ value: x.slug, label: x.name, image: <Pictogram name={x.pictogram} /> }))}
                 />
                 <Separator className="bg-gray-100" />
                 <NavRow
                   card
                   label="DIY(셀프 주문)"
+                  icon={<Pictogram name="diy" />}
                   disabled={picked.length > 0}
                   onClick={() => router.push("/diy")}
                 />
                 <NavRow
                   card
                   label="자재 필요없는 수리"
+                  icon={<Pictogram name="repair" />}
                   disabled={picked.length > 0}
                   onClick={() => router.push("/request/not-served")}
                 />
@@ -264,7 +268,7 @@ export default function RequestStartPage() {
                   aria-invalid={invalid(sl.s.slug)}
                   value={buttonsOf(sl.s.slug)}
                   onChange={v => s.setPart(sl.s.slug, { buttons: v })}
-                  options={sl.s.buttons.map(b => ({ value: b, label: b }))}
+                  options={sl.s.buttons.map(b => ({ value: b, label: b, image: <Pictogram name={BUTTON_PICTOGRAM[b]} /> }))}
                 />
               </CarouselItem>
             ) : (

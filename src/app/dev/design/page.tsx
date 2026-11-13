@@ -15,6 +15,8 @@ import { useRequired } from "@/components/form/useRequired";
 import PhotoThumbs from "@/components/media/PhotoThumbs";
 import NavTiles from "@/components/nav/NavTiles";
 import NavRow from "@/components/nav/NavRow";
+import Pictogram from "@/components/pictogram/Pictogram";
+import { PICTOGRAMS, type PictogramName } from "@/components/pictogram/paths";
 import BottomBar from "@/components/overlay/BottomBar";
 import ConfirmSheet from "@/components/overlay/ConfirmSheet";
 import Sheet from "@/components/overlay/Sheet";
@@ -148,6 +150,16 @@ export default function DesignPage() {
             { value: "diy", label: "DIY(셀프 주문)", disabled: true },
           ]}
         />
+      </Spec>
+      <Spec id="pictogram" title="선택지 그림 — 강조할 부분만 파랑(scripts/pictograms)">
+        <div className="grid grid-cols-6 gap-3">
+          {(Object.keys(PICTOGRAMS) as PictogramName[]).map((n) => (
+            <div key={n} className="flex flex-col items-center gap-1 text-[11px] text-gray-400">
+              <Pictogram name={n} />
+              {n}
+            </div>
+          ))}
+        </div>
       </Spec>
       <Spec id="choose-sheet" title="값 고르기 — 9개 이상은 시트">
         <Choose

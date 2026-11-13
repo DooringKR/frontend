@@ -6,6 +6,7 @@ import AddressField from "@/components/form/AddressField";
 import Choose from "@/components/form/Choose";
 import Field from "@/components/form/Field";
 import { useRequired } from "@/components/form/useRequired";
+import Pictogram from "@/components/pictogram/Pictogram";
 import { Input } from "@/components/ui/input";
 
 import {
@@ -104,8 +105,8 @@ export default function SitePage() {
               value={s.elevator === null ? null : s.elevator ? "yes" : "no"}
               onChange={v => s.set({ elevator: v === "yes" })}
               options={[
-                { value: "yes", label: "있음" },
-                { value: "no", label: "없음" },
+                { value: "yes", label: "있음", image: <Pictogram name="elevator" /> },
+                { value: "no", label: "없음", image: <Pictogram name="stairs" /> },
               ]}
             />
           </Field>

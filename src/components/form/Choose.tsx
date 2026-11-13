@@ -137,7 +137,7 @@ export default function Choose<V extends string>(props: ChooseProps<V>) {
 
 function OptionImage({ image }: { image: string | React.ReactNode }) {
   const src = imageSrc(image);
-  if (!src) return <span className="shrink-0">{image}</span>;
+  if (!src) return <span className="-my-1 shrink-0">{image}</span>;
   // eslint-disable-next-line @next/next/no-img-element
   return <img src={src} alt="" className="size-6 shrink-0 rounded-[4px] object-cover shadow-[inset_0_0_0_1px_rgba(3,7,18,0.05)]" />;
 }
