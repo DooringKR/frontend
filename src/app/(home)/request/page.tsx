@@ -1,5 +1,6 @@
 "use client";
 
+import { Clock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
@@ -26,7 +27,7 @@ import { Separator } from "@/components/ui/separator";
 import StepShell from "./_components/StepShell";
 import { askedDraft, markAskedDraft, nextPathOf, useHydrated } from "./_lib/flow";
 import { emptyPart, hasDraft, useRequestStore } from "./_lib/requestStore";
-import { BUTTON_PICTOGRAM, SITUATIONS, type Situation, type SituationSlug, URGENT_FEE, URGENT_NAME, URGENT_WHEN } from "./_lib/situations";
+import { BUTTON_PICTOGRAM, SITUATIONS, type Situation, type SituationSlug, URGENT_FEE, URGENT_NAME, URGENT_WHEN, URGENT_WHEN_SHORT } from "./_lib/situations";
 import { photoUrlOf, uploadPhotos } from "./_lib/submit";
 
 type Slide =
@@ -262,20 +263,19 @@ export default function RequestStartPage() {
                       label: URGENT_NAME,
                       emphasized: true,
                       image: <Pictogram name="urgent" />,
-                      // 부제 + 조건 칩(QA 「표현 변경」·「조건은 칩으로」 2026-11-15) — 칩은 분홍 카드 위에서 묻히지 않게 흰 바탕
-                      description: (
-                        <>
-                          오늘 바로 시공이 필요하세요? {URGENT_NAME} 서비스를 선택해보세요
-                          <span className="mt-1.5 flex flex-wrap gap-1">
-                            <Badge color="red" weight="weak" className="bg-white">
-                              {URGENT_WHEN}
-                            </Badge>
-                            <Badge color="red" weight="weak" className="bg-white">
-                              +{URGENT_FEE / 10_000}만 원
-                            </Badge>
-                          </span>
-                        </>
+                      // 조건 칩은 이름 옆(2026-11-15 사용자) — 시간은 옅은 파랑 + 시계, 금액은 꽉 찬 빨강으로 종류가 갈리게
+                      badge: (
+                        <span className="inline-flex flex-wrap gap-1 align-middle">
+                          <Badge color="blue" weight="weak" className="gap-0.5 px-1 text-[12px]/[18px]">
+                            <Clock className="size-3" strokeWidth={2.5} />
+                            {URGENT_WHEN_SHORT}
+                          </Badge>
+                          <Badge color="red" weight="strong" className="px-1 text-[12px]/[18px]">
+                            +{URGENT_FEE / 10_000}만 원
+                          </Badge>
+                        </span>
                       ),
+                      description: <>오늘 바로 시공이 필요하세요? {URGENT_NAME} 서비스를 선택해보세요</>,
                     },
                   ]}
                 />
@@ -294,13 +294,13 @@ export default function RequestStartPage() {
                     description: (
                       <>
                         {x.subtitle}
+                        {/* 글 이름표는 오히려 읽기 어려워 픽토그램으로(2026-11-15 사용자) — 이름은 읽기 프로그램용 숨긴 글 */}
                         {s.situations.includes(x.slug) && (
-                          <span className="mt-1.5 flex flex-wrap gap-1">
+                          <span className="mt-2 flex flex-wrap gap-1.5">
                             {x.buttons.map(b => (
-                              <Badge key={b} color="gray" weight="weak">
-                                {b}
-                              </Badge>
+                              <Pictogram key={b} name={BUTTON_PICTOGRAM[b]} size={30} />
                             ))}
+                            <span className="sr-only">{x.buttons.join(", ")}</span>
                           </span>
                         )}
                       </>

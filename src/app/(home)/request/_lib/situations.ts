@@ -52,6 +52,8 @@ export const SITUATIONS: Situation[] = [
 /** 바로배송(옛 「현장 급한 수습」, QA 「표현 변경」 2026-11-15) — 이름·기한 글은 화면 어디서나 이것만 쓴다 */
 export const URGENT_NAME = "바로배송";
 export const URGENT_WHEN = "당일 또는 3일 이내";
+/** 칩에 들어가는 짧은 기한 — 이름 옆 한 줄(390px 카드 글 칸 217px)에 칩 둘이 들어가게 */
+export const URGENT_WHEN_SHORT = "당일~3일";
 
 /** 화면 2 버튼 그림 — 버튼 이름은 어드민과 맞물려 있어 그림은 따로 둔다 */
 export const BUTTON_PICTOGRAM: Record<string, PictogramName> = {
