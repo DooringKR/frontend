@@ -69,9 +69,9 @@ export const BUTTON_PICTOGRAM: Record<string, PictogramName> = {
   "식세기 자리에 장 채우기": "fill",
 };
 
-/** 품목 고르기 장의 설명·실제 사진(QA 「가구 선택 단계에서 상세 설명」 2026-11-15) — 창고문만 시범, 보고 나서 다른 품목도 */
-export const BUTTON_DETAIL: Record<string, { text: string; photo: string }> = {
-  창고문: { text: "베란다·다용도실 수납장을 깔끔하게 가려주고 습기와 먼지를 막아주는 맞춤형 가구 도어입니다.", photo: "/img/request/storage.jpg" },
+/** 품목 고르기 장의 「자세히」 설명·실제 사진 여러 장(QA 「가구 선택 단계에서 상세 설명」 2026-11-15) — 창고문만 시범, 보고 나서 다른 품목도 */
+export const BUTTON_DETAIL: Record<string, { text: string; photos: string[] }> = {
+  창고문: { text: "베란다·다용도실 수납장을 깔끔하게 가려주고 습기와 먼지를 막아주는 맞춤형 가구 도어입니다.", photos: ["/img/request/storage.jpg"] },
 };
 
 /** 첫 장 미리보기의 그림 밑 짧은 이름(2026-11-15 사용자) — 없으면 버튼 이름 그대로 */

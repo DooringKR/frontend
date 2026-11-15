@@ -151,6 +151,23 @@ export default function DesignPage() {
           ]}
         />
       </Spec>
+      <Spec id="choose-detail" title="값 고르기 — 카드는 고르기만, 「자세히 ›」는 팝업(사진 여러 장은 밀어 넘기기)">
+        <Choose
+          multiple
+          aria-label="품목"
+          value={cards}
+          onChange={setCards}
+          options={[
+            {
+              value: "storage",
+              label: "창고문",
+              image: <Pictogram name="storage" />,
+              detail: { text: "사진이 두 장이면 밀어서 넘깁니다.", images: ["/img/request/storage.jpg", "/img/production-case/case1_thumbnail.png"] },
+            },
+            { value: "fridge", label: "냉장고장", image: <Pictogram name="fridge" /> },
+          ]}
+        />
+      </Spec>
       <Spec id="pictogram" title="선택지 그림 — 강조할 부분만 파랑(scripts/pictograms)">
         <div className="grid grid-cols-6 gap-3">
           {(Object.keys(PICTOGRAMS) as PictogramName[]).map((n) => (

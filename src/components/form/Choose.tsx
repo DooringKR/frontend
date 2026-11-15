@@ -1,11 +1,12 @@
 "use client";
 
-import { Check, ChevronDown, ChevronRight } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, X } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { checkboxVariants } from "@/components/ui/checkbox";
-import Sheet from "@/components/overlay/Sheet";
+import { Carousel, CarouselContent, CarouselDots, CarouselItem } from "@/components/ui/carousel";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn, imageSrc } from "@/lib/utils";
@@ -31,10 +32,10 @@ export interface ChooseOption<V extends string> {
   /** 이름 옆 짧은 띠(「추천」「인기」) */
   badge?: React.ReactNode;
   /**
-   * 자세히 보기 — 카드 오른쪽 「자세히 ›」를 누르면 시트(제목 = 이름, 설명 = text, 본문 = 사진). 카드는 그림·이름만 두고 고르기만 한다
+   * 자세히 보기 — 카드 오른쪽 「자세히 ›」를 누르면 팝업(제목 = 이름, 설명 = text, 사진 여러 장은 밀어 넘기기). 카드는 그림·이름만 두고 고르기만 한다
    * (2026-11-15 사용자 「선택과 내용 보기를 구분」). 「자세히」는 카드 버튼 안이 아니라 옆에 둔다(버튼 안 버튼 금지).
    */
-  detail?: { text: React.ReactNode; image?: string };
+  detail?: { text: React.ReactNode; images?: string[] };
 }
 
 type Single<V extends string> = { multiple?: false; value: V | null; onChange: (v: V) => void };
@@ -146,13 +147,59 @@ export default function Choose<V extends string>(props: ChooseProps<V>) {
           {items}
         </ToggleGroup>
       )}
-      {shown?.detail && (
-        <Sheet open={open} onOpenChange={setOpen} title={shown.label} description={shown.detail.text}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          {shown.detail.image && <img src={shown.detail.image} alt={`${shown.label} 사진`} className="w-full rounded-[12px] bg-gray-100" />}
-        </Sheet>
-      )}
+      {shown?.detail && <DetailPopup open={open} onOpenChange={setOpen} title={shown.label} {...shown.detail} />}
     </>
+  );
+}
+
+/**
+ * 자세히 팝업(2026-11-15 사용자 「팝업으로, 사진 여러 장, 여러 장이면 슬라이드」) — 가운데 창(shadcn Dialog).
+ * 바깥 모양은 바텀시트(Drawer)와 같게: 양옆 10·최대 폭 440·둥글기 24·높이 최대 85%. 머리는 Sheet 처럼 제목 줄 오른쪽에 버튼(닫기 X — NavRow 꺾쇠와 같은 20·회색),
+ * 제목·설명 글은 Drawer 제목·설명과 같은 글자. 사진이 둘 이상이면 Carousel 로 밀어 넘기고 밑에 점(CarouselDots).
+ */
+function DetailPopup({
+  open,
+  onOpenChange,
+  title,
+  text,
+  images = [],
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  text: React.ReactNode;
+  images?: string[];
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="flex max-h-[85vh] w-[calc(100%-20px)] max-w-[440px] flex-col gap-5 overflow-y-auto rounded-[24px] border-0 p-5 [&>button]:hidden">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center justify-between gap-3">
+            <DialogTitle className="text-[20px]/[28px] font-700 text-gray-900">{title}</DialogTitle>
+            <DialogClose aria-label="닫기" className="shrink-0 text-gray-400">
+              <X className="size-5" />
+            </DialogClose>
+          </div>
+          <DialogDescription className="text-[16px]/[22px] font-400 text-gray-500">{text}</DialogDescription>
+        </div>
+        {images.length > 0 && (
+          <Carousel>
+            <CarouselContent>
+              {images.map((src, i) => (
+                <CarouselItem key={`${i}-${src}`}>
+                  {/* 비율이 다른 사진도 같은 틀(가장 긴 사진 높이) 가운데에 — 넘길 때 칸이 들쭉날쭉하지 않게 */}
+                  <div className="flex h-full items-center overflow-hidden rounded-[12px] bg-gray-100">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={src} alt={`${title} 사진 ${i + 1}`} className="w-full" />
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            {images.length > 1 && <CarouselDots className="mt-3" />}
+          </Carousel>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 

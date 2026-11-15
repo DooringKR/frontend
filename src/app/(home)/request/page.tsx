@@ -339,8 +339,8 @@ export default function RequestStartPage() {
                     value: b,
                     label: b,
                     image: <Pictogram name={BUTTON_PICTOGRAM[b]} />,
-                    // 카드는 고르기만, 설명·실제 사진은 「자세히 ›」 시트로(창고문 시범)
-                    detail: BUTTON_DETAIL[b] && { text: BUTTON_DETAIL[b].text, image: BUTTON_DETAIL[b].photo },
+                    // 카드는 고르기만, 설명·실제 사진은 「자세히 ›」 팝업으로(창고문 시범)
+                    detail: BUTTON_DETAIL[b] && { text: BUTTON_DETAIL[b].text, images: BUTTON_DETAIL[b].photos },
                   }))}
                 />
               </CarouselItem>
