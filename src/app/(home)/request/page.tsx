@@ -339,14 +339,8 @@ export default function RequestStartPage() {
                     value: b,
                     label: b,
                     image: <Pictogram name={BUTTON_PICTOGRAM[b]} />,
-                    // 설명·실제 사진(창고문 시범). 사진 치수는 PhotoThumbs 한 줄(80·둥글기 12). 카드가 버튼이라 크게 보기는 없음
-                    description: BUTTON_DETAIL[b] && (
-                      <>
-                        {BUTTON_DETAIL[b].text}
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={BUTTON_DETAIL[b].photo} alt={`${b} 사진`} className="mt-2 block size-20 rounded-[12px] bg-gray-100 object-cover" />
-                      </>
-                    ),
+                    // 카드는 고르기만, 설명·실제 사진은 「자세히 ›」 시트로(창고문 시범)
+                    detail: BUTTON_DETAIL[b] && { text: BUTTON_DETAIL[b].text, image: BUTTON_DETAIL[b].photo },
                   }))}
                 />
               </CarouselItem>

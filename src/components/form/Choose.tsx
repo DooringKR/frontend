@@ -1,10 +1,11 @@
 "use client";
 
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, ChevronRight } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { checkboxVariants } from "@/components/ui/checkbox";
+import Sheet from "@/components/overlay/Sheet";
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn, imageSrc } from "@/lib/utils";
@@ -29,6 +30,11 @@ export interface ChooseOption<V extends string> {
   image?: string | React.ReactNode;
   /** 이름 옆 짧은 띠(「추천」「인기」) */
   badge?: React.ReactNode;
+  /**
+   * 자세히 보기 — 카드 오른쪽 「자세히 ›」를 누르면 시트(제목 = 이름, 설명 = text, 본문 = 사진). 카드는 그림·이름만 두고 고르기만 한다
+   * (2026-11-15 사용자 「선택과 내용 보기를 구분」). 「자세히」는 카드 버튼 안이 아니라 옆에 둔다(버튼 안 버튼 금지).
+   */
+  detail?: { text: React.ReactNode; image?: string };
 }
 
 type Single<V extends string> = { multiple?: false; value: V | null; onChange: (v: V) => void };
@@ -60,6 +66,9 @@ export default function Choose<V extends string>(props: ChooseProps<V>) {
   const { options, className } = props;
   const shape = shapeOf(options);
   const picked = (v: V) => (props.multiple ? props.value.includes(v) : props.value === v);
+  // 시트가 닫히는 동안에도 내용이 남게 — 연 선택지와 열림을 따로 둔다
+  const [shown, setShown] = useState<ChooseOption<V> | null>(null);
+  const [open, setOpen] = useState(false);
 
   if (shape === "sheet") return <ChooseSheet {...props} />;
 
@@ -83,21 +92,23 @@ export default function Choose<V extends string>(props: ChooseProps<V>) {
         {o.label}
       </ToggleGroupItem>
     ) : (
-      <ToggleGroupItem
+      <CardFrame
         key={o.value}
-        value={o.value}
-        disabled={o.disabled}
-        aria-invalid={invalid}
-        className={cn(
-          "flex h-auto w-full items-start justify-start gap-3 rounded-[12px] border px-5 py-4 text-left transition-colors aria-[invalid=true]:border-destructive",
+        option={o}
+        invalid={invalid}
+        look={
           o.disabled
             ? "border-gray-100 bg-muted text-gray-300"
             : picked(o.value)
               ? "border-primary bg-brand-50"
               : o.emphasized
                 ? "border-red-200 bg-red-50"
-                : "border-border bg-background hover:bg-muted",
-        )}
+                : "border-border bg-background hover:bg-muted"
+        }
+        onDetail={() => {
+          setShown(o);
+          setOpen(true);
+        }}
       >
         <span
           aria-hidden
@@ -119,19 +130,68 @@ export default function Choose<V extends string>(props: ChooseProps<V>) {
           </span>
           {o.description && <span className={cn("text-[14px] font-400", o.disabled ? "" : "text-gray-500")}>{o.description}</span>}
         </span>
-      </ToggleGroupItem>
+      </CardFrame>
     ),
   );
 
-  return props.multiple ? (
-    <ToggleGroup type="multiple" value={props.value} onValueChange={(v) => props.onChange(v as V[])} {...common}>
-      {items}
-    </ToggleGroup>
-  ) : (
-    // 하나 고르기는 고른 것을 다시 눌러도 비우지 않는다
-    <ToggleGroup type="single" value={props.value ?? ""} onValueChange={(v) => v && props.onChange(v as V)} {...common}>
-      {items}
-    </ToggleGroup>
+  return (
+    <>
+      {props.multiple ? (
+        <ToggleGroup type="multiple" value={props.value} onValueChange={(v) => props.onChange(v as V[])} {...common}>
+          {items}
+        </ToggleGroup>
+      ) : (
+        // 하나 고르기는 고른 것을 다시 눌러도 비우지 않는다
+        <ToggleGroup type="single" value={props.value ?? ""} onValueChange={(v) => v && props.onChange(v as V)} {...common}>
+          {items}
+        </ToggleGroup>
+      )}
+      {shown?.detail && (
+        <Sheet open={open} onOpenChange={setOpen} title={shown.label} description={shown.detail.text}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {shown.detail.image && <img src={shown.detail.image} alt={`${shown.label} 사진`} className="w-full rounded-[12px] bg-gray-100" />}
+        </Sheet>
+      )}
+    </>
+  );
+}
+
+/** 카드 한 칸 — 자세히가 있으면 테두리를 바깥 틀로 옮기고 오른쪽에 「자세히 ›」(글 = Sheet 머리 글 버튼, 꺾쇠 = NavRow, 오른쪽 여백 = 카드 px-5) */
+function CardFrame<V extends string>({
+  option: o,
+  invalid,
+  look,
+  onDetail,
+  children,
+}: {
+  option: ChooseOption<V>;
+  invalid?: boolean;
+  look: string;
+  onDetail: () => void;
+  children: React.ReactNode;
+}) {
+  const item = (
+    <ToggleGroupItem
+      value={o.value}
+      disabled={o.disabled}
+      aria-invalid={invalid}
+      className={cn(
+        "flex h-auto items-start justify-start gap-3 rounded-[12px] px-5 py-4 text-left transition-colors",
+        o.detail ? "min-w-0 flex-1 hover:bg-transparent data-[state=on]:bg-transparent" : cn("w-full border aria-[invalid=true]:border-destructive", look),
+      )}
+    >
+      {children}
+    </ToggleGroupItem>
+  );
+  if (!o.detail) return item;
+  return (
+    <div className={cn("flex rounded-[12px] border transition-colors", look, invalid && "border-destructive")}>
+      {item}
+      <button type="button" onClick={onDetail} className="flex shrink-0 items-center self-stretch pl-3 pr-5 text-[15px]/[22px] font-500 text-gray-400">
+        자세히
+        <ChevronRight className="size-5" />
+      </button>
+    </div>
   );
 }
 
