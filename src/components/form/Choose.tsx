@@ -36,6 +36,8 @@ export interface ChooseOption<V extends string> {
    * (2026-11-15 사용자 「선택과 내용 보기를 구분」). 「자세히」는 카드 버튼 안이 아니라 옆에 둔다(버튼 안 버튼 금지).
    */
   detail?: { text: React.ReactNode; images?: string[] };
+  /** 카드 아래 칸 — 체크·그림·글 줄 밑에 카드 왼쪽 끝부터 오른쪽 끝까지(상황 입력 첫 장 품목 미리보기, 2026-11-15) */
+  extra?: React.ReactNode;
 }
 
 type Single<V extends string> = { multiple?: false; value: V | null; onChange: (v: V) => void };
@@ -111,6 +113,7 @@ export default function Choose<V extends string>(props: ChooseProps<V>) {
           setOpen(true);
         }}
       >
+        <CardBody extra={o.extra}>
         <span
           aria-hidden
           data-state={picked(o.value) ? "checked" : "unchecked"}
@@ -131,6 +134,7 @@ export default function Choose<V extends string>(props: ChooseProps<V>) {
           </span>
           {o.description && <span className={cn("text-[14px] font-400", o.disabled ? "" : "text-gray-500")}>{o.description}</span>}
         </span>
+        </CardBody>
       </CardFrame>
     ),
   );
@@ -200,6 +204,17 @@ function DetailPopup({
         )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+/** 카드 속 — 아래 칸(extra)이 있으면 체크·그림·글 줄 밑에 카드 폭 전체로, 사이는 카드 안 간격(12) */
+function CardBody({ extra, children }: { extra?: React.ReactNode; children: React.ReactNode }) {
+  if (!extra) return <>{children}</>;
+  return (
+    <span className="flex w-full flex-col gap-3">
+      <span className="flex w-full items-start gap-3">{children}</span>
+      {extra}
+    </span>
   );
 }
 
