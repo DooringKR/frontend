@@ -7,7 +7,7 @@ import { DeliveryMethod, VehicleType } from "dooring-core-domain/dist/enums/Cart
 import { useEffect, useState } from "react";
 
 import { useRequestStore, type ReceiveInput, type RequestState } from "./requestStore";
-import { situationOf, type SituationSlug } from "./situations";
+import type { SituationSlug } from "./situations";
 
 export type StepKey = "situation" | "install" | "site" | "recipient";
 
@@ -45,11 +45,10 @@ export function receiveDone(r: ReceiveInput | null, urgent = false): boolean {
 /** 품목 장이 끝났는지 — 품목을 골랐거나 「직접 입력」을 눌렀다 */
 export const buttonsReady = (s: RequestState, slug: SituationSlug) => (s.parts[slug]?.buttons.length ?? 0) > 0 || !!s.parts[slug]?.direct;
 
-/** 설명 장이 끝났는지 — 품목 없이 직접 입력이면 설명 글, 기존 사진을 묻는 상황(문짝·가구 교체)이면 사진 한 장 이상(QA 「단계별 가구 종류 및 시나리오 수정」 2026-11-15) */
+/** 설명 장이 끝났는지 — 품목 없이 직접 입력이면 설명 글이 있어야 한다. 사진·글은 그 밖엔 선택(QA 「단계별 가구 종류 및 시나리오 수정」 2026-11-15) */
 export function detailReady(s: RequestState, slug: SituationSlug): boolean {
   const p = s.parts[slug];
-  const onlyDirect = !!p?.direct && !p.buttons.length;
-  return (!onlyDirect || !!p?.amountNote.trim()) && (!situationOf(slug)?.asksBefore || (s.beforePhotoPaths?.[slug]?.length ?? 0) > 0);
+  return !(p?.direct && !p.buttons.length) || !!p.amountNote.trim();
 }
 
 export function doneOf(s: RequestState): Record<StepKey, boolean> {

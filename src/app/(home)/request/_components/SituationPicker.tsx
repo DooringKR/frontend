@@ -77,7 +77,7 @@ export default function SituationPicker({ invalid }: { invalid?: boolean }) {
           ) : undefined,
           description: x.subtitle,
           // 글 이름표는 오히려 읽기 어려워 픽토그램 + 밑에 이름(2026-11-15 사용자), 카드 폭 전체에 네 칸씩(QA 「4열로」)
-          extra: s.situations.includes(x.slug) ? <ButtonPictos buttons={x.buttons} /> : undefined,
+          extra: s.situations.includes(x.slug) ? <ButtonPictos slug={x.slug} buttons={x.buttons} /> : undefined,
         }))}
       />
       <Separator className="bg-gray-100" />

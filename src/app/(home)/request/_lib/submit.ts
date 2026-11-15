@@ -30,8 +30,7 @@ export async function saveOrder(): Promise<string> {
 
   const s = useRequestStore.getState();
   const picked = SITUATIONS.filter((x) => s.situations.includes(x.slug));
-  // 기존 문짝·가구 사진을 앞에, 설명 사진을 뒤에 — 한 칸(photo_paths)에 같이 넣는다(허브 파일 공유로 함께 복사)
-  const photoPaths = picked.map((x) => [...(s.beforePhotoPaths?.[x.slug] ?? []), ...(s.photoPaths[x.slug] ?? [])]);
+  const photoPaths = picked.map((x) => s.photoPaths[x.slug] ?? []);
 
   const minutes = s.installNeeded ? s.travelMinutes : null;
   const { data: order, error } = await supabase

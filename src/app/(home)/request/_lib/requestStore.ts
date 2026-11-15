@@ -6,7 +6,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-import type { SituationSlug } from "./situations";
+import { type SituationSlug, validButtons } from "./situations";
 
 const KEEP_MS = 7 * 24 * 3600_000;
 
@@ -65,8 +65,6 @@ export interface RequestState {
   requestNote: string;
   /** 올린 사진 경로(customer-input-image 버킷 안) */
   photoPaths: Partial<Record<SituationSlug, string[]>>;
-  /** 기존에 교체할 문짝·가구 사진 경로(문짝 교체 · 설치·가구 교체 — 꼭 한 장 이상). 보낼 때 photo_paths 앞에 붙인다 */
-  beforePhotoPaths: Partial<Record<SituationSlug, string[]>>;
   /** 마지막으로 고친 때 — 7일 지나면 비운다 */
   savedAt: number | null;
   /** 마지막으로 연 화면 — 「이어서 하기」가 여기로 간다 */
@@ -99,7 +97,6 @@ const EMPTY = {
   receive: null,
   requestNote: "",
   photoPaths: {},
-  beforePhotoPaths: {},
   savedAt: null,
   lastPath: "/request",
 };
@@ -122,6 +119,14 @@ export const useRequestStore = create<RequestState>()(
       // 서버가 그린 빈 화면과 첫 화면을 맞추려고 읽기를 미룬다 — request/layout 이 화면을 그린 뒤 읽는다
       skipHydration: true,
       partialize: ({ accessInfo: _skip, ...rest }) => rest,
+      // 품목정리(2026-11-15)로 바뀐 옛 품목 이름은 읽어 올 때 버린다 — 안 보이는 품목이 골라진 채 「끝난 장」으로 세지지 않게
+      merge: (persisted, current) => {
+        const p = (persisted ?? {}) as Partial<RequestState>;
+        const parts = Object.fromEntries(
+          Object.entries(p.parts ?? {}).map(([slug, part]) => [slug, part && { ...part, buttons: validButtons(slug as SituationSlug, part.buttons ?? []) }]),
+        );
+        return { ...current, ...p, parts };
+      },
       onRehydrateStorage: () => (state) => {
         if (state?.savedAt && Date.now() - state.savedAt > KEEP_MS) state.reset();
       },

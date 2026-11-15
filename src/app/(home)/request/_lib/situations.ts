@@ -16,13 +16,15 @@ export interface Situation {
   name: "가구 추가" | "문짝 교체 · 설치" | "가구 교체";
   /** 이름 밑 한 줄(QA 「표현 변경」 2026-11-15) */
   subtitle: string;
-  /** 화면 2 버튼 — 한 상황 안에서 여러 개 고를 수 있다 */
+  /** 품목 장(2번째) 제목 — 상황마다 묻는 말이 다르다(2026-11-15 사용자) */
+  question: string;
+  /** 화면 2 버튼(품목) — 한 상황 안에서 여러 개 고를 수 있다. 목록은 노션 QA 「품목정리」 */
   buttons: string[];
+  /** 품목 그림 — 같은 이름이라도 상황마다 강조가 다를 수 있어 상황 안에 둔다 */
+  pictograms: Record<string, PictogramName>;
   pictogram: PictogramName;
   /** 상황 설명 장에서 「경첩도 필요한가요? (선택)」를 묻는다 */
   asksHinge?: boolean;
-  /** 상황 설명 장에서 「기존에 교체할 ○○의 사진을 찍어주세요」를 받는다(꼭) */
-  asksBefore?: "문짝" | "가구";
   /** 상황 추가금액(원) — 첫 장 이름 옆 칩·확인 화면 비용 칸(QA 「선택지별 추가금액 시나리오」 2026-11-15, QA 금액) */
   fee?: number;
 }
@@ -36,17 +38,22 @@ export const SITUATIONS: Situation[] = [
     slug: "door",
     name: "문짝 교체 · 설치",
     subtitle: "가구의 문짝만 교체하거나 새로운 문짝을 주문해보세요",
-    buttons: ["신발장·붙박이장 롱문만 교체", "화장대장"],
+    question: "어떤 문짝이 필요한가요?",
+    // 품목정리의 「주방(상하부장·냉장고장)」 위계는 두 칸으로 펼친다(2026-11-15 사용자 「추천대로」 — 페이지를 늘리지 않는다)
+    buttons: ["주방 상하부장", "주방 냉장고장", "베란다 창고문", "붙박이장", "신발장", "화장대장"],
+    pictograms: { "주방 상하부장": "whole", "주방 냉장고장": "flap", "베란다 창고문": "storage", 붙박이장: "longdoor", 신발장: "shoes", 화장대장: "vanity" },
     pictogram: "door",
     fee: 100_000,
     asksHinge: true,
-    asksBefore: "문짝",
   },
   {
     slug: "partial",
     name: "가구 추가",
     subtitle: "전체 리모델링이 아니어도, 부분적으로 맞춤가구를 주문해보세요",
-    buttons: ["창고문", "냉장고장", "서랍장", "식기세척기장"],
+    question: "어떤 가구가 필요한가요?",
+    buttons: ["붙박이장", "신발장", "냉장고장", "키큰 수납장", "아일랜드장", "베란다 창고장"],
+    // 키큰 수납장·아일랜드장은 맞는 그림이 아직 없어 가까운 것을 임시로
+    pictograms: { 붙박이장: "longdoor", 신발장: "shoes", 냉장고장: "fridge", "키큰 수납장": "cabinet", 아일랜드장: "dish", "베란다 창고장": "storage" },
     pictogram: "partial",
     asksHinge: true,
   },
@@ -54,10 +61,12 @@ export const SITUATIONS: Situation[] = [
     slug: "cabinet",
     name: "가구 교체",
     subtitle: "기존 가구가 있던 자리에 새로운 가구를 넣어보세요",
-    buttons: ["냉장고장 플랩문 교체", "전체 교체", "신발장 전체 교체", "식세기 자리에 장 채우기"],
+    question: "어떤 가구를 교체하실 건가요?",
+    buttons: ["식기세척기자리 수납장", "붙박이장 내부 교체", "냉장고자리 수납장"],
+    // 냉장고자리 수납장은 맞는 그림이 아직 없어 가까운 것을 임시로
+    pictograms: { "식기세척기자리 수납장": "fill", "붙박이장 내부 교체": "longdoor", "냉장고자리 수납장": "fridge" },
     pictogram: "cabinet",
     fee: 100_000,
-    asksBefore: "가구",
   },
 ];
 
@@ -67,18 +76,10 @@ export const URGENT_WHEN = "당일 또는 3일 이내";
 /** 칩에 들어가는 짧은 기한 — 이름 옆 한 줄(390px 카드 글 칸 217px)에 칩 둘이 들어가게 */
 export const URGENT_WHEN_SHORT = "당일~3일";
 
-/** 화면 2 버튼 그림 — 버튼 이름은 어드민과 맞물려 있어 그림은 따로 둔다 */
-export const BUTTON_PICTOGRAM: Record<string, PictogramName> = {
-  창고문: "storage",
-  냉장고장: "fridge",
-  서랍장: "drawer",
-  식기세척기장: "dish",
-  "신발장·붙박이장 롱문만 교체": "longdoor",
-  화장대장: "vanity",
-  "냉장고장 플랩문 교체": "flap",
-  "전체 교체": "whole",
-  "신발장 전체 교체": "shoes",
-  "식세기 자리에 장 채우기": "fill",
+/** 품목 그림 — 상황 안 대응표에서(같은 이름이 여러 상황에 있다), 없으면 상황 그림 */
+export const pictogramOf = (slug: SituationSlug, name: string): PictogramName => {
+  const x = SITUATIONS.find((s) => s.slug === slug);
+  return x?.pictograms[name] ?? x?.pictogram ?? "partial";
 };
 
 /**
@@ -87,7 +88,7 @@ export const BUTTON_PICTOGRAM: Record<string, PictogramName> = {
  * 아직 없는 품목: 화장대장(문만인지 장 새로인지 범위 미정)·냉장고장·전체 교체(이름부터)·서랍장·신발장 전체 교체(이름으로 충분).
  */
 export const BUTTON_DETAIL: Record<string, { text: string; photos: string[] }> = {
-  창고문: { text: "베란다·다용도실 수납장을 깔끔하게 가려주고 습기와 먼지를 막아주는 맞춤형 가구 도어입니다.", photos: ["/img/request/storage.jpg"] },
+  "베란다 창고문": { text: "베란다·다용도실 수납장을 깔끔하게 가려주고 습기와 먼지를 막아주는 맞춤형 가구 도어입니다.", photos: ["/img/request/storage.jpg"] },
   "신발장·붙박이장 롱문만 교체": {
     text: "신발장·붙박이장 몸통은 그대로 두고 키 큰 문짝(롱문)만 새로 맞춰 다는 주문입니다. 장은 아직 쓸 만한데 문 색이나 상태만 바꾸고 싶을 때 고릅니다.",
     photos: ["/img/request/longdoor-1.jpg", "/img/request/longdoor-2.jpg", "/img/request/longdoor-3.jpg"],
@@ -106,14 +107,14 @@ export const BUTTON_DETAIL: Record<string, { text: string; photos: string[] }> =
   },
 };
 
-/** 첫 장 미리보기의 그림 밑 짧은 이름(2026-11-15 사용자) — 없으면 버튼 이름 그대로 */
+/** 그림 칸 밑 짧은 이름 — 네 칸 폭(약 73px)에 낱말이 안 들어가는 것만. 나머지는 이름 그대로 띄어쓰기에서 두 줄 */
 export const BUTTON_SHORT: Record<string, string> = {
-  "신발장·붙박이장 롱문만 교체": "롱문",
-  "냉장고장 플랩문 교체": "플랩문",
-  "전체 교체": "전체",
-  "신발장 전체 교체": "신발장",
-  "식세기 자리에 장 채우기": "식기세척기장",
+  "식기세척기자리 수납장": "식기세척기장",
 };
+
+/** 기기에 남은 작성 중 주문의 옛 품목 이름 — 지금 목록에 없는 것은 버린다(품목정리로 바뀐 뒤 2026-11-15) */
+export const validButtons = (slug: SituationSlug, buttons: string[]) =>
+  buttons.filter((b) => SITUATIONS.find((s) => s.slug === slug)?.buttons.includes(b));
 
 export const situationOf =(slug: string) => SITUATIONS.find((s) => s.slug === slug) ?? null;
 
@@ -134,7 +135,10 @@ export const FULLSET = {
   formUrl: "https://tally.so/r/w7BRW0",
 };
 
-/** 품목 장 맨 아래 — 누르면 품목 없이 바로 설명 장으로(QA 「단계별 가구 종류 및 시나리오 수정」 2026-11-15). 저장할 때 버튼 자리에는 「직접 입력」 */
+/**
+ * 품목 장 맨 아래 — 탑다운으로 정의한 품목에 없는 주문을 받는 칸(QA 「단계별 가구 종류 및 시나리오 수정」 2026-11-15).
+ * 품목을 하나라도 고르면 막힌다(사용자 「추천대로」). 누르면 품목 없이 바로 설명 장으로, 그때는 설명 글이 꼭 있어야 한다. 저장할 때 버튼 자리에는 「직접 입력」
+ */
 export const DIRECT = { label: "AS가 필요한 상황을 직접 입력할게요", button: "직접 입력" };
 
 /** 칩 글 — 150000 → 「15만 원」 */
