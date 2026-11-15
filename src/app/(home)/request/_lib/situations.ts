@@ -80,10 +80,11 @@ export const pictogramOf = (slug: SituationSlug, name: string): PictogramName =>
   return x?.pictograms[name] ?? x?.pictogram ?? "partial";
 };
 
-/** 품목 고르기 장의 「자세히」 설명·실제 사진 여러 장(QA 「가구 선택 단계에서 상세 설명」 2026-11-15) — 창고문만 시범, 보고 나서 다른 품목도 */
-export const BUTTON_DETAIL: Record<string, { text: string; photos: string[] }> = {
-  "베란다 창고문": { text: "베란다·다용도실 수납장을 깔끔하게 가려주고 습기와 먼지를 막아주는 맞춤형 가구 도어입니다.", photos: ["/img/request/storage.jpg"] },
-};
+/**
+ * 품목 고르기 장의 「자세히」 설명·실제 사진(QA 「가구 선택 단계에서 상세 설명」) — 운영에서는 뺀다(2026-11-15 사용자 「자세히는 운영에서 제외하자」).
+ * 문구·사진은 브랜치 feat/button-detail 에서 확정될 때까지 다듬는다. 비어 있으면 「자세히 ›」 버튼이 안 뜬다.
+ */
+export const BUTTON_DETAIL: Record<string, { text: string; photos: string[] }> = {};
 
 /** 그림 칸 밑 짧은 이름 — 네 칸 폭(약 73px)에 낱말이 안 들어가는 것만. 나머지는 이름 그대로 띄어쓰기에서 두 줄 */
 export const BUTTON_SHORT: Record<string, string> = {
