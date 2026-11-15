@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 
+import ButtonPictos from "./_components/ButtonPictos";
 import SituationPicker from "./_components/SituationPicker";
 import StepShell from "./_components/StepShell";
 import { askedDraft, markAskedDraft, nextPathOf, useHydrated } from "./_lib/flow";
@@ -218,9 +219,9 @@ export default function RequestStartPage() {
   const titleError =
     (cur.kind === "pick" && invalid("situations")) || (cur.kind === "buttons" && invalid(cur.s.slug)) ? PICK_MESSAGE : undefined;
   const title = cur.kind === "pick" ? "어떤 상황인가요?" : cur.kind === "fullset" ? FULLSET.title : cur.s.name;
-  const subtitle = cur.kind === "detail" ? buttonsOf(cur.s.slug).join(", ") : cur.kind === "fullset" ? FULLSET.description : undefined;
-  // 자세히 장은 제목 밑에 고른 버튼 줄이 붙어 슬라이드가 내려간다 — 그린 뒤 다시 맞춘다(안 그러면 16px 넘쳐 스크롤바)
-  useLayoutEffect(() => fitRef.current(), [at, subtitle]);
+  // 제목 밑 부제는 쓰지 않는다 — 장마다 제목 높이가 같아야 점 줄이 늘 같은 자리(QA 「가구 추가 시」 2026-11-15 「페이지 위치를 알리는 ui 는 고정」).
+  // 고른 가구·풀세트 설명은 장 안으로. 장이 바뀐 뒤 높이를 다시 맞춘다
+  useLayoutEffect(() => fitRef.current(), [at]);
 
   const savedAt = s.savedAt
     ? new Date(s.savedAt).toLocaleString("ko-KR", {
@@ -241,7 +242,6 @@ export default function RequestStartPage() {
         count: slides.length,
       }}
       title={title}
-      subtitle={subtitle}
       nextReady={nextReady}
       // 바로배송 없이 상황만 골랐으면 바로배송을 한 번 더 권한다(QA 「바로배송 강조」 2026-11-15, 문구는 사용자).
       // 상황 묶음 밑에 두면 첫 장이 길어 아래 버튼에 가려 안 보였다 — 아래 버튼 바로 위에 붙여 늘 보이고 카드도 안 밀린다
@@ -270,6 +270,8 @@ export default function RequestStartPage() {
             ) : sl.kind === "fullset" ? (
               // 네 → 개수대연구소 상담 폼(새 탭), 아니요·다음 → 품목 고르기
               <CarouselItem key="partial-fullset" className="flex flex-col gap-3 px-5">
+                {/* 설명은 장 안에(제목 밑 부제 대신 — 점 줄 자리 고정), 글자는 Header 부제와 같게 */}
+                <p className="mb-2 text-[17px] text-gray-500">{FULLSET.description}</p>
                 <NavRow card external href={FULLSET.formUrl} label="네, 주방 풀세트예요" icon={<Pictogram name="whole" />} />
                 <NavRow card label="아니요, 일부 가구만 필요해요" icon={<Pictogram name="partial" />} onClick={() => api?.scrollNext()} />
               </CarouselItem>
@@ -359,6 +361,12 @@ function DetailFields({
   const paths = s.photoPaths[x.slug] ?? [];
   return (
     <>
+      {/* 고른 가구 — 제목 밑 글 대신 그림 칸으로(QA 「가구 추가 시」 「결정한 가구의 위치가 이상함」, 첫 장 미리보기와 같은 컴포넌트) */}
+      {part.buttons.length > 0 && (
+        <Field label="고른 가구">
+          <ButtonPictos buttons={part.buttons} />
+        </Field>
+      )}
       <Field label="현장 사진 (선택)" error={photoError}>
         <PhotoPick
           value={[]}
