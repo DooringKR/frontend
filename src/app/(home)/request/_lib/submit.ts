@@ -73,6 +73,7 @@ export async function saveOrder(): Promise<string> {
         situation: x.name,
         buttons: p?.buttons.length ? p.buttons : p?.direct ? [DIRECT.button] : [],
         photo_paths: photoPaths[i],
+        current_photo_paths: s.currentPhotoPaths[x.slug] ?? [],
         amount_note: p?.amountNote.trim() || null,
         // 경첩 답은 메모 칸에(DB 칸을 늘리지 않는다) — 어드민 문의 메모에 「메모: 경첩 필요」로 보인다
         memo: [p?.memo.trim(), p?.hinge === true ? "경첩 필요" : p?.hinge === false ? "경첩 필요 없음" : null].filter(Boolean).join(" · ") || null,

@@ -197,14 +197,16 @@ export default function RequestStartPage() {
     requestAnimationFrame(() => requestAnimationFrame(() => api?.scrollNext()));
   };
 
-  const addPhotos = async (slug: SituationSlug, files: File[]) => {
-    const key = slug;
+  /** 사진은 고르는 즉시 올린다 — ref = 참고 사진(photoPaths), current = 현재 상태(currentPhotoPaths) */
+  const addPhotos = async (slug: SituationSlug, files: File[], kind: "ref" | "current" = "ref") => {
+    const key = `${slug}:${kind}`;
     setUploading(key);
     setPhotoError(e => ({ ...e, [key]: undefined }));
     try {
       const paths = await uploadPhotos(files);
-      const cur = useRequestStore.getState().photoPaths;
-      s.set({ photoPaths: { ...cur, [slug]: [...(cur[slug] ?? []), ...paths] } });
+      const field = kind === "current" ? "currentPhotoPaths" : "photoPaths";
+      const cur = useRequestStore.getState()[field];
+      s.set({ [field]: { ...cur, [slug]: [...(cur[slug] ?? []), ...paths] } });
       trackRequest("Photo Uploaded", { situation: slug, count: files.length, ok: true });
     } catch (e) {
       console.error("[request] 사진 올리기 실패", e);
@@ -319,7 +321,7 @@ export default function RequestStartPage() {
                   uploading={uploading}
                   photoError={photoError}
                   invalid={invalid(`${sl.s.slug}:detail`)}
-                  onPhotos={files => files.length > 0 && void addPhotos(sl.s.slug, files)}
+                  onPhotos={(files, kind) => files.length > 0 && void addPhotos(sl.s.slug, files, kind)}
                 />
               </CarouselItem>
             ),
@@ -366,10 +368,11 @@ export default function RequestStartPage() {
 }
 
 /**
- * 상황 하나의 설명 장 — 제목 「어떤 상황인지 알려주시겠어요?」(QA 「단계별 가구 종류 및 시나리오 수정」 2026-11-15). 치수는 받지 않는다(실무자가 실측하거나 전화로 받는다).
- *  - QA 원문 순서: 고른 가구(그림 칸) → 추가 부속 「경첩도 필요한가요?」(선택, 문짝·가구 추가) → 「필요한 가구 또는 상황을 설명해주세요」 사진 칸 + 글 칸
- *    (옛 현장 사진·대략적인 양·기존 정보 요청을 하나로, 메모 칸은 뺌)
- *  - 사진·글은 선택. 품목 없이 직접 입력이면 글이 꼭 있어야 한다
+ * 상황 하나의 설명 장 — 제목 「어떤 상황인지 알려주시겠어요?」. 치수는 받지 않는다(실무자가 실측하거나 전화로 받는다).
+ * 순서(QA 「단계별 가구 종류 및 시나리오 수정」, 2026-11-15 사용자 수정):
+ *  고른 가구 → 경첩도 필요한가요? (선택, 문짝·가구 추가) → [현재 상태 | 참고 사진] → 상황 설명
+ *  - 현재 상태: 교체 상황(문짝·가구)만, 필수. 옛 「기존 정보 요청」. 참고 사진과 두 칸 나란히(한 칸 높이)
+ *  - 참고 사진: 선택. 상황 설명: 세 상황 모두 필수
  */
 function DetailFields({
   s: x,
@@ -383,12 +386,36 @@ function DetailFields({
   photoError: Record<string, string | undefined>;
   /** 다음을 눌러 봤는데 덜 채움 — 빠진 칸에 알림 */
   invalid: boolean;
-  onPhotos: (files: File[]) => void;
+  onPhotos: (files: File[], kind: "ref" | "current") => void;
 }) {
   const s = useRequestStore();
   const part = s.parts[x.slug] ?? emptyPart();
-  const paths = s.photoPaths[x.slug] ?? [];
-  const textMissing = invalid && !!part.direct && part.buttons.length === 0 && !part.amountNote.trim();
+  const refs = s.photoPaths[x.slug] ?? [];
+  const currents = s.currentPhotoPaths[x.slug] ?? [];
+  const textMissing = invalid && !part.amountNote.trim();
+  const currentMissing = invalid && !!x.current && currents.length === 0;
+  const photos = (kind: "ref" | "current") => {
+    const paths = kind === "current" ? currents : refs;
+    const field = kind === "current" ? "currentPhotoPaths" : "photoPaths";
+    return (
+      <PhotoPick
+        value={[]}
+        maxFiles={5}
+        narrow={!!x.current}
+        invalid={kind === "current" && currentMissing}
+        placeholder={kind === "current" ? x.current : undefined}
+        busy={uploading === `${x.slug}:${kind}`}
+        uploaded={paths.map((p, n) => ({ src: photoUrlOf(p), name: `${x.name} ${kind === "current" ? "현재 상태" : "참고"} 사진 ${n + 1}` }))}
+        onRemoveUploaded={n => s.set({ [field]: { ...s[field], [x.slug]: paths.filter((_, k) => k !== n) } })}
+        onChange={files => onPhotos(files, kind)}
+      />
+    );
+  };
+  const refField = (
+    <Field label="참고 사진 (선택)" error={photoError[`${x.slug}:ref`]}>
+      {photos("ref")}
+    </Field>
+  );
   return (
     <>
       {/* 고른 가구 — 제목 밑 글 대신 그림 칸으로(QA 「가구 추가 시」, 첫 장 미리보기와 같은 컴포넌트) */}
@@ -411,18 +438,18 @@ function DetailFields({
           />
         </Field>
       )}
-      {/* 추가 부속(선택) 다음에 설명 — QA 원문 순서. 칸 이름은 QA 원문 그대로 */}
-      <Field label="필요한 가구 또는 상황을 설명해주세요" error={photoError[x.slug] ?? (textMissing ? TYPE_MESSAGE : undefined)}>
-        <PhotoPick
-          value={[]}
-          maxFiles={5}
-          busy={uploading === x.slug}
-          uploaded={paths.map((p, n) => ({ src: photoUrlOf(p), name: `${x.name} 사진 ${n + 1}` }))}
-          onRemoveUploaded={n =>
-            s.set({ photoPaths: { ...s.photoPaths, [x.slug]: paths.filter((_, k) => k !== n) } })
-          }
-          onChange={onPhotos}
-        />
+      {/* 사진 — 교체 상황은 현재 상태(필수)와 참고 사진(선택)을 두 칸 나란히, 가구 추가는 참고 사진만 */}
+      {x.current ? (
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="현재 상태" error={photoError[`${x.slug}:current`] ?? (currentMissing ? PICK_MESSAGE : undefined)}>
+            {photos("current")}
+          </Field>
+          {refField}
+        </div>
+      ) : (
+        refField
+      )}
+      <Field label="상황 설명" error={textMissing ? TYPE_MESSAGE : undefined}>
         <Textarea
           aria-invalid={textMissing || undefined}
           placeholder="예) 문짝 2장, 하부장 1m"

@@ -22,6 +22,8 @@ export default function PhotoPick({
   uploaded = [],
   onRemoveUploaded,
   busy = false,
+  invalid = false,
+  narrow = false,
 }: {
   value: File[];
   onChange: (files: File[]) => void;
@@ -36,6 +38,10 @@ export default function PhotoPick({
   onRemoveUploaded?: (i: number) => void;
   /** 올리는 중 */
   busy?: boolean;
+  /** 필수인데 비었음 — 점선 상자를 빨갛게(미입력은 글 대신 테두리) */
+  invalid?: boolean;
+  /** 두 칸 나란히(교체 상황의 현재 상태·참고 사진) — 상자 높이를 맞추고 사진은 2열 */
+  narrow?: boolean;
 }) {
   const input = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
@@ -65,6 +71,7 @@ export default function PhotoPick({
       <button
         type="button"
         disabled={disabled || full || busy}
+        aria-invalid={invalid || undefined}
         onClick={() => input.current?.click()}
         onDragOver={(e) => {
           e.preventDefault();
@@ -78,11 +85,12 @@ export default function PhotoPick({
         }}
         className={cn(
           "flex w-full flex-col items-center gap-1 rounded-[12px] border border-dashed px-6 py-5 text-center transition-colors disabled:cursor-not-allowed disabled:opacity-50",
-          over ? "border-brand-300 bg-brand-50" : "border-input hover:border-brand-100",
+          narrow && "min-h-[148px] justify-center px-3",
+          over ? "border-brand-300 bg-brand-50" : invalid ? "border-destructive" : "border-input hover:border-brand-100",
         )}
       >
         {busy ? <Loader2 className="size-7 animate-spin text-gray-400" /> : <ImagePlus className="size-7 text-gray-400" />}
-        <span className="text-[14px] text-gray-500">{busy ? "올리는 중" : full ? `${maxFiles}장을 다 골랐어요` : placeholder}</span>
+        <span className="break-keep text-[14px] text-gray-500">{busy ? "올리는 중" : full ? `${maxFiles}장을 다 골랐어요` : placeholder}</span>
         <span className="text-[12px] text-gray-400">
           최대 {maxSizeMB}MB · {maxFiles}장
         </span>
@@ -94,7 +102,7 @@ export default function PhotoPick({
         </p>
       )}
       {count > 0 && (
-        <div className="grid grid-cols-3 gap-3">
+        <div className={cn("grid gap-3", narrow ? "grid-cols-2" : "grid-cols-3")}>
           {uploaded.map((u, i) => (
             <div key={u.src} className="relative aspect-square overflow-hidden rounded-[12px] bg-gray-100">
               {/* eslint-disable-next-line @next/next/no-img-element */}

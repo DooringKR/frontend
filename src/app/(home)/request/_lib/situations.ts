@@ -25,6 +25,8 @@ export interface Situation {
   pictogram: PictogramName;
   /** 상황 설명 장에서 「경첩도 필요한가요? (선택)」를 묻는다 */
   asksHinge?: boolean;
+  /** 교체 상황(문짝·가구) — 설명 장 「현재 상태」 사진(필수)의 안내 글. QA 「기존 정보 요청」(→ 현재 상태, 2026-11-15 사용자) */
+  current?: string;
   /** 상황 추가금액(원) — 첫 장 이름 옆 칩·확인 화면 비용 칸(QA 「선택지별 추가금액 시나리오」 2026-11-15, QA 금액) */
   fee?: number;
 }
@@ -45,6 +47,7 @@ export const SITUATIONS: Situation[] = [
     pictogram: "door",
     fee: 100_000,
     asksHinge: true,
+    current: "기존에 교체할 문짝의 사진을 찍어주세요",
   },
   {
     slug: "partial",
@@ -64,6 +67,7 @@ export const SITUATIONS: Situation[] = [
     buttons: ["식기세척기자리 수납장", "붙박이장 내부 교체", "냉장고자리 수납장"],
     pictograms: { "식기세척기자리 수납장": "fill", "붙박이장 내부 교체": "inner", "냉장고자리 수납장": "fridgeFill" },
     pictogram: "cabinet",
+    current: "기존에 교체할 가구의 사진을 찍어주세요",
     fee: 100_000,
   },
 ];

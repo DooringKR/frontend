@@ -22,7 +22,7 @@ import { NotLoggedIn, photoUrlOf, sendRepairInquiry, uploadPhotos } from "../_li
 /**
  * 가구 단순 수리 — 상황 접수(노션 QA 「단계별 가구 종류 및 시나리오 수정」 2026-11-15, 사용자 「받은 내용은 폼으로 저장해서 어드민에서 모아 보게」).
  * 글·사진을 남기면 SituationOrder(kind = repair_inquiry)에 쌓이고, 관리자가 어드민 「가구 단순 수리 문의」에서 보고 전화로 답한다.
- *  - 문구는 QA 원문 그대로(제목 = 안내 문장, 아래 = ※ 줄), 칸은 설명 장의 「필요한 가구 또는 상황을 설명해주세요」(사진 + 글)
+ *  - 문구는 QA 원문 그대로(제목 = 안내 문장, 아래 = ※ 줄), 칸은 상황 주문 설명 장과 같은 「참고 사진 (선택)」·「상황 설명」
  *  - 상황 주문처럼 로그인해야 보낸다 — 연락처는 가입 정보. 글·사진은 기기에 남아 로그인하고 돌아와도 그대로
  *  - 글은 필수, 사진은 선택
  */
@@ -87,8 +87,9 @@ export default function RepairInquiryPage() {
     <div className="flex flex-col pt-[60px] pb-[140px]">
       <TopNavigator />
       <Header title="수리가 필요한 상황을 적어주시면, 확인 후 가능 여부를 답변 드릴게요" subtitle="※ 현재 기준 양 이하의 작은 수리 작업은 불가할 수 있어요." />
-      <div className="px-5 pt-8">
-        <Field label="필요한 가구 또는 상황을 설명해주세요" fieldRef={req.ref("note")} error={photoError ?? req.error("note")}>
+      <div className="flex flex-col gap-5 px-5 pt-8">
+        {/* 상황 주문 설명 장과 같게 — 참고 사진(선택)과 상황 설명(필수)을 나눈다(2026-11-15 사용자) */}
+        <Field label="참고 사진 (선택)" error={photoError}>
           <PhotoPick
             value={[]}
             maxFiles={5}
@@ -97,6 +98,8 @@ export default function RepairInquiryPage() {
             onRemoveUploaded={(n) => s.set({ repairPhotos: s.repairPhotos.filter((_, k) => k !== n) })}
             onChange={(files) => void addPhotos(files)}
           />
+        </Field>
+        <Field label="상황 설명" fieldRef={req.ref("note")} error={req.error("note")}>
           <Textarea
             aria-invalid={!!req.error("note") || undefined}
             placeholder="예) 서랍 레일이 고장났어요"

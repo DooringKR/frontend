@@ -65,6 +65,8 @@ export interface RequestState {
   requestNote: string;
   /** 올린 사진 경로(customer-input-image 버킷 안) */
   photoPaths: Partial<Record<SituationSlug, string[]>>;
+  /** 교체 상황의 「현재 상태」 사진 경로(필수) — photoPaths 는 「참고 사진」(선택) */
+  currentPhotoPaths: Partial<Record<SituationSlug, string[]>>;
   /** 가구 단순 수리 접수 — 글·사진 경로(로그인하고 돌아와도 남게) */
   repairNote: string;
   repairPhotos: string[];
@@ -100,6 +102,7 @@ const EMPTY = {
   receive: null,
   requestNote: "",
   photoPaths: {},
+  currentPhotoPaths: {},
   repairNote: "",
   repairPhotos: [] as string[],
   savedAt: null,
