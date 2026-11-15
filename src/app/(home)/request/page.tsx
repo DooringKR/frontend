@@ -295,11 +295,11 @@ export default function RequestStartPage() {
                       <>
                         {x.subtitle}
                         {/* 글 이름표는 오히려 읽기 어려워 픽토그램 + 밑에 이름(2026-11-15 사용자).
-                            이름은 짧게(BUTTON_SHORT)·그림은 이름 가운데. 치수는 있는 규칙 그대로: 그림 32(Pictogram 기본·카드 그림과 같음), 이름 12/16·간격 4(단계 줄 이름), 두 칸씩·그림 위 이름 아래(NavTiles), 칸 사이 8(Choose) */}
+                            이름은 짧게(BUTTON_SHORT)·그림과 이름은 칸 가운데(이름 길이와 상관없이 그림끼리 줄이 맞게). 치수는 있는 규칙 그대로: 그림 32(Pictogram 기본·카드 그림과 같음), 이름 12/16·간격 4(단계 줄 이름), 두 칸씩·그림 위 이름 아래(NavTiles), 칸 사이 8(Choose) */}
                         {s.situations.includes(x.slug) && (
                           <span className="mt-2 grid grid-cols-2 gap-2">
                             {x.buttons.map(b => (
-                              <span key={b} className="flex w-fit flex-col items-center gap-1">
+                              <span key={b} className="flex flex-col items-center gap-1">
                                 <Pictogram name={BUTTON_PICTOGRAM[b]} />
                                 <span className="text-[12px] leading-4 font-500 text-gray-700">{BUTTON_SHORT[b] ?? b}</span>
                               </span>
