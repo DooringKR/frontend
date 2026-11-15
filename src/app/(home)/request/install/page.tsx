@@ -18,7 +18,8 @@ import { type ReceiveInput, useRequestStore } from "../_lib/requestStore";
 /**
  * 시공 정보 입력 — 시공 여부와 일정을 한 화면에(2026-11-13 QA).
  * 시공이 필요하면 희망 시공 날짜, 필요 없으면 구 바로가구처럼 받는 방법(배송: 수령 방법·날짜·시간 / 픽업: 차량·날짜·시간).
- * 날짜는 바로배송이어도 고른다 — 바로배송이면 오늘~3일 뒤, 아니면 내일부터(flow.ts dateRangeOf). 시간은 날짜 옆 칸, 날짜를 고른 뒤에(구 바로가구 DateTimeRow 와 같은 모양).
+ * 날짜는 바로배송이어도 고른다 — 바로배송이면 오늘~3일 뒤, 아니면 내일부터(flow.ts dateRangeOf). 시간은 날짜 옆 칸, 날짜를 고른 뒤에(구 바로가구 DateTimeRow 와 같은 모양), 30분 단위.
+ * 시공은 바로배송일 때만 시간을 받는다(구 바로가구 오늘배송처럼 시각이 중요할 때).
  * (QA 「희망 도착 날짜에 시간도 적어야 함, 바로배송을 골라도 희망시공 날짜 고를 수 있어야 함」 2026-11-15)
  * 완료 판정은 flow.ts doneOf.install 과 같다.
  */
@@ -35,7 +36,7 @@ export default function InstallPage() {
     s.installNeeded === null
       ? { install: PICK, method: true, how: true, date: true }
       : s.installNeeded
-        ? { install: true, method: true, how: true, date: dateOk(s.urgent, s.preferredDate) || PICK }
+        ? { install: true, method: true, how: true, date: (dateOk(s.urgent, s.preferredDate) && (!s.urgent || !!s.preferredTime)) || PICK }
         : {
             install: true,
             method: !!r || PICK,
@@ -78,14 +79,30 @@ export default function InstallPage() {
 
       {s.installNeeded === true && (
         <Field label="희망 시공 날짜" fieldRef={req.ref("date")} error={req.error("date")}>
-          <DateField
-            aria-invalid={!!req.error("date")}
-            title="희망 시공 날짜"
-            min={range.min}
-            max={range.max}
-            value={s.preferredDate}
-            onChange={v => s.set({ preferredDate: v })}
-          />
+          {/* 바로배송이면 시간도(바로가구 QA 2026-11-15) — 배송·픽업과 같은 날짜·시간 한 줄 */}
+          <div className="flex gap-2">
+            <DateField
+              className="flex-1"
+              aria-invalid={!!req.error("date") && !dateOk(s.urgent, s.preferredDate)}
+              title="희망 시공 날짜"
+              placeholder={s.urgent ? "날짜" : undefined}
+              min={range.min}
+              max={range.max}
+              value={s.preferredDate}
+              onChange={v => s.set({ preferredDate: v })}
+            />
+            {s.urgent && (
+              <TimeField
+                className="flex-1"
+                step={30}
+                aria-invalid={!!req.error("date") && !s.preferredTime}
+                title="희망 시공 시간"
+                disabled={!s.preferredDate}
+                value={s.preferredTime}
+                onChange={v => s.set({ preferredTime: v })}
+              />
+            )}
+          </div>
         </Field>
       )}
 
@@ -152,6 +169,7 @@ export default function InstallPage() {
                 <TimeField
                   className="flex-1"
                   aria-invalid={!!req.error("date") && !r.time}
+                  step={30}
                   title={delivery ? "희망 도착 시간" : "픽업 시간"}
                   disabled={!r.date}
                   value={r.time ?? ""}

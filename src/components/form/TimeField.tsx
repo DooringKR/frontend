@@ -20,8 +20,9 @@ function Wheel({ items, start, onPick }: { items: string[]; start: number; onPic
       direction="vertical"
       slidesPerView={5}
       centeredSlides
-      loop
-      loopAdditionalSlides={8}
+      // 칸이 적으면(30분 단위 분 00·30) 돌리지 않는다 — loop 는 보이는 칸보다 많아야 된다
+      loop={items.length > 5}
+      loopAdditionalSlides={items.length > 5 ? 8 : 0}
       initialSlide={start}
       onSlideChange={(s) => {
         setAt(s.realIndex);
@@ -40,7 +41,7 @@ function Wheel({ items, start, onPick }: { items: string[]; start: number; onPic
 
 /**
  * 시각 칸 — 칸을 누르면 시트에 시·분 휠, 「확인」으로 넣는다. 날짜 칸(DateField)과 같은 모양·자리.
- * 값은 'HH:MM'(비었으면 '').
+ * 값은 'HH:MM'(비었으면 ''). step = 분 단위(상황 주문은 30 — 바로가구 QA 2026-11-15, 기본 1분은 구 바로가구 그대로).
  */
 export default function TimeField({
   value,
@@ -50,6 +51,7 @@ export default function TimeField({
   disabled,
   className,
   "aria-invalid": invalid,
+  step = 1,
 }: {
   value: string;
   onChange: (hhmm: string) => void;
@@ -58,9 +60,14 @@ export default function TimeField({
   disabled?: boolean;
   className?: string;
   "aria-invalid"?: boolean;
+  /** 분 단위(1·30 …) */
+  step?: number;
 }) {
   const [open, setOpen] = useState(false);
-  const [h0, m0] = (value || "09:00").split(":").map(Number);
+  const minutes = MINUTES.filter((_, i) => i % step === 0);
+  const [h0, mm0] = (value || "09:00").split(":").map(Number);
+  // 단위에 안 맞는 옛 값(09:17)은 아래 칸으로
+  const m0 = Math.min(Math.floor(mm0 / step), minutes.length - 1);
   const [h, setH] = useState(h0);
   const [m, setM] = useState(m0);
   return (
@@ -88,7 +95,7 @@ export default function TimeField({
           <Button
             className="w-full"
             onClick={() => {
-              onChange(`${HOURS[h]}:${MINUTES[m]}`);
+              onChange(`${HOURS[h]}:${minutes[m]}`);
               setOpen(false);
             }}
           >
@@ -100,7 +107,7 @@ export default function TimeField({
           <>
             <Wheel items={HOURS} start={h0} onPick={setH} />
             <span className="text-[18px] text-gray-500">:</span>
-            <Wheel items={MINUTES} start={m0} onPick={setM} />
+            <Wheel items={minutes} start={m0} onPick={setM} />
           </>
         )}
       </Sheet>

@@ -53,6 +53,8 @@ export interface RequestState {
   callTime: string;
   accessInfo: string;
   preferredDate: string;
+  /** 바로배송이면 희망 시공 시간 'HH:MM'(30분 단위, 바로가구 QA 2026-11-15) */
+  preferredTime: string;
   receive: ReceiveInput | null;
   requestNote: string;
   /** 올린 사진 경로(customer-input-image 버킷 안) */
@@ -85,6 +87,7 @@ const EMPTY = {
   callTime: "",
   accessInfo: "",
   preferredDate: "",
+  preferredTime: "",
   receive: null,
   requestNote: "",
   photoPaths: {},
