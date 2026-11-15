@@ -21,8 +21,21 @@ export const CONFIRM_PATH = "/request/confirm";
 
 export const phoneOk = (phone: string) => phone.replace(/\D/g, "").length >= 10;
 
-export function receiveDone(r: ReceiveInput | null): boolean {
-  if (!r?.date) return false;
+const ymdAfter = (days: number) => new Date(Date.now() + 9 * 3600_000 + days * 24 * 3600_000).toISOString().slice(0, 10);
+
+/**
+ * 고를 수 있는 날짜(KST) — 바로배송이면 오늘~3일 뒤(「당일 또는 3일 이내」), 아니면 내일부터.
+ * 바로배송이어도 날짜를 고른다(QA 「바로배송을 골라도 희망시공 날짜 고를 수 있어야 함」 2026-11-15). 시공·배송·픽업 날짜가 같이 쓴다.
+ */
+export const dateRangeOf = (urgent: boolean): { min: string; max?: string } =>
+  urgent ? { min: ymdAfter(0), max: ymdAfter(3) } : { min: ymdAfter(1) };
+export const dateOk = (urgent: boolean, ymd: string | undefined | null) => {
+  const { min, max } = dateRangeOf(urgent);
+  return !!ymd && ymd >= min && (!max || ymd <= max);
+};
+
+export function receiveDone(r: ReceiveInput | null, urgent = false): boolean {
+  if (!dateOk(urgent, r?.date) || !r?.time) return false;
   return r.method === "delivery"
     ? !!r.deliveryMethod && (r.deliveryMethod !== DeliveryMethod.DIRECT_INPUT || !!r.deliveryMethodInput?.trim())
     : !!r.vehicle && (r.vehicle !== VehicleType.DIRECT_INPUT || !!r.vehicleInput?.trim());
@@ -32,7 +45,7 @@ export function doneOf(s: RequestState): Record<StepKey, boolean> {
   return {
     situation: s.situations.length > 0 && s.situations.every((x) => (s.parts[x]?.buttons.length ?? 0) > 0),
     install:
-      s.installNeeded === null ? false : s.installNeeded ? s.urgent || !!s.preferredDate : receiveDone(s.receive),
+      s.installNeeded === null ? false : s.installNeeded ? dateOk(s.urgent, s.preferredDate) : receiveDone(s.receive, s.urgent),
     site:
       !!s.roadAddress &&
       !!s.buildingType &&

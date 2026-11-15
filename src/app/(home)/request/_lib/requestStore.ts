@@ -23,6 +23,8 @@ export interface ReceiveInput {
   deliveryMethodInput?: string;
   /** 배송·픽업 희망 날짜(YYYY-MM-DD) */
   date?: string;
+  /** 배송·픽업 희망 시간(HH:MM) — QA 「희망 도착 날짜에 시간도」(2026-11-15) */
+  time?: string;
   /** 픽업: 구 바로가구 VehicleType 이름 그대로 */
   vehicle?: string;
   vehicleInput?: string;

@@ -15,7 +15,7 @@ import StepShell from "../_components/StepShell";
 import { firstIncompleteIndex, STEPS, useHydrated } from "../_lib/flow";
 import { useRequestStore } from "../_lib/requestStore";
 import { NotLoggedIn, saveOrder, sendOrder } from "../_lib/submit";
-import { SITUATIONS, travelFeeOf, URGENT_FEE, URGENT_NAME, URGENT_WHEN } from "../_lib/situations";
+import { SITUATIONS, travelFeeOf, URGENT_FEE, URGENT_NAME } from "../_lib/situations";
 import { trackRequest } from "../_lib/track";
 
 const won = (n: number) => `${n.toLocaleString("ko-KR")}원`;
@@ -128,11 +128,11 @@ export default function ConfirmPage() {
         })}
         {s.installNeeded !== null && <Row label="시공">{s.installNeeded ? "필요해요" : "필요 없어요"}</Row>}
         {s.installNeeded === true && (
-          <Row label="시공 날짜">{s.urgent ? URGENT_WHEN : s.preferredDate && dateLabel(s.preferredDate)}</Row>
+          <Row label="시공 날짜">{s.preferredDate && dateLabel(s.preferredDate)}</Row>
         )}
         {s.installNeeded === false && r && (
           <Row label="받는 방법">
-            {[r.method === "pickup" ? "직접 픽업" : "배송", how, r.date && dateLabel(r.date)].filter(Boolean).join(" · ")}
+            {[r.method === "pickup" ? "직접 픽업" : "배송", how, r.date && [dateLabel(r.date), r.time].filter(Boolean).join(" ")].filter(Boolean).join(" · ")}
           </Row>
         )}
         {s.roadAddress && (
