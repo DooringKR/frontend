@@ -26,41 +26,6 @@ import { emptyPart, hasDraft, useRequestStore } from "./_lib/requestStore";
 import { BUTTON_PICTOGRAM, SITUATIONS, type Situation, type SituationSlug } from "./_lib/situations";
 import { photoUrlOf, uploadPhotos } from "./_lib/submit";
 
-/**
- * 밀 수 있다는 걸 글 대신 움직임으로(2026-11-15 사용자 「B로」) — 첫 장에 있고 다음 장이 있으면
- * 장들을 한 번 왼쪽으로 밀었다 튕겨 돌려놓아 다음 장 끝을 잠깐 보인다.
- * 들어올 때마다 한 번, 손가락으로 끌어 장을 넘긴 적이 생기면 이 기기에선 그만(「밀 때까지 보여」 — 한 번만 보이면 놓친 사람은 다시 못 봤다).
- * 움직임 줄이기 설정이면 하지 않는다. embla 는 묶음(container)을 움직이므로 장(slide)마다 같은 만큼 움직인다.
- */
-const LEARNED_KEY = "situation-swipe-learned";
-const markLearned = () => {
-  try {
-    localStorage.setItem(LEARNED_KEY, "1");
-  } catch {
-    /* 저장 못 하면 다음에 또 보일 뿐 */
-  }
-};
-/** 밀었으면 true */
-const nudge = (api: NonNullable<CarouselApi>) => {
-  if (api.scrollSnapList().length < 2 || api.selectedScrollSnap() !== 0) return false;
-  try {
-    if (localStorage.getItem(LEARNED_KEY) === "1") return false;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
-  } catch {
-    return false;
-  }
-  const w = api.rootNode().clientWidth;
-  const x = (r: number) => ({ transform: `translateX(${-w * r}px)` });
-  api.slideNodes().forEach(n =>
-    n.animate([x(0), { ...x(0.22), offset: 0.4 }, { ...x(0), offset: 0.65 }, { ...x(0.07), offset: 0.82 }, x(0)], {
-      duration: 1100,
-      delay: 350,
-      easing: "ease-in-out",
-    }),
-  );
-  return true;
-};
-
 type Slide =
   | { kind: "pick" }
   | { kind: "buttons"; s: Situation }
@@ -129,26 +94,11 @@ export default function RequestStartPage() {
     };
     watch();
     window.addEventListener("resize", fit);
-    // 손가락으로 끌어 장이 넘어가면 밀기를 배운 것 — 다음 버튼·점으로 넘긴 건 embla 끌기 신호가 없어 안 센다
-    let down = false;
-    let upAt = 0;
-    const onDown = () => {
-      down = true;
-    };
-    const onUp = () => {
-      down = false;
-      upAt = Date.now();
-    };
-    const onSwiped = () => {
-      if (down || Date.now() - upAt < 800) markLearned();
-    };
     api.on("select", onSelect).on("select", fit).on("reInit", watch);
-    api.on("pointerDown", onDown).on("pointerUp", onUp).on("select", onSwiped);
     return () => {
       ro.disconnect();
       window.removeEventListener("resize", fit);
       api.off("select", onSelect).off("select", fit).off("reInit", watch);
-      api.off("pointerDown", onDown).off("pointerUp", onUp).off("select", onSwiped);
     };
   }, [api]);
 
@@ -177,17 +127,6 @@ export default function RequestStartPage() {
     else markAskedDraft();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated]);
-
-  // 첫 장에서 다음 장이 생기거나(상황을 처음 고름) 다음 장이 있는 채로 첫 장에 오면 살짝 민다 — 이 화면에 들어올 때마다 한 번.
-  // 이어서 할지 묻는 시트가 떠 있거나 「이전」으로 마지막 장에 가는 중이면 안 한다(안 보이는 데서 한 번을 써 버리지 않게)
-  const nudged = useRef(false);
-  useEffect(() => {
-    if (!api || !hydrated || askOpen || wantLast.current || nudged.current || slides.length < 2 || at !== 0) return;
-    const id = requestAnimationFrame(() => {
-      if (nudge(api)) nudged.current = true;
-    });
-    return () => cancelAnimationFrame(id);
-  }, [api, hydrated, askOpen, slides.length, at]);
 
   const toFirstSlide = () => api?.scrollTo(0);
 
