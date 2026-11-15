@@ -16,6 +16,8 @@ export function trackRequest(name: string, props: Record<string, unknown> = {}) 
     situations: s.situations,
     install_needed: s.installNeeded,
     logged_in: !!useBizClientStore.getState().bizClient,
+    // 접속 주소 — 홈을 거쳐 오면 npm SDK 로 나가 [Amplitude] Page Domain 이 안 붙는다. 차트는 이걸로 운영만 거른다
+    host: window.location.hostname,
     ...props,
   });
 }
