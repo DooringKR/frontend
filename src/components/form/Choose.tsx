@@ -17,7 +17,7 @@ import { cn, imageSrc } from "@/lib/utils";
  * emphasized = 눈에 띄게(화면 1 「현장 급한 수습」), disabled = 지금은 못 고름(이유는 화면이 보인다).
  * 누를 수 있다는 표시(2026-11-13 사용자 「체크·라디오 표시」): 줄은 왼쪽에 빈 네모(여러 개)·동그라미(하나)를 늘 보이고 고르면 채운다
  * (프로젝트 shadcn Checkbox square·circle 모양 그대로 — 카드가 이미 버튼이라 안에 버튼을 또 넣지 않고 모양만), 칸은 shadcn Toggle outline.
- * aria-invalid = 골라야 하는데 안 고름 — 글 대신 선택지 테두리를 빨갛게(shadcn 입력칸 오류 표시와 같은 방식, 2026-11-13).
+ * aria-invalid = 골라야 하는데 안 고름 — 선택지 테두리를 빨간 1px로(그림자 링은 겹쳐 두꺼워 보여 뺌, 2026-11-15). 알림 글은 Field 이름 줄 오른쪽.
  */
 export interface ChooseOption<V extends string> {
   value: V;
@@ -78,7 +78,7 @@ export default function Choose<V extends string>(props: ChooseProps<V>) {
         disabled={o.disabled}
         aria-invalid={invalid}
         variant="outline"
-        className="h-10 rounded-[12px] bg-background px-2 text-[16px] font-500 text-gray-700 data-[state=on]:border-primary data-[state=on]:bg-accent data-[state=on]:text-accent-foreground aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-[3px] aria-[invalid=true]:ring-destructive/20"
+        className="h-10 rounded-[12px] bg-background px-2 text-[16px] font-500 text-gray-700 data-[state=on]:border-primary data-[state=on]:bg-accent data-[state=on]:text-accent-foreground aria-[invalid=true]:border-destructive"
       >
         {o.label}
       </ToggleGroupItem>
@@ -89,7 +89,7 @@ export default function Choose<V extends string>(props: ChooseProps<V>) {
         disabled={o.disabled}
         aria-invalid={invalid}
         className={cn(
-          "flex h-auto w-full items-start justify-start gap-3 rounded-[12px] border px-5 py-4 text-left transition-colors aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-[3px] aria-[invalid=true]:ring-destructive/20",
+          "flex h-auto w-full items-start justify-start gap-3 rounded-[12px] border px-5 py-4 text-left transition-colors aria-[invalid=true]:border-destructive",
           o.disabled
             ? "border-gray-100 bg-muted text-gray-300"
             : picked(o.value)

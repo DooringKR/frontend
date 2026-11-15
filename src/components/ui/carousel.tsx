@@ -269,16 +269,28 @@ CarouselNext.displayName = "CarouselNext"
  * 몇 장 중 몇째 — 점 줄(페이지 표시). 지금 장은 길쭉한 파랑, 나머지는 회색 점. 누르면 그 장으로(밀기와 같다).
  * 「1 / 7」 글 대신(2026-11-15 사용자). 읽기 프로그램에는 「n / 전체」를 숨긴 글로 알린다.
  * 장이 하나뿐이어도 높이는 남겨 둔다 — 점이 나타날 때 아래가 밀리지 않게.
+ * count·onBeyond: 아직 못 가는 장까지 점으로 보일 때(embla 장은 열린 데까지만) — 그 점을 누르면 onBeyond.
  */
-function CarouselDots({ className }: { className?: string }) {
+function CarouselDots({
+  className,
+  count: total,
+  onBeyond,
+}: {
+  className?: string
+  /** 점 개수(기본 = embla 장 수) */
+  count?: number
+  /** 아직 못 가는 장의 점을 눌렀을 때 */
+  onBeyond?: () => void
+}) {
   const { api } = useCarousel()
-  const [count, setCount] = React.useState(0)
+  const [snaps, setSnaps] = React.useState(0)
   const [at, setAt] = React.useState(0)
+  const count = total ?? snaps
 
   React.useEffect(() => {
     if (!api) return
     const sync = () => {
-      setCount(api.scrollSnapList().length)
+      setSnaps(api.scrollSnapList().length)
       setAt(api.selectedScrollSnap())
     }
     sync()
@@ -297,7 +309,7 @@ function CarouselDots({ className }: { className?: string }) {
             type="button"
             aria-label={`${i + 1}번째 장`}
             aria-current={i === at ? "step" : undefined}
-            onClick={() => api?.scrollTo(i)}
+            onClick={() => (i < snaps ? api?.scrollTo(i) : onBeyond?.())}
             className={cn(
               "h-1.5 rounded-full transition-all duration-300",
               i === at ? "w-4 bg-primary" : "w-1.5 bg-gray-300"

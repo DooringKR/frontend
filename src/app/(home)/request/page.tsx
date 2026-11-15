@@ -68,13 +68,43 @@ export default function RequestStartPage() {
     missed.has(key) &&
     (key === "situations" ? picked.length === 0 : buttonsOf(key as SituationSlug).length === 0);
   const mark = (key: string) => setMissed(m => new Set(m).add(key));
-
+  // 장마다 다음으로 갈 준비가 됐는지 — 첫 장은 상황 하나 이상, 버튼 장은 버튼 하나 이상, 자세히 장은 늘
+  const readyAt = (i: number) => {
+    const sl = slides[i];
+    return !sl || sl.kind === "detail" || (sl.kind === "pick" ? picked.length > 0 : buttonsOf(sl.s.slug).length > 0);
+  };
+  const keyAt = (i: number) => {
+    const sl = slides[i];
+    return sl.kind === "pick" ? "situations" : sl.s.slug;
+  };
+  // 앞 장으로는 준비된 장을 지나야만 간다(2026-11-15 사용자 「다음이 옅으면 밀기도 시도하다 막혀야」) —
+  // 첫 덜 된 장(open)까지만 그린다 — 거기서 앞으로 끌면 끝 장처럼 조금 밀리다 튕겨 돌아온다(넘어갔다 되돌아오지 않게).
+  // embla 장 수가 바뀌어도 점 줄은 전체 장 수(count)를 보인다.
+  const firstNotReady = slides.findIndex((_, i) => !readyAt(i));
+  const open = firstNotReady < 0 ? slides.length - 1 : firstNotReady;
+  /** 막힌 쪽으로 가려 함 — 그 장을 빨갛게(다음 버튼과 같은 표시) */
+  const blocked = useRef(() => {});
+  blocked.current = () => {
+    if (open < slides.length - 1) mark(keyAt(open));
+  };
   useEffect(() => {
     if (!api) return;
     const onSelect = () => {
       setAt(api.selectedScrollSnap());
       window.scrollTo({ top: 0 });
     };
+    // 막힌 장에서 왼쪽으로 30px 넘게 끌었으면 「앞으로 가려 했다」
+    let x0: number | null = null;
+    const root = api.rootNode();
+    const down = (e: PointerEvent) => {
+      x0 = e.clientX;
+    };
+    const up = (e: PointerEvent) => {
+      if (x0 !== null && x0 - e.clientX > 30 && !api.canScrollNext()) blocked.current();
+      x0 = null;
+    };
+    root.addEventListener("pointerdown", down);
+    window.addEventListener("pointerup", up);
     // 슬라이드 묶음 높이 = max(지금 장 높이, 아래 버튼까지 남은 화면).
     //  - 가장 긴 장을 따르면 짧은 장에서도 페이지가 길어져 스크롤바가 생기고 틀이 움직였다.
     //  - 지금 장 높이만 쓰면 짧은 장(칸 4개 = 88px) 아래 빈 곳을 밀어도 안 넘어갔다(2026-11-13 사용자).
@@ -99,6 +129,8 @@ export default function RequestStartPage() {
     return () => {
       ro.disconnect();
       window.removeEventListener("resize", fit);
+      root.removeEventListener("pointerdown", down);
+      window.removeEventListener("pointerup", up);
       api.off("select", onSelect).off("select", fit).off("reInit", watch);
     };
   }, [api]);
@@ -200,12 +232,13 @@ export default function RequestStartPage() {
       onPickSituation={toFirstSlide}
       onBack={() => (at > 0 ? api?.scrollPrev() : router.push("/"))} // 첫 장의 「이전」은 흐름 밖(홈) — 기록상 뒤로면 다음 단계로 갈 수 있다
     >
-      <Carousel setApi={setApi} opts={{ watchDrag: picked.length > 0 }} className="-mx-5">
+      {/* 상황을 안 골라도 끌 수는 있다 — 앞 장이 없으니 끝에서 튕겨 돌아와 「막혔다」가 손에 느껴진다 */}
+      <Carousel setApi={setApi} className="-mx-5">
         {/* 몇 장 중 몇째 — 점 줄(「1 / 7」 글 대신) */}
-        <CarouselDots className="mb-5" />
+        <CarouselDots className="mb-5" count={slides.length} onBeyond={() => blocked.current()} />
         <CarouselContent className="ml-0 items-start">
-          {slides.map(sl =>
-            sl.kind === "pick" ? (
+          {slides.map((sl, i) =>
+            i > open ? null : sl.kind === "pick" ? (
               <CarouselItem key="pick" className="flex flex-col gap-5 px-5">
                 <Choose
                   multiple
