@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import Choose from "@/components/form/Choose";
 import NavRow from "@/components/nav/NavRow";
 import Pictogram from "@/components/pictogram/Pictogram";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
@@ -16,7 +15,9 @@ import ButtonPictos from "./ButtonPictos";
 import { DIY_DISCOUNT, manwon, SITUATIONS, type SituationSlug, URGENT_FEE, URGENT_NAME, URGENT_WHEN_SHORT } from "../_lib/situations";
 
 /** 금액 칩 — 더하면 빨강, 빼면 파랑(QA 「선택지별 추가금액 시나리오」 2026-11-15). 크기는 바로배송 칩과 같다 */
-const money = "px-1 text-[12px]/[18px]";
+// 조건·금액 칩 — shadcn Badge ghost 모양(바탕·테두리 없이 색 글자만, 2026-11-15 사용자 「칩은 F」). 시간은 회색+시계, 추가금 빨강, 할인 파랑
+const chip = "inline-flex items-center gap-[3px] px-0.5 text-[12px]/[16px] align-middle";
+const money = cn(chip, "font-600");
 
 /**
  * 상황 고르기(화면 1) — 상황 입력 첫 장과 홈(QA 「랜딩페이지단계에서 첫 화면(상황입력)이 나오게」 2026-11-15)이 같이 쓴다.
@@ -45,13 +46,12 @@ export default function SituationPicker({ invalid }: { invalid?: boolean }) {
             // 조건 칩은 이름 옆(2026-11-15 사용자) — 시간은 옅은 파랑 + 시계, 금액은 꽉 찬 빨강으로 종류가 갈리게
             badge: (
               <span className="inline-flex flex-wrap gap-1 align-middle">
-                <Badge color="blue" weight="weak" className="gap-0.5 px-1 text-[12px]/[18px]">
-                  <Clock className="size-3" strokeWidth={2.5} />
+                <span className={cn(chip, "font-500 text-gray-500")}>
+                  {/* 카드 버튼의 [&_svg]:size-4 를 이기게 ! */}
+                  <Clock className="!size-3" strokeWidth={2.5} />
                   {URGENT_WHEN_SHORT}
-                </Badge>
-                <Badge color="red" weight="strong" className={money}>
-                  +{manwon(URGENT_FEE)}
-                </Badge>
+                </span>
+                <span className={cn(money, "text-red-500")}>+{manwon(URGENT_FEE)}</span>
               </span>
             ),
             description: <>오늘 바로 시공이 필요하세요? {URGENT_NAME} 서비스를 선택해보세요</>,
@@ -71,9 +71,7 @@ export default function SituationPicker({ invalid }: { invalid?: boolean }) {
           label: x.name,
           image: <Pictogram name={x.pictogram} />,
           badge: x.fee ? (
-            <Badge color="red" weight="strong" className={money}>
-              +{manwon(x.fee)}
-            </Badge>
+            <span className={cn(money, "text-red-500")}>+{manwon(x.fee)}</span>
           ) : undefined,
           description: x.subtitle,
           // 글 이름표는 오히려 읽기 어려워 픽토그램 + 밑에 이름(2026-11-15 사용자), 카드 폭 전체에 네 칸씩(QA 「4열로」)
@@ -86,9 +84,7 @@ export default function SituationPicker({ invalid }: { invalid?: boolean }) {
         label={
           <>
             DIY(셀프 주문)
-            <Badge color="blue" weight="strong" className={cn(money, "ml-1.5 align-middle", anyPicked && "opacity-40")}>
-              −{manwon(DIY_DISCOUNT)}
-            </Badge>
+            <span className={cn(money, "ml-1.5 text-blue-500", anyPicked && "opacity-40")}>−{manwon(DIY_DISCOUNT)}</span>
           </>
         }
         // 부제 — 노션 QA 「품목정리」(2026-11-15 사용자 「부제 넣어」)
