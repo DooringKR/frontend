@@ -23,7 +23,7 @@ const money = "px-1 text-[12px]/[18px]";
  * 고른 값은 상황 주문 저장소에 바로 남아서, 홈에서 고르고 주문하기를 누르면 그대로 이어진다. 부모가 세로 간격(gap)을 정한다.
  *  - 바로배송: 강조. 어느 묶음과도 같이 고른다.
  *  - 문짝 교체 · 설치 · 가구 추가 · 가구 교체: 서로 같이 고른다. 고르면 다음 장에서 고를 품목이 그림으로 미리 보인다.
- *  - DIY · 자재 필요없는 수리: 상황을 하나라도 고르면 막힌다. 누르면 바로 그 화면으로.
+ *  - DIY · 가구 단순 수리(옛 자재 필요없는 수리): 상황을 하나라도 고르면 막힌다. 누르면 바로 그 화면으로.
  */
 export default function SituationPicker({ invalid }: { invalid?: boolean }) {
   const router = useRouter();
@@ -91,6 +91,8 @@ export default function SituationPicker({ invalid }: { invalid?: boolean }) {
             </Badge>
           </>
         }
+        // 부제 — 노션 QA 「품목정리」(2026-11-15 사용자 「부제 넣어」)
+        description="이미 원하는 문짝 사이즈를 아시거나, 특정 사이즈 합판 가공이 필요하면 여기로 입력해주세요"
         icon={<Pictogram name="diy" />}
         disabled={anyPicked}
         onClick={() => {
@@ -100,7 +102,9 @@ export default function SituationPicker({ invalid }: { invalid?: boolean }) {
       />
       <NavRow
         card
-        label="자재 필요없는 수리"
+        // 이름·부제 — 노션 QA 「품목정리」·「단계별 가구 종류 및 시나리오 수정」의 「가구 단순 수리」(옛 「자재 필요없는 수리」)
+        label="가구 단순 수리"
+        description="서랍 레일이 고장났거나, 문짝이 처져서 수리가 필요하신가요?"
         icon={<Pictogram name="repair" />}
         disabled={anyPicked}
         onClick={() => {

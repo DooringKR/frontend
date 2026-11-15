@@ -292,7 +292,7 @@ export default function DesignPage() {
 
       <Spec id="navrow" title="눌러서 이동">
         <NavRow card label="DIY(셀프 주문)" description="품목을 직접 골라 주문" onClick={() => undefined} />
-        <NavRow card label="자재 필요없는 수리" disabled />
+        <NavRow card label="가구 단순 수리" disabled />
         <NavTiles
           items={[
             { key: "lower", label: "하부장", image: "/img/cabinet-category/Lower.png", onClick: () => undefined },
