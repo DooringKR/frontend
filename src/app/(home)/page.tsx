@@ -31,6 +31,8 @@ import BottomBar from "@/components/overlay/BottomBar";
 
 import SituationPicker from "./request/_components/SituationPicker";
 import { useRequestStore } from "./request/_lib/requestStore";
+import { URGENT_NAME, URGENT_WHEN } from "./request/_lib/situations";
+import Notice from "@/components/state/Notice";
 
 export default function Page() {
   const router = useRouter();
@@ -73,6 +75,8 @@ export default function Page() {
 
   // 홈에서 고른 상황이 있으면 주문하기(가운데·아래 둘 다)는 고른 그대로 상황 입력으로 — 「이어서 할까요」는 묻지 않는다
   const picked = useRequestStore(s => s.urgent || s.situations.length > 0);
+  // 바로배송 없이 상황만 골랐으면 첫 장과 같이 바로배송을 한 번 더 권한다(QA 「바로배송 강조」 — 홈은 첫 장을 그대로 가져온 화면)
+  const nudgeUrgent = useRequestStore(s => !s.urgent && s.situations.length > 0);
   // 상황 고르기 값은 기기에 둔 것 — request/layout 처럼 화면을 그린 뒤 읽는다(서버가 그린 빈 화면과 어긋나지 않게)
   useEffect(() => {
     void useRequestStore.persist.rehydrate();
@@ -95,6 +99,11 @@ export default function Page() {
           <h2 className="text-[20px]/[28px] font-700 text-gray-800">어떤 상황인가요?</h2>
           <div className="flex flex-col gap-5">
             <SituationPicker />
+            {nudgeUrgent && (
+              <Notice title="혹시 오늘 안에 급하게 필요하세요?">
+                {URGENT_WHEN} 배송이 필요하다면 {URGENT_NAME}을 선택해주세요
+              </Notice>
+            )}
             {picked && <Button onClick={toOrder}>주문하기</Button>}
           </div>
         </section>
