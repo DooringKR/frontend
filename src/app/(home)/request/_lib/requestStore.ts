@@ -65,6 +65,9 @@ export interface RequestState {
   requestNote: string;
   /** 올린 사진 경로(customer-input-image 버킷 안) */
   photoPaths: Partial<Record<SituationSlug, string[]>>;
+  /** 가구 단순 수리 접수 — 글·사진 경로(로그인하고 돌아와도 남게) */
+  repairNote: string;
+  repairPhotos: string[];
   /** 마지막으로 고친 때 — 7일 지나면 비운다 */
   savedAt: number | null;
   /** 마지막으로 연 화면 — 「이어서 하기」가 여기로 간다 */
@@ -97,6 +100,8 @@ const EMPTY = {
   receive: null,
   requestNote: "",
   photoPaths: {},
+  repairNote: "",
+  repairPhotos: [] as string[],
   savedAt: null,
   lastPath: "/request",
 };

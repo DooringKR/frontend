@@ -98,9 +98,12 @@ export async function sendOrder(orderId: string): Promise<void> {
   }
 }
 
-/** 자재 필요없는 수리 — 서비스는 안 하지만 몇 번 눌렸는지 수요로 센다(로그인했을 때만) */
-export async function recordRepairInquiry(urgent: boolean): Promise<void> {
+/** 가구 단순 수리 접수 — 글·사진만 남긴다. 어드민 「가구 단순 수리 문의」 목록에 쌓이고, 관리자가 전화로 가능 여부를 답한다(현장은 만들지 않음) */
+export async function sendRepairInquiry(note: string, photoPaths: string[], urgent: boolean): Promise<void> {
   const { data } = await supabase.auth.getSession();
-  if (!data.session) return;
-  await supabase.from("SituationOrder").insert({ kind: "repair_inquiry", status: "not_served", urgent });
+  if (!data.session) throw new NotLoggedIn();
+  const { error } = await supabase
+    .from("SituationOrder")
+    .insert({ kind: "repair_inquiry", status: "not_served", urgent, request_note: note, photo_paths: photoPaths });
+  if (error) throw new Error(`접수하지 못했습니다: ${error.message}`);
 }
