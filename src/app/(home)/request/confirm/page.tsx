@@ -130,7 +130,7 @@ export default function ConfirmPage() {
         })}
         {s.installNeeded !== null && <Row label="시공">{s.installNeeded ? "필요해요" : "필요 없어요"}</Row>}
         {s.installNeeded === true && (
-          <Row label="시공 날짜">{s.preferredDate && [dateLabel(s.preferredDate), s.urgent && s.preferredTime].filter(Boolean).join(" ")}</Row>
+          <Row label="시공 날짜">{s.preferredDate && [dateLabel(s.preferredDate), s.preferredTime].filter(Boolean).join(" ")}</Row>
         )}
         {s.installNeeded === false && r && (
           <Row label="받는 방법">

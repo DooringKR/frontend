@@ -36,7 +36,7 @@ export default function InstallPage() {
     s.installNeeded === null
       ? { install: PICK, method: true, how: true, date: true }
       : s.installNeeded
-        ? { install: true, method: true, how: true, date: (dateOk(s.urgent, s.preferredDate) && (!s.urgent || !!s.preferredTime)) || PICK }
+        ? { install: true, method: true, how: true, date: (dateOk(s.urgent, s.preferredDate) && !!s.preferredTime) || PICK }
         : {
             install: true,
             method: !!r || PICK,
@@ -79,29 +79,27 @@ export default function InstallPage() {
 
       {s.installNeeded === true && (
         <Field label="희망 시공 날짜" fieldRef={req.ref("date")} error={req.error("date")}>
-          {/* 바로배송이면 시간도(바로가구 QA 2026-11-15) — 배송·픽업과 같은 날짜·시간 한 줄 */}
+          {/* 시공도 날짜·시간(30분 단위) — 배송·픽업과 같은 한 줄. 옛날엔 바로배송일 때만 시간을 받았다(2026-11-15 사용자 지적으로 늘 받음) */}
           <div className="flex gap-2">
             <DateField
               className="flex-1"
               aria-invalid={!!req.error("date") && !dateOk(s.urgent, s.preferredDate)}
               title="희망 시공 날짜"
-              placeholder={s.urgent ? "날짜" : undefined}
+              placeholder="날짜"
               min={range.min}
               max={range.max}
               value={s.preferredDate}
               onChange={v => s.set({ preferredDate: v })}
             />
-            {s.urgent && (
-              <TimeField
-                className="flex-1"
-                step={30}
-                aria-invalid={!!req.error("date") && !s.preferredTime}
-                title="희망 시공 시간"
-                disabled={!s.preferredDate}
-                value={s.preferredTime}
-                onChange={v => s.set({ preferredTime: v })}
-              />
-            )}
+            <TimeField
+              className="flex-1"
+              step={30}
+              aria-invalid={!!req.error("date") && !s.preferredTime}
+              title="희망 시공 시간"
+              disabled={!s.preferredDate}
+              value={s.preferredTime}
+              onChange={v => s.set({ preferredTime: v })}
+            />
           </div>
         </Field>
       )}

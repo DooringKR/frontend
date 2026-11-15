@@ -54,7 +54,7 @@ export async function saveOrder(): Promise<string> {
       access_info: s.accessInfo.trim() || null,
       preferred_date: s.installNeeded && s.preferredDate ? s.preferredDate : null,
       // 바로배송 시공 시간 — 어드민 마이그레이션 0142 칸. 그 칸이 운영 DB 에 생긴 뒤에 배포한다
-      preferred_time: s.installNeeded && s.urgent && s.preferredTime ? s.preferredTime : null,
+      preferred_time: s.installNeeded && s.preferredTime ? s.preferredTime : null,
       receive: s.installNeeded ? null : s.receive,
       request_note: s.requestNote.trim() || null,
       travel_minutes: minutes,
