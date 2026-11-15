@@ -6,6 +6,7 @@ import { ErrorBanner, ListSkeleton } from "@/components/state/StateViews";
 import { Badge, type BadgeProps } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
+import { URGENT_NAME } from "@/app/(home)/request/_lib/situations";
 
 interface Row {
   id: string;
@@ -76,7 +77,7 @@ export function SituationOrderList({ onCount }: { onCount?: (n: number) => void 
               {[...r.SituationOrderPart].sort((a, b) => a.position - b.position).map((p) => p.situation).join(" · ")}
             </div>
             <div className="mt-1 text-[14px] text-gray-500">
-              {[r.urgent ? "현장 급한 수습" : null, ...r.SituationOrderPart.flatMap((p) => p.buttons)].filter(Boolean).join(", ")}
+              {[r.urgent ? URGENT_NAME : null, ...r.SituationOrderPart.flatMap((p) => p.buttons)].filter(Boolean).join(", ")}
             </div>
           </div>
         );

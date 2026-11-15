@@ -9,6 +9,8 @@ import PhotoPick from "@/components/form/PhotoPick";
 import { PICK_MESSAGE } from "@/components/form/useRequired";
 import NavRow from "@/components/nav/NavRow";
 import Pictogram from "@/components/pictogram/Pictogram";
+import Notice from "@/components/state/Notice";
+import { Badge } from "@/components/ui/badge";
 import Sheet from "@/components/overlay/Sheet";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,7 +26,7 @@ import { Separator } from "@/components/ui/separator";
 import StepShell from "./_components/StepShell";
 import { askedDraft, markAskedDraft, nextPathOf, useHydrated } from "./_lib/flow";
 import { emptyPart, hasDraft, useRequestStore } from "./_lib/requestStore";
-import { BUTTON_PICTOGRAM, SITUATIONS, type Situation, type SituationSlug } from "./_lib/situations";
+import { BUTTON_PICTOGRAM, SITUATIONS, type Situation, type SituationSlug, URGENT_FEE, URGENT_NAME, URGENT_WHEN } from "./_lib/situations";
 import { photoUrlOf, uploadPhotos } from "./_lib/submit";
 
 type Slide =
@@ -37,9 +39,9 @@ type Slide =
  * 한 장에 상황을 쌓지 않는다(정보가 많아져 길어진다 — 사용자 지적). 위에 몇 장 중 몇째를 점 줄로 보인다(CarouselDots).
  * DIY·자재 필요없는 수리는 슬라이드 없이 바로 다음 화면.
  * 화면 1 묶음(2026-11-12 사용자):
- *  - 현장 급한 수습: 강조. 고르면 15만 원만 더하고 다음 페이지는 없다. 어느 묶음과도 같이 고른다.
- *  - 부분가구 추가 · 문짝 교체 또는 설치 · 장 일부 또는 전체 교체: 서로 같이 고른다.
- *  - DIY · 자재 필요없는 수리: 다른 묶음과도, 서로도 같이 못 고른다(급한 수습만 같이).
+ *  - 바로배송(옛 현장 급한 수습): 강조. 고르면 15만 원만 더하고 다음 페이지는 없다. 어느 묶음과도 같이 고른다.
+ *  - 문짝 교체 · 설치 · 가구 추가 · 가구 교체: 서로 같이 고른다.
+ *  - DIY · 자재 필요없는 수리: 다른 묶음과도, 서로도 같이 못 고른다(바로배송만 같이).
  * 다음을 눌렀는데 안 고른 곳은 글 없이 선택지 테두리로 표시한다. 사진은 고르는 즉시 올린다(기기에는 경로만).
  */
 export default function RequestStartPage() {
@@ -227,6 +229,15 @@ export default function RequestStartPage() {
       title={title}
       subtitle={subtitle}
       nextReady={nextReady}
+      // 바로배송 없이 상황만 골랐으면 바로배송을 한 번 더 권한다(QA 「바로배송 강조」 2026-11-15, 문구는 사용자).
+      // 상황 묶음 밑에 두면 첫 장이 길어 아래 버튼에 가려 안 보였다 — 아래 버튼 바로 위에 붙여 늘 보이고 카드도 안 밀린다
+      bottomTop={
+        cur.kind === "pick" && picked.length > 0 && !s.urgent ? (
+          <Notice title="혹시 오늘 안에 급하게 필요하세요?" className="mb-3">
+            {URGENT_WHEN} 배송이 필요하다면 {URGENT_NAME}을 선택해주세요
+          </Notice>
+        ) : undefined
+      }
       titleError={titleError}
       onNext={next}
       onPickSituation={toFirstSlide}
@@ -242,22 +253,27 @@ export default function RequestStartPage() {
               <CarouselItem key="pick" className="flex flex-col gap-5 px-5">
                 <Choose
                   multiple
-                  aria-label="현장 급한 수습"
+                  aria-label={URGENT_NAME}
                   value={s.urgent ? ["urgent"] : []}
                   onChange={v => s.set({ urgent: v.includes("urgent") })}
                   options={[
                     {
                       value: "urgent",
-                      label: "현장 급한 수습",
+                      label: URGENT_NAME,
                       emphasized: true,
                       image: <Pictogram name="urgent" />,
+                      // 부제 + 조건 칩(QA 「표현 변경」·「조건은 칩으로」 2026-11-15) — 칩은 분홍 카드 위에서 묻히지 않게 흰 바탕
                       description: (
                         <>
-                          3일 이내 · 15만 원 추가
-                          <br />
-                          현장에 부족한 자재·가구 추가
-                          <br />
-                          현장 가구 사이즈나 사양이 안 맞을 때
+                          오늘 바로 시공이 필요하세요? {URGENT_NAME} 서비스를 선택해보세요
+                          <span className="mt-1.5 flex flex-wrap gap-1">
+                            <Badge color="red" weight="weak" className="bg-white">
+                              {URGENT_WHEN}
+                            </Badge>
+                            <Badge color="red" weight="weak" className="bg-white">
+                              +{URGENT_FEE / 10_000}만 원
+                            </Badge>
+                          </span>
                         </>
                       ),
                     },
@@ -270,8 +286,28 @@ export default function RequestStartPage() {
                   aria-invalid={invalid("situations")}
                   value={s.situations}
                   onChange={v => s.set({ situations: v })}
-                  options={SITUATIONS.map(x => ({ value: x.slug, label: x.name, image: <Pictogram name={x.pictogram} /> }))}
+                  // 고르면 다음 장에서 고를 품목이 이름표로 바로 보인다(QA 「표현 변경」 펼침, 2026-11-15 사용자 「A, 글 없이 띄워만」) — 고르기는 다음 장
+                  options={SITUATIONS.map(x => ({
+                    value: x.slug,
+                    label: x.name,
+                    image: <Pictogram name={x.pictogram} />,
+                    description: (
+                      <>
+                        {x.subtitle}
+                        {s.situations.includes(x.slug) && (
+                          <span className="mt-1.5 flex flex-wrap gap-1">
+                            {x.buttons.map(b => (
+                              <Badge key={b} color="gray" weight="weak">
+                                {b}
+                              </Badge>
+                            ))}
+                          </span>
+                        )}
+                      </>
+                    ),
+                  }))}
                 />
+
                 <Separator className="bg-gray-100" />
                 <NavRow
                   card

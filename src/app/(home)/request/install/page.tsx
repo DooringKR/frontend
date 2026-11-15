@@ -13,13 +13,14 @@ import { Input } from "@/components/ui/input";
 import StepShell from "../_components/StepShell";
 import { nextPathOf } from "../_lib/flow";
 import { type ReceiveInput, useRequestStore } from "../_lib/requestStore";
+import { URGENT_NAME, URGENT_WHEN } from "../_lib/situations";
 
 const tomorrow = () =>
   new Date(Date.now() + 9 * 3600_000 + 24 * 3600_000).toISOString().slice(0, 10);
 
 /**
  * 시공 정보 입력 — 시공 여부와 일정을 한 화면에(2026-11-13 QA).
- * 시공이 필요하면 희망 시공 날짜(급한 수습이면 3일 이내로 고정), 필요 없으면 구 바로가구처럼 받는 방법(배송: 수령 방법·날짜 / 픽업: 차량·날짜).
+ * 시공이 필요하면 희망 시공 날짜(바로배송이면 당일 또는 3일 이내로 고정), 필요 없으면 구 바로가구처럼 받는 방법(배송: 수령 방법·날짜 / 픽업: 차량·날짜).
  * 완료 판정은 flow.ts doneOf.install 과 같다.
  */
 export default function InstallPage() {
@@ -79,7 +80,7 @@ export default function InstallPage() {
         (s.urgent ? (
           <Field label="희망 시공 날짜">
             <div className="rounded-[12px] bg-muted px-5 py-4 text-[17px] font-500 text-gray-800">
-              3일 이내 (현장 급한 수습)
+              {URGENT_WHEN} ({URGENT_NAME})
             </div>
           </Field>
         ) : (

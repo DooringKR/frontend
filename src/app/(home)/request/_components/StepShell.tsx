@@ -110,7 +110,8 @@ export default function StepShell({
       />
       <div className="h-5" />
       <div className="flex flex-col gap-5 px-5">{children}</div>
-      <div className="h-[100px]" />
+      {/* 아래 고정 칸만큼 비운다 — 버튼 위 줄(bottomTop)이 있으면 그만큼 더(마지막 칸이 가리지 않게) */}
+      <div className={bottomTop ? "h-[210px]" : "h-[100px]"} />
       {step ? (
         <BottomBar top={bottomTop}>
           <Button

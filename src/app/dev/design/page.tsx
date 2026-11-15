@@ -144,9 +144,9 @@ export default function DesignPage() {
           value={cards}
           onChange={setCards}
           options={[
-            { value: "urgent", label: "현장 급한 수습", emphasized: true, description: "3일 이내 · 15만 원 추가" },
-            { value: "partial", label: "부분가구 추가" },
-            { value: "door", label: "문짝 교체 또는 설치" },
+            { value: "urgent", label: "바로배송", emphasized: true, description: "당일 또는 3일 이내 · 15만 원 추가" },
+            { value: "partial", label: "가구 추가" },
+            { value: "door", label: "문짝 교체 · 설치" },
             { value: "diy", label: "DIY(셀프 주문)", disabled: true },
           ]}
         />

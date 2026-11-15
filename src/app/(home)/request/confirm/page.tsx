@@ -15,7 +15,7 @@ import StepShell from "../_components/StepShell";
 import { firstIncompleteIndex, STEPS, useHydrated } from "../_lib/flow";
 import { useRequestStore } from "../_lib/requestStore";
 import { NotLoggedIn, saveOrder, sendOrder } from "../_lib/submit";
-import { SITUATIONS, travelFeeOf, URGENT_FEE } from "../_lib/situations";
+import { SITUATIONS, travelFeeOf, URGENT_FEE, URGENT_NAME, URGENT_WHEN } from "../_lib/situations";
 
 const won = (n: number) => `${n.toLocaleString("ko-KR")}원`;
 
@@ -111,7 +111,7 @@ export default function ConfirmPage() {
         })}
         {s.installNeeded !== null && <Row label="시공">{s.installNeeded ? "필요해요" : "필요 없어요"}</Row>}
         {s.installNeeded === true && (
-          <Row label="시공 날짜">{s.urgent ? "3일 이내" : s.preferredDate && dateLabel(s.preferredDate)}</Row>
+          <Row label="시공 날짜">{s.urgent ? URGENT_WHEN : s.preferredDate && dateLabel(s.preferredDate)}</Row>
         )}
         {s.installNeeded === false && r && (
           <Row label="받는 방법">
@@ -138,10 +138,10 @@ export default function ConfirmPage() {
         )}
       </div>
 
-      {/* 비용 — 급한 수습 혜택·출장비 산정 방식 설명 문구는 사용자가 준다(지어 넣지 말 것) */}
+      {/* 비용 — 바로배송 혜택·출장비 산정 방식 설명 문구는 사용자가 준다(지어 넣지 말 것) */}
       {(s.urgent || s.installNeeded) && (
         <div className="flex flex-col divide-y divide-gray-100 rounded-xl bg-gray-50 px-4">
-          {s.urgent && <Row label="급한 수습">{won(URGENT_FEE)}</Row>}
+          {s.urgent && <Row label={URGENT_NAME}>{won(URGENT_FEE)}</Row>}
           {s.installNeeded && (
             <Row label="출장비">
               {s.travelMinutes == null ? "계산 중" : `${won(travelFeeOf(s.travelMinutes))} (공장에서 ${s.travelMinutes}분)`}
