@@ -27,7 +27,7 @@ import { Separator } from "@/components/ui/separator";
 import StepShell from "./_components/StepShell";
 import { askedDraft, markAskedDraft, nextPathOf, useHydrated } from "./_lib/flow";
 import { emptyPart, hasDraft, useRequestStore } from "./_lib/requestStore";
-import { BUTTON_PICTOGRAM, SITUATIONS, type Situation, type SituationSlug, URGENT_FEE, URGENT_NAME, URGENT_WHEN, URGENT_WHEN_SHORT } from "./_lib/situations";
+import { BUTTON_PICTOGRAM, BUTTON_SHORT, SITUATIONS, type Situation, type SituationSlug, URGENT_FEE, URGENT_NAME, URGENT_WHEN, URGENT_WHEN_SHORT } from "./_lib/situations";
 import { photoUrlOf, uploadPhotos } from "./_lib/submit";
 
 type Slide =
@@ -295,13 +295,13 @@ export default function RequestStartPage() {
                       <>
                         {x.subtitle}
                         {/* 글 이름표는 오히려 읽기 어려워 픽토그램 + 밑에 이름(2026-11-15 사용자).
-                            치수는 있는 규칙 그대로: 그림 32(Pictogram 기본·카드 그림과 같음), 이름 12/16·간격 4(단계 줄 이름), 두 칸씩·그림 위 이름 아래(NavTiles), 칸 사이 8(Choose) */}
+                            이름은 짧게(BUTTON_SHORT)·그림은 이름 가운데. 치수는 있는 규칙 그대로: 그림 32(Pictogram 기본·카드 그림과 같음), 이름 12/16·간격 4(단계 줄 이름), 두 칸씩·그림 위 이름 아래(NavTiles), 칸 사이 8(Choose) */}
                         {s.situations.includes(x.slug) && (
                           <span className="mt-2 grid grid-cols-2 gap-2">
                             {x.buttons.map(b => (
-                              <span key={b} className="flex flex-col items-start gap-1">
+                              <span key={b} className="flex w-fit flex-col items-center gap-1">
                                 <Pictogram name={BUTTON_PICTOGRAM[b]} />
-                                <span className="break-keep text-[12px] leading-4 font-500 text-gray-700">{b}</span>
+                                <span className="text-[12px] leading-4 font-500 text-gray-700">{BUTTON_SHORT[b] ?? b}</span>
                               </span>
                             ))}
                           </span>

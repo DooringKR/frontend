@@ -69,7 +69,16 @@ export const BUTTON_PICTOGRAM: Record<string, PictogramName> = {
   "식세기 자리에 장 채우기": "fill",
 };
 
-export const situationOf = (slug: string) => SITUATIONS.find((s) => s.slug === slug) ?? null;
+/** 첫 장 미리보기의 그림 밑 짧은 이름(2026-11-15 사용자) — 없으면 버튼 이름 그대로 */
+export const BUTTON_SHORT: Record<string, string> = {
+  "신발장·붙박이장 롱문만 교체": "롱문",
+  "냉장고장 플랩문 교체": "플랩문",
+  "전체 교체": "전체",
+  "신발장 전체 교체": "신발장",
+  "식세기 자리에 장 채우기": "식기세척기장",
+};
+
+export const situationOf =(slug: string) => SITUATIONS.find((s) => s.slug === slug) ?? null;
 
 /** 바로배송 — 체크하면 이만큼 더한다. 다음 단계 페이지는 없다 */
 export const URGENT_FEE = 150_000;
