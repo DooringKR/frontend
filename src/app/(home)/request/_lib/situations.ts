@@ -19,6 +19,8 @@ export interface Situation {
   /** 화면 2 버튼 — 한 상황 안에서 여러 개 고를 수 있다 */
   buttons: string[];
   pictogram: PictogramName;
+  /** 상황 추가금액(원) — 첫 장 이름 옆 칩·확인 화면 비용 칸(QA 「선택지별 추가금액 시나리오」 2026-11-15, QA 금액) */
+  fee?: number;
 }
 
 /**
@@ -32,6 +34,7 @@ export const SITUATIONS: Situation[] = [
     subtitle: "가구의 문짝만 교체하거나 새로운 문짝을 주문해보세요",
     buttons: ["신발장·붙박이장 롱문만 교체", "화장대장"],
     pictogram: "door",
+    fee: 100_000,
   },
   {
     slug: "partial",
@@ -46,6 +49,7 @@ export const SITUATIONS: Situation[] = [
     subtitle: "기존 가구가 있던 자리에 새로운 가구를 넣어보세요",
     buttons: ["냉장고장 플랩문 교체", "전체 교체", "신발장 전체 교체", "식세기 자리에 장 채우기"],
     pictogram: "cabinet",
+    fee: 100_000,
   },
 ];
 
@@ -107,6 +111,23 @@ export const situationOf =(slug: string) => SITUATIONS.find((s) => s.slug === sl
 
 /** 바로배송 — 체크하면 이만큼 더한다. 다음 단계 페이지는 없다 */
 export const URGENT_FEE = 150_000;
+
+/** DIY(셀프 주문) — 이만큼 덜 낸다(QA 「선택지별 추가금액 시나리오」, 첫 장 칩만 — DIY 는 화면이 따로) */
+export const DIY_DISCOUNT = 50_000;
+
+/**
+ * 가구 추가 → 풀세트 확인 장(QA 「부분가구 추가 다음 단계에 전체 리모델링 제외 페이지 넣기」 2026-11-15).
+ * 가구 추가를 고르고 주방 풀세트를 문의하는 분이 있어서, 풀세트면 개수대연구소 상담 폼(Tally 「개수대연구소 상담 신청하기」)으로 보낸다.
+ * 설명 문구는 QA 에 「풀세트란 ~~」만 있어 초안 — 사용자 확인 전.
+ */
+export const FULLSET = {
+  title: "잠깐! 주방 풀세트인가요?",
+  description: "상부장·하부장·상판까지 주방 가구를 모두 새로 하는 경우예요. 풀세트는 개수대연구소에서 상담해 드려요",
+  formUrl: "https://tally.so/r/w7BRW0",
+};
+
+/** 칩 글 — 150000 → 「15만 원」 */
+export const manwon = (n: number) => `${n / 10_000}만 원`;
 
 /**
  * 출장비 — 시공기사가 필요할 때만. 공장→현장 편도(분, 주문할 때 네이버 경로 실시간)로 매긴다.

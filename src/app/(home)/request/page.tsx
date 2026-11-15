@@ -7,6 +7,7 @@ import Choose from "@/components/form/Choose";
 import Field from "@/components/form/Field";
 import PhotoPick from "@/components/form/PhotoPick";
 import { PICK_MESSAGE } from "@/components/form/useRequired";
+import NavRow from "@/components/nav/NavRow";
 import Pictogram from "@/components/pictogram/Pictogram";
 import Notice from "@/components/state/Notice";
 import Sheet from "@/components/overlay/Sheet";
@@ -24,12 +25,13 @@ import SituationPicker from "./_components/SituationPicker";
 import StepShell from "./_components/StepShell";
 import { askedDraft, markAskedDraft, nextPathOf, useHydrated } from "./_lib/flow";
 import { emptyPart, hasDraft, useRequestStore } from "./_lib/requestStore";
-import { BUTTON_DETAIL, BUTTON_PICTOGRAM, SITUATIONS, type Situation, type SituationSlug, URGENT_NAME, URGENT_WHEN } from "./_lib/situations";
+import { BUTTON_DETAIL, BUTTON_PICTOGRAM, FULLSET, SITUATIONS, type Situation, type SituationSlug, URGENT_NAME, URGENT_WHEN } from "./_lib/situations";
 import { photoUrlOf, uploadPhotos } from "./_lib/submit";
 import { trackRequest } from "./_lib/track";
 
 type Slide =
   | { kind: "pick" }
+  | { kind: "fullset"; s: Situation }
   | { kind: "buttons"; s: Situation }
   | { kind: "detail"; s: Situation };
 
@@ -50,7 +52,12 @@ export default function RequestStartPage() {
   const picked = SITUATIONS.filter(x => s.situations.includes(x.slug));
   const slides: Slide[] = [
     { kind: "pick" },
-    ...picked.flatMap(x => [{ kind: "buttons", s: x } as Slide, { kind: "detail", s: x } as Slide]),
+    // 가구 추가는 품목 앞에 풀세트 확인 장(풀세트면 개수대연구소 상담으로)
+    ...picked.flatMap(x => [
+      ...(x.slug === "partial" ? [{ kind: "fullset", s: x } as Slide] : []),
+      { kind: "buttons", s: x } as Slide,
+      { kind: "detail", s: x } as Slide,
+    ]),
   ];
   const [api, setApi] = useState<CarouselApi>();
   const [at, setAt] = useState(0);
@@ -72,7 +79,7 @@ export default function RequestStartPage() {
   // 장마다 다음으로 갈 준비가 됐는지 — 첫 장은 상황 하나 이상, 버튼 장은 버튼 하나 이상, 자세히 장은 늘
   const readyAt = (i: number) => {
     const sl = slides[i];
-    return !sl || sl.kind === "detail" || (sl.kind === "pick" ? picked.length > 0 : buttonsOf(sl.s.slug).length > 0);
+    return !sl || sl.kind === "detail" || sl.kind === "fullset" || (sl.kind === "pick" ? picked.length > 0 : buttonsOf(sl.s.slug).length > 0);
   };
   const keyAt = (i: number) => {
     const sl = slides[i];
@@ -210,8 +217,8 @@ export default function RequestStartPage() {
   // 칸 이름이 없는 장이라 알림은 제목 줄 오른쪽
   const titleError =
     (cur.kind === "pick" && invalid("situations")) || (cur.kind === "buttons" && invalid(cur.s.slug)) ? PICK_MESSAGE : undefined;
-  const title = cur.kind === "pick" ? "어떤 상황인가요?" : cur.s.name;
-  const subtitle = cur.kind === "detail" ? buttonsOf(cur.s.slug).join(", ") : undefined;
+  const title = cur.kind === "pick" ? "어떤 상황인가요?" : cur.kind === "fullset" ? FULLSET.title : cur.s.name;
+  const subtitle = cur.kind === "detail" ? buttonsOf(cur.s.slug).join(", ") : cur.kind === "fullset" ? FULLSET.description : undefined;
   // 자세히 장은 제목 밑에 고른 버튼 줄이 붙어 슬라이드가 내려간다 — 그린 뒤 다시 맞춘다(안 그러면 16px 넘쳐 스크롤바)
   useLayoutEffect(() => fitRef.current(), [at, subtitle]);
 
@@ -259,6 +266,12 @@ export default function RequestStartPage() {
             i > open ? null : sl.kind === "pick" ? (
               <CarouselItem key="pick" className="flex flex-col gap-5 px-5">
                 <SituationPicker invalid={invalid("situations")} />
+              </CarouselItem>
+            ) : sl.kind === "fullset" ? (
+              // 네 → 개수대연구소 상담 폼(새 탭), 아니요·다음 → 품목 고르기
+              <CarouselItem key="partial-fullset" className="flex flex-col gap-3 px-5">
+                <NavRow card external href={FULLSET.formUrl} label="네, 주방 풀세트예요" icon={<Pictogram name="whole" />} />
+                <NavRow card label="아니요, 일부 가구만 필요해요" icon={<Pictogram name="partial" />} onClick={() => api?.scrollNext()} />
               </CarouselItem>
             ) : sl.kind === "buttons" ? (
               <CarouselItem key={`${sl.s.slug}-buttons`} className="flex flex-col gap-5 px-5">

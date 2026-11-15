@@ -23,7 +23,8 @@ const won = (n: number) => `${n.toLocaleString("ko-KR")}원`;
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex gap-4 py-2 text-[15px]">
-      <div className="w-[88px] shrink-0 text-gray-500">{label}</div>
+      {/* 이름 칸은 가장 긴 이름(「문짝 교체 · 설치」 93px)이 한 줄에 들어가게 */}
+      <div className="w-24 shrink-0 text-gray-500">{label}</div>
       <div className="min-w-0 flex-1 whitespace-pre-line text-gray-800">{children}</div>
     </div>
   );
@@ -156,9 +157,13 @@ export default function ConfirmPage() {
       </div>
 
       {/* 비용 — 바로배송 혜택·출장비 산정 방식 설명 문구는 사용자가 준다(지어 넣지 말 것) */}
-      {(s.urgent || s.installNeeded) && (
+      {(s.urgent || s.installNeeded || picked.some((x) => x.fee)) && (
         <div className="flex flex-col divide-y divide-gray-100 rounded-xl bg-gray-50 px-4">
           {s.urgent && <Row label={URGENT_NAME}>{won(URGENT_FEE)}</Row>}
+          {/* 상황 추가금액 — 첫 장 칩과 같은 금액(QA 「선택지별 추가금액 시나리오」) */}
+          {picked.filter((x) => x.fee).map((x) => (
+            <Row key={x.slug} label={x.name}>{won(x.fee!)}</Row>
+          ))}
           {s.installNeeded && (
             <Row label="출장비">
               {s.travelMinutes == null ? "계산 중" : `${won(travelFeeOf(s.travelMinutes))} (공장에서 ${s.travelMinutes}분)`}

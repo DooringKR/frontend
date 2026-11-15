@@ -8,10 +8,14 @@ import NavRow from "@/components/nav/NavRow";
 import Pictogram from "@/components/pictogram/Pictogram";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
 import { useRequestStore } from "../_lib/requestStore";
 import { trackRequest } from "../_lib/track";
-import { BUTTON_PICTOGRAM, BUTTON_SHORT, SITUATIONS, type SituationSlug, URGENT_FEE, URGENT_NAME, URGENT_WHEN_SHORT } from "../_lib/situations";
+import { BUTTON_PICTOGRAM, BUTTON_SHORT, DIY_DISCOUNT, manwon, SITUATIONS, type SituationSlug, URGENT_FEE, URGENT_NAME, URGENT_WHEN_SHORT } from "../_lib/situations";
+
+/** 금액 칩 — 더하면 빨강, 빼면 파랑(QA 「선택지별 추가금액 시나리오」 2026-11-15). 크기는 바로배송 칩과 같다 */
+const money = "px-1 text-[12px]/[18px]";
 
 /**
  * 상황 고르기(화면 1) — 상황 입력 첫 장과 홈(QA 「랜딩페이지단계에서 첫 화면(상황입력)이 나오게」 2026-11-15)이 같이 쓴다.
@@ -44,8 +48,8 @@ export default function SituationPicker({ invalid }: { invalid?: boolean }) {
                   <Clock className="size-3" strokeWidth={2.5} />
                   {URGENT_WHEN_SHORT}
                 </Badge>
-                <Badge color="red" weight="strong" className="px-1 text-[12px]/[18px]">
-                  +{URGENT_FEE / 10_000}만 원
+                <Badge color="red" weight="strong" className={money}>
+                  +{manwon(URGENT_FEE)}
                 </Badge>
               </span>
             ),
@@ -65,6 +69,11 @@ export default function SituationPicker({ invalid }: { invalid?: boolean }) {
           value: x.slug,
           label: x.name,
           image: <Pictogram name={x.pictogram} />,
+          badge: x.fee ? (
+            <Badge color="red" weight="strong" className={money}>
+              +{manwon(x.fee)}
+            </Badge>
+          ) : undefined,
           description: (
             <>
               {x.subtitle}
@@ -87,7 +96,14 @@ export default function SituationPicker({ invalid }: { invalid?: boolean }) {
       <Separator className="bg-gray-100" />
       <NavRow
         card
-        label="DIY(셀프 주문)"
+        label={
+          <>
+            DIY(셀프 주문)
+            <Badge color="blue" weight="strong" className={cn(money, "ml-1.5 align-middle", anyPicked && "opacity-40")}>
+              −{manwon(DIY_DISCOUNT)}
+            </Badge>
+          </>
+        }
         icon={<Pictogram name="diy" />}
         disabled={anyPicked}
         onClick={() => {
