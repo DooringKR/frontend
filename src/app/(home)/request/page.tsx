@@ -367,7 +367,8 @@ export default function RequestStartPage() {
 
 /**
  * 상황 하나의 설명 장 — 제목 「어떤 상황인지 알려주시겠어요?」(QA 「단계별 가구 종류 및 시나리오 수정」 2026-11-15). 치수는 받지 않는다(실무자가 실측하거나 전화로 받는다).
- *  - 고른 가구(그림 칸) → 사진 칸 + 글 칸(옛 현장 사진·대략적인 양을 하나로, 메모 칸은 뺌 — 제목이 묻는 말이라 칸 이름 없이) → 문짝·가구 추가: 경첩도 필요한가요?(선택)
+ *  - QA 원문 순서: 고른 가구(그림 칸) → 추가 부속 「경첩도 필요한가요?」(선택, 문짝·가구 추가) → 「필요한 가구 또는 상황을 설명해주세요」 사진 칸 + 글 칸
+ *    (옛 현장 사진·대략적인 양·기존 정보 요청을 하나로, 메모 칸은 뺌)
  *  - 사진·글은 선택. 품목 없이 직접 입력이면 글이 꼭 있어야 한다
  */
 function DetailFields({
@@ -396,7 +397,22 @@ function DetailFields({
           <ButtonPictos slug={x.slug} buttons={part.buttons} />
         </Field>
       )}
-      <Field error={photoError[x.slug] ?? (textMissing ? TYPE_MESSAGE : undefined)}>
+      {/* 추가 부속(선택) — 문짝 교체 · 설치·가구 추가, 고른 가구 바로 다음(QA 원문 순서) */}
+      {x.asksHinge && (
+        <Field label="경첩도 필요한가요? (선택)">
+          <Choose
+            aria-label="경첩"
+            value={part.hinge == null ? null : part.hinge ? "yes" : "no"}
+            onChange={v => s.setPart(x.slug, { hinge: v === "yes" })}
+            options={[
+              { value: "yes", label: "필요해요" },
+              { value: "no", label: "필요 없어요" },
+            ]}
+          />
+        </Field>
+      )}
+      {/* 추가 부속(선택) 다음에 설명 — QA 원문 순서. 칸 이름은 QA 원문 그대로 */}
+      <Field label="필요한 가구 또는 상황을 설명해주세요" error={photoError[x.slug] ?? (textMissing ? TYPE_MESSAGE : undefined)}>
         <PhotoPick
           value={[]}
           maxFiles={5}
@@ -414,19 +430,6 @@ function DetailFields({
           onChange={e => s.setPart(x.slug, { amountNote: e.target.value })}
         />
       </Field>
-      {x.asksHinge && (
-        <Field label="경첩도 필요한가요? (선택)">
-          <Choose
-            aria-label="경첩"
-            value={part.hinge == null ? null : part.hinge ? "yes" : "no"}
-            onChange={v => s.setPart(x.slug, { hinge: v === "yes" })}
-            options={[
-              { value: "yes", label: "필요해요" },
-              { value: "no", label: "필요 없어요" },
-            ]}
-          />
-        </Field>
-      )}
     </>
   );
 }
