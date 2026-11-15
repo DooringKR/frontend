@@ -27,7 +27,7 @@ import { Separator } from "@/components/ui/separator";
 import StepShell from "./_components/StepShell";
 import { askedDraft, markAskedDraft, nextPathOf, useHydrated } from "./_lib/flow";
 import { emptyPart, hasDraft, useRequestStore } from "./_lib/requestStore";
-import { BUTTON_PICTOGRAM, BUTTON_SHORT, SITUATIONS, type Situation, type SituationSlug, URGENT_FEE, URGENT_NAME, URGENT_WHEN, URGENT_WHEN_SHORT } from "./_lib/situations";
+import { BUTTON_DETAIL, BUTTON_PICTOGRAM, BUTTON_SHORT, SITUATIONS, type Situation, type SituationSlug, URGENT_FEE, URGENT_NAME, URGENT_WHEN, URGENT_WHEN_SHORT } from "./_lib/situations";
 import { photoUrlOf, uploadPhotos } from "./_lib/submit";
 
 type Slide =
@@ -335,7 +335,19 @@ export default function RequestStartPage() {
                   aria-invalid={invalid(sl.s.slug)}
                   value={buttonsOf(sl.s.slug)}
                   onChange={v => s.setPart(sl.s.slug, { buttons: v })}
-                  options={sl.s.buttons.map(b => ({ value: b, label: b, image: <Pictogram name={BUTTON_PICTOGRAM[b]} /> }))}
+                  options={sl.s.buttons.map(b => ({
+                    value: b,
+                    label: b,
+                    image: <Pictogram name={BUTTON_PICTOGRAM[b]} />,
+                    // 설명·실제 사진(창고문 시범). 사진 치수는 PhotoThumbs 한 줄(80·둥글기 12). 카드가 버튼이라 크게 보기는 없음
+                    description: BUTTON_DETAIL[b] && (
+                      <>
+                        {BUTTON_DETAIL[b].text}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={BUTTON_DETAIL[b].photo} alt={`${b} 사진`} className="mt-2 block size-20 rounded-[12px] bg-gray-100 object-cover" />
+                      </>
+                    ),
+                  }))}
                 />
               </CarouselItem>
             ) : (
