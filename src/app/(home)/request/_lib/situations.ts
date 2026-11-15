@@ -41,7 +41,7 @@ export const SITUATIONS: Situation[] = [
     question: "어떤 문짝이 필요한가요?",
     // 품목정리의 「주방(상하부장·냉장고장)」 위계는 두 칸으로 펼친다(2026-11-15 사용자 「추천대로」 — 페이지를 늘리지 않는다)
     buttons: ["주방 상하부장", "주방 냉장고장", "베란다 창고문", "붙박이장", "신발장", "화장대장"],
-    pictograms: { "주방 상하부장": "whole", "주방 냉장고장": "flap", "베란다 창고문": "storage", 붙박이장: "longdoor", 신발장: "shoes", 화장대장: "vanity" },
+    pictograms: { "주방 상하부장": "kitchenDoor", "주방 냉장고장": "flap", "베란다 창고문": "storage", 붙박이장: "longdoor", 신발장: "shoes", 화장대장: "vanity" },
     pictogram: "door",
     fee: 100_000,
     asksHinge: true,
@@ -52,8 +52,7 @@ export const SITUATIONS: Situation[] = [
     subtitle: "전체 리모델링이 아니어도, 부분적으로 맞춤가구를 주문해보세요",
     question: "어떤 가구가 필요한가요?",
     buttons: ["붙박이장", "신발장", "냉장고장", "키큰 수납장", "아일랜드장", "베란다 창고장"],
-    // 키큰 수납장·아일랜드장은 맞는 그림이 아직 없어 가까운 것을 임시로
-    pictograms: { 붙박이장: "longdoor", 신발장: "shoes", 냉장고장: "fridge", "키큰 수납장": "cabinet", 아일랜드장: "dish", "베란다 창고장": "storage" },
+    pictograms: { 붙박이장: "longdoor", 신발장: "shoes", 냉장고장: "fridge", "키큰 수납장": "tall", 아일랜드장: "island", "베란다 창고장": "storage" },
     pictogram: "partial",
     asksHinge: true,
   },
@@ -63,8 +62,7 @@ export const SITUATIONS: Situation[] = [
     subtitle: "기존 가구가 있던 자리에 새로운 가구를 넣어보세요",
     question: "어떤 가구를 교체하실 건가요?",
     buttons: ["식기세척기자리 수납장", "붙박이장 내부 교체", "냉장고자리 수납장"],
-    // 냉장고자리 수납장은 맞는 그림이 아직 없어 가까운 것을 임시로
-    pictograms: { "식기세척기자리 수납장": "fill", "붙박이장 내부 교체": "longdoor", "냉장고자리 수납장": "fridge" },
+    pictograms: { "식기세척기자리 수납장": "fill", "붙박이장 내부 교체": "inner", "냉장고자리 수납장": "fridgeFill" },
     pictogram: "cabinet",
     fee: 100_000,
   },
