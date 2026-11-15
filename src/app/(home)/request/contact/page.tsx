@@ -5,7 +5,7 @@ import { useEffect } from "react";
 
 import Field from "@/components/form/Field";
 import PhoneInput from "@/components/form/PhoneInput";
-import { useRequired } from "@/components/form/useRequired";
+import { TYPE_MESSAGE as TYPE, useRequired } from "@/components/form/useRequired";
 import { Input } from "@/components/ui/input";
 
 import useBizClientStore from "@/store/bizClientStore";
@@ -34,24 +34,25 @@ export default function ContactPage() {
 
   // 통화 가능 시간·출입 정보는 선택(개인정보 처리방침 제5조 선택항목과 같게)
   const req = useRequired({
-    name: !!s.contactName.trim(),
-    phone: !s.contactPhone.trim() ? false : phoneOk(s.contactPhone) || "전화번호를 확인해 주세요",
+    name: !!s.contactName.trim() || TYPE,
+    phone: !s.contactPhone.trim() ? TYPE : phoneOk(s.contactPhone) || "번호를 확인해 주세요",
   });
 
   return (
     <StepShell
       step="recipient"
       title="수령인을 알려주세요"
+      nextReady={req.ok}
       onNext={() => req.check() && router.push(nextPathOf("recipient"))}
     >
-      <Field label="수령인 이름" fieldRef={req.ref("name")}>
+      <Field label="수령인 이름" fieldRef={req.ref("name")} error={req.error("name")}>
         <Input
           aria-invalid={!!req.error("name")}
           value={s.contactName}
           onChange={e => s.set({ contactName: e.target.value })}
         />
       </Field>
-      <Field label="수령인 연락처" fieldRef={req.ref("phone")}>
+      <Field label="수령인 연락처" fieldRef={req.ref("phone")} error={req.error("phone")}>
         <PhoneInput
           aria-invalid={!!req.error("phone")}
           value={s.contactPhone}

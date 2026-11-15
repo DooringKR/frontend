@@ -6,6 +6,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Choose from "@/components/form/Choose";
 import Field from "@/components/form/Field";
 import PhotoPick from "@/components/form/PhotoPick";
+import { PICK_MESSAGE } from "@/components/form/useRequired";
 import NavRow from "@/components/nav/NavRow";
 import Pictogram from "@/components/pictogram/Pictogram";
 import Sheet from "@/components/overlay/Sheet";
@@ -164,6 +165,16 @@ export default function RequestStartPage() {
   };
 
   const cur = slides[Math.min(at, slides.length - 1)];
+  // 다음 버튼 색(L3) — 첫 장은 상황 하나 이상, 버튼 장은 버튼 하나 이상, 자세히 장은 늘(마지막 장이면 모든 상황에 버튼이 있어야)
+  const nextReady =
+    cur.kind === "pick"
+      ? picked.length > 0
+      : cur.kind === "buttons"
+        ? buttonsOf(cur.s.slug).length > 0
+        : at < slides.length - 1 || picked.every(x => buttonsOf(x.slug).length > 0);
+  // 칸 이름이 없는 장이라 알림은 제목 줄 오른쪽
+  const titleError =
+    (cur.kind === "pick" && invalid("situations")) || (cur.kind === "buttons" && invalid(cur.s.slug)) ? PICK_MESSAGE : undefined;
   const title = cur.kind === "pick" ? "어떤 상황인가요?" : cur.s.name;
   const subtitle = cur.kind === "detail" ? buttonsOf(cur.s.slug).join(", ") : undefined;
   // 자세히 장은 제목 밑에 고른 버튼 줄이 붙어 슬라이드가 내려간다 — 그린 뒤 다시 맞춘다(안 그러면 16px 넘쳐 스크롤바)
@@ -183,6 +194,8 @@ export default function RequestStartPage() {
       step="situation"
       title={title}
       subtitle={subtitle}
+      nextReady={nextReady}
+      titleError={titleError}
       onNext={next}
       onPickSituation={toFirstSlide}
       onBack={() => (at > 0 ? api?.scrollPrev() : router.push("/"))} // 첫 장의 「이전」은 흐름 밖(홈) — 기록상 뒤로면 다음 단계로 갈 수 있다

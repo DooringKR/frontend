@@ -28,14 +28,22 @@ export default function Field({
   return (
     <div ref={fieldRef} data-invalid={error ? "" : undefined} className={cn("flex flex-col gap-2", className)}>
       {label != null && (
-        <p className="text-[14px] font-400 text-gray-600">
-          {label}
-          {required && <span className="ml-0.5 text-destructive">*</span>}
-        </p>
+        // 알림은 이름 줄 오른쪽 — 칸 밑에 넣으면 아래 칸이 밀리고 이미 긴 화면이 더 길어졌다(2026-11-15 실측, 사용자 「L3」)
+        <div className="flex items-baseline justify-between gap-2">
+          <p className="text-[14px] font-400 text-gray-600">
+            {label}
+            {required && <span className="ml-0.5 text-destructive">*</span>}
+          </p>
+          {error && (
+            <p role="alert" className="shrink-0 text-[14px] font-600 text-destructive">
+              {error}
+            </p>
+          )}
+        </div>
       )}
       {children}
       {hint && <FieldHint>{hint}</FieldHint>}
-      {error && (
+      {error && label == null && (
         <p role="alert" className="text-[14px] text-destructive">
           {error}
         </p>

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import AddressField from "@/components/form/AddressField";
 import Choose from "@/components/form/Choose";
 import Field from "@/components/form/Field";
-import { useRequired } from "@/components/form/useRequired";
+import { PICK_MESSAGE as PICK, TYPE_MESSAGE as TYPE, useRequired } from "@/components/form/useRequired";
 import Pictogram from "@/components/pictogram/Pictogram";
 import { Input } from "@/components/ui/input";
 
@@ -32,11 +32,11 @@ export default function SitePage() {
   const s = useRequestStore();
   const install = !!s.installNeeded;
   const req = useRequired({
-    address: !!s.roadAddress,
-    building: !!s.buildingType,
-    pyeong: !!s.pyeong.trim(),
-    parking: !install || s.parking !== null,
-    elevator: !install || s.elevator !== null,
+    address: !!s.roadAddress || TYPE,
+    building: !!s.buildingType || PICK,
+    pyeong: !!s.pyeong.trim() || TYPE,
+    parking: !install || s.parking !== null || PICK,
+    elevator: !install || s.elevator !== null || PICK,
   });
 
   const pickAddress = async (road: string) => {
@@ -56,9 +56,10 @@ export default function SitePage() {
     <StepShell
       step="site"
       title="현장 정보를 알려주세요"
+      nextReady={req.ok}
       onNext={() => req.check() && router.push(nextPathOf("site"))}
     >
-      <Field label="주소" fieldRef={req.ref("address")}>
+      <Field label="주소" fieldRef={req.ref("address")} error={req.error("address")}>
         <AddressField
           value={s.roadAddress}
           onPick={pickAddress}
@@ -70,7 +71,7 @@ export default function SitePage() {
           onChange={e => s.set({ detailAddress: e.target.value })}
         />
       </Field>
-      <Field label="건물 종류" fieldRef={req.ref("building")}>
+      <Field label="건물 종류" fieldRef={req.ref("building")} error={req.error("building")}>
         <Choose
           aria-invalid={!!req.error("building")}
           aria-label="건물 종류"
@@ -79,7 +80,7 @@ export default function SitePage() {
           options={BUILDING.map(b => ({ value: b, label: b }))}
         />
       </Field>
-      <Field label="평형" fieldRef={req.ref("pyeong")}>
+      <Field label="평형" fieldRef={req.ref("pyeong")} error={req.error("pyeong")}>
         <Input
           placeholder="예) 33평형"
           aria-invalid={!!req.error("pyeong")}
@@ -89,7 +90,7 @@ export default function SitePage() {
       </Field>
       {install && (
         <>
-          <Field label="주차" fieldRef={req.ref("parking")}>
+          <Field label="주차" fieldRef={req.ref("parking")} error={req.error("parking")}>
             <Choose
               aria-invalid={!!req.error("parking")}
               aria-label="주차"
@@ -98,7 +99,7 @@ export default function SitePage() {
               options={PARKING.map(p => ({ value: p, label: p }))}
             />
           </Field>
-          <Field label="엘리베이터" fieldRef={req.ref("elevator")}>
+          <Field label="엘리베이터" fieldRef={req.ref("elevator")} error={req.error("elevator")}>
             <Choose
               aria-invalid={!!req.error("elevator")}
               aria-label="엘리베이터"

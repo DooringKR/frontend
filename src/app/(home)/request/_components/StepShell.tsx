@@ -24,6 +24,8 @@ import StepRow from "./StepRow";
 /**
  * 상황 주문 한 화면 — 위 바·단계 줄·제목·아래 고정 버튼.
  * 다음 버튼은 늘 눌린다(필수값은 화면이 useRequired 로 확인 — 빈 칸으로 옮겨 가 알린다). 보내는 중에만 막는다(busy).
+ * 덜 채웠으면 옅은 색(nextReady=false), 다 채우면 파랑 — 누르기 전에 준비됐는지 보인다(2026-11-15 사용자 「L3」. 첫 장만 막는 안은 근거가 없어 안 씀).
+ * 알림 문구는 칸 이름 줄 오른쪽(Field), 이름이 없는 화면은 제목 줄 오른쪽(titleError) — 문구가 생겨도 아래가 밀리지 않는다.
  * 앞 단계가 안 끝났는데 주소로 바로 들어오면 첫 미완료 단계로 돌려보낸다. 연 화면은 「이어서 하기」를 위해 남긴다.
  * 단계 화면에는 늘 「주문하기」가 있다(2026-11-13 사용자 — 확인 화면을 단계 줄에 넣는 대신):
  * 덜 끝났으면 막힌 모양이고 누르면 단계 줄의 덜 끝난 단계를 강조, 다 끝났으면 확인 화면으로.
@@ -37,12 +39,18 @@ export default function StepShell({
   nextText = "다음",
   busy = false,
   nextLooksDisabled = false,
+  nextReady = true,
+  titleError,
   onNext,
   bottomTop,
   highlight = false,
   onPickSituation,
   onBack,
 }: {
+  /** 다 채웠는지 — false 면 옅은 색(눌리긴 한다) */
+  nextReady?: boolean;
+  /** 제목 줄 오른쪽 알림(칸 이름이 없는 화면) */
+  titleError?: string;
   /** 단계 줄에서 지금 단계(확인 화면은 null) */
   step: StepKey | null;
   title: React.ReactNode;
@@ -89,7 +97,17 @@ export default function StepShell({
           onPickSituation={onPickSituation}
         />
       )}
-      <Header title={title} subtitle={subtitle} />
+      <Header
+        title={title}
+        subtitle={subtitle}
+        aside={
+          titleError && (
+            <span role="alert" className="shrink-0 text-[14px] font-600 text-destructive">
+              {titleError}
+            </span>
+          )
+        }
+      />
       <div className="h-5" />
       <div className="flex flex-col gap-5 px-5">{children}</div>
       <div className="h-[100px]" />
@@ -104,7 +122,12 @@ export default function StepShell({
             주문하기
           </Button>
           {onNext && (
-            <Button busy={busy} onClick={onNext}>
+            <Button
+              busy={busy}
+              variant={nextReady ? "default" : "inverse"}
+              aria-disabled={!nextReady || undefined}
+              onClick={onNext}
+            >
               {nextText}
             </Button>
           )}

@@ -3,6 +3,9 @@
 import { useCallback, useRef, useState } from "react";
 
 export const REQUIRED_MESSAGE = "필수 항목입니다";
+/** 상황 주문 알림 문구(2026-11-15) — 고르는 칸·쓰는 칸 */
+export const PICK_MESSAGE = "골라 주세요";
+export const TYPE_MESSAGE = "입력해 주세요";
 
 /**
  * 필수값 확인 — 바로키친 어드민 form/useRequired 와 같은 규칙(2026-10-30, 바로가구 2026-11-13).
@@ -29,6 +32,8 @@ export function useRequired<K extends string>(rules: Record<K, boolean | string>
       refs.current[k] = el;
     },
     error: (k: K) => (tried ? problem(k) : undefined),
+    /** 다 채워졌는지(누르기 전에도) — 다음 버튼을 준비된 색으로 바꿀 때 */
+    ok: (Object.keys(rules) as K[]).every((k) => problem(k) === undefined),
     /** 다 됐으면 true. 문제가 있으면 첫 문제 칸으로 옮겨 가고 false. */
     check: () => {
       setTried(true);

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Choose from "@/components/form/Choose";
 import DateField from "@/components/form/DateField";
 import Field from "@/components/form/Field";
-import { useRequired } from "@/components/form/useRequired";
+import { PICK_MESSAGE as PICK, TYPE_MESSAGE as TYPE, useRequired } from "@/components/form/useRequired";
 import Pictogram from "@/components/pictogram/Pictogram";
 import { Input } from "@/components/ui/input";
 
@@ -32,21 +32,22 @@ export default function InstallPage() {
 
   const req = useRequired(
     s.installNeeded === null
-      ? { install: false, method: true, how: true, date: true }
+      ? { install: PICK, method: true, how: true, date: true }
       : s.installNeeded
-        ? { install: true, method: true, how: true, date: s.urgent || !!s.preferredDate }
+        ? { install: true, method: true, how: true, date: s.urgent || !!s.preferredDate || PICK }
         : {
             install: true,
-            method: !!r,
+            method: !!r || PICK,
             how: !r
               ? true
               : delivery
-                ? !!r.deliveryMethod &&
-                  (r.deliveryMethod !== DeliveryMethod.DIRECT_INPUT ||
-                    !!r.deliveryMethodInput?.trim())
-                : !!r.vehicle &&
-                  (r.vehicle !== VehicleType.DIRECT_INPUT || !!r.vehicleInput?.trim()),
-            date: !r || !!r.date,
+                ? !r.deliveryMethod
+                  ? PICK
+                  : r.deliveryMethod !== DeliveryMethod.DIRECT_INPUT || !!r.deliveryMethodInput?.trim() || TYPE
+                : !r.vehicle
+                  ? PICK
+                  : r.vehicle !== VehicleType.DIRECT_INPUT || !!r.vehicleInput?.trim() || TYPE,
+            date: !r || !!r.date || PICK,
           },
   );
 
@@ -54,9 +55,10 @@ export default function InstallPage() {
     <StepShell
       step="install"
       title="시공 정보를 입력해주세요"
+      nextReady={req.ok}
       onNext={() => req.check() && router.push(nextPathOf("install"))}
     >
-      <Field label="시공 여부" fieldRef={req.ref("install")}>
+      <Field label="시공 여부" fieldRef={req.ref("install")} error={req.error("install")}>
         <Choose
           aria-invalid={!!req.error("install")}
           aria-label="시공 여부"
@@ -81,7 +83,7 @@ export default function InstallPage() {
             </div>
           </Field>
         ) : (
-          <Field label="희망 시공 날짜" fieldRef={req.ref("date")}>
+          <Field label="희망 시공 날짜" fieldRef={req.ref("date")} error={req.error("date")}>
             <DateField
               aria-invalid={!!req.error("date")}
               title="희망 시공 날짜"
@@ -94,7 +96,7 @@ export default function InstallPage() {
 
       {s.installNeeded === false && (
         <>
-          <Field label="받는 방법" fieldRef={req.ref("method")}>
+          <Field label="받는 방법" fieldRef={req.ref("method")} error={req.error("method")}>
             <Choose
               aria-invalid={!!req.error("method")}
               aria-label="받는 방법"
@@ -107,7 +109,7 @@ export default function InstallPage() {
             />
           </Field>
           {r && (
-            <Field label={delivery ? "수령 방법" : "차량"} fieldRef={req.ref("how")}>
+            <Field label={delivery ? "수령 방법" : "차량"} fieldRef={req.ref("how")} error={req.error("how")}>
               {delivery ? (
                 <Choose<string>
                   aria-invalid={!!req.error("how")}
@@ -140,7 +142,7 @@ export default function InstallPage() {
             </Field>
           )}
           {r && (
-            <Field label={delivery ? "희망 도착 날짜" : "픽업 날짜"} fieldRef={req.ref("date")}>
+            <Field label={delivery ? "희망 도착 날짜" : "픽업 날짜"} fieldRef={req.ref("date")} error={req.error("date")}>
               <DateField
                 aria-invalid={!!req.error("date")}
                 title={delivery ? "희망 도착 날짜" : "픽업 날짜"}
