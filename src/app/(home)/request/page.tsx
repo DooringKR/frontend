@@ -59,8 +59,8 @@ export default function RequestStartPage() {
   const [photoError, setPhotoError] = useState<Partial<Record<SituationSlug, string>>>({});
   /** 다음을 눌러 봤는데 안 고른 곳 — 「situations」 또는 상황 slug */
   const [missed, setMissed] = useState<Set<string>>(new Set());
-  /** 들어오자마자 갈 장 — 다음 단계의 「이전」(?at=last)은 마지막 장, 홈에서 상황을 고르고 왔으면(?from=home) 둘째 장 */
-  const startAt = useRef<"last" | 1 | null>(null);
+  /** 들어오자마자 갈 장 — 다음 단계의 「이전」(?at=last)은 마지막 장 */
+  const startAt = useRef<"last" | null>(null);
   /** 슬라이드 묶음 높이 맞추기 — 장이 바뀌어 제목 줄 높이가 달라진 뒤(그린 뒤)에도 다시 부른다 */
   const fitRef = useRef<() => void>(() => {});
 
@@ -137,14 +137,13 @@ export default function RequestStartPage() {
   }, [api]);
 
   // 단계 줄에서 왔으면(/request?from=steps) 안내만, 다음 단계의 「이전」으로 왔으면(?at=last) 마지막 장,
-  // 홈에서 고르고 주문하기로 왔으면(?from=home) 묻지 않고 이어서 — 상황을 골랐으면 첫 장은 홈에서 한 셈이라 둘째 장부터,
+  // 홈에서 고르고 주문하기로 왔으면(?from=home) 묻지 않고 첫 장에 고른 그대로(2026-11-15 사용자 「그 화면이 떠야」 — 둘째 장으로 건너뛰지 않는다),
   // 처음 들어왔으면 작성하던 주문을 이어서 할지 묻는다
   useEffect(() => {
     if (!hydrated) return;
     const q = window.location.search;
     if (q.includes("at=last") || q.includes("from=steps") || q.includes("from=home")) {
       if (q.includes("at=last")) startAt.current = "last";
-      if (q.includes("from=home") && useRequestStore.getState().situations.length > 0) startAt.current = 1;
       router.replace("/request");
       markAskedDraft();
     } else if (!askedDraft() && hasDraft(useRequestStore.getState())) setAskOpen(true);
@@ -157,7 +156,7 @@ export default function RequestStartPage() {
     const to = startAt.current;
     if (!api || !hydrated || to === null) return;
     const id = requestAnimationFrame(() => {
-      api.scrollTo(to === "last" ? api.scrollSnapList().length - 1 : to, true);
+      api.scrollTo(api.scrollSnapList().length - 1, true);
       startAt.current = null;
     });
     return () => cancelAnimationFrame(id);
