@@ -5,6 +5,8 @@ import { isMaintenanceMode } from "@/lib/utils";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 
+import ReloadOnUpdate from "./(client-helpers)/reload-on-update";
+
 export const metadata: Metadata = {
   title: "바로가구",
   description: "가구 문짝 ∙ 가구 마감재 ∙ 부분장 ∙ 가구 부속 ∙ 가구 하드웨어 | 모바일로 쉽고 편리하게 주문하고, 정확한 맞춤 가구를 오늘배송 받으세요.",
@@ -117,6 +119,8 @@ function RootLayout({
         {/* 우측 하단 고정 버튼 */}
         {/* 잠깐 뜨는 결과(성공만) — 실패는 누른 자리 옆(ActionError) */}
         <Toaster position="top-center" />
+        {/* 새 버전이 깔리면 한 번 새로고침(열려 있던 휴대폰에 옛 화면이 남지 않게) */}
+        <ReloadOnUpdate />
       </body>
     </html>
   );
