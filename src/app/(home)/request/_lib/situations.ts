@@ -69,9 +69,29 @@ export const BUTTON_PICTOGRAM: Record<string, PictogramName> = {
   "식세기 자리에 장 채우기": "fill",
 };
 
-/** 품목 고르기 장의 「자세히」 설명·실제 사진 여러 장(QA 「가구 선택 단계에서 상세 설명」 2026-11-15) — 창고문만 시범, 보고 나서 다른 품목도 */
+/**
+ * 품목 고르기 장의 「자세히」 설명·실제 사진 여러 장(QA 「가구 선택 단계에서 상세 설명」 2026-11-15).
+ * 창고문은 QA 원문, 나머지 넷은 조사 세션 초안(2026-11-15 사용자 「추천 4개로」) — 사진은 회사 촬영본(광주주택·기술 라이브러리·플랩문 교체 사례).
+ * 아직 없는 품목: 화장대장(문만인지 장 새로인지 범위 미정)·냉장고장·전체 교체(이름부터)·서랍장·신발장 전체 교체(이름으로 충분).
+ */
 export const BUTTON_DETAIL: Record<string, { text: string; photos: string[] }> = {
   창고문: { text: "베란다·다용도실 수납장을 깔끔하게 가려주고 습기와 먼지를 막아주는 맞춤형 가구 도어입니다.", photos: ["/img/request/storage.jpg"] },
+  "신발장·붙박이장 롱문만 교체": {
+    text: "신발장·붙박이장 몸통은 그대로 두고 키 큰 문짝(롱문)만 새로 맞춰 다는 주문입니다. 장은 아직 쓸 만한데 문 색이나 상태만 바꾸고 싶을 때 고릅니다.",
+    photos: ["/img/request/longdoor-1.jpg", "/img/request/longdoor-2.jpg", "/img/request/longdoor-3.jpg"],
+  },
+  "냉장고장 플랩문 교체": {
+    text: "냉장고장 위 칸에 달린, 위로 들어 올려 여는 문(플랩문)만 새로 바꾸는 주문입니다. 문이 냉장고에 걸려 잘 열리지 않을 때 고릅니다.",
+    photos: ["/img/request/flap-1.jpg", "/img/request/flap-2.jpg", "/img/request/flap-3.jpg"],
+  },
+  식기세척기장: {
+    text: "빌트인 식기세척기가 들어갈 자리를 만들어 주는 하부장입니다. 식기세척기를 새로 들이는데 지금 주방에 넣을 자리가 없을 때 고릅니다.",
+    photos: ["/img/request/dish-1.jpg", "/img/request/dish-2.jpg"],
+  },
+  "식세기 자리에 장 채우기": {
+    text: "식기세척기를 빼서 생긴 자리나 처음부터 비어 있던 식세기 자리를 수납장으로 채우는 주문입니다. 식기세척기를 쓰지 않는 집에서 그 칸을 수납으로 쓰고 싶을 때 고릅니다.",
+    photos: ["/img/request/dish-fill-1.jpg", "/img/request/dish-fill-2.jpg"],
+  },
 };
 
 /** 첫 장 미리보기의 그림 밑 짧은 이름(2026-11-15 사용자) — 없으면 버튼 이름 그대로 */

@@ -187,10 +187,10 @@ function DetailPopup({
             <CarouselContent>
               {images.map((src, i) => (
                 <CarouselItem key={`${i}-${src}`}>
-                  {/* 비율이 다른 사진도 같은 틀(가장 긴 사진 높이) 가운데에 — 넘길 때 칸이 들쭉날쭉하지 않게 */}
-                  <div className="flex h-full items-center overflow-hidden rounded-[12px] bg-gray-100">
+                  {/* 사진 틀은 정사각(NavTiles 그림 칸과 같은 규칙), 사진은 잘리지 않게 틀 안에 — 세로 사진이 팝업 높이를 넘겨 점이 가려지던 것(식기세척기장·플랩문) 막고, 비율이 달라도 넘길 때 칸이 같다 */}
+                  <div className="aspect-square overflow-hidden rounded-[12px] bg-gray-100">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={src} alt={`${title} 사진 ${i + 1}`} className="w-full" />
+                    <img src={src} alt={`${title} 사진 ${i + 1}`} className="size-full object-contain" />
                   </div>
                 </CarouselItem>
               ))}
