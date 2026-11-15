@@ -28,18 +28,26 @@ import { photoUrlOf, uploadPhotos } from "./_lib/submit";
 
 /**
  * 밀 수 있다는 걸 글 대신 움직임으로(2026-11-15 사용자 「B로」) — 첫 장에 있고 다음 장이 있으면
- * 장들을 한 번 왼쪽으로 밀었다 튕겨 돌려놓아 다음 장 끝을 잠깐 보인다. 이 기기에서 한 번만(「매번 보여주지 마라」).
- * 움직임 줄이기 설정이면 하지 않는다. embla 는 묶음(container)을 움직이므로 장(slide)마다 같은 만큼 움직여 겹치지 않게 한다.
+ * 장들을 한 번 왼쪽으로 밀었다 튕겨 돌려놓아 다음 장 끝을 잠깐 보인다.
+ * 들어올 때마다 한 번, 손가락으로 끌어 장을 넘긴 적이 생기면 이 기기에선 그만(「밀 때까지 보여」 — 한 번만 보이면 놓친 사람은 다시 못 봤다).
+ * 움직임 줄이기 설정이면 하지 않는다. embla 는 묶음(container)을 움직이므로 장(slide)마다 같은 만큼 움직인다.
  */
-const NUDGE_KEY = "situation-swipe-nudge";
-const nudgeOnce = (api: NonNullable<CarouselApi>) => {
-  if (api.scrollSnapList().length < 2 || api.selectedScrollSnap() !== 0) return;
+const LEARNED_KEY = "situation-swipe-learned";
+const markLearned = () => {
   try {
-    if (localStorage.getItem(NUDGE_KEY) === "1") return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    localStorage.setItem(NUDGE_KEY, "1");
+    localStorage.setItem(LEARNED_KEY, "1");
   } catch {
-    return;
+    /* 저장 못 하면 다음에 또 보일 뿐 */
+  }
+};
+/** 밀었으면 true */
+const nudge = (api: NonNullable<CarouselApi>) => {
+  if (api.scrollSnapList().length < 2 || api.selectedScrollSnap() !== 0) return false;
+  try {
+    if (localStorage.getItem(LEARNED_KEY) === "1") return false;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
+  } catch {
+    return false;
   }
   const w = api.rootNode().clientWidth;
   const x = (r: number) => ({ transform: `translateX(${-w * r}px)` });
@@ -50,6 +58,7 @@ const nudgeOnce = (api: NonNullable<CarouselApi>) => {
       easing: "ease-in-out",
     }),
   );
+  return true;
 };
 
 type Slide =
@@ -59,7 +68,7 @@ type Slide =
 
 /**
  * 상황 입력 — 슬라이드(2026-11-13 QA): 상황 고르기 1장 + 고른 상황마다 「버튼」 1장·「자세히」 1장.
- * 한 장에 상황을 쌓지 않는다(정보가 많아져 길어진다 — 사용자 지적). 위에 「지금 / 전체」를 보인다(shadcn Carousel 예시).
+ * 한 장에 상황을 쌓지 않는다(정보가 많아져 길어진다 — 사용자 지적). 위에 몇 장 중 몇째를 점 줄로 보인다(CarouselDots).
  * DIY·자재 필요없는 수리는 슬라이드 없이 바로 다음 화면.
  * 화면 1 묶음(2026-11-12 사용자):
  *  - 현장 급한 수습: 강조. 고르면 15만 원만 더하고 다음 페이지는 없다. 어느 묶음과도 같이 고른다.
@@ -120,11 +129,26 @@ export default function RequestStartPage() {
     };
     watch();
     window.addEventListener("resize", fit);
+    // 손가락으로 끌어 장이 넘어가면 밀기를 배운 것 — 다음 버튼·점으로 넘긴 건 embla 끌기 신호가 없어 안 센다
+    let down = false;
+    let upAt = 0;
+    const onDown = () => {
+      down = true;
+    };
+    const onUp = () => {
+      down = false;
+      upAt = Date.now();
+    };
+    const onSwiped = () => {
+      if (down || Date.now() - upAt < 800) markLearned();
+    };
     api.on("select", onSelect).on("select", fit).on("reInit", watch);
+    api.on("pointerDown", onDown).on("pointerUp", onUp).on("select", onSwiped);
     return () => {
       ro.disconnect();
       window.removeEventListener("resize", fit);
       api.off("select", onSelect).off("select", fit).off("reInit", watch);
+      api.off("pointerDown", onDown).off("pointerUp", onUp).off("select", onSwiped);
     };
   }, [api]);
 
@@ -154,11 +178,14 @@ export default function RequestStartPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated]);
 
-  // 첫 장에서 다음 장이 생기거나(상황을 처음 고름) 다음 장이 있는 채로 첫 장에 오면 한 번 살짝 민다 —
+  // 첫 장에서 다음 장이 생기거나(상황을 처음 고름) 다음 장이 있는 채로 첫 장에 오면 살짝 민다 — 이 화면에 들어올 때마다 한 번.
   // 이어서 할지 묻는 시트가 떠 있거나 「이전」으로 마지막 장에 가는 중이면 안 한다(안 보이는 데서 한 번을 써 버리지 않게)
+  const nudged = useRef(false);
   useEffect(() => {
-    if (!api || !hydrated || askOpen || wantLast.current || slides.length < 2 || at !== 0) return;
-    const id = requestAnimationFrame(() => nudgeOnce(api));
+    if (!api || !hydrated || askOpen || wantLast.current || nudged.current || slides.length < 2 || at !== 0) return;
+    const id = requestAnimationFrame(() => {
+      if (nudge(api)) nudged.current = true;
+    });
     return () => cancelAnimationFrame(id);
   }, [api, hydrated, askOpen, slides.length, at]);
 
