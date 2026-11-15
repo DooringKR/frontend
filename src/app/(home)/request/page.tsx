@@ -1,6 +1,5 @@
 "use client";
 
-import { Clock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
@@ -8,10 +7,8 @@ import Choose from "@/components/form/Choose";
 import Field from "@/components/form/Field";
 import PhotoPick from "@/components/form/PhotoPick";
 import { PICK_MESSAGE } from "@/components/form/useRequired";
-import NavRow from "@/components/nav/NavRow";
 import Pictogram from "@/components/pictogram/Pictogram";
 import Notice from "@/components/state/Notice";
-import { Badge } from "@/components/ui/badge";
 import Sheet from "@/components/overlay/Sheet";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,12 +19,12 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 
+import SituationPicker from "./_components/SituationPicker";
 import StepShell from "./_components/StepShell";
 import { askedDraft, markAskedDraft, nextPathOf, useHydrated } from "./_lib/flow";
 import { emptyPart, hasDraft, useRequestStore } from "./_lib/requestStore";
-import { BUTTON_DETAIL, BUTTON_PICTOGRAM, BUTTON_SHORT, SITUATIONS, type Situation, type SituationSlug, URGENT_FEE, URGENT_NAME, URGENT_WHEN, URGENT_WHEN_SHORT } from "./_lib/situations";
+import { BUTTON_DETAIL, BUTTON_PICTOGRAM, SITUATIONS, type Situation, type SituationSlug, URGENT_NAME, URGENT_WHEN } from "./_lib/situations";
 import { photoUrlOf, uploadPhotos } from "./_lib/submit";
 
 type Slide =
@@ -61,8 +58,8 @@ export default function RequestStartPage() {
   const [photoError, setPhotoError] = useState<Partial<Record<SituationSlug, string>>>({});
   /** 다음을 눌러 봤는데 안 고른 곳 — 「situations」 또는 상황 slug */
   const [missed, setMissed] = useState<Set<string>>(new Set());
-  /** 다음 단계에서 「이전」으로 왔으면(?at=last) 마지막 장부터 */
-  const wantLast = useRef(false);
+  /** 들어오자마자 갈 장 — 다음 단계의 「이전」(?at=last)은 마지막 장, 홈에서 상황을 고르고 왔으면(?from=home) 둘째 장 */
+  const startAt = useRef<"last" | 1 | null>(null);
   /** 슬라이드 묶음 높이 맞추기 — 장이 바뀌어 제목 줄 높이가 달라진 뒤(그린 뒤)에도 다시 부른다 */
   const fitRef = useRef<() => void>(() => {});
 
@@ -138,31 +135,32 @@ export default function RequestStartPage() {
     };
   }, [api]);
 
-  // 「이전」으로 돌아왔으면 마지막 장으로 — 기기 입력값을 읽어 장이 다 생기고 embla 가 다시 잰 뒤
-  useEffect(() => {
-    if (!api || !hydrated || !wantLast.current) return;
-    const id = requestAnimationFrame(() => {
-      api.scrollTo(api.scrollSnapList().length - 1, true);
-      wantLast.current = false;
-    });
-    return () => cancelAnimationFrame(id);
-  }, [api, hydrated, slides.length]);
-
   // 단계 줄에서 왔으면(/request?from=steps) 안내만, 다음 단계의 「이전」으로 왔으면(?at=last) 마지막 장,
+  // 홈에서 고르고 주문하기로 왔으면(?from=home) 묻지 않고 이어서 — 상황을 골랐으면 첫 장은 홈에서 한 셈이라 둘째 장부터,
   // 처음 들어왔으면 작성하던 주문을 이어서 할지 묻는다
   useEffect(() => {
     if (!hydrated) return;
-    if (window.location.search.includes("at=last")) {
-      wantLast.current = true;
-      router.replace("/request");
-      markAskedDraft();
-    } else if (window.location.search.includes("from=steps")) {
+    const q = window.location.search;
+    if (q.includes("at=last") || q.includes("from=steps") || q.includes("from=home")) {
+      if (q.includes("at=last")) startAt.current = "last";
+      if (q.includes("from=home") && useRequestStore.getState().situations.length > 0) startAt.current = 1;
       router.replace("/request");
       markAskedDraft();
     } else if (!askedDraft() && hasDraft(useRequestStore.getState())) setAskOpen(true);
     else markAskedDraft();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated]);
+
+  // 들어오자마자 갈 장으로 — 기기 입력값을 읽어 장이 다 생기고 embla 가 다시 잰 뒤(위에서 정한 뒤라 이 차례)
+  useEffect(() => {
+    const to = startAt.current;
+    if (!api || !hydrated || to === null) return;
+    const id = requestAnimationFrame(() => {
+      api.scrollTo(to === "last" ? api.scrollSnapList().length - 1 : to, true);
+      startAt.current = null;
+    });
+    return () => cancelAnimationFrame(id);
+  }, [api, hydrated, slides.length]);
 
   const toFirstSlide = () => api?.scrollTo(0);
 
@@ -252,80 +250,7 @@ export default function RequestStartPage() {
           {slides.map((sl, i) =>
             i > open ? null : sl.kind === "pick" ? (
               <CarouselItem key="pick" className="flex flex-col gap-5 px-5">
-                <Choose
-                  multiple
-                  aria-label={URGENT_NAME}
-                  value={s.urgent ? ["urgent"] : []}
-                  onChange={v => s.set({ urgent: v.includes("urgent") })}
-                  options={[
-                    {
-                      value: "urgent",
-                      label: URGENT_NAME,
-                      emphasized: true,
-                      image: <Pictogram name="urgent" />,
-                      // 조건 칩은 이름 옆(2026-11-15 사용자) — 시간은 옅은 파랑 + 시계, 금액은 꽉 찬 빨강으로 종류가 갈리게
-                      badge: (
-                        <span className="inline-flex flex-wrap gap-1 align-middle">
-                          <Badge color="blue" weight="weak" className="gap-0.5 px-1 text-[12px]/[18px]">
-                            <Clock className="size-3" strokeWidth={2.5} />
-                            {URGENT_WHEN_SHORT}
-                          </Badge>
-                          <Badge color="red" weight="strong" className="px-1 text-[12px]/[18px]">
-                            +{URGENT_FEE / 10_000}만 원
-                          </Badge>
-                        </span>
-                      ),
-                      description: <>오늘 바로 시공이 필요하세요? {URGENT_NAME} 서비스를 선택해보세요</>,
-                    },
-                  ]}
-                />
-                <Separator className="bg-gray-100" />
-                <Choose<SituationSlug>
-                  multiple
-                  aria-label="상황"
-                  aria-invalid={invalid("situations")}
-                  value={s.situations}
-                  onChange={v => s.set({ situations: v })}
-                  // 고르면 다음 장에서 고를 품목이 이름표로 바로 보인다(QA 「표현 변경」 펼침, 2026-11-15 사용자 「A, 글 없이 띄워만」) — 고르기는 다음 장
-                  options={SITUATIONS.map(x => ({
-                    value: x.slug,
-                    label: x.name,
-                    image: <Pictogram name={x.pictogram} />,
-                    description: (
-                      <>
-                        {x.subtitle}
-                        {/* 글 이름표는 오히려 읽기 어려워 픽토그램 + 밑에 이름(2026-11-15 사용자).
-                            이름은 짧게(BUTTON_SHORT)·그림과 이름은 칸 가운데(이름 길이와 상관없이 그림끼리 줄이 맞게). 치수는 있는 규칙 그대로: 그림 32(Pictogram 기본·카드 그림과 같음), 이름 12/16·간격 4(단계 줄 이름), 두 칸씩·그림 위 이름 아래(NavTiles), 칸 사이 8(Choose) */}
-                        {s.situations.includes(x.slug) && (
-                          <span className="mt-2 grid grid-cols-2 gap-2">
-                            {x.buttons.map(b => (
-                              <span key={b} className="flex flex-col items-center gap-1">
-                                <Pictogram name={BUTTON_PICTOGRAM[b]} />
-                                <span className="text-[12px] leading-4 font-500 text-gray-700">{BUTTON_SHORT[b] ?? b}</span>
-                              </span>
-                            ))}
-                          </span>
-                        )}
-                      </>
-                    ),
-                  }))}
-                />
-
-                <Separator className="bg-gray-100" />
-                <NavRow
-                  card
-                  label="DIY(셀프 주문)"
-                  icon={<Pictogram name="diy" />}
-                  disabled={picked.length > 0}
-                  onClick={() => router.push("/diy")}
-                />
-                <NavRow
-                  card
-                  label="자재 필요없는 수리"
-                  icon={<Pictogram name="repair" />}
-                  disabled={picked.length > 0}
-                  onClick={() => router.push("/request/not-served")}
-                />
+                <SituationPicker invalid={invalid("situations")} />
               </CarouselItem>
             ) : sl.kind === "buttons" ? (
               <CarouselItem key={`${sl.s.slug}-buttons`} className="flex flex-col gap-5 px-5">

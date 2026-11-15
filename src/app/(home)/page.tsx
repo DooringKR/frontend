@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import AddressIndicator from "@/components/AddressIndicator/AddressIndicator";
@@ -29,7 +29,11 @@ import { setScreenName, getPreviousScreenName } from "@/utils/screenName";
 import { Button } from "@/components/ui/button";
 import BottomBar from "@/components/overlay/BottomBar";
 
+import SituationPicker from "./request/_components/SituationPicker";
+import { useRequestStore } from "./request/_lib/requestStore";
+
 export default function Page() {
+  const router = useRouter();
   const bizClient = useBizClientStore(state => state.bizClient);
   const cartItemCount = useCartItemStore(state => state.cartItems.length);
 
@@ -67,6 +71,14 @@ export default function Page() {
 
   const addressIndicatorProps = getAddressIndicatorProps(bizClient, deliveryInfo);
 
+  // 홈에서 고른 상황이 있으면 주문하기(가운데·아래 둘 다)는 고른 그대로 상황 입력으로 — 「이어서 할까요」는 묻지 않는다
+  const picked = useRequestStore(s => s.urgent || s.situations.length > 0);
+  // 상황 고르기 값은 기기에 둔 것 — request/layout 처럼 화면을 그린 뒤 읽는다(서버가 그린 빈 화면과 어긋나지 않게)
+  useEffect(() => {
+    void useRequestStore.persist.rehydrate();
+  }, []);
+  const toOrder = () => router.push(picked ? "/request?from=home" : "/request");
+
   return (
     <div className="flex min-h-screen flex-col bg-white pt-[60px]">
       {/* Amplitude 초기화 (클라이언트 전용) */}
@@ -77,6 +89,15 @@ export default function Page() {
       <main className="mb-[40px] mt-10 flex flex-grow flex-col gap-7">
         {bizClient && <AddressIndicator {...addressIndicatorProps} />}
         {/* 품목 메뉴는 상황 주문 화면 1의 DIY 로 옮겼다(/diy, 2026-11-13) */}
+        {/* 상황 고르기를 홈에 바로(QA 「랜딩페이지단계에서 첫 화면(상황입력)이 나오게」 2026-11-15) — 하나라도 고르면 밑에 주문하기.
+            제목 모양·제목과 내용 간격은 홈의 다른 칸(실제 제작 사례)과 같게 */}
+        <section className="flex flex-col gap-3 px-5">
+          <h2 className="text-[20px]/[28px] font-700 text-gray-800">어떤 상황인가요?</h2>
+          <div className="flex flex-col gap-5">
+            <SituationPicker />
+            {picked && <Button onClick={toOrder}>주문하기</Button>}
+          </div>
+        </section>
         <div className="px-5 pb-10">
           <PaymentNoticeCard />
         </div>
@@ -96,9 +117,7 @@ export default function Page() {
       {/* 주문하기는 아래 고정 — 로그인하면 탭바(63px) 위에 뜬다(2026-11-13 QA). 아래 여백은 버튼·탭바에 가리지 않게 */}
       <div className={bizClient ? "h-[153px]" : "h-[90px]"} />
       <BottomBar className={bizClient ? "bottom-[63px]" : undefined}>
-        <Button asChild>
-          <Link href="/request">주문하기</Link>
-        </Button>
+        <Button onClick={toOrder}>주문하기</Button>
       </BottomBar>
       {bizClient && <BottomNavigation />}
     </div>
