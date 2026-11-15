@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 
 import Choose from "@/components/form/Choose";
 import Field from "@/components/form/Field";
@@ -15,6 +14,7 @@ import {
   Carousel,
   type CarouselApi,
   CarouselContent,
+  CarouselDots,
   CarouselItem,
 } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
@@ -26,16 +26,30 @@ import { emptyPart, hasDraft, useRequestStore } from "./_lib/requestStore";
 import { BUTTON_PICTOGRAM, SITUATIONS, type Situation, type SituationSlug } from "./_lib/situations";
 import { photoUrlOf, uploadPhotos } from "./_lib/submit";
 
-const SWIPE_HINT = "옆으로 밀면 세부 정보를 바꿀 수 있어요";
-/** 밀기 안내는 이 기기에서 한 번만(2026-11-13 사용자 「매번 보여주지 마라」) */
-const hintOnce = () => {
+/**
+ * 밀 수 있다는 걸 글 대신 움직임으로(2026-11-15 사용자 「B로」) — 첫 장에 있고 다음 장이 있으면
+ * 장들을 한 번 왼쪽으로 밀었다 튕겨 돌려놓아 다음 장 끝을 잠깐 보인다. 이 기기에서 한 번만(「매번 보여주지 마라」).
+ * 움직임 줄이기 설정이면 하지 않는다. embla 는 묶음(container)을 움직이므로 장(slide)마다 같은 만큼 움직여 겹치지 않게 한다.
+ */
+const NUDGE_KEY = "situation-swipe-nudge";
+const nudgeOnce = (api: NonNullable<CarouselApi>) => {
+  if (api.scrollSnapList().length < 2 || api.selectedScrollSnap() !== 0) return;
   try {
-    if (localStorage.getItem("situation-swipe-hint") === "1") return;
-    localStorage.setItem("situation-swipe-hint", "1");
+    if (localStorage.getItem(NUDGE_KEY) === "1") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    localStorage.setItem(NUDGE_KEY, "1");
   } catch {
     return;
   }
-  toast(SWIPE_HINT);
+  const w = api.rootNode().clientWidth;
+  const x = (r: number) => ({ transform: `translateX(${-w * r}px)` });
+  api.slideNodes().forEach(n =>
+    n.animate([x(0), { ...x(0.22), offset: 0.4 }, { ...x(0), offset: 0.65 }, { ...x(0.07), offset: 0.82 }, x(0)], {
+      duration: 1100,
+      delay: 350,
+      easing: "ease-in-out",
+    }),
+  );
 };
 
 type Slide =
@@ -134,17 +148,21 @@ export default function RequestStartPage() {
       markAskedDraft();
     } else if (window.location.search.includes("from=steps")) {
       router.replace("/request");
-      if (useRequestStore.getState().situations.length > 0) hintOnce();
       markAskedDraft();
     } else if (!askedDraft() && hasDraft(useRequestStore.getState())) setAskOpen(true);
     else markAskedDraft();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated]);
 
-  const toFirstSlide = () => {
-    api?.scrollTo(0);
-    if (picked.length > 0) hintOnce();
-  };
+  // 첫 장에서 다음 장이 생기거나(상황을 처음 고름) 다음 장이 있는 채로 첫 장에 오면 한 번 살짝 민다 —
+  // 이어서 할지 묻는 시트가 떠 있거나 「이전」으로 마지막 장에 가는 중이면 안 한다(안 보이는 데서 한 번을 써 버리지 않게)
+  useEffect(() => {
+    if (!api || !hydrated || askOpen || wantLast.current || slides.length < 2 || at !== 0) return;
+    const id = requestAnimationFrame(() => nudgeOnce(api));
+    return () => cancelAnimationFrame(id);
+  }, [api, hydrated, askOpen, slides.length, at]);
+
+  const toFirstSlide = () => api?.scrollTo(0);
 
   const next = () => {
     const slide = slides[at];
@@ -203,11 +221,9 @@ export default function RequestStartPage() {
       onPickSituation={toFirstSlide}
       onBack={() => (at > 0 ? api?.scrollPrev() : router.push("/"))} // 첫 장의 「이전」은 흐름 밖(홈) — 기록상 뒤로면 다음 단계로 갈 수 있다
     >
-      {/* 몇 장 중 몇째 — shadcn Carousel 예시의 「현재 / 전체」 글(text-sm text-muted-foreground) 그대로 */}
-      <p className="-mb-2 text-center text-sm text-muted-foreground" aria-live="polite">
-        {Math.min(at, slides.length - 1) + 1} / {slides.length}
-      </p>
       <Carousel setApi={setApi} opts={{ watchDrag: picked.length > 0 }} className="-mx-5">
+        {/* 몇 장 중 몇째 — 점 줄(「1 / 7」 글 대신) */}
+        <CarouselDots className="mb-5" />
         <CarouselContent className="ml-0 items-start">
           {slides.map(sl =>
             sl.kind === "pick" ? (

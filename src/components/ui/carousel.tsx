@@ -265,6 +265,52 @@ const CarouselNext = React.forwardRef<
 })
 CarouselNext.displayName = "CarouselNext"
 
+/**
+ * 몇 장 중 몇째 — 점 줄(페이지 표시). 지금 장은 길쭉한 파랑, 나머지는 회색 점. 누르면 그 장으로(밀기와 같다).
+ * 「1 / 7」 글 대신(2026-11-15 사용자). 읽기 프로그램에는 「n / 전체」를 숨긴 글로 알린다.
+ * 장이 하나뿐이어도 높이는 남겨 둔다 — 점이 나타날 때 아래가 밀리지 않게.
+ */
+function CarouselDots({ className }: { className?: string }) {
+  const { api } = useCarousel()
+  const [count, setCount] = React.useState(0)
+  const [at, setAt] = React.useState(0)
+
+  React.useEffect(() => {
+    if (!api) return
+    const sync = () => {
+      setCount(api.scrollSnapList().length)
+      setAt(api.selectedScrollSnap())
+    }
+    sync()
+    api.on("select", sync).on("reInit", sync)
+    return () => {
+      api.off("select", sync).off("reInit", sync)
+    }
+  }, [api])
+
+  return (
+    <div className={cn("flex h-2 items-center justify-center gap-1.5", className)}>
+      {count > 1 &&
+        Array.from({ length: count }, (_, i) => (
+          <button
+            key={i}
+            type="button"
+            aria-label={`${i + 1}번째 장`}
+            aria-current={i === at ? "step" : undefined}
+            onClick={() => api?.scrollTo(i)}
+            className={cn(
+              "h-1.5 rounded-full transition-all duration-300",
+              i === at ? "w-4 bg-primary" : "w-1.5 bg-gray-300"
+            )}
+          />
+        ))}
+      <span className="sr-only" aria-live="polite">
+        {count > 0 ? `${Math.min(at, count - 1) + 1} / ${count}` : ""}
+      </span>
+    </div>
+  )
+}
+
 export {
   type CarouselApi,
   Carousel,
@@ -272,4 +318,5 @@ export {
   CarouselItem,
   CarouselPrevious,
   CarouselNext,
+  CarouselDots,
 }
