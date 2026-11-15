@@ -113,7 +113,7 @@ export default function RequestStartPage() {
     const fit = () => {
       const h = api.slideNodes()[api.selectedScrollSnap()]?.offsetHeight ?? 0;
       const top = api.rootNode().getBoundingClientRect().top + window.scrollY;
-      const room = window.innerHeight - top - 110; // 아래 고정 버튼 칸
+      const room = window.innerHeight - top - 172; // 아래 고정 버튼 칸(두 줄 — 버튼 50·50, 줄 사이 12, 그러데이션·여백 60)
       api.containerNode().style.height = `${Math.max(h, room)}px`;
     };
     fitRef.current = fit;

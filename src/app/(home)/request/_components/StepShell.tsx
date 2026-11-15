@@ -108,10 +108,11 @@ export default function StepShell({
     trackRequest("Next Clicked", { ...where, ready: step ? nextReady : !nextLooksDisabled });
     onNext?.();
   };
+  const back = onBack ?? (() => router.push(prevPathOf(step)));
 
   return (
     <div className="flex flex-col pt-[112px]">
-      <TopNavigator backLabel="이전" onBack={onBack ?? (() => router.push(prevPathOf(step)))} />
+      <TopNavigator backLabel="이전" onBack={back} />
       {/* 단계 줄은 기기 입력값을 읽은 뒤에 그린다 */}
       {hydrated && (
         <StepRow
@@ -133,10 +134,34 @@ export default function StepShell({
       />
       <div className="h-5" />
       <div className="flex flex-col gap-5 px-5">{children}</div>
-      {/* 아래 고정 칸만큼 비운다 — 버튼 위 줄(bottomTop)이 있으면 그만큼 더(마지막 칸이 가리지 않게) */}
-      <div className={bottomTop ? "h-[210px]" : "h-[100px]"} />
+      {/* 아래 고정 칸만큼 비운다 — 버튼 위 줄(bottomTop)이 있으면 그만큼 더(마지막 칸이 가리지 않게).
+          단계 화면은 버튼이 두 줄이라 한 줄(버튼 50 + 줄 사이 12)만큼 더 */}
+      <div className={step ? (bottomTop ? "h-[272px]" : "h-[162px]") : bottomTop ? "h-[210px]" : "h-[100px]"} />
       {step ? (
-        <BottomBar top={bottomTop}>
+        // 아래 버튼 두 줄(QA 「버튼 배치」 2026-11-15) — 윗줄 [이전][다음], 아랫줄 [주문하기].
+        // 이전은 위 4단계 기준 앞 단계로(상황 입력 안에서는 앞 장, 첫 장은 홈) — 왼쪽 위 「이전」과 같은 일. 줄 사이는 버튼 사이와 같은 12
+        <BottomBar
+          top={
+            <>
+              {bottomTop}
+              <div className="mb-3 flex gap-3 [&>*]:flex-1">
+                <Button variant="secondary" onClick={back}>
+                  이전
+                </Button>
+                {onNext && (
+                  <Button
+                    busy={busy}
+                    variant={nextReady ? "default" : "inverse"}
+                    aria-disabled={!nextReady || undefined}
+                    onClick={next}
+                  >
+                    {nextText}
+                  </Button>
+                )}
+              </div>
+            </>
+          }
+        >
           <Button
             // 마지막 단계(수령인)에서 다 끝났으면 「다음」과 같은 일(확인 화면)이라 같은 색으로(2026-11-13 사용자)
             variant={allDone && step === STEPS[STEPS.length - 1].key ? "default" : "inverse"}
@@ -149,16 +174,6 @@ export default function StepShell({
           >
             주문하기
           </Button>
-          {onNext && (
-            <Button
-              busy={busy}
-              variant={nextReady ? "default" : "inverse"}
-              aria-disabled={!nextReady || undefined}
-              onClick={next}
-            >
-              {nextText}
-            </Button>
-          )}
         </BottomBar>
       ) : (
         onNext && (
