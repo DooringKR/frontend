@@ -1,12 +1,13 @@
 "use client";
 
+import { PencilLine } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import Choose from "@/components/form/Choose";
 import Field from "@/components/form/Field";
 import PhotoPick from "@/components/form/PhotoPick";
-import { PICK_MESSAGE } from "@/components/form/useRequired";
+import { PICK_MESSAGE, TYPE_MESSAGE } from "@/components/form/useRequired";
 import NavRow from "@/components/nav/NavRow";
 import Pictogram from "@/components/pictogram/Pictogram";
 import Notice from "@/components/state/Notice";
@@ -19,14 +20,14 @@ import {
   CarouselDots,
   CarouselItem,
 } from "@/components/ui/carousel";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 import ButtonPictos from "./_components/ButtonPictos";
 import SituationPicker from "./_components/SituationPicker";
 import StepShell from "./_components/StepShell";
-import { askedDraft, markAskedDraft, nextPathOf, useHydrated } from "./_lib/flow";
+import { askedDraft, buttonsReady, detailReady, markAskedDraft, nextPathOf, useHydrated } from "./_lib/flow";
 import { emptyPart, hasDraft, useRequestStore } from "./_lib/requestStore";
-import { BUTTON_DETAIL, BUTTON_PICTOGRAM, FULLSET, SITUATIONS, type Situation, type SituationSlug, URGENT_NAME, URGENT_WHEN } from "./_lib/situations";
+import { BUTTON_DETAIL, BUTTON_PICTOGRAM, DIRECT, FULLSET, SITUATIONS, type Situation, type SituationSlug, URGENT_NAME, URGENT_WHEN } from "./_lib/situations";
 import { photoUrlOf, uploadPhotos } from "./_lib/submit";
 import { trackRequest } from "./_lib/track";
 
@@ -63,9 +64,10 @@ export default function RequestStartPage() {
   const [api, setApi] = useState<CarouselApi>();
   const [at, setAt] = useState(0);
   const [askOpen, setAskOpen] = useState(false);
-  const [uploading, setUploading] = useState<SituationSlug | null>(null);
-  const [photoError, setPhotoError] = useState<Partial<Record<SituationSlug, string>>>({});
-  /** 다음을 눌러 봤는데 안 고른 곳 — 「situations」 또는 상황 slug */
+  /** 올리는 중인 사진 칸 — 상황 slug(설명 사진) 또는 「slug:before」(기존 사진) */
+  const [uploading, setUploading] = useState<string | null>(null);
+  const [photoError, setPhotoError] = useState<Record<string, string | undefined>>({});
+  /** 다음을 눌러 봤는데 안 채운 곳 — 「situations」, 상황 slug(품목 장), 「slug:detail」(설명 장) */
   const [missed, setMissed] = useState<Set<string>>(new Set());
   /** 들어오자마자 갈 장 — 다음 단계의 「이전」(?at=last)은 마지막 장 */
   const startAt = useRef<"last" | null>(null);
@@ -73,18 +75,23 @@ export default function RequestStartPage() {
   const fitRef = useRef<() => void>(() => {});
 
   const buttonsOf = (slug: SituationSlug) => s.parts[slug]?.buttons ?? [];
-  const invalid = (key: string) =>
-    missed.has(key) &&
-    (key === "situations" ? picked.length === 0 : buttonsOf(key as SituationSlug).length === 0);
+  const invalid = (key: string) => {
+    if (!missed.has(key)) return false;
+    if (key === "situations") return picked.length === 0;
+    if (key.endsWith(":detail")) return !detailReady(s, key.split(":")[0] as SituationSlug);
+    return !buttonsReady(s, key as SituationSlug);
+  };
   const mark = (key: string) => setMissed(m => new Set(m).add(key));
-  // 장마다 다음으로 갈 준비가 됐는지 — 첫 장은 상황 하나 이상, 버튼 장은 버튼 하나 이상, 자세히 장은 늘
+  // 장마다 다음으로 갈 준비가 됐는지 — 첫 장은 상황 하나 이상, 품목 장은 품목이나 「직접 입력」, 설명 장은 flow.ts detailReady, 풀세트 장은 늘
   const readyAt = (i: number) => {
     const sl = slides[i];
-    return !sl || sl.kind === "detail" || sl.kind === "fullset" || (sl.kind === "pick" ? picked.length > 0 : buttonsOf(sl.s.slug).length > 0);
+    if (!sl || sl.kind === "fullset") return true;
+    if (sl.kind === "pick") return picked.length > 0;
+    return sl.kind === "buttons" ? buttonsReady(s, sl.s.slug) : detailReady(s, sl.s.slug);
   };
   const keyAt = (i: number) => {
     const sl = slides[i];
-    return sl.kind === "pick" ? "situations" : sl.s.slug;
+    return sl.kind === "pick" ? "situations" : sl.kind === "detail" ? `${sl.s.slug}:detail` : sl.s.slug;
   };
   // 앞 장으로는 준비된 장을 지나야만 간다(2026-11-15 사용자 「다음이 옅으면 밀기도 시도하다 막혀야」) —
   // 첫 덜 된 장(open)까지만 그린다 — 거기서 앞으로 끌면 끝 장처럼 조금 밀리다 튕겨 돌아온다(넘어갔다 되돌아오지 않게).
@@ -173,52 +180,52 @@ export default function RequestStartPage() {
   const toFirstSlide = () => api?.scrollTo(0);
 
   const next = () => {
-    const slide = slides[at];
-    if (slide.kind === "pick") {
-      if (picked.length === 0) return mark("situations");
-      return api?.scrollNext();
-    }
-    if (slide.kind === "buttons" && buttonsOf(slide.s.slug).length === 0) return mark(slide.s.slug);
+    if (!readyAt(at)) return mark(keyAt(at));
     if (at < slides.length - 1) return api?.scrollNext();
-    // 마지막 장 — 버튼을 안 고른 상황이 있으면 그 장으로
-    const miss = slides.findIndex(x => x.kind === "buttons" && buttonsOf(x.s.slug).length === 0);
+    // 마지막 장 — 덜 된 장이 있으면 그 장으로
+    const miss = slides.findIndex((_, i) => !readyAt(i));
     if (miss >= 0) {
-      const sl = slides[miss] as { s: Situation };
-      mark(sl.s.slug);
+      mark(keyAt(miss));
       return api?.scrollTo(miss);
     }
     router.push(nextPathOf("situation"));
   };
 
-  const addPhotos = async (slug: SituationSlug, files: File[]) => {
-    setUploading(slug);
-    setPhotoError(e => ({ ...e, [slug]: undefined }));
+  /** 「AS가 필요한 상황을 직접 입력할게요」 — 다음을 누르지 않고 바로 설명 장으로(QA 「단계별 가구 종류 및 시나리오 수정」 2026-11-15). 품목 장이 끝난 걸로 바뀌어 설명 장이 그려진 뒤 넘긴다 */
+  const goDirect = (slug: SituationSlug) => {
+    s.setPart(slug, { direct: true });
+    requestAnimationFrame(() => requestAnimationFrame(() => api?.scrollNext()));
+  };
+
+  /** 사진 올리기 — 설명 사진(photoPaths) 또는 기존 문짝·가구 사진(beforePhotoPaths) */
+  const addPhotos = async (slug: SituationSlug, target: "photoPaths" | "beforePhotoPaths", files: File[]) => {
+    const key = target === "photoPaths" ? slug : `${slug}:before`;
+    setUploading(key);
+    setPhotoError(e => ({ ...e, [key]: undefined }));
     try {
       const paths = await uploadPhotos(files);
-      const cur = useRequestStore.getState().photoPaths;
-      s.set({ photoPaths: { ...cur, [slug]: [...(cur[slug] ?? []), ...paths] } });
+      const cur = useRequestStore.getState()[target] ?? {};
+      const next = { ...cur, [slug]: [...(cur[slug] ?? []), ...paths] };
+      s.set(target === "photoPaths" ? { photoPaths: next } : { beforePhotoPaths: next });
       trackRequest("Photo Uploaded", { situation: slug, count: files.length, ok: true });
     } catch (e) {
       console.error("[request] 사진 올리기 실패", e);
       trackRequest("Photo Uploaded", { situation: slug, count: files.length, ok: false });
-      setPhotoError(x => ({ ...x, [slug]: "사진을 올리지 못했어요. 다시 골라 주세요" }));
+      setPhotoError(x => ({ ...x, [key]: "사진을 올리지 못했어요. 다시 골라 주세요" }));
     } finally {
       setUploading(null);
     }
   };
 
   const cur = slides[Math.min(at, slides.length - 1)];
-  // 다음 버튼 색(L3) — 첫 장은 상황 하나 이상, 버튼 장은 버튼 하나 이상, 자세히 장은 늘(마지막 장이면 모든 상황에 버튼이 있어야)
-  const nextReady =
-    cur.kind === "pick"
-      ? picked.length > 0
-      : cur.kind === "buttons"
-        ? buttonsOf(cur.s.slug).length > 0
-        : at < slides.length - 1 || picked.every(x => buttonsOf(x.slug).length > 0);
+  // 다음 버튼 색(L3) — 지금 장이 준비됐는지(마지막 장이면 모든 장이)
+  const nextReady = at < slides.length - 1 ? readyAt(at) : slides.every((_, i) => readyAt(i));
   // 칸 이름이 없는 장이라 알림은 제목 줄 오른쪽
   const titleError =
     (cur.kind === "pick" && invalid("situations")) || (cur.kind === "buttons" && invalid(cur.s.slug)) ? PICK_MESSAGE : undefined;
-  const title = cur.kind === "pick" ? "어떤 상황인가요?" : cur.kind === "fullset" ? FULLSET.title : cur.s.name;
+  // 품목 장 제목은 「어떤 가구가 필요한가요?」(QA 「단계별 가구 종류 및 시나리오 수정」 2026-11-15) — 어느 상황인지는 장 안 칸 이름으로
+  const title =
+    cur.kind === "pick" ? "어떤 상황인가요?" : cur.kind === "fullset" ? FULLSET.title : cur.kind === "buttons" ? "어떤 가구가 필요한가요?" : cur.s.name;
   // 제목 밑 부제는 쓰지 않는다 — 장마다 제목 높이가 같아야 점 줄이 늘 같은 자리(QA 「가구 추가 시」 2026-11-15 「페이지 위치를 알리는 ui 는 고정」).
   // 고른 가구·풀세트 설명은 장 안으로. 장이 바뀐 뒤 높이를 다시 맞춘다
   useLayoutEffect(() => fitRef.current(), [at]);
@@ -277,6 +284,7 @@ export default function RequestStartPage() {
               </CarouselItem>
             ) : sl.kind === "buttons" ? (
               <CarouselItem key={`${sl.s.slug}-buttons`} className="flex flex-col gap-5 px-5">
+                <Field label={sl.s.name}>
                 <Choose
                   multiple
                   aria-label={sl.s.name}
@@ -291,14 +299,17 @@ export default function RequestStartPage() {
                     detail: BUTTON_DETAIL[b] && { text: BUTTON_DETAIL[b].text, images: BUTTON_DETAIL[b].photos },
                   }))}
                 />
+                </Field>
+                <NavRow card label={<span className="break-keep">{DIRECT.label}</span>} icon={<PencilLine className="size-6" />} onClick={() => goDirect(sl.s.slug)} />
               </CarouselItem>
             ) : (
               <CarouselItem key={`${sl.s.slug}-detail`} className="flex flex-col gap-5 px-5">
                 <DetailFields
                   s={sl.s}
-                  uploading={uploading === sl.s.slug}
-                  photoError={photoError[sl.s.slug]}
-                  onPhotos={files => files.length > 0 && void addPhotos(sl.s.slug, files)}
+                  uploading={uploading}
+                  photoError={photoError}
+                  invalid={invalid(`${sl.s.slug}:detail`)}
+                  onPhotos={(target, files) => files.length > 0 && void addPhotos(sl.s.slug, target, files)}
                 />
               </CarouselItem>
             ),
@@ -344,50 +355,88 @@ export default function RequestStartPage() {
   );
 }
 
-/** 상황 하나의 자세히 — 사진(선택)·대략적인 양·메모. 치수는 받지 않는다(실무자가 실측하거나 전화로 받는다) */
+/**
+ * 상황 하나의 설명 장(QA 「단계별 가구 종류 및 시나리오 수정」 2026-11-15) — 치수는 받지 않는다(실무자가 실측하거나 전화로 받는다).
+ *  - 고른 가구(그림 칸) → 문짝·가구 추가: 경첩도 필요한가요?(선택) → 문짝·가구 교체: 기존에 교체할 ○○의 사진(꼭)
+ *  - 필요한 가구 또는 상황을 설명해주세요 = 사진 칸 + 글 칸(옛 현장 사진·대략적인 양을 합침, 메모 칸은 뺌). 품목 없이 직접 입력이면 글이 꼭 있어야 한다
+ */
 function DetailFields({
   s: x,
   uploading,
   photoError,
+  invalid,
   onPhotos,
 }: {
   s: Situation;
-  uploading: boolean;
-  photoError?: string;
-  onPhotos: (files: File[]) => void;
+  uploading: string | null;
+  photoError: Record<string, string | undefined>;
+  /** 다음을 눌러 봤는데 덜 채움 — 빠진 칸에 알림 */
+  invalid: boolean;
+  onPhotos: (target: "photoPaths" | "beforePhotoPaths", files: File[]) => void;
 }) {
   const s = useRequestStore();
   const part = s.parts[x.slug] ?? emptyPart();
   const paths = s.photoPaths[x.slug] ?? [];
+  const before = s.beforePhotoPaths?.[x.slug] ?? [];
+  const onlyDirect = !!part.direct && part.buttons.length === 0;
   return (
     <>
-      {/* 고른 가구 — 제목 밑 글 대신 그림 칸으로(QA 「가구 추가 시」 「결정한 가구의 위치가 이상함」, 첫 장 미리보기와 같은 컴포넌트) */}
+      {/* 고른 가구 — 제목 밑 글 대신 그림 칸으로(QA 「가구 추가 시」, 첫 장 미리보기와 같은 컴포넌트) */}
       {part.buttons.length > 0 && (
         <Field label="고른 가구">
           <ButtonPictos buttons={part.buttons} />
         </Field>
       )}
-      <Field label="현장 사진 (선택)" error={photoError}>
+      {x.asksHinge && (
+        <Field label="경첩도 필요한가요? (선택)">
+          <Choose
+            aria-label="경첩"
+            value={part.hinge == null ? null : part.hinge ? "yes" : "no"}
+            onChange={v => s.setPart(x.slug, { hinge: v === "yes" })}
+            options={[
+              { value: "yes", label: "필요해요" },
+              { value: "no", label: "필요 없어요" },
+            ]}
+          />
+        </Field>
+      )}
+      {x.asksBefore && (
+        <Field
+          label={`기존에 교체할 ${x.asksBefore}의 사진을 찍어주세요`}
+          error={photoError[`${x.slug}:before`] ?? (invalid && before.length === 0 ? PICK_MESSAGE : undefined)}
+        >
+          <PhotoPick
+            value={[]}
+            maxFiles={5}
+            busy={uploading === `${x.slug}:before`}
+            uploaded={before.map((p, n) => ({ src: photoUrlOf(p), name: `기존 ${x.asksBefore} 사진 ${n + 1}` }))}
+            onRemoveUploaded={n =>
+              s.set({ beforePhotoPaths: { ...s.beforePhotoPaths, [x.slug]: before.filter((_, k) => k !== n) } })
+            }
+            onChange={files => onPhotos("beforePhotoPaths", files)}
+          />
+        </Field>
+      )}
+      <Field
+        label="필요한 가구 또는 상황을 설명해주세요"
+        error={photoError[x.slug] ?? (invalid && onlyDirect && !part.amountNote.trim() ? TYPE_MESSAGE : undefined)}
+      >
         <PhotoPick
           value={[]}
           maxFiles={5}
-          busy={uploading}
+          busy={uploading === x.slug}
           uploaded={paths.map((p, n) => ({ src: photoUrlOf(p), name: `${x.name} 사진 ${n + 1}` }))}
           onRemoveUploaded={n =>
             s.set({ photoPaths: { ...s.photoPaths, [x.slug]: paths.filter((_, k) => k !== n) } })
           }
-          onChange={onPhotos}
+          onChange={files => onPhotos("photoPaths", files)}
         />
-      </Field>
-      <Field label="대략적인 양">
-        <Input
+        <Textarea
+          aria-invalid={(invalid && onlyDirect && !part.amountNote.trim()) || undefined}
           placeholder="예) 문짝 2장, 하부장 1m"
           value={part.amountNote}
           onChange={e => s.setPart(x.slug, { amountNote: e.target.value })}
         />
-      </Field>
-      <Field label="메모">
-        <Input value={part.memo} onChange={e => s.setPart(x.slug, { memo: e.target.value })} />
       </Field>
     </>
   );

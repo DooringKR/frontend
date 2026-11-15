@@ -7,6 +7,7 @@ import { DeliveryMethod, VehicleType } from "dooring-core-domain/dist/enums/Cart
 import { useEffect, useState } from "react";
 
 import { useRequestStore, type ReceiveInput, type RequestState } from "./requestStore";
+import { situationOf, type SituationSlug } from "./situations";
 
 export type StepKey = "situation" | "install" | "site" | "recipient";
 
@@ -41,9 +42,19 @@ export function receiveDone(r: ReceiveInput | null, urgent = false): boolean {
     : !!r.vehicle && (r.vehicle !== VehicleType.DIRECT_INPUT || !!r.vehicleInput?.trim());
 }
 
+/** 품목 장이 끝났는지 — 품목을 골랐거나 「직접 입력」을 눌렀다 */
+export const buttonsReady = (s: RequestState, slug: SituationSlug) => (s.parts[slug]?.buttons.length ?? 0) > 0 || !!s.parts[slug]?.direct;
+
+/** 설명 장이 끝났는지 — 품목 없이 직접 입력이면 설명 글, 기존 사진을 묻는 상황(문짝·가구 교체)이면 사진 한 장 이상(QA 「단계별 가구 종류 및 시나리오 수정」 2026-11-15) */
+export function detailReady(s: RequestState, slug: SituationSlug): boolean {
+  const p = s.parts[slug];
+  const onlyDirect = !!p?.direct && !p.buttons.length;
+  return (!onlyDirect || !!p?.amountNote.trim()) && (!situationOf(slug)?.asksBefore || (s.beforePhotoPaths?.[slug]?.length ?? 0) > 0);
+}
+
 export function doneOf(s: RequestState): Record<StepKey, boolean> {
   return {
-    situation: s.situations.length > 0 && s.situations.every((x) => (s.parts[x]?.buttons.length ?? 0) > 0),
+    situation: s.situations.length > 0 && s.situations.every((x) => buttonsReady(s, x) && detailReady(s, x)),
     install:
       s.installNeeded === null ? false : s.installNeeded ? dateOk(s.urgent, s.preferredDate) && (!s.urgent || !!s.preferredTime) : receiveDone(s.receive, s.urgent),
     site:
