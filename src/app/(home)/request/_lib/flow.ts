@@ -45,7 +45,7 @@ export function doneOf(s: RequestState): Record<StepKey, boolean> {
   return {
     situation: s.situations.length > 0 && s.situations.every((x) => (s.parts[x]?.buttons.length ?? 0) > 0),
     install:
-      s.installNeeded === null ? false : s.installNeeded ? dateOk(s.urgent, s.preferredDate) : receiveDone(s.receive, s.urgent),
+      s.installNeeded === null ? false : s.installNeeded ? dateOk(s.urgent, s.preferredDate) && (!s.urgent || !!s.preferredTime) : receiveDone(s.receive, s.urgent),
     site:
       !!s.roadAddress &&
       !!s.buildingType &&
