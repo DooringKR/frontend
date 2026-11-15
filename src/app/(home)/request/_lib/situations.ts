@@ -82,26 +82,68 @@ export const pictogramOf = (slug: SituationSlug, name: string): PictogramName =>
 
 /**
  * 품목 고르기 장의 「자세히」 설명·실제 사진 여러 장(QA 「가구 선택 단계에서 상세 설명」 2026-11-15).
- * 창고문은 QA 원문, 나머지 넷은 조사 세션 초안(2026-11-15 사용자 「추천 4개로」) — 사진은 회사 촬영본(광주주택·기술 라이브러리·플랩문 교체 사례).
- * 아직 없는 품목: 화장대장(문만인지 장 새로인지 범위 미정)·냉장고장·전체 교체(이름부터)·서랍장·신발장 전체 교체(이름으로 충분).
+ * 상황별로 둔다 — 붙박이장·신발장은 문짝 교체(문만)와 가구 추가(장 전체)에 같은 이름으로 있어 글이 다르다.
+ * 베란다 창고문은 QA 원문, 나머지는 조사 세션 초안(품목정리 뒤 2026-11-15) — 사진은 회사 촬영본(광주주택·(구) 기술 라이브러리·플랩문 교체 사례).
+ * 냉장고자리 수납장은 뜻(냉장고 뺀 자리 채우기 / 냉장고장 다시 짜기)이 정해지면 넣는다.
+ * feat/button-detail 브랜치 전용 — 사용자가 문구·사진을 확정하기 전에는 운영(main)에 올리지 않는다(2026-11-15 사용자).
  */
-export const BUTTON_DETAIL: Record<string, { text: string; photos: string[] }> = {
-  "베란다 창고문": { text: "베란다·다용도실 수납장을 깔끔하게 가려주고 습기와 먼지를 막아주는 맞춤형 가구 도어입니다.", photos: ["/img/request/storage.jpg"] },
-  "신발장·붙박이장 롱문만 교체": {
-    text: "신발장·붙박이장 몸통은 그대로 두고 키 큰 문짝(롱문)만 새로 맞춰 다는 주문입니다. 장은 아직 쓸 만한데 문 색이나 상태만 바꾸고 싶을 때 고릅니다.",
-    photos: ["/img/request/longdoor-1.jpg", "/img/request/longdoor-2.jpg", "/img/request/longdoor-3.jpg"],
+const photos = (...names: string[]) => names.map(n => `/img/request/${n}.jpg`);
+export const BUTTON_DETAIL: Record<SituationSlug, Record<string, { text: string; images: string[] }>> = {
+  door: {
+    "주방 상하부장": {
+      text: "주방 상부장·하부장 몸통은 그대로 두고 문짝만 새로 맞춰 다는 주문입니다. 주방가구를 다 바꾸기는 부담되지만 새것 같은 느낌을 내고 싶을 때 고릅니다.",
+      images: photos("kitchen-door-1", "kitchen-door-2"),
+    },
+    "주방 냉장고장": {
+      text: "냉장고장에 달린 문짝만 새로 바꾸는 주문입니다. 냉장고를 바꿨더니 위 칸 플랩문(위로 들어 올려 여는 문)이 냉장고에 걸려 잘 열리지 않을 때처럼, 장은 두고 문만 손보고 싶을 때 고릅니다.",
+      images: photos("flap-1", "flap-2", "flap-3"),
+    },
+    "베란다 창고문": { text: "베란다·다용도실 수납장을 깔끔하게 가려주고 습기와 먼지를 막아주는 맞춤형 가구 도어입니다.", images: photos("storage") },
+    붙박이장: {
+      text: "붙박이장 몸통은 그대로 두고 문짝만 새로 맞춰 다는 주문입니다. 장은 아직 쓸 만한데 문 색이나 상태만 바꾸고 싶을 때 고릅니다.",
+      images: photos("longdoor-1", "longdoor-2"),
+    },
+    신발장: {
+      text: "신발장 몸통은 그대로 두고 문짝만 새로 맞춰 다는 주문입니다. 장은 아직 쓸 만한데 문 색이나 상태만 바꾸고 싶을 때 고릅니다.",
+      images: photos("longdoor-3"),
+    },
+    화장대장: { text: "화장대장 몸통은 그대로 두고 문짝만 새로 맞춰 다는 주문입니다.", images: photos("vanity-1", "vanity-2", "vanity-3") },
   },
-  "냉장고장 플랩문 교체": {
-    text: "냉장고장 위 칸에 달린, 위로 들어 올려 여는 문(플랩문)만 새로 바꾸는 주문입니다. 문이 냉장고에 걸려 잘 열리지 않을 때 고릅니다.",
-    photos: ["/img/request/flap-1.jpg", "/img/request/flap-2.jpg", "/img/request/flap-3.jpg"],
+  partial: {
+    붙박이장: {
+      text: "방 벽면 크기에 맞춰 붙박이장을 통째로 새로 짜 넣는 주문입니다. 문짝만 바꾸려면 「문짝 교체 · 설치」의 붙박이장을 고릅니다.",
+      images: photos("longdoor-2", "closet-2"),
+    },
+    신발장: {
+      text: "현관 크기에 맞춰 신발장을 통째로 새로 짜 넣는 주문입니다. 문짝만 바꾸려면 「문짝 교체 · 설치」의 신발장을 고릅니다.",
+      images: photos("longdoor-3"),
+    },
+    냉장고장: {
+      text: "냉장고 둘레를 감싸는 장을 새로 맞춰 넣는 주문입니다. 새 냉장고를 들였는데 지금 장과 크기가 맞지 않을 때 고릅니다.",
+      images: photos("fridge-1", "fridge-2", "fridge-3", "fridge-4"),
+    },
+    "키큰 수납장": {
+      text: "바닥부터 천장 가까이까지 올라가는 키 큰 수납장을 새로 넣는 주문입니다. 주방이나 현관에 수납할 곳이 모자랄 때 고릅니다.",
+      images: photos("tall-1", "tall-2", "tall-3"),
+    },
+    아일랜드장: {
+      text: "조리대와 수납을 겸하는 아일랜드장을 주방에 새로 넣는 주문입니다. 조리 공간이나 수납을 더 늘리고 싶을 때 고릅니다.",
+      images: photos("island-1", "island-2", "island-3"),
+    },
+    "베란다 창고장": {
+      text: "베란다·다용도실에 선반과 문을 갖춘 창고장을 통째로 새로 짜 넣는 주문입니다. 이미 있는 창고에 문만 달려면 「문짝 교체 · 설치」의 베란다 창고문을 고릅니다.",
+      images: photos("storage-cab-1", "storage-cab-2"),
+    },
   },
-  식기세척기장: {
-    text: "빌트인 식기세척기가 들어갈 자리를 만들어 주는 하부장입니다. 식기세척기를 새로 들이는데 지금 주방에 넣을 자리가 없을 때 고릅니다.",
-    photos: ["/img/request/dish-1.jpg", "/img/request/dish-2.jpg"],
-  },
-  "식세기 자리에 장 채우기": {
-    text: "식기세척기를 빼서 생긴 자리나 처음부터 비어 있던 식세기 자리를 수납장으로 채우는 주문입니다. 식기세척기를 쓰지 않는 집에서 그 칸을 수납으로 쓰고 싶을 때 고릅니다.",
-    photos: ["/img/request/dish-fill-1.jpg", "/img/request/dish-fill-2.jpg"],
+  cabinet: {
+    "식기세척기자리 수납장": {
+      text: "식기세척기를 빼서 생긴 자리나 처음부터 비어 있던 식세기 자리를 수납장으로 채우는 주문입니다. 식기세척기를 쓰지 않는 집에서 그 칸을 수납으로 쓰고 싶을 때 고릅니다.",
+      images: photos("dish-fill-1", "dish-fill-2"),
+    },
+    "붙박이장 내부 교체": {
+      text: "붙박이장 문과 몸통은 그대로 두고 안쪽 선반·서랍·옷봉 구성을 새로 바꾸는 주문입니다. 쓰는 방식이 바뀌어 지금 칸 나눔이 불편할 때 고릅니다.",
+      images: photos("longdoor-2"),
+    },
   },
 };
 

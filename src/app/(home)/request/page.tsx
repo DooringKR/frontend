@@ -299,8 +299,8 @@ export default function RequestStartPage() {
                     value: b,
                     label: b,
                     image: <Pictogram name={pictogramOf(sl.s.slug, b)} />,
-                    // 카드는 고르기만, 설명·실제 사진은 「자세히 ›」 팝업으로(창고문 시범)
-                    detail: BUTTON_DETAIL[b] && { text: BUTTON_DETAIL[b].text, images: BUTTON_DETAIL[b].photos },
+                    // 카드는 고르기만, 설명·실제 사진은 「자세히 ›」 팝업으로 — 같은 이름도 상황마다 글이 다르다
+                    detail: BUTTON_DETAIL[sl.s.slug][b],
                   }))}
                 />
                 {/* 정의된 품목에 없는 주문용 — 품목을 하나라도 고르면 막힌다(첫 장 DIY·수리처럼) */}
