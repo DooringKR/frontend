@@ -7,7 +7,7 @@ import { SupabaseUploadImageUsecase } from "@/DDD/usecase/upload_image_usecase";
 import { supabase } from "@/lib/supabase";
 
 import { useRequestStore } from "./requestStore";
-import { SITUATIONS, travelFeeOf } from "./situations";
+import { DIRECT, SITUATIONS, travelFeeOf } from "./situations";
 
 const BUCKET = "customer-input-image";
 const BUCKET_PATH = `/object/public/${BUCKET}/`;
@@ -30,7 +30,8 @@ export async function saveOrder(): Promise<string> {
 
   const s = useRequestStore.getState();
   const picked = SITUATIONS.filter((x) => s.situations.includes(x.slug));
-  const photoPaths = picked.map((x) => s.photoPaths[x.slug] ?? []);
+  // 기존 문짝·가구 사진을 앞에, 설명 사진을 뒤에 — 한 칸(photo_paths)에 같이 넣는다(허브 파일 공유로 함께 복사)
+  const photoPaths = picked.map((x) => [...(s.beforePhotoPaths?.[x.slug] ?? []), ...(s.photoPaths[x.slug] ?? [])]);
 
   const minutes = s.installNeeded ? s.travelMinutes : null;
   const { data: order, error } = await supabase
@@ -71,10 +72,11 @@ export async function saveOrder(): Promise<string> {
         order_id: order.id,
         position: i,
         situation: x.name,
-        buttons: p?.buttons ?? [],
+        buttons: p?.buttons.length ? p.buttons : p?.direct ? [DIRECT.button] : [],
         photo_paths: photoPaths[i],
         amount_note: p?.amountNote.trim() || null,
-        memo: p?.memo.trim() || null,
+        // 경첩 답은 메모 칸에(DB 칸을 늘리지 않는다) — 어드민 문의 메모에 「메모: 경첩 필요」로 보인다
+        memo: [p?.memo.trim(), p?.hinge === true ? "경첩 필요" : p?.hinge === false ? "경첩 필요 없음" : null].filter(Boolean).join(" · ") || null,
       };
     }),
   );

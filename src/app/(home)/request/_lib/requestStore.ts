@@ -12,8 +12,14 @@ const KEEP_MS = 7 * 24 * 3600_000;
 
 export interface PartInput {
   buttons: string[];
+  /** 필요한 가구 또는 상황 설명(옛 「대략적인 양」 칸 — DB amount_note·현장허브 「가구 규모 메모」, QA 「단계별 가구 종류 및 시나리오 수정」 2026-11-15) */
   amountNote: string;
+  /** 옛 메모 칸(화면에서는 뺐다 — 남은 값만 보낸다) */
   memo: string;
+  /** 품목 대신 「AS가 필요한 상황을 직접 입력할게요」 — 설명 글이 꼭 있어야 한다 */
+  direct?: boolean;
+  /** 경첩도 필요한가요(선택) — 문짝 교체 · 설치·가구 추가 */
+  hinge?: boolean | null;
 }
 
 export interface ReceiveInput {
@@ -59,6 +65,8 @@ export interface RequestState {
   requestNote: string;
   /** 올린 사진 경로(customer-input-image 버킷 안) */
   photoPaths: Partial<Record<SituationSlug, string[]>>;
+  /** 기존에 교체할 문짝·가구 사진 경로(문짝 교체 · 설치·가구 교체 — 꼭 한 장 이상). 보낼 때 photo_paths 앞에 붙인다 */
+  beforePhotoPaths: Partial<Record<SituationSlug, string[]>>;
   /** 마지막으로 고친 때 — 7일 지나면 비운다 */
   savedAt: number | null;
   /** 마지막으로 연 화면 — 「이어서 하기」가 여기로 간다 */
@@ -91,6 +99,7 @@ const EMPTY = {
   receive: null,
   requestNote: "",
   photoPaths: {},
+  beforePhotoPaths: {},
   savedAt: null,
   lastPath: "/request",
 };

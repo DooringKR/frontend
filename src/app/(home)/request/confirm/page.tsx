@@ -123,7 +123,7 @@ export default function ConfirmPage() {
           const p = s.parts[x.slug];
           return (
             <Row key={x.slug} label={x.name}>
-              {[p?.buttons.join(", "), p?.amountNote, p?.memo].filter(Boolean).join("\n")}
+              {[p?.buttons.join(", ") || (p?.direct ? "직접 입력" : ""), p?.amountNote, p?.hinge === true ? "경첩 필요" : p?.hinge === false ? "경첩 필요 없음" : "", p?.memo].filter(Boolean).join("\n")}
             </Row>
           );
         })}

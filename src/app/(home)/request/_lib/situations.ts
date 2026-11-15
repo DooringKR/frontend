@@ -19,6 +19,10 @@ export interface Situation {
   /** 화면 2 버튼 — 한 상황 안에서 여러 개 고를 수 있다 */
   buttons: string[];
   pictogram: PictogramName;
+  /** 상황 설명 장에서 「경첩도 필요한가요? (선택)」를 묻는다 */
+  asksHinge?: boolean;
+  /** 상황 설명 장에서 「기존에 교체할 ○○의 사진을 찍어주세요」를 받는다(꼭) */
+  asksBefore?: "문짝" | "가구";
   /** 상황 추가금액(원) — 첫 장 이름 옆 칩·확인 화면 비용 칸(QA 「선택지별 추가금액 시나리오」 2026-11-15, QA 금액) */
   fee?: number;
 }
@@ -35,6 +39,8 @@ export const SITUATIONS: Situation[] = [
     buttons: ["신발장·붙박이장 롱문만 교체", "화장대장"],
     pictogram: "door",
     fee: 100_000,
+    asksHinge: true,
+    asksBefore: "문짝",
   },
   {
     slug: "partial",
@@ -42,6 +48,7 @@ export const SITUATIONS: Situation[] = [
     subtitle: "전체 리모델링이 아니어도, 부분적으로 맞춤가구를 주문해보세요",
     buttons: ["창고문", "냉장고장", "서랍장", "식기세척기장"],
     pictogram: "partial",
+    asksHinge: true,
   },
   {
     slug: "cabinet",
@@ -50,6 +57,7 @@ export const SITUATIONS: Situation[] = [
     buttons: ["냉장고장 플랩문 교체", "전체 교체", "신발장 전체 교체", "식세기 자리에 장 채우기"],
     pictogram: "cabinet",
     fee: 100_000,
+    asksBefore: "가구",
   },
 ];
 
@@ -125,6 +133,9 @@ export const FULLSET = {
   description: "상부장·하부장·상판까지 주방 가구를 모두 새로 하는 경우예요. 풀세트는 개수대연구소에서 상담해 드려요",
   formUrl: "https://tally.so/r/w7BRW0",
 };
+
+/** 품목 장 맨 아래 — 누르면 품목 없이 바로 설명 장으로(QA 「단계별 가구 종류 및 시나리오 수정」 2026-11-15). 저장할 때 버튼 자리에는 「직접 입력」 */
+export const DIRECT = { label: "AS가 필요한 상황을 직접 입력할게요", button: "직접 입력" };
 
 /** 칩 글 — 150000 → 「15만 원」 */
 export const manwon = (n: number) => `${n / 10_000}만 원`;
