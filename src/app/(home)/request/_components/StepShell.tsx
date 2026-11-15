@@ -23,7 +23,7 @@ import { trackRequest } from "../_lib/track";
 import StepRow from "./StepRow";
 
 /** 상황 입력 화면의 지금 장 — 이벤트에 붙인다 */
-export type SlideInfo = { kind: "pick" | "buttons" | "detail"; situation?: string; index: number; count: number };
+export type SlideInfo = { kind: "pick" | "fullset" | "buttons" | "detail"; situation?: string; index: number; count: number };
 
 /**
  * 상황 주문 한 화면 — 위 바·단계 줄·제목·아래 고정 버튼.
