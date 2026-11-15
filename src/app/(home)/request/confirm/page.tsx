@@ -16,6 +16,7 @@ import { firstIncompleteIndex, STEPS, useHydrated } from "../_lib/flow";
 import { useRequestStore } from "../_lib/requestStore";
 import { NotLoggedIn, saveOrder, sendOrder } from "../_lib/submit";
 import { SITUATIONS, travelFeeOf, URGENT_FEE, URGENT_NAME, URGENT_WHEN } from "../_lib/situations";
+import { trackRequest } from "../_lib/track";
 
 const won = (n: number) => `${n.toLocaleString("ko-KR")}원`;
 
@@ -65,16 +66,31 @@ export default function ConfirmPage() {
   // 연타 막기·도는 표시·실패는 버튼 바로 위(useAction). 성공하면 넘어가는 동안 계속 막아 둔다.
   const submit = () => {
     if (incomplete) return setHighlight(true);
+    // 보낸 결과 — 입력값을 비우기 전에(공통 속성이 남게)
+    const result = (r: "ok" | "error" | "login_needed") =>
+      trackRequest("Submitted", {
+        result: r,
+        retry: !!orderId,
+        travel_fee: s.installNeeded && s.travelMinutes != null ? travelFeeOf(s.travelMinutes) : null,
+      });
     return send.run(async () => {
       try {
-        if (!loggedIn) return toLogin();
+        if (!loggedIn) {
+          result("login_needed");
+          return toLogin();
+        }
         const id = orderId ?? (await saveOrder());
         setOrderId(id);
         await sendOrder(id);
+        result("ok");
         useRequestStore.getState().reset();
         router.replace("/request/done");
       } catch (e) {
-        if (e instanceof NotLoggedIn) return toLogin();
+        if (e instanceof NotLoggedIn) {
+          result("login_needed");
+          return toLogin();
+        }
+        result("error");
         throw e;
       }
     });
@@ -100,7 +116,8 @@ export default function ConfirmPage() {
       onNext={submit}
       bottomTop={<ActionError error={send.error} className="mb-3" />}
     >
-      <div className="flex flex-col divide-y divide-gray-100">
+      {/* amp-mask: 세션 리플레이에서 이름·연락처·주소·출입 정보 글을 가린다(입력칸은 기본으로 가려짐) */}
+      <div className="amp-mask flex flex-col divide-y divide-gray-100">
         {picked.map((x) => {
           const p = s.parts[x.slug];
           return (

@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 import { doneOf, firstIncompleteIndex, STEPS, type StepKey } from "../_lib/flow";
 import { useRequestStore } from "../_lib/requestStore";
+import { trackRequest } from "../_lib/track";
 
 /**
  * 단계 줄 — 번호 원 + 잇는 선 + 이름(2026-11-15 사용자 「A로」, 칩처럼 보여서 단계처럼). 위 바(TopNavigator) 바로 밑에 붙는다.
@@ -47,9 +48,12 @@ export default function StepRow({
               variant="ghost"
               disabled={locked}
               aria-current={here ? "step" : undefined}
-              onClick={() =>
-                x.key !== "situation" ? router.push(x.path) : onPickSituation ? onPickSituation() : router.push("/request?from=steps")
-              }
+              onClick={() => {
+                trackRequest("Step Jumped", { from: current ?? "confirm", to: x.key });
+                if (x.key !== "situation") router.push(x.path);
+                else if (onPickSituation) onPickSituation();
+                else router.push("/request?from=steps");
+              }}
               className={cn(
                 // 올림(hover) 바탕은 뺀다 — 휴대폰은 누른 뒤에도 올림 상태가 남아 회색 칸이 붙어 있었다. 누르는 순간만 어둡게
                 "h-12 w-16 shrink-0 flex-col gap-1 rounded-[10px] px-0 py-1 hover:bg-transparent active:bg-muted disabled:opacity-100",

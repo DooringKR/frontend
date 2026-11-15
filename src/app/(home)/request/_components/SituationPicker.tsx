@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
 import { useRequestStore } from "../_lib/requestStore";
+import { trackRequest } from "../_lib/track";
 import { BUTTON_PICTOGRAM, BUTTON_SHORT, SITUATIONS, type SituationSlug, URGENT_FEE, URGENT_NAME, URGENT_WHEN_SHORT } from "../_lib/situations";
 
 /**
@@ -84,13 +85,25 @@ export default function SituationPicker({ invalid }: { invalid?: boolean }) {
         }))}
       />
       <Separator className="bg-gray-100" />
-      <NavRow card label="DIY(셀프 주문)" icon={<Pictogram name="diy" />} disabled={anyPicked} onClick={() => router.push("/diy")} />
+      <NavRow
+        card
+        label="DIY(셀프 주문)"
+        icon={<Pictogram name="diy" />}
+        disabled={anyPicked}
+        onClick={() => {
+          trackRequest("Branch Chosen", { branch: "diy" });
+          router.push("/diy");
+        }}
+      />
       <NavRow
         card
         label="자재 필요없는 수리"
         icon={<Pictogram name="repair" />}
         disabled={anyPicked}
-        onClick={() => router.push("/request/not-served")}
+        onClick={() => {
+          trackRequest("Branch Chosen", { branch: "repair" });
+          router.push("/request/not-served");
+        }}
       />
     </>
   );

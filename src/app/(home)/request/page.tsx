@@ -26,6 +26,7 @@ import { askedDraft, markAskedDraft, nextPathOf, useHydrated } from "./_lib/flow
 import { emptyPart, hasDraft, useRequestStore } from "./_lib/requestStore";
 import { BUTTON_DETAIL, BUTTON_PICTOGRAM, SITUATIONS, type Situation, type SituationSlug, URGENT_NAME, URGENT_WHEN } from "./_lib/situations";
 import { photoUrlOf, uploadPhotos } from "./_lib/submit";
+import { trackRequest } from "./_lib/track";
 
 type Slide =
   | { kind: "pick" }
@@ -189,8 +190,10 @@ export default function RequestStartPage() {
       const paths = await uploadPhotos(files);
       const cur = useRequestStore.getState().photoPaths;
       s.set({ photoPaths: { ...cur, [slug]: [...(cur[slug] ?? []), ...paths] } });
+      trackRequest("Photo Uploaded", { situation: slug, count: files.length, ok: true });
     } catch (e) {
       console.error("[request] 사진 올리기 실패", e);
+      trackRequest("Photo Uploaded", { situation: slug, count: files.length, ok: false });
       setPhotoError(x => ({ ...x, [slug]: "사진을 올리지 못했어요. 다시 골라 주세요" }));
     } finally {
       setUploading(null);
@@ -225,6 +228,12 @@ export default function RequestStartPage() {
   return (
     <StepShell
       step="situation"
+      slide={{
+        kind: cur.kind,
+        situation: cur.kind === "pick" ? undefined : cur.s.slug,
+        index: Math.min(at, slides.length - 1),
+        count: slides.length,
+      }}
       title={title}
       subtitle={subtitle}
       nextReady={nextReady}
@@ -295,6 +304,7 @@ export default function RequestStartPage() {
               variant="secondary"
               className="flex-1"
               onClick={() => {
+                trackRequest("Draft Answered", { choice: "restart" });
                 s.reset();
                 markAskedDraft();
                 setAskOpen(false);
@@ -307,6 +317,7 @@ export default function RequestStartPage() {
               onClick={() => {
                 markAskedDraft();
                 setAskOpen(false);
+                trackRequest("Draft Answered", { choice: "resume" });
                 if (s.lastPath !== "/request") router.push(s.lastPath);
               }}
             >

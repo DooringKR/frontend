@@ -227,6 +227,11 @@ export const trackClick = (props: ClickEventProps) => {
   send('Click', payload);
 };
 
+/** 이름을 정해 보내는 이벤트(상황 주문 「Request …」 등) — View·Click 와 같은 길로 보낸다 */
+export const track = (name: string, props: Record<string, any> = {}) => {
+  send(name, encodeForAmplitude(normalize(props)));
+};
+
 // Awaitable click tracking useful before hard navigations / OAuth redirects
 // CRITICAL: ensures event is sent before redirect, using flush + promise + beacon fallback
 export const trackClickAndWait = async (
