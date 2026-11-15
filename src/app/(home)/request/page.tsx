@@ -294,13 +294,16 @@ export default function RequestStartPage() {
                     description: (
                       <>
                         {x.subtitle}
-                        {/* 글 이름표는 오히려 읽기 어려워 픽토그램으로(2026-11-15 사용자) — 이름은 읽기 프로그램용 숨긴 글 */}
+                        {/* 글 이름표는 오히려 읽기 어려워 픽토그램 + 밑에 이름(2026-11-15 사용자).
+                            치수는 있는 규칙 그대로: 그림 32(Pictogram 기본·카드 그림과 같음), 이름 12/16·간격 4(단계 줄 이름), 두 칸씩·그림 위 이름 아래(NavTiles), 칸 사이 8(Choose) */}
                         {s.situations.includes(x.slug) && (
-                          <span className="mt-2 flex flex-wrap gap-1.5">
+                          <span className="mt-2 grid grid-cols-2 gap-2">
                             {x.buttons.map(b => (
-                              <Pictogram key={b} name={BUTTON_PICTOGRAM[b]} size={30} />
+                              <span key={b} className="flex flex-col items-start gap-1">
+                                <Pictogram name={BUTTON_PICTOGRAM[b]} />
+                                <span className="break-keep text-[12px] leading-4 font-500 text-gray-700">{b}</span>
+                              </span>
                             ))}
-                            <span className="sr-only">{x.buttons.join(", ")}</span>
                           </span>
                         )}
                       </>
