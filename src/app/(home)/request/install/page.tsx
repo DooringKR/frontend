@@ -5,22 +5,21 @@ import { useRouter } from "next/navigation";
 
 import Choose from "@/components/form/Choose";
 import DateField from "@/components/form/DateField";
+import TimeField from "@/components/form/TimeField";
 import Field from "@/components/form/Field";
 import { PICK_MESSAGE as PICK, TYPE_MESSAGE as TYPE, useRequired } from "@/components/form/useRequired";
 import Pictogram from "@/components/pictogram/Pictogram";
 import { Input } from "@/components/ui/input";
 
 import StepShell from "../_components/StepShell";
-import { nextPathOf } from "../_lib/flow";
+import { dateOk, dateRangeOf, nextPathOf } from "../_lib/flow";
 import { type ReceiveInput, useRequestStore } from "../_lib/requestStore";
-import { URGENT_NAME, URGENT_WHEN } from "../_lib/situations";
-
-const tomorrow = () =>
-  new Date(Date.now() + 9 * 3600_000 + 24 * 3600_000).toISOString().slice(0, 10);
 
 /**
  * 시공 정보 입력 — 시공 여부와 일정을 한 화면에(2026-11-13 QA).
- * 시공이 필요하면 희망 시공 날짜(바로배송이면 당일 또는 3일 이내로 고정), 필요 없으면 구 바로가구처럼 받는 방법(배송: 수령 방법·날짜 / 픽업: 차량·날짜).
+ * 시공이 필요하면 희망 시공 날짜, 필요 없으면 구 바로가구처럼 받는 방법(배송: 수령 방법·날짜·시간 / 픽업: 차량·날짜·시간).
+ * 날짜는 바로배송이어도 고른다 — 바로배송이면 오늘~3일 뒤, 아니면 내일부터(flow.ts dateRangeOf). 시간은 날짜 옆 칸, 날짜를 고른 뒤에(구 바로가구 DateTimeRow 와 같은 모양).
+ * (QA 「희망 도착 날짜에 시간도 적어야 함, 바로배송을 골라도 희망시공 날짜 고를 수 있어야 함」 2026-11-15)
  * 완료 판정은 flow.ts doneOf.install 과 같다.
  */
 export default function InstallPage() {
@@ -28,6 +27,7 @@ export default function InstallPage() {
   const s = useRequestStore();
   const r = s.receive;
   const delivery = r?.method === "delivery";
+  const range = dateRangeOf(s.urgent);
   const setReceive = (patch: Partial<ReceiveInput>) =>
     s.set({ receive: { method: r?.method ?? "delivery", ...r, ...patch } });
 
@@ -35,7 +35,7 @@ export default function InstallPage() {
     s.installNeeded === null
       ? { install: PICK, method: true, how: true, date: true }
       : s.installNeeded
-        ? { install: true, method: true, how: true, date: s.urgent || !!s.preferredDate || PICK }
+        ? { install: true, method: true, how: true, date: dateOk(s.urgent, s.preferredDate) || PICK }
         : {
             install: true,
             method: !!r || PICK,
@@ -48,7 +48,7 @@ export default function InstallPage() {
                 : !r.vehicle
                   ? PICK
                   : r.vehicle !== VehicleType.DIRECT_INPUT || !!r.vehicleInput?.trim() || TYPE,
-            date: !r || !!r.date || PICK,
+            date: !r || (dateOk(s.urgent, r.date) && !!r.time) || PICK,
           },
   );
 
@@ -76,24 +76,18 @@ export default function InstallPage() {
         />
       </Field>
 
-      {s.installNeeded === true &&
-        (s.urgent ? (
-          <Field label="희망 시공 날짜">
-            <div className="rounded-[12px] bg-muted px-5 py-4 text-[17px] font-500 text-gray-800">
-              {URGENT_WHEN} ({URGENT_NAME})
-            </div>
-          </Field>
-        ) : (
-          <Field label="희망 시공 날짜" fieldRef={req.ref("date")} error={req.error("date")}>
-            <DateField
-              aria-invalid={!!req.error("date")}
-              title="희망 시공 날짜"
-              min={tomorrow()}
-              value={s.preferredDate}
-              onChange={v => s.set({ preferredDate: v })}
-            />
-          </Field>
-        ))}
+      {s.installNeeded === true && (
+        <Field label="희망 시공 날짜" fieldRef={req.ref("date")} error={req.error("date")}>
+          <DateField
+            aria-invalid={!!req.error("date")}
+            title="희망 시공 날짜"
+            min={range.min}
+            max={range.max}
+            value={s.preferredDate}
+            onChange={v => s.set({ preferredDate: v })}
+          />
+        </Field>
+      )}
 
       {s.installNeeded === false && (
         <>
@@ -144,13 +138,26 @@ export default function InstallPage() {
           )}
           {r && (
             <Field label={delivery ? "희망 도착 날짜" : "픽업 날짜"} fieldRef={req.ref("date")} error={req.error("date")}>
-              <DateField
-                aria-invalid={!!req.error("date")}
-                title={delivery ? "희망 도착 날짜" : "픽업 날짜"}
-                min={tomorrow()}
-                value={r.date ?? ""}
-                onChange={v => setReceive({ date: v })}
-              />
+              <div className="flex gap-2">
+                <DateField
+                  className="flex-1"
+                  aria-invalid={!!req.error("date") && !dateOk(s.urgent, r.date)}
+                  title={delivery ? "희망 도착 날짜" : "픽업 날짜"}
+                  placeholder="날짜"
+                  min={range.min}
+                  max={range.max}
+                  value={r.date ?? ""}
+                  onChange={v => setReceive({ date: v })}
+                />
+                <TimeField
+                  className="flex-1"
+                  aria-invalid={!!req.error("date") && !r.time}
+                  title={delivery ? "희망 도착 시간" : "픽업 시간"}
+                  disabled={!r.date}
+                  value={r.time ?? ""}
+                  onChange={v => setReceive({ time: v })}
+                />
+              </div>
             </Field>
           )}
         </>

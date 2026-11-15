@@ -52,7 +52,7 @@ export async function saveOrder(): Promise<string> {
       parking: s.installNeeded ? s.parking : null,
       elevator: s.installNeeded ? s.elevator : null,
       access_info: s.accessInfo.trim() || null,
-      preferred_date: s.installNeeded && !s.urgent && s.preferredDate ? s.preferredDate : null,
+      preferred_date: s.installNeeded && s.preferredDate ? s.preferredDate : null,
       receive: s.installNeeded ? null : s.receive,
       request_note: s.requestNote.trim() || null,
       travel_minutes: minutes,
