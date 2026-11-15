@@ -19,7 +19,11 @@ import {
   useHydrated,
 } from "../_lib/flow";
 import { useRequestStore } from "../_lib/requestStore";
+import { trackRequest } from "../_lib/track";
 import StepRow from "./StepRow";
+
+/** 상황 입력 화면의 지금 장 — 이벤트에 붙인다 */
+export type SlideInfo = { kind: "pick" | "buttons" | "detail"; situation?: string; index: number; count: number };
 
 /**
  * 상황 주문 한 화면 — 위 바·단계 줄·제목·아래 고정 버튼.
@@ -46,7 +50,10 @@ export default function StepShell({
   highlight = false,
   onPickSituation,
   onBack,
+  slide,
 }: {
+  /** 상황 입력 화면의 지금 장(이벤트용) */
+  slide?: SlideInfo;
   /** 다 채웠는지 — false 면 옅은 색(눌리긴 한다) */
   nextReady?: boolean;
   /** 제목 줄 오른쪽 알림(칸 이름이 없는 화면) */
@@ -86,6 +93,22 @@ export default function StepShell({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated, path]);
 
+  // 이벤트 — 기기 입력값을 읽은 뒤(고른 상황 등 공통 속성이 맞게)
+  const where = {
+    step: step ?? "confirm",
+    slide: slide?.kind ?? null,
+    situation: slide?.situation ?? null,
+  };
+  useEffect(() => {
+    if (!hydrated) return;
+    trackRequest("Step Viewed", { ...where, slide_index: slide?.index ?? null, slide_count: slide?.count ?? null });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated, path, slide?.index, slide?.kind, slide?.situation]);
+  const next = () => {
+    trackRequest("Next Clicked", { ...where, ready: step ? nextReady : !nextLooksDisabled });
+    onNext?.();
+  };
+
   return (
     <div className="flex flex-col pt-[112px]">
       <TopNavigator backLabel="이전" onBack={onBack ?? (() => router.push(prevPathOf(step)))} />
@@ -117,7 +140,11 @@ export default function StepShell({
             // 마지막 단계(수령인)에서 다 끝났으면 「다음」과 같은 일(확인 화면)이라 같은 색으로(2026-11-13 사용자)
             variant={allDone && step === STEPS[STEPS.length - 1].key ? "default" : "inverse"}
             aria-disabled={!allDone || undefined}
-            onClick={() => (allDone ? router.push(CONFIRM_PATH) : setAskedOrder(true))}
+            onClick={() => {
+              trackRequest("Order Clicked", { ...where, all_done: allDone });
+              if (allDone) router.push(CONFIRM_PATH);
+              else setAskedOrder(true);
+            }}
           >
             주문하기
           </Button>
@@ -126,7 +153,7 @@ export default function StepShell({
               busy={busy}
               variant={nextReady ? "default" : "inverse"}
               aria-disabled={!nextReady || undefined}
-              onClick={onNext}
+              onClick={next}
             >
               {nextText}
             </Button>
@@ -135,7 +162,7 @@ export default function StepShell({
       ) : (
         onNext && (
           <BottomBar top={bottomTop}>
-            <Button busy={busy} aria-disabled={nextLooksDisabled || undefined} onClick={onNext}>
+            <Button busy={busy} aria-disabled={nextLooksDisabled || undefined} onClick={next}>
               {nextText}
             </Button>
           </BottomBar>
