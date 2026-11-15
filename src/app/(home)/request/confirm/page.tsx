@@ -123,7 +123,8 @@ export default function ConfirmPage() {
           const p = s.parts[x.slug];
           return (
             <Row key={x.slug} label={x.name}>
-              {[p?.buttons.join(", ") || (p?.direct ? "직접 입력" : ""), p?.amountNote, p?.hinge === true ? "경첩 필요" : p?.hinge === false ? "경첩 필요 없음" : "", p?.memo].filter(Boolean).join("\n")}
+              {/* QA 원문 순서 — 품목 → 추가 부속(경첩) → 설명 */}
+              {[p?.buttons.join(", ") || (p?.direct ? "직접 입력" : ""), p?.hinge === true ? "경첩 필요" : p?.hinge === false ? "경첩 필요 없음" : "", p?.amountNote, p?.memo].filter(Boolean).join("\n")}
             </Row>
           );
         })}
