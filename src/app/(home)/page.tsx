@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import AddressIndicator from "@/components/AddressIndicator/AddressIndicator";
 import BottomNavigation from "@/components/BottomNavigation/BottomNavigation";
@@ -82,6 +82,8 @@ export default function Page() {
     void useRequestStore.persist.rehydrate();
   }, []);
   const toOrder = () => router.push(picked ? "/request?from=home" : "/request");
+  // 상황 밑 주문하기 — 이 버튼이 아래 고정 주문하기 자리에 닿으면 고정 칸이 비켜 준다(둘이 겹쳐 보이지 않게, 2026-11-17)
+  const [inlineOrder, setInlineOrder] = useState<HTMLButtonElement | null>(null);
 
   return (
     <div className="flex min-h-screen flex-col bg-white pt-[60px]">
@@ -104,7 +106,11 @@ export default function Page() {
                 {URGENT_WHEN} 배송이 필요하다면 {URGENT_NAME}을 선택해주세요
               </Notice>
             )}
-            {picked && <Button onClick={toOrder}>주문하기</Button>}
+            {picked && (
+              <Button ref={setInlineOrder} onClick={toOrder}>
+                주문하기
+              </Button>
+            )}
           </div>
         </section>
         <div className="px-5 pb-10">
@@ -125,7 +131,7 @@ export default function Page() {
       <Footer />
       {/* 주문하기는 아래 고정 — 로그인하면 탭바(63px) 위에 뜬다(2026-11-13 QA). 아래 여백은 버튼·탭바에 가리지 않게 */}
       <div className={bizClient ? "h-[153px]" : "h-[90px]"} />
-      <BottomBar className={bizClient ? "bottom-[63px]" : undefined}>
+      <BottomBar className={bizClient ? "bottom-[63px]" : undefined} yieldTo={inlineOrder}>
         <Button onClick={toOrder}>주문하기</Button>
       </BottomBar>
       {bizClient && <BottomNavigation />}

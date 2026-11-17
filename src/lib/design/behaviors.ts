@@ -284,7 +284,7 @@ export const BEHAVIORS: Behavior[] = [
     category: "이동",
     name: "아래 고정 버튼 칸",
     component: "BottomBar",
-    rule: "늘 fixed, 위로 흰 그러데이션, 버튼 1~2개 + 왼쪽 글",
+    rule: "늘 fixed, 위로 흰 그러데이션, 버튼 1~2개 + 왼쪽 글, 화면 속 같은 버튼이 고정 자리에 닿으면 비켜 줌(yieldTo)",
     spec: "bottombar",
     count: { comp: R`<BottomBar\b`, raw: R`BottomButton|<div[^>]*fixed bottom-0[^>]*>\s*<(Button|button)` },
   },
