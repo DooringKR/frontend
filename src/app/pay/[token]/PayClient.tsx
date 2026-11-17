@@ -84,10 +84,30 @@ export default function PayClient({ token, initial, redirectError }: { token: st
     });
 
   const head = HEAD[info.status];
+  const quote = info.quote;
   return (
     <div className="flex min-h-screen flex-col">
       <Header title={head.title} subtitle={info.status === "paid" && info.paidAt ? when(info.paidAt) : head.subtitle} />
-      <div className="mx-5 mt-6 flex flex-col divide-y divide-gray-100">
+      {/* 견적 내용 — 그 현장에서 마지막으로 보낸 견적서의 품목(어드민이 스냅샷에서 읽음), 합계는 고객 견적서가 보인 금액 */}
+      {quote && quote.items.length > 0 && (
+        <section className="mx-5 mt-6">
+          <h2 className="text-[14px] font-600 text-gray-500">견적 내용</h2>
+          <div className="flex flex-col divide-y divide-gray-100">
+            {quote.items.map((it, i) => (
+              <div key={i} className="flex gap-4 py-3 text-[16px]">
+                <div className="min-w-0 flex-1 text-gray-800">
+                  {it.name}
+                  {it.quantity != null && <div className="text-[14px] text-gray-500">{`${it.quantity}${it.unit ?? ""}`}</div>}
+                </div>
+                <div className="shrink-0 text-gray-800">{won(it.amount)}</div>
+              </div>
+            ))}
+            {quote.total != null && <Row label="견적 합계">{won(quote.total)}</Row>}
+          </div>
+        </section>
+      )}
+      {quote && quote.items.length > 0 && <h2 className="mx-5 mt-8 text-[14px] font-600 text-gray-500">이번 결제</h2>}
+      <div className={`mx-5 flex flex-col divide-y divide-gray-100 ${quote && quote.items.length > 0 ? "" : "mt-6"}`}>
         <Row label="항목">{info.label}</Row>
         <Row label="금액">
           <span className="font-700">{won(info.amount)}</span>

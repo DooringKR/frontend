@@ -13,6 +13,8 @@ export interface PayInfo {
   test: boolean;
   /** 포트원 paymentId — 요청마다 하나로 고정 */
   paymentId: string;
+  /** 그 현장에서 마지막으로 보낸 견적서 — 품목 줄과 고객 견적서 합계. 없으면 null */
+  quote: { items: { name: string; quantity: number | null; unit: string | null; amount: number }[]; total: number | null } | null;
 }
 
 export async function fetchPay(token: string): Promise<{ status: number; body: PayInfo | { error: string } }> {
