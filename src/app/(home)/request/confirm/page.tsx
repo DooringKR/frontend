@@ -15,7 +15,8 @@ import StepShell from "../_components/StepShell";
 import { firstIncompleteIndex, STEPS, useHydrated } from "../_lib/flow";
 import { useRequestStore } from "../_lib/requestStore";
 import { NotLoggedIn, saveOrder, sendOrder } from "../_lib/submit";
-import { SITUATIONS, travelFeeOf, URGENT_FEE, URGENT_NAME } from "../_lib/situations";
+import { feeOf, travelFee, URGENT_PRICE, useFees } from "../_lib/fees";
+import { SITUATIONS, URGENT_NAME } from "../_lib/situations";
 import { trackRequest } from "../_lib/track";
 
 const won = (n: number) => `${n.toLocaleString("ko-KR")}원`;
@@ -56,6 +57,14 @@ export default function ConfirmPage() {
   }, [hydrated]);
 
   const picked = SITUATIONS.filter((x) => s.situations.includes(x.slug));
+  // 금액은 노션 단가 라이브러리(2026-11-18 「한 곳으로」) — 첫 장 칩과 같은 값
+  const fees = useFees();
+  const urgentFee = feeOf(fees, URGENT_PRICE);
+  const pickedFees = picked.flatMap((x) => {
+    const fee = feeOf(fees, x.name);
+    return fee ? [{ ...x, fee }] : [];
+  });
+  const travel = s.installNeeded ? travelFee(fees, s.travelMinutes) : null;
   const r = s.receive;
 
   /** 로그인을 강제하지 않고 왔으면 여기서 로그인 화면으로 — 입력값·사진은 기기에 있고, 로그인 뒤 이 화면으로 돌아온다 */
@@ -72,7 +81,7 @@ export default function ConfirmPage() {
       trackRequest("Submitted", {
         result: r,
         retry: !!orderId,
-        travel_fee: s.installNeeded && s.travelMinutes != null ? travelFeeOf(s.travelMinutes) : null,
+        travel_fee: travel,
       });
     return send.run(async () => {
       try {
@@ -158,16 +167,21 @@ export default function ConfirmPage() {
       </div>
 
       {/* 비용 — 바로배송 혜택·출장비 산정 방식 설명 문구는 사용자가 준다(지어 넣지 말 것) */}
-      {(s.urgent || s.installNeeded || picked.some((x) => x.fee)) && (
+      {(s.urgent || s.installNeeded || pickedFees.length > 0) && (
         <div className="flex flex-col divide-y divide-gray-100 rounded-xl bg-gray-50 px-4">
-          {s.urgent && <Row label={URGENT_NAME}>{won(URGENT_FEE)}</Row>}
+          {/* 단가를 못 읽으면 금액 대신 「확인 후 안내」 — 틀린 금액을 보이지 않는다 */}
+          {s.urgent && <Row label={URGENT_NAME}>{urgentFee ? won(urgentFee) : "확인 후 안내"}</Row>}
           {/* 상황 추가금액 — 첫 장 칩과 같은 금액(QA 「선택지별 추가금액 시나리오」) */}
-          {picked.filter((x) => x.fee).map((x) => (
-            <Row key={x.slug} label={x.name}>{won(x.fee!)}</Row>
+          {pickedFees.map((x) => (
+            <Row key={x.slug} label={x.name}>{won(x.fee)}</Row>
           ))}
           {s.installNeeded && (
             <Row label="출장비">
-              {s.travelMinutes == null ? "계산 중" : `${won(travelFeeOf(s.travelMinutes))} (공장에서 ${s.travelMinutes}분)`}
+              {s.travelMinutes == null
+                ? "계산 중"
+                : travel == null
+                  ? "확인 후 안내"
+                  : `${won(travel)} (공장에서 ${s.travelMinutes}분)`}
             </Row>
           )}
         </div>

@@ -11,8 +11,9 @@ import { cn } from "@/lib/utils";
 
 import { useRequestStore } from "../_lib/requestStore";
 import { trackRequest } from "../_lib/track";
+import { DIY_PRICE, feeOf, URGENT_PRICE, useFees } from "../_lib/fees";
+import { manwon, SITUATIONS, type SituationSlug, URGENT_NAME, URGENT_WHEN_SHORT } from "../_lib/situations";
 import ButtonPictos from "./ButtonPictos";
-import { DIY_DISCOUNT, manwon, SITUATIONS, type SituationSlug, URGENT_FEE, URGENT_NAME, URGENT_WHEN_SHORT } from "../_lib/situations";
 
 /** 금액 칩 — 더하면 빨강, 빼면 파랑(QA 「선택지별 추가금액 시나리오」 2026-11-15). 크기는 바로배송 칩과 같다 */
 // 조건·금액 칩 — shadcn Badge ghost 모양(바탕·테두리 없이 색 글자만, 2026-11-15 사용자 「칩은 F」). 시간은 회색+시계, 추가금 빨강, 할인 파랑
@@ -30,6 +31,10 @@ export default function SituationPicker({ invalid }: { invalid?: boolean }) {
   const router = useRouter();
   const s = useRequestStore();
   const anyPicked = s.situations.length > 0;
+  // 금액은 노션 단가 라이브러리(2026-11-18 「한 곳으로」) — 못 읽으면 칩을 안 보인다
+  const fees = useFees();
+  const urgentFee = feeOf(fees, URGENT_PRICE);
+  const diyFee = feeOf(fees, DIY_PRICE);
   return (
     <>
       <Choose
@@ -51,7 +56,7 @@ export default function SituationPicker({ invalid }: { invalid?: boolean }) {
                   <Clock className="!size-3" strokeWidth={2.5} />
                   {URGENT_WHEN_SHORT}
                 </span>
-                <span className={cn(money, "text-red-500")}>+{manwon(URGENT_FEE)}</span>
+                {urgentFee && <span className={cn(money, "text-red-500")}>+{manwon(urgentFee)}</span>}
               </span>
             ),
             description: <>오늘 바로 시공이 필요하세요? {URGENT_NAME} 서비스를 선택해보세요</>,
@@ -70,8 +75,8 @@ export default function SituationPicker({ invalid }: { invalid?: boolean }) {
           value: x.slug,
           label: x.name,
           image: <Pictogram name={x.pictogram} />,
-          badge: x.fee ? (
-            <span className={cn(money, "text-red-500")}>+{manwon(x.fee)}</span>
+          badge: feeOf(fees, x.name) ? (
+            <span className={cn(money, "text-red-500")}>+{manwon(feeOf(fees, x.name)!)}</span>
           ) : undefined,
           description: x.subtitle,
           // 글 이름표는 오히려 읽기 어려워 픽토그램 + 밑에 이름(2026-11-15 사용자), 카드 폭 전체에 네 칸씩(QA 「4열로」)
@@ -84,7 +89,7 @@ export default function SituationPicker({ invalid }: { invalid?: boolean }) {
         label={
           <>
             DIY(셀프 주문)
-            <span className={cn(money, "ml-1.5 text-blue-500", anyPicked && "opacity-40")}>−{manwon(DIY_DISCOUNT)}</span>
+            {diyFee && <span className={cn(money, "ml-1.5 text-blue-500", anyPicked && "opacity-40")}>−{manwon(diyFee)}</span>}
           </>
         }
         // 부제 — 노션 QA 「품목정리」(2026-11-15 사용자 「부제 넣어」)

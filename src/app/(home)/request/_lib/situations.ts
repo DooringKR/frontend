@@ -27,8 +27,6 @@ export interface Situation {
   asksHinge?: boolean;
   /** 교체 상황(문짝·가구) — 설명 장 「현재 상태」 사진(필수)의 안내 글. QA 「기존 정보 요청」(→ 현재 상태, 2026-11-15 사용자) */
   current?: string;
-  /** 상황 추가금액(원) — 첫 장 이름 옆 칩·확인 화면 비용 칸(QA 「선택지별 추가금액 시나리오」 2026-11-15, QA 금액) */
-  fee?: number;
 }
 
 /**
@@ -45,7 +43,6 @@ export const SITUATIONS: Situation[] = [
     buttons: ["주방 상하부장", "주방 냉장고장", "베란다 창고문", "붙박이장", "신발장", "화장대장"],
     pictograms: { "주방 상하부장": "kitchenDoor", "주방 냉장고장": "flap", "베란다 창고문": "storage", 붙박이장: "longdoor", 신발장: "shoes", 화장대장: "vanity" },
     pictogram: "door",
-    fee: 100_000,
     asksHinge: true,
     current: "기존에 교체할 문짝의 사진을 찍어주세요",
   },
@@ -68,7 +65,6 @@ export const SITUATIONS: Situation[] = [
     pictograms: { "식기세척기자리 수납장": "fill", "붙박이장 내부 교체": "inner", "냉장고자리 수납장": "fridgeFill" },
     pictogram: "cabinet",
     current: "기존에 교체할 가구의 사진을 찍어주세요",
-    fee: 100_000,
   },
 ];
 
@@ -101,12 +97,6 @@ export const validButtons = (slug: SituationSlug, buttons: string[]) =>
 
 export const situationOf =(slug: string) => SITUATIONS.find((s) => s.slug === slug) ?? null;
 
-/** 바로배송 — 체크하면 이만큼 더한다. 다음 단계 페이지는 없다 */
-export const URGENT_FEE = 150_000;
-
-/** DIY(셀프 주문) — 이만큼 덜 낸다(QA 「선택지별 추가금액 시나리오」, 첫 장 칩만 — DIY 는 화면이 따로) */
-export const DIY_DISCOUNT = 50_000;
-
 /**
  * 가구 추가 → 풀세트 확인 장(QA 「부분가구 추가 다음 단계에 전체 리모델링 제외 페이지 넣기」 2026-11-15).
  * 가구 추가를 고르고 주방 풀세트를 문의하는 분이 있어서, 풀세트면 개수대연구소 상담 폼(Tally 「개수대연구소 상담 신청하기」)으로 보낸다.
@@ -124,14 +114,5 @@ export const FULLSET = {
  */
 export const DIRECT = { label: "AS가 필요한 상황을 직접 입력할게요", button: "직접 입력" };
 
-/** 칩 글 — 150000 → 「15만 원」 */
-export const manwon = (n: number) => `${n / 10_000}만 원`;
-
-/**
- * 출장비 — 시공기사가 필요할 때만. 공장→현장 편도(분, 주문할 때 네이버 경로 실시간)로 매긴다.
- * 35분 이하 0원, 그 뒤 15분마다 3만 원. 3만 원 = 왕복 이동 증가분 2만 원 × 1.5(기사 집→공장 이동을 공장→현장의 절반으로 어림).
- */
-export function travelFeeOf(minutes: number): number {
-  if (minutes <= 35) return 0;
-  return Math.ceil((minutes - 35) / 15) * 30_000;
-}
+/** 칩 글 — 150000 → 「15만 원」(할인은 부호를 떼고 앞에 −를 붙인다). 금액은 `_lib/fees.ts`(노션 단가) */
+export const manwon = (n: number) => `${Math.abs(n) / 10_000}만 원`;

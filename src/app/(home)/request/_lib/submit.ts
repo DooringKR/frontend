@@ -7,7 +7,8 @@ import { SupabaseUploadImageUsecase } from "@/DDD/usecase/upload_image_usecase";
 import { supabase } from "@/lib/supabase";
 
 import { useRequestStore } from "./requestStore";
-import { DIRECT, SITUATIONS, travelFeeOf } from "./situations";
+import { currentFees, travelFee } from "./fees";
+import { DIRECT, SITUATIONS } from "./situations";
 
 const BUCKET = "customer-input-image";
 const BUCKET_PATH = `/object/public/${BUCKET}/`;
@@ -58,7 +59,8 @@ export async function saveOrder(): Promise<string> {
       receive: s.installNeeded ? null : s.receive,
       request_note: s.requestNote.trim() || null,
       travel_minutes: minutes,
-      travel_fee: minutes == null ? null : travelFeeOf(minutes),
+      // 노션 「출장비」 규칙 — 못 읽었으면 비워 두고 어드민 견적서가 현장 거리로 매긴다
+      travel_fee: travelFee(currentFees(), minutes),
     })
     .select("id")
     .single();
