@@ -18,6 +18,15 @@ const baseConfig: NextConfig = {
       },
     ],
   },
+  // 주소는 barogagu.com 하나(2026-11-21) — www·옛 주소 baro.dooring.kr 로 오면 같은 경로로 넘긴다(알림톡·옛 링크 살림)
+  async redirects() {
+    return ["www.barogagu.com", "baro.dooring.kr"].map((host) => ({
+      source: "/:path*",
+      has: [{ type: "host" as const, value: host }],
+      destination: "https://barogagu.com/:path*",
+      permanent: true,
+    }));
+  },
   async rewrites() {
     return [
       {
