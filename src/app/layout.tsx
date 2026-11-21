@@ -15,6 +15,9 @@ export const metadata: Metadata = {
     apple: "/img/logo-192x192.png",
   },
   manifest: "/manifest.json",
+  // iOS 「홈 화면에 추가」 이름 — 없으면 페이지 제목을 쓴다
+  appleWebApp: { title: "바로키친 AS" },
+  applicationName: "바로키친 AS",
 };
 
 export const viewport: Viewport = {

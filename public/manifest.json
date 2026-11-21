@@ -1,11 +1,11 @@
 {
-  "name": "Dooring",
-  "short_name": "Dooring",
+  "name": "바로키친 AS",
+  "short_name": "바로키친 AS",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
-  "description": "도어링 웹앱",
+  "description": "바로키친 AS",
   "icons": [
     {
       "src": "/img/logo-192x192.png",
