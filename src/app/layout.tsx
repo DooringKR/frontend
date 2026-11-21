@@ -8,7 +8,7 @@ import { Toaster } from "@/components/ui/sonner";
 import ReloadOnUpdate from "./(client-helpers)/reload-on-update";
 
 export const metadata: Metadata = {
-  title: "바로가구",
+  title: "바로키친 AS",
   description: "가구 문짝 ∙ 가구 마감재 ∙ 부분장 ∙ 가구 부속 ∙ 가구 하드웨어 | 모바일로 쉽고 편리하게 주문하고, 정확한 맞춤 가구를 오늘배송 받으세요.",
   icons: {
     icon: "/favicon.svg",
@@ -31,7 +31,7 @@ function RootLayout({
     return (
       <html lang="ko">
         <head>
-          <title>서비스 점검 중 - 바로가구</title>
+          <title>서비스 점검 중 - 바로키친 AS</title>
           <meta name="description" content="서비스 점검 중입니다. 잠시 후 다시 이용해주세요." />
         </head>
         <body className="min-h-screen bg-gray-100">
@@ -50,21 +50,21 @@ function RootLayout({
   return (
     <html lang="ko">
       <head>
-        <title>바로가구: 현장에서 필요한 가구, 오늘배송</title>
+        <title>바로키친 AS: 현장에서 필요한 가구, 오늘배송</title>
         <meta name="google-site-verification" content="ZV1WAsAAkTcqy3EbtsBAWVsxBDz_6ff2pNqQ8jAzHrE" />
         <meta name="naver-site-verification" content="188c9c116cb55c8e512a401b3542a85820470369" />
-        <meta name="title" content="바로가구: 현장에서 필요한 가구, 오늘배송" />
+        <meta name="title" content="바로키친 AS: 현장에서 필요한 가구, 오늘배송" />
         <meta name="description" content="가구 문짝 ∙ 가구 마감재 ∙ 부분장 ∙ 가구 부속 ∙ 가구 하드웨어 | 모바일로 쉽고 편리하게 주문하고, 정확한 맞춤 가구를 오늘배송 받으세요." />
 
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://baro.dooring.kr/" />
-        <meta property="og:title" content="바로가구: 현장에서 필요한 가구, 오늘배송" />
+        <meta property="og:title" content="바로키친 AS: 현장에서 필요한 가구, 오늘배송" />
         <meta property="og:description" content="가구 문짝 ∙ 가구 마감재 ∙ 부분장 ∙ 가구 부속 ∙ 가구 하드웨어 | 모바일로 쉽고 편리하게 주문하고, 정확한 맞춤 가구를 오늘배송 받으세요." />
         <meta property="og:image" content="https://ltndnqysxsyldvkrbpfq.supabase.co/storage/v1/object/public/meta-tag/metatag.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="바로가구 - 현장에서 필요한 가구, 오늘배송" />
-        <meta property="og:site_name" content="바로가구" />
+        <meta property="og:image:alt" content="바로키친 AS - 현장에서 필요한 가구, 오늘배송" />
+        <meta property="og:site_name" content="바로키친 AS" />
         <meta property="og:locale" content="ko_KR" />
         <meta property="og:locale:alternate" content="en_US" />
 
@@ -74,7 +74,7 @@ function RootLayout({
 
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content="https://baro.dooring.kr/" />
-        <meta property="twitter:title" content="바로가구: 현장에서 필요한 가구, 오늘배송" />
+        <meta property="twitter:title" content="바로키친 AS: 현장에서 필요한 가구, 오늘배송" />
         <meta property="twitter:description" content="가구 문짝 ∙ 가구 마감재 ∙ 부분장 ∙ 가구 부속 ∙ 가구 하드웨어 | 모바일로 쉽고 편리하게 주문하고, 정확한 맞춤 가구를 오늘배송 받으세요." />
         <meta property="twitter:image" content="https://ltndnqysxsyldvkrbpfq.supabase.co/storage/v1/object/public/meta-tag/metatag.png" />
 

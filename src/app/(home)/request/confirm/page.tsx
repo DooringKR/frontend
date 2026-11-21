@@ -39,7 +39,7 @@ export default function ConfirmPage() {
   const router = useRouter();
   const hydrated = useHydrated();
   const s = useRequestStore();
-  // 구 바로가구와 같은 판단 — 회원 정보(BizClient)가 있으면 로그인한 것
+  // 구 바로키친 AS와 같은 판단 — 회원 정보(BizClient)가 있으면 로그인한 것
   const loggedIn = !!useBizClientStore((b) => b.bizClient);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [highlight, setHighlight] = useState(false);

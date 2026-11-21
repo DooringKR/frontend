@@ -108,7 +108,7 @@ const send = (name: string, props: Record<string, any>) => {
 // normalize helper: convert empty string/undefined to null
 /**
  * 시험 기기 표시(2026-11-15) — 주소에 ?tester=1 을 붙여 한 번 열면 이 기기를 시험 기기로 기억한다(?tester=0 이면 해제).
- * 시험 기기의 수동 이벤트에는 tester: "yes" 가 붙고, Amplitude 대시보드 「바로가구 상황 주문」 차트는 이 이벤트를 뺀다.
+ * 시험 기기의 수동 이벤트에는 tester: "yes" 가 붙고, Amplitude 대시보드 「바로키친 AS 상황 주문」 차트는 이 이벤트를 뺀다.
  */
 const TESTER_KEY = 'baro_tester';
 const isTester = (): boolean => {

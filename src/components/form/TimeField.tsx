@@ -41,7 +41,7 @@ function Wheel({ items, start, onPick }: { items: string[]; start: number; onPic
 
 /**
  * 시각 칸 — 칸을 누르면 시트에 시·분 휠, 「확인」으로 넣는다. 날짜 칸(DateField)과 같은 모양·자리.
- * 값은 'HH:MM'(비었으면 ''). step = 분 단위(상황 주문은 30 — 바로가구 QA 2026-11-15, 기본 1분은 구 바로가구 그대로).
+ * 값은 'HH:MM'(비었으면 ''). step = 분 단위(상황 주문은 30 — 바로키친 AS QA 2026-11-15, 기본 1분은 구 바로키친 AS 그대로).
  */
 export default function TimeField({
   value,

@@ -24,14 +24,14 @@ export interface PartInput {
 
 export interface ReceiveInput {
   method: "delivery" | "pickup";
-  /** 배송: 구 바로가구 DeliveryMethod 이름 그대로 */
+  /** 배송: 구 바로키친 AS DeliveryMethod 이름 그대로 */
   deliveryMethod?: string;
   deliveryMethodInput?: string;
   /** 배송·픽업 희망 날짜(YYYY-MM-DD) */
   date?: string;
   /** 배송·픽업 희망 시간(HH:MM) — QA 「희망 도착 날짜에 시간도」(2026-11-15) */
   time?: string;
-  /** 픽업: 구 바로가구 VehicleType 이름 그대로 */
+  /** 픽업: 구 바로키친 AS VehicleType 이름 그대로 */
   vehicle?: string;
   vehicleInput?: string;
 }
@@ -59,7 +59,7 @@ export interface RequestState {
   callTime: string;
   accessInfo: string;
   preferredDate: string;
-  /** 바로배송이면 희망 시공 시간 'HH:MM'(30분 단위, 바로가구 QA 2026-11-15) */
+  /** 바로배송이면 희망 시공 시간 'HH:MM'(30분 단위, 바로키친 AS QA 2026-11-15) */
   preferredTime: string;
   receive: ReceiveInput | null;
   requestNote: string;

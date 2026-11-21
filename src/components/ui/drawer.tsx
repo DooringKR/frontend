@@ -43,7 +43,7 @@ const DrawerContent = React.forwardRef<
     <DrawerPrimitive.Content
       ref={ref}
       className={cn(
-        // 바로가구 시트 모양 — 가운데 460 칸 안, 아래·양옆 10px 띄운 둥근(24) 판
+        // 바로키친 AS 시트 모양 — 가운데 460 칸 안, 아래·양옆 10px 띄운 둥근(24) 판
         "fixed inset-x-[10px] bottom-[10px] z-50 mx-auto mt-24 flex max-h-[85vh] max-w-[440px] flex-col rounded-[24px] bg-background outline-none",
         className
       )}

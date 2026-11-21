@@ -57,7 +57,7 @@ export default function OrderConfirmPage() {
                 >
                   <KakaoChannelLink />
                 </Step>
-                <Step n={2} title="바로가구에서 주문 확인하면">
+                <Step n={2} title="바로키친 AS에서 주문 확인하면">
                   <p className="pb-7 font-400 text-gray-500">
                     {phone}로
                     <br />
@@ -67,7 +67,7 @@ export default function OrderConfirmPage() {
                 <Step n={3} title="주문금액을 아래 계좌로 송금하고">
                   <BankAccountBox />
                 </Step>
-                <Step n={4} title="바로가구에서 입금 확인하면">
+                <Step n={4} title="바로키친 AS에서 입금 확인하면">
                   <p className="pb-7 font-400 text-gray-500">알림톡 보내드리고 곧바로 제작 시작해요</p>
                 </Step>
               </>

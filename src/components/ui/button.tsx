@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 /**
- * 버튼 — 바로가구 버튼 모양(옛 Button type)을 shadcn 변형으로 옮겼다.
+ * 버튼 — 바로키친 AS 버튼 모양(옛 Button type)을 shadcn 변형으로 옮겼다.
  *  variant: default(Brand) · secondary(Gray) · outline(Outlined) · inverse(BrandInverse) · ghost · link · destructive · kakao
  *  size:    lg(Large, 50px·17px) · md(Medium, 40px·16px) · sm(32px) · icon
  * busy = 처리 중(연타 막기·도는 표시) — 어드민 useAction·Button busy 와 같은 규칙. 처리는 useAction 이 맡는다.

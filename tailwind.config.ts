@@ -44,7 +44,7 @@ const config: Config = {
         800: "800",
         900: "900",
       },
-      // shadcn 토큰 — 값은 globals.css :root(바로가구 기존 색 그대로)
+      // shadcn 토큰 — 값은 globals.css :root(바로키친 AS 기존 색 그대로)
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

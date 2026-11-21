@@ -12,7 +12,7 @@ import { ActionError, useAction } from "@/components/ui/use-action";
 import type { PayInfo } from "@/lib/pay";
 
 /** 결제창·카드 명세에 보이는 이름 — KCP 에 등록된 사이트 이름 */
-const SERVICE = "바로가구";
+const SERVICE = "바로키친 AS";
 const COMPANY = "주식회사 도어링";
 /** 푸터 「환불규정」과 같은 문서 */
 const REFUND_URL = "https://witty-sundae-3d1.notion.site/305b6a70ff3980a5b2a2ffb5f4694b89";

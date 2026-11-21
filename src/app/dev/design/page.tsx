@@ -49,7 +49,7 @@ function Spec({ id, title, children }: { id: string; title: string; children: Re
 }
 
 /**
- * 디자인 견본 — 바로가구의 동작마다 맡은 컴포넌트를 한 화면에 모았다(바로키친 어드민 /more/design 과 같은 자리).
+ * 디자인 견본 — 바로키친 AS의 동작마다 맡은 컴포넌트를 한 화면에 모았다(바로키친 어드민 /more/design 과 같은 자리).
  * 컴포넌트를 고치면 여기서 먼저 보고, 새 컴포넌트도 여기에 넣는다. 동작 목록은 src/lib/design/behaviors.ts.
  */
 export default function DesignPage() {
