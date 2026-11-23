@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://barogagu.com';
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://as.barogagu.com';
 
     // 정적 페이지들
     const staticPages: MetadataRoute.Sitemap = [
