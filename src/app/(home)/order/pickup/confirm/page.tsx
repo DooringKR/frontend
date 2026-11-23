@@ -49,9 +49,7 @@ export default function OrderConfirmPage() {
                   n={1}
                   title={
                     <>
-                      시공 현장 사진, 도면을 카톡 채널 또는
-                      <br />
-                      문자(010-6409-4542)로 보내주세요
+                      시공 현장 사진, 도면을 카톡 채널로 보내주세요
                     </>
                   }
                 >

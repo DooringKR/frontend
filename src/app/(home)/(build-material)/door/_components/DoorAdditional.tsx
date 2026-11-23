@@ -177,7 +177,7 @@ export default function DoorAdditional({
                     open={noImageOpen}
                     onOpenChange={setNoImageOpen}
                     title="이미지를 첨부하지 않으셨습니다"
-                    description="주문 접수 후 카카오톡 채널 또는 문자(010-6409-4542)로 시공 현장·도면 사진을 보내주세요."
+                    description="주문 접수 후 카카오톡 채널로 시공 현장·도면 사진을 보내주세요."
                     confirmLabel="네 확인했습니다"
                     onConfirm={proceed}
                 />
