@@ -86,7 +86,7 @@ export default function ConfirmPage() {
         await sendOrder(id);
         result("ok");
         useRequestStore.getState().reset();
-        router.replace("/request/done");
+        router.replace(`/request/done?id=${id}`);
       } catch (e) {
         if (e instanceof NotLoggedIn) {
           result("login_needed");
