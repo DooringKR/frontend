@@ -34,7 +34,7 @@ const BUSINESS_TYPES: { value: BusinessType; track: string }[] = [
 ];
 
 // 개인고객 링크
-const INDIVIDUAL_CUSTOMER_LINK = "https://www.gaesudae.com/"; // 개수대연구소 링크
+const INDIVIDUAL_CUSTOMER_LINK = "https://www.gaesudae.com/"; // 바로키친(옛 개수대연구소) 링크
 
 /**
  * 가입 마지막 단계 — 휴대폰 번호·업체 유형(기타면 개인고객 여부)을 받고 카카오 가입(OAuth type=signup)을 다시 시작한다.
@@ -210,7 +210,7 @@ export default function SignupPage() {
                                 </Notice>
                                 <Button asChild variant="inverse" className="w-full">
                                     <a href={INDIVIDUAL_CUSTOMER_LINK} target="_blank" rel="noopener noreferrer">
-                                        개수대연구소로 이동
+                                        바로키친으로 이동
                                     </a>
                                 </Button>
                             </>

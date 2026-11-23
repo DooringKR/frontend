@@ -99,7 +99,7 @@ export default function RepairInquiryPage() {
             onChange={(files) => void addPhotos(files)}
           />
         </Field>
-        <Field label="상황 설명" fieldRef={req.ref("note")} error={req.error("note")}>
+        <Field label="상황 설명" required fieldRef={req.ref("note")} error={req.error("note")}>
           <Textarea
             aria-invalid={!!req.error("note") || undefined}
             placeholder="예) 서랍 레일이 고장났어요"

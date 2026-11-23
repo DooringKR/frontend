@@ -1,6 +1,5 @@
 "use client";
 
-import { Clock } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import Choose from "@/components/form/Choose";
@@ -12,13 +11,14 @@ import { cn } from "@/lib/utils";
 import { useRequestStore } from "../_lib/requestStore";
 import { trackRequest } from "../_lib/track";
 import { DIY_PRICE, feeOf, URGENT_PRICE, useFees } from "../_lib/fees";
-import { manwon, SITUATIONS, type SituationSlug, URGENT_NAME, URGENT_WHEN_SHORT } from "../_lib/situations";
+import { SITUATIONS, type SituationSlug, URGENT_NAME, URGENT_WHEN_SHORT } from "../_lib/situations";
 import ButtonPictos from "./ButtonPictos";
+import { Chips, MoneyChip, TimeChip } from "./ConditionChips";
 
-/** 금액 칩 — 더하면 빨강, 빼면 파랑(QA 「선택지별 추가금액 시나리오」 2026-11-15). 크기는 바로배송 칩과 같다 */
-// 조건·금액 칩 — shadcn Badge ghost 모양(바탕·테두리 없이 색 글자만, 2026-11-15 사용자 「칩은 F」). 시간은 회색+시계, 추가금 빨강, 할인 파랑
-const chip = "inline-flex items-center gap-[3px] px-0.5 text-[12px]/[16px] align-middle";
-const money = cn(chip, "font-600");
+// 금액 칩 — 더하면 빨강 「추가금」, 빼면 파랑 「할인」(QA 「선택지별 추가금액 시나리오」 2026-11-15). 모양은 ./Chips.
+// 금액은 칩에 안 적는다(2026-11-23 사용자 「추가금이라는 글자만」) — 노션에 금액이 있을 때만 칩이 뜬다
+const EXTRA = "추가금";
+const DISCOUNT = "할인";
 
 /**
  * 상황 고르기(화면 1) — 상황 입력 첫 장과 홈(QA 「랜딩페이지단계에서 첫 화면(상황입력)이 나오게」 2026-11-15)이 같이 쓴다.
@@ -50,14 +50,10 @@ export default function SituationPicker({ invalid }: { invalid?: boolean }) {
             image: <Pictogram name="urgent" />,
             // 조건 칩은 이름 옆(2026-11-15 사용자) — 시간은 옅은 파랑 + 시계, 금액은 꽉 찬 빨강으로 종류가 갈리게
             badge: (
-              <span className="inline-flex flex-wrap gap-1 align-middle">
-                <span className={cn(chip, "font-500 text-gray-500")}>
-                  {/* 카드 버튼의 [&_svg]:size-4 를 이기게 ! */}
-                  <Clock className="!size-3" strokeWidth={2.5} />
-                  {URGENT_WHEN_SHORT}
-                </span>
-                {urgentFee && <span className={cn(money, "text-red-500")}>+{manwon(urgentFee)}</span>}
-              </span>
+              <Chips>
+                <TimeChip>{URGENT_WHEN_SHORT}</TimeChip>
+                {urgentFee && <MoneyChip>{EXTRA}</MoneyChip>}
+              </Chips>
             ),
             description: <>오늘 바로 시공이 필요하세요? {URGENT_NAME} 서비스를 선택해보세요</>,
           },
@@ -75,9 +71,7 @@ export default function SituationPicker({ invalid }: { invalid?: boolean }) {
           value: x.slug,
           label: x.name,
           image: <Pictogram name={x.pictogram} />,
-          badge: feeOf(fees, x.name) ? (
-            <span className={cn(money, "text-red-500")}>+{manwon(feeOf(fees, x.name)!)}</span>
-          ) : undefined,
+          badge: feeOf(fees, x.name) ? <MoneyChip>{EXTRA}</MoneyChip> : undefined,
           description: x.subtitle,
           // 글 이름표는 오히려 읽기 어려워 픽토그램 + 밑에 이름(2026-11-15 사용자), 카드 폭 전체에 네 칸씩(QA 「4열로」)
           extra: s.situations.includes(x.slug) ? <ButtonPictos slug={x.slug} buttons={x.buttons} /> : undefined,
@@ -89,7 +83,11 @@ export default function SituationPicker({ invalid }: { invalid?: boolean }) {
         label={
           <>
             DIY(셀프 주문)
-            {diyFee && <span className={cn(money, "ml-1.5 text-blue-500", anyPicked && "opacity-40")}>−{manwon(diyFee)}</span>}
+            {diyFee && (
+              <MoneyChip tone="discount" className={cn("ml-1.5", anyPicked && "opacity-40")}>
+                {DISCOUNT}
+              </MoneyChip>
+            )}
           </>
         }
         // 부제 — 노션 QA 「품목정리」(2026-11-15 사용자 「부제 넣어」)

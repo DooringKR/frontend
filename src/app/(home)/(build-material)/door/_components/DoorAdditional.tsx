@@ -4,8 +4,8 @@ import { HingeThickness } from "dooring-core-domain/dist/enums/InteriorMateralsE
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import Choose from "@/components/form/Choose";
 import Field from "@/components/form/Field";
+import HingeAddOn from "@/components/form/HingeAddOn";
 import PhotoPick from "@/components/form/PhotoPick";
 import { useRequired } from "@/components/form/useRequired";
 import Header from "@/components/Header/Header";
@@ -23,12 +23,6 @@ import useItemStore from "@/store/itemStore";
 import InitAmplitude from "@/app/(client-helpers)/init-amplitude";
 import { trackClick, trackView } from "@/services/analytics/amplitude";
 import { getPreviousScreenName, getScreenName, setScreenName } from "@/utils/screenName";
-
-const THICKNESS_OPTIONS = [
-    { value: HingeThickness.FIFTEEN, label: "15T" },
-    { value: HingeThickness.EIGHTEEN, label: "18T" },
-    { value: HingeThickness.UNKNOWN, label: "모름" },
-];
 
 /**
  * 일반문·플랩문·롱문 추가 정보(옛 화면 3벌을 하나로) — 요청사항·경첩 같이 받기(몸통 두께 필수)·시공·사진.
@@ -120,29 +114,16 @@ export default function DoorAdditional({
 
                 <Field label="추가선택">
                     <div className="flex w-full flex-col overflow-hidden rounded-2xl border border-border">
-                        <SelectableOptionCard
-                            title="경첩도 같이 받을래요"
-                            showImage
-                            imageUrl="/img/hardware-category/hinge.png"
-                            showChip
-                            chipText="인기"
-                            chipColor="yellow"
-                            showExpandableContent
-                            expandableContent={
-                                <Field label="몸통 두께" required fieldRef={req.ref("thickness")} error={req.error("thickness")}>
-                                    <Choose
-                                        aria-label="몸통 두께"
-                                        value={selectedThickness}
-                                        onChange={v => {
-                                            setSelectedThickness(v);
-                                            updateItem({ hinge_thickness: v });
-                                        }}
-                                        options={THICKNESS_OPTIONS}
-                                    />
-                                </Field>
-                            }
+                        <HingeAddOn
                             checked={addOn_hinge}
-                            onChange={handleAddOnHingeChange}
+                            onCheckedChange={handleAddOnHingeChange}
+                            thickness={selectedThickness}
+                            onThicknessChange={v => {
+                                setSelectedThickness(v);
+                                updateItem({ hinge_thickness: v });
+                            }}
+                            thicknessRef={req.ref("thickness")}
+                            thicknessError={req.error("thickness")}
                         />
                         <Separator className="bg-gray-100" />
                         <SelectableOptionCard

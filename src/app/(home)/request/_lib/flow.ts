@@ -6,7 +6,9 @@
 import { DeliveryMethod, VehicleType } from "dooring-core-domain/dist/enums/CartAndOrderEnums";
 import { useEffect, useState } from "react";
 
-import { useRequestStore, type ReceiveInput, type RequestState } from "./requestStore";
+import { dateLabel } from "@/components/form/DateField";
+
+import { CARRIER_LABEL, useRequestStore, type ReceiveInput, type RequestState } from "./requestStore";
 import { situationOf, type SituationSlug } from "./situations";
 
 export type StepKey = "situation" | "install" | "site" | "recipient";
@@ -15,7 +17,7 @@ export const STEPS: { key: StepKey; label: string; path: string }[] = [
   { key: "situation", label: "상황 입력", path: "/request" },
   { key: "install", label: "시공 여부", path: "/request/install" },
   { key: "site", label: "현장 정보", path: "/request/site" },
-  { key: "recipient", label: "수령인", path: "/request/contact" },
+  { key: "recipient", label: "받으시는 분", path: "/request/contact" },
 ];
 
 export const CONFIRM_PATH = "/request/confirm";
@@ -35,12 +37,42 @@ export const dateOk = (urgent: boolean, ymd: string | undefined | null) => {
   return !!ymd && ymd >= min && (!max || ymd <= max);
 };
 
+/** 수령 방법 목록 — 「공동현관으로 올라오세요」는 뺀다(2026-11-23 사용자). 옛 작성 중 주문에 남은 그 값은 안 고른 것으로 본다 */
+export const DELIVERY_METHODS: DeliveryMethod[] = Object.values(DeliveryMethod).filter((m) => m !== DeliveryMethod.OPEN_GATE);
+export const deliveryMethodOk = (r: ReceiveInput) =>
+  !!r.deliveryMethod &&
+  DELIVERY_METHODS.includes(r.deliveryMethod as DeliveryMethod) &&
+  (r.deliveryMethod !== DeliveryMethod.DIRECT_INPUT || !!r.deliveryMethodInput?.trim());
+
+/** 받는 방법 한 줄 — 「택배(경동화물) 배송 · 문 앞에 두면 가져갈게요 · 11월 27일(목) 14:00」. 확인 화면·주문 내역 상세가 같이 쓴다 */
+export const receiveLine = (r: ReceiveInput) => {
+  const way = r.method === "pickup" ? "직접 픽업" : r.carrier ? CARRIER_LABEL[r.carrier] : "배송";
+  const how =
+    r.method === "pickup"
+      ? r.vehicle === VehicleType.DIRECT_INPUT
+        ? r.vehicleInput
+        : r.vehicle
+      : r.deliveryMethod === DeliveryMethod.DIRECT_INPUT
+        ? r.deliveryMethodInput
+        : r.deliveryMethod;
+  return [way, how, r.date && [dateLabel(r.date), r.time].filter(Boolean).join(" ")].filter(Boolean).join(" · ");
+};
+
 export function receiveDone(r: ReceiveInput | null, urgent = false): boolean {
   if (!dateOk(urgent, r?.date) || !r?.time) return false;
   return r.method === "delivery"
-    ? !!r.deliveryMethod && (r.deliveryMethod !== DeliveryMethod.DIRECT_INPUT || !!r.deliveryMethodInput?.trim())
+    ? !!r.carrier && deliveryMethodOk(r)
     : !!r.vehicle && (r.vehicle !== VehicleType.DIRECT_INPUT || !!r.vehicleInput?.trim());
 }
+
+/** 경첩 답 한 줄 — 확인 화면과 접수 메모(어드민 문의 메모)가 같이 쓴다. 「경첩 필요(몸통 18T · 블룸)」, 안 골랐으면 null.
+ *  브랜드 「모름」은 적지 않는다(안 적은 것과 같다) */
+export const hingeNote = (p: { hinge?: boolean | null; hingeThickness?: string | null; hingeBrand?: string } | undefined) => {
+  if (!p?.hinge) return null;
+  const brand = p.hingeBrand?.trim();
+  const parts = [p.hingeThickness && `몸통 ${p.hingeThickness}`, brand && brand !== "모름" ? brand : null].filter(Boolean);
+  return parts.length ? `경첩 필요(${parts.join(" · ")})` : "경첩 필요";
+};
 
 /** 품목 장이 끝났는지 — 품목을 골랐거나 「직접 입력」을 눌렀다 */
 export const buttonsReady = (s: RequestState, slug: SituationSlug) => (s.parts[slug]?.buttons.length ?? 0) > 0 || !!s.parts[slug]?.direct;
@@ -48,6 +80,8 @@ export const buttonsReady = (s: RequestState, slug: SituationSlug) => (s.parts[s
 /** 설명 장이 끝났는지 — 상황 설명 글은 늘 필수, 교체 상황(문짝·가구)은 「현재 상태」 사진도 필수. 참고 사진은 선택(2026-11-15 사용자) */
 export function detailReady(s: RequestState, slug: SituationSlug): boolean {
   if (!s.parts[slug]?.amountNote.trim()) return false;
+  // 경첩을 고르면 몸통 두께가 필수(DIY 와 같은 규칙)
+  if (s.parts[slug]?.hinge && !s.parts[slug]?.hingeThickness) return false;
   return !situationOf(slug)?.current || (s.currentPhotoPaths[slug]?.length ?? 0) > 0;
 }
 

@@ -23,8 +23,12 @@ export interface Situation {
   /** 품목 그림 — 같은 이름이라도 상황마다 강조가 다를 수 있어 상황 안에 둔다 */
   pictograms: Record<string, PictogramName>;
   pictogram: PictogramName;
-  /** 상황 설명 장에서 「경첩도 필요한가요? (선택)」를 묻는다 */
+  /** 상황 설명 장에서 「경첩도 같이 받을래요」(몸통 두께·브랜드)를 묻는다 */
   asksHinge?: boolean;
+  /** 상황 설명 칸 안내 글(placeholder) — 상황마다 다르다(2026-11-23 사용자 문구 그대로) */
+  example: string;
+  /** 품목 장 앞에 「잠깐! 주방 풀세트인가요?」를 묻는다 — 가구 추가·가구 교체. 둘 다 고르면 앞 상황에서 한 번만(2026-11-23 사용자) */
+  asksFullset?: boolean;
   /** 교체 상황(문짝·가구) — 설명 장 「현재 상태」 사진(필수)의 안내 글. QA 「기존 정보 요청」(→ 현재 상태, 2026-11-15 사용자) */
   current?: string;
 }
@@ -45,16 +49,20 @@ export const SITUATIONS: Situation[] = [
     pictogram: "door",
     asksHinge: true,
     current: "기존에 교체할 문짝의 사진을 찍어주세요",
+    example: "떨어진 문짝 교체가 필요해요, 싱크대 전체 문짝을 새것으로 바꾸고 싶어요",
   },
   {
     slug: "partial",
     name: "가구 추가",
     subtitle: "전체 리모델링이 아니어도, 부분적으로 맞춤가구를 주문해보세요",
     question: "어떤 가구가 필요한가요?",
-    buttons: ["붙박이장", "신발장", "냉장고장", "키큰 수납장", "아일랜드장", "베란다 창고장"],
-    pictograms: { 붙박이장: "longdoor", 신발장: "shoes", 냉장고장: "fridge", "키큰 수납장": "tall", 아일랜드장: "island", "베란다 창고장": "storage" },
+    // 화장대장 추가(2026-11-23 사용자) — 어드민 intake FURNITURE 에 「화장대장 → 화장대」가 이미 있다
+    buttons: ["붙박이장", "신발장", "화장대장", "냉장고장", "키큰 수납장", "아일랜드장", "베란다 창고장"],
+    pictograms: { 붙박이장: "longdoor", 신발장: "shoes", 화장대장: "vanity", 냉장고장: "fridge", "키큰 수납장": "tall", 아일랜드장: "island", "베란다 창고장": "storage" },
     pictogram: "partial",
     asksHinge: true,
+    asksFullset: true,
+    example: "붙박이장 5자가 필요해요, 아일랜드장 2000mm가 필요해요",
   },
   {
     slug: "cabinet",
@@ -64,7 +72,9 @@ export const SITUATIONS: Situation[] = [
     buttons: ["식기세척기자리 수납장", "붙박이장 내부 교체", "냉장고자리 수납장"],
     pictograms: { "식기세척기자리 수납장": "fill", "붙박이장 내부 교체": "inner", "냉장고자리 수납장": "fridgeFill" },
     pictogram: "cabinet",
+    asksFullset: true,
     current: "기존에 교체할 가구의 사진을 찍어주세요",
+    example: "식기세척기 자리에 서랍장을 넣고 싶어요, 이불장을 옷걸이장으로 바꾸고 싶어요",
   },
 ];
 
@@ -98,14 +108,17 @@ export const validButtons = (slug: SituationSlug, buttons: string[]) =>
 export const situationOf =(slug: string) => SITUATIONS.find((s) => s.slug === slug) ?? null;
 
 /**
- * 가구 추가 → 풀세트 확인 장(QA 「부분가구 추가 다음 단계에 전체 리모델링 제외 페이지 넣기」 2026-11-15).
- * 가구 추가를 고르고 주방 풀세트를 문의하는 분이 있어서, 풀세트면 개수대연구소 상담 폼(Tally 「개수대연구소 상담 신청하기」)으로 보낸다.
+ * 가구 추가·가구 교체 → 풀세트 확인 장(QA 「부분가구 추가 다음 단계에 전체 리모델링 제외 페이지 넣기」 2026-11-15, 가구 교체는 2026-11-23).
+ * 둘 다 고르면 앞 상황(가구 추가)의 품목 앞에 한 번만 — Situation.asksFullset, page.tsx fullsetAt.
+ * 가구 추가를 고르고 주방 풀세트를 문의하는 분이 있어서, 풀세트면 바로키친 상담 폼(Tally 「바로키친 가견적 신청하기」, 옛 이름 개수대연구소)으로 보낸다.
  * 설명 문구는 QA 에 「풀세트란 ~~」만 있어 내가 쓴 초안을 사용자가 그대로 쓰기로(2026-11-15 「초안대로」).
  */
 export const FULLSET = {
   title: "잠깐! 주방 풀세트인가요?",
-  description: "상부장·하부장·상판까지 주방 가구를 모두 새로 하는 경우예요. 풀세트는 개수대연구소에서 상담해 드려요",
+  description: "상부장·하부장·상판까지 주방 가구를 모두 새로 하는 경우예요. 풀세트는 바로키친에서 상담해 드려요",
   formUrl: "https://tally.so/r/w7BRW0",
+  /** 풀세트 ✕ · 일부 가구 ○ 그림(1005×603, 투명 배경) — 설명과 선택지 사이 */
+  image: "/img/request/fullset-compare.png",
 };
 
 /**
@@ -113,6 +126,3 @@ export const FULLSET = {
  * 품목을 하나라도 고르면 막힌다(사용자 「추천대로」). 누르면 품목 없이 바로 설명 장으로, 그때는 설명 글이 꼭 있어야 한다. 저장할 때 버튼 자리에는 「직접 입력」
  */
 export const DIRECT = { label: "AS가 필요한 상황을 직접 입력할게요", button: "직접 입력" };
-
-/** 칩 글 — 150000 → 「15만 원」(할인은 부호를 떼고 앞에 −를 붙인다). 금액은 `_lib/fees.ts`(노션 단가) */
-export const manwon = (n: number) => `${Math.abs(n) / 10_000}만 원`;

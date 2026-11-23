@@ -41,18 +41,18 @@ export default function ContactPage() {
   return (
     <StepShell
       step="recipient"
-      title="수령인을 알려주세요"
+      title="받으시는 분을 알려주세요"
       nextReady={req.ok}
       onNext={() => req.check() && router.push(nextPathOf("recipient"))}
     >
-      <Field label="수령인 이름" fieldRef={req.ref("name")} error={req.error("name")}>
+      <Field label="받으시는 분 성함" required fieldRef={req.ref("name")} error={req.error("name")}>
         <Input
           aria-invalid={!!req.error("name")}
           value={s.contactName}
           onChange={e => s.set({ contactName: e.target.value })}
         />
       </Field>
-      <Field label="수령인 연락처" fieldRef={req.ref("phone")} error={req.error("phone")}>
+      <Field label="받으시는 분 연락처" required fieldRef={req.ref("phone")} error={req.error("phone")}>
         <PhoneInput
           aria-invalid={!!req.error("phone")}
           value={s.contactPhone}

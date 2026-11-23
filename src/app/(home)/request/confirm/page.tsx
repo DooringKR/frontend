@@ -11,8 +11,9 @@ import useBizClientStore from "@/store/bizClientStore";
 import { setAfterLogin } from "@/utils/afterLogin";
 import { getTravelTimeInMinutes, warehouseLocation } from "@/utils/CheckDeliveryTime";
 
+import Row from "../_components/Row";
 import StepShell from "../_components/StepShell";
-import { firstIncompleteIndex, STEPS, useHydrated } from "../_lib/flow";
+import { firstIncompleteIndex, hingeNote, receiveLine, STEPS, useHydrated } from "../_lib/flow";
 import { useRequestStore } from "../_lib/requestStore";
 import { NotLoggedIn, saveOrder, sendOrder } from "../_lib/submit";
 import { feeOf, travelFee, URGENT_PRICE, useFees } from "../_lib/fees";
@@ -21,15 +22,6 @@ import { trackRequest } from "../_lib/track";
 
 const won = (n: number) => `${n.toLocaleString("ko-KR")}원`;
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="flex gap-4 py-2 text-[15px]">
-      {/* 이름 칸은 가장 긴 이름(「문짝 교체 · 설치」 93px)이 한 줄에 들어가게 */}
-      <div className="w-24 shrink-0 text-gray-500">{label}</div>
-      <div className="min-w-0 flex-1 whitespace-pre-line text-gray-800">{children}</div>
-    </div>
-  );
-}
 
 /**
  * 확인 — 고른 것 요약, 비용, 요청사항, 주문하기. 단계 줄에는 없다(2026-11-13 QA).
@@ -106,14 +98,6 @@ export default function ConfirmPage() {
     });
   };
 
-  const how =
-    r?.method === "pickup"
-      ? r.vehicle === "직접 입력"
-        ? r.vehicleInput
-        : r.vehicle
-      : r?.deliveryMethod === "직접 입력"
-        ? r?.deliveryMethodInput
-        : r?.deliveryMethod;
 
   return (
     <StepShell
@@ -133,7 +117,7 @@ export default function ConfirmPage() {
           return (
             <Row key={x.slug} label={x.name}>
               {/* QA 원문 순서 — 품목 → 추가 부속(경첩) → 설명 */}
-              {[p?.buttons.join(", ") || (p?.direct ? "직접 입력" : ""), p?.hinge === true ? "경첩 필요" : p?.hinge === false ? "경첩 필요 없음" : "", p?.amountNote, p?.memo].filter(Boolean).join("\n")}
+              {[p?.buttons.join(", ") || (p?.direct ? "직접 입력" : ""), hingeNote(p), p?.amountNote, p?.memo].filter(Boolean).join("\n")}
             </Row>
           );
         })}
@@ -143,7 +127,7 @@ export default function ConfirmPage() {
         )}
         {s.installNeeded === false && r && (
           <Row label="받는 방법">
-            {[r.method === "pickup" ? "직접 픽업" : "배송", how, r.date && [dateLabel(r.date), r.time].filter(Boolean).join(" ")].filter(Boolean).join(" · ")}
+            {receiveLine(r)}
           </Row>
         )}
         {s.roadAddress && (
@@ -160,7 +144,7 @@ export default function ConfirmPage() {
           </Row>
         )}
         {s.contactName && (
-          <Row label="수령인">
+          <Row label="받으시는 분">
             {`${s.contactName} ${s.contactPhone}${s.callTime ? `\n통화 ${s.callTime}` : ""}${s.accessInfo ? `\n출입 ${s.accessInfo}` : ""}`}
           </Row>
         )}
@@ -187,7 +171,7 @@ export default function ConfirmPage() {
         </div>
       )}
 
-      <Field label="요청사항">
+      <Field label="요청사항 (선택)">
         <Input value={s.requestNote} onChange={(e) => s.set({ requestNote: e.target.value })} />
       </Field>
     </StepShell>

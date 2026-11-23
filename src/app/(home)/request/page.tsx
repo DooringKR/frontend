@@ -1,11 +1,13 @@
 "use client";
 
+import type { HingeThickness } from "dooring-core-domain/dist/enums/InteriorMateralsEnums";
 import { PencilLine } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import Choose from "@/components/form/Choose";
 import Field from "@/components/form/Field";
+import HingeAddOn from "@/components/form/HingeAddOn";
 import PhotoPick from "@/components/form/PhotoPick";
 import { PICK_MESSAGE, TYPE_MESSAGE } from "@/components/form/useRequired";
 import NavRow from "@/components/nav/NavRow";
@@ -52,11 +54,12 @@ export default function RequestStartPage() {
   const hydrated = useHydrated();
   const s = useRequestStore();
   const picked = SITUATIONS.filter(x => s.situations.includes(x.slug));
+  // 풀세트 확인 장(풀세트면 바로키친 상담으로) — 가구 추가·가구 교체 중 먼저 오는 상황의 품목 앞에 한 번만(2026-11-23 사용자 「두 번 뜨지 않게」)
+  const fullsetAt = picked.find(x => x.asksFullset)?.slug;
   const slides: Slide[] = [
     { kind: "pick" },
-    // 가구 추가는 품목 앞에 풀세트 확인 장(풀세트면 개수대연구소 상담으로)
     ...picked.flatMap(x => [
-      ...(x.slug === "partial" ? [{ kind: "fullset", s: x } as Slide] : []),
+      ...(x.slug === fullsetAt ? [{ kind: "fullset", s: x } as Slide] : []),
       { kind: "buttons", s: x } as Slide,
       { kind: "detail", s: x } as Slide,
     ]),
@@ -281,12 +284,15 @@ export default function RequestStartPage() {
                 <SituationPicker invalid={invalid("situations")} />
               </CarouselItem>
             ) : sl.kind === "fullset" ? (
-              // 네 → 개수대연구소 상담 폼(새 탭), 아니요·다음 → 품목 고르기
-              <CarouselItem key="partial-fullset" className="flex flex-col gap-3 px-5">
+              // 아니요·다음 → 품목 고르기, 네 → 바로키친 상담 폼(새 탭). 「아니요」가 위(2026-11-23 사용자)
+              <CarouselItem key="fullset" className="flex flex-col gap-3 px-5">
                 {/* 설명은 장 안에(제목 밑 부제 대신 — 점 줄 자리 고정), 글자는 Header 부제와 같게 */}
-                <p className="mb-2 text-[17px] text-gray-500">{FULLSET.description}</p>
-                <NavRow card external href={FULLSET.formUrl} label="네, 주방 풀세트예요" icon={<Pictogram name="whole" />} />
+                <p className="text-[17px] text-gray-500">{FULLSET.description}</p>
+                {/* 풀세트 ✕ · 일부 가구 ○ 그림 — 설명과 선택지 사이(2026-11-23 사용자 그림 그대로) */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={FULLSET.image} alt="주방 전체를 새로 하는 풀세트는 ✕, 일부 가구만 바꾸는 경우는 ○" width={1005} height={603} className="mb-2 h-auto w-full" />
                 <NavRow card label="아니요, 일부 가구만 필요해요" icon={<Pictogram name="partial" />} onClick={() => api?.scrollNext()} />
+                <NavRow card external href={FULLSET.formUrl} label="네, 주방 풀세트예요" icon={<Pictogram name="whole" />} />
               </CarouselItem>
             ) : sl.kind === "buttons" ? (
               <CarouselItem key={`${sl.s.slug}-buttons`} className="flex flex-col gap-5 px-5">
@@ -425,23 +431,26 @@ function DetailFields({
         </Field>
       )}
       {/* 추가 부속(선택) — 문짝 교체 · 설치·가구 추가, 고른 가구 바로 다음(QA 원문 순서) */}
+      {/* DIY 문짝의 「경첩도 같이 받을래요」 카드 그대로 — 몸통 두께 필수, 브랜드 선택(2026-11-23 사용자) */}
       {x.asksHinge && (
-        <Field label="경첩도 필요한가요? (선택)">
-          <Choose
-            aria-label="경첩"
-            value={part.hinge == null ? null : part.hinge ? "yes" : "no"}
-            onChange={v => s.setPart(x.slug, { hinge: v === "yes" })}
-            options={[
-              { value: "yes", label: "필요해요" },
-              { value: "no", label: "필요 없어요" },
-            ]}
-          />
+        <Field label="추가선택 (선택)">
+          <div className="overflow-hidden rounded-2xl border border-border">
+            <HingeAddOn
+              checked={!!part.hinge}
+              onCheckedChange={v => s.setPart(x.slug, v ? { hinge: true } : { hinge: null, hingeThickness: null, hingeBrand: "" })}
+              thickness={(part.hingeThickness as HingeThickness | null | undefined) ?? null}
+              onThicknessChange={v => s.setPart(x.slug, { hingeThickness: v })}
+              thicknessError={invalid && part.hinge && !part.hingeThickness ? PICK_MESSAGE : undefined}
+              brand={part.hingeBrand}
+              onBrandChange={v => s.setPart(x.slug, { hingeBrand: v })}
+            />
+          </div>
         </Field>
       )}
       {/* 사진 — 교체 상황은 현재 상태(필수)와 참고 사진(선택)을 두 칸 나란히, 가구 추가는 참고 사진만 */}
       {x.current ? (
         <div className="grid grid-cols-2 gap-3">
-          <Field label="현재 상태" error={photoError[`${x.slug}:current`] ?? (currentMissing ? PICK_MESSAGE : undefined)}>
+          <Field label="현재 상태" required error={photoError[`${x.slug}:current`] ?? (currentMissing ? PICK_MESSAGE : undefined)}>
             {photos("current")}
           </Field>
           {refField}
@@ -449,10 +458,10 @@ function DetailFields({
       ) : (
         refField
       )}
-      <Field label="상황 설명" error={textMissing ? TYPE_MESSAGE : undefined}>
+      <Field label="상황 설명" required error={textMissing ? TYPE_MESSAGE : undefined}>
         <Textarea
           aria-invalid={textMissing || undefined}
-          placeholder="예) 문짝 2장, 하부장 1m"
+          placeholder={x.example}
           value={part.amountNote}
           onChange={e => s.setPart(x.slug, { amountNote: e.target.value })}
         />

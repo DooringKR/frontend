@@ -6,6 +6,7 @@
 import { SupabaseUploadImageUsecase } from "@/DDD/usecase/upload_image_usecase";
 import { supabase } from "@/lib/supabase";
 
+import { hingeNote } from "./flow";
 import { useRequestStore } from "./requestStore";
 import { currentFees, travelFee } from "./fees";
 import { DIRECT, SITUATIONS } from "./situations";
@@ -77,8 +78,8 @@ export async function saveOrder(): Promise<string> {
         photo_paths: photoPaths[i],
         current_photo_paths: s.currentPhotoPaths[x.slug] ?? [],
         amount_note: p?.amountNote.trim() || null,
-        // 경첩 답은 메모 칸에(DB 칸을 늘리지 않는다) — 어드민 문의 메모에 「메모: 경첩 필요」로 보인다
-        memo: [p?.memo.trim(), p?.hinge === true ? "경첩 필요" : p?.hinge === false ? "경첩 필요 없음" : null].filter(Boolean).join(" · ") || null,
+        // 경첩 답은 메모 칸에(DB 칸을 늘리지 않는다) — 어드민 문의 메모에 「메모: 경첩 필요(몸통 18T · 블룸)」로 보인다
+        memo: [p?.memo.trim(), hingeNote(p)].filter(Boolean).join(" · ") || null,
       };
     }),
   );

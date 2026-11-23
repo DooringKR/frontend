@@ -1,5 +1,7 @@
 "use client";
 
+import { ChevronRight } from "lucide-react";
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { ErrorBanner, ListSkeleton } from "@/components/state/StateViews";
@@ -16,7 +18,8 @@ interface Row {
   SituationOrderPart: { situation: string; buttons: string[]; position: number }[];
 }
 
-const STATUS: Record<Row["status"], { text: string; color: BadgeProps["color"] } | null> = {
+/** 접수 상태 띠 — 목록과 상세(situation/[id])가 같이 쓴다 */
+export const SITUATION_STATUS: Record<Row["status"], { text: string; color: BadgeProps["color"] } | null> = {
   submitted: { text: "접수 중", color: "blue" },
   sent: { text: "접수됨", color: "green" },
   failed: { text: "접수 확인 중", color: "yellow" },
@@ -66,20 +69,24 @@ export function SituationOrderList({ onCount }: { onCount?: (n: number) => void 
   return (
     <div className="mb-6 flex flex-col gap-3">
       {rows.map((r) => {
-        const st = STATUS[r.status];
+        const st = SITUATION_STATUS[r.status];
+        // 누르면 주문 내용·올린 사진 다시 보기(2026-11-23 사용자)
         return (
-          <div key={r.id} className="rounded-[12px] border border-gray-200 px-5 py-4">
-            <div className="flex items-center justify-between text-[14px] text-gray-500">
-              <span>{new Date(r.created_at).toLocaleDateString("ko-KR")}</span>
-              {st && <Badge color={st.color}>{st.text}</Badge>}
+          <Link key={r.id} href={`/order-history/situation/${r.id}`} className="flex items-center gap-3 rounded-[12px] border border-gray-200 px-5 py-4 active:bg-gray-50">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between text-[14px] text-gray-500">
+                <span>{new Date(r.created_at).toLocaleDateString("ko-KR")}</span>
+                {st && <Badge color={st.color}>{st.text}</Badge>}
+              </div>
+              <div className="mt-1 text-[17px] font-600 text-gray-800">
+                {[...r.SituationOrderPart].sort((a, b) => a.position - b.position).map((p) => p.situation).join(" · ")}
+              </div>
+              <div className="mt-1 text-[14px] text-gray-500">
+                {[r.urgent ? URGENT_NAME : null, ...r.SituationOrderPart.flatMap((p) => p.buttons)].filter(Boolean).join(", ")}
+              </div>
             </div>
-            <div className="mt-1 text-[17px] font-600 text-gray-800">
-              {[...r.SituationOrderPart].sort((a, b) => a.position - b.position).map((p) => p.situation).join(" · ")}
-            </div>
-            <div className="mt-1 text-[14px] text-gray-500">
-              {[r.urgent ? URGENT_NAME : null, ...r.SituationOrderPart.flatMap((p) => p.buttons)].filter(Boolean).join(", ")}
-            </div>
-          </div>
+            <ChevronRight className="size-5 shrink-0 text-gray-400" />
+          </Link>
         );
       })}
       {error && <ErrorBanner text={error} onRetry={() => load(rows.length + PAGE)} />}

@@ -3,18 +3,21 @@
 import { ImagePlus, Loader2, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import PhotoViewer from "@/components/media/PhotoViewer";
 import { cn } from "@/lib/utils";
 
 /**
  * 사진 고르기 — 점선 상자(누르기·끌어다 놓기) + 고른 사진 칸(지우기 X). 바로키친 어드민 FileDrop 과 같은 규칙.
  * 크기·개수를 넘으면 말없이 버리지 않고 상자 밑에 무엇을 뺐는지 알린다(옛 ImageUploadInput 은 console 에만 남겼다).
  * 고르는 즉시 올리는 화면(상황 주문)은 uploaded(올린 사진 주소)·onRemoveUploaded·busy 를 넘기고 value 는 비워 둔다.
+ * 사진 칸을 누르면 PhotoViewer 로 크게 다시 본다(2026-11-23 사용자 「컴포넌트 단에서」).
+ * 한도 10MB(2026-11-23 사용자 「5 → 10mb」) — 올리는 버킷 customer-input-image 한도도 10MB(어드민 마이그레이션 0161).
  */
 export default function PhotoPick({
   value,
   onChange,
   maxFiles = 5,
-  maxSizeMB = 5,
+  maxSizeMB = 10,
   accept = "image/*",
   placeholder = "사진을 첨부해주세요",
   disabled,
@@ -50,6 +53,9 @@ export default function PhotoPick({
   useEffect(() => () => urls.forEach((u) => URL.revokeObjectURL(u)), [urls]);
   const count = value.length + uploaded.length;
   const full = count >= maxFiles;
+  // 크게 보기 — 칸 차례 그대로(올린 사진 먼저, 고른 사진 다음)
+  const [at, setAt] = useState<number | null>(null);
+  const photos = [...uploaded.map((u) => ({ src: u.src, alt: u.name })), ...value.map((f, i) => ({ src: urls[i], alt: f.name }))];
 
   const add = (list: FileList | null) => {
     if (!list) return;
@@ -105,8 +111,10 @@ export default function PhotoPick({
         <div className={cn("grid gap-3", narrow ? "grid-cols-2" : "grid-cols-3")}>
           {uploaded.map((u, i) => (
             <div key={u.src} className="relative aspect-square overflow-hidden rounded-[12px] bg-gray-100">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={u.src} alt={u.name} className="size-full object-cover" />
+              <button type="button" aria-label={`${u.name} 크게 보기`} onClick={() => setAt(i)} className="size-full">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={u.src} alt={u.name} className="size-full object-cover" />
+              </button>
               {onRemoveUploaded && (
                 <button
                   type="button"
@@ -121,8 +129,10 @@ export default function PhotoPick({
           ))}
           {value.map((f, i) => (
             <div key={`${f.name}-${i}`} className="relative aspect-square overflow-hidden rounded-[12px] bg-gray-100">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={urls[i]} alt={f.name} className="size-full object-cover" />
+              <button type="button" aria-label={`${f.name} 크게 보기`} onClick={() => setAt(uploaded.length + i)} className="size-full">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={urls[i]} alt={f.name} className="size-full object-cover" />
+              </button>
               <button
                 type="button"
                 aria-label={`${f.name} 빼기`}
@@ -135,6 +145,7 @@ export default function PhotoPick({
           ))}
         </div>
       )}
+      <PhotoViewer photos={photos} index={at} onIndexChange={setAt} />
     </div>
   );
 }

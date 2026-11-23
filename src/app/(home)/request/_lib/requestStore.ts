@@ -18,12 +18,22 @@ export interface PartInput {
   memo: string;
   /** 품목 대신 「AS가 필요한 상황을 직접 입력할게요」 — 설명 글이 꼭 있어야 한다 */
   direct?: boolean;
-  /** 경첩도 필요한가요(선택) — 문짝 교체 · 설치·가구 추가 */
+  /** 경첩도 같이 받을래요(선택) — 문짝 교체 · 설치·가구 추가. 고르면 몸통 두께가 필수, 브랜드는 선택(2026-11-23) */
   hinge?: boolean | null;
+  /** 몸통 두께 — HingeThickness 값(15T·18T·모름) */
+  hingeThickness?: string | null;
+  /** 원하는 경첩 브랜드(선택) */
+  hingeBrand?: string;
 }
+
+/** 배송 갈래 — 퀵 트럭·택배(경동화물)(2026-11-23 사용자 「배송 방법을 선택해주세요」). 이름은 확인 화면·접수 메모가 같이 쓴다 */
+export const CARRIER_LABEL = { quick: "퀵 트럭 배송", parcel: "택배(경동화물) 배송" } as const;
+export type Carrier = keyof typeof CARRIER_LABEL;
 
 export interface ReceiveInput {
   method: "delivery" | "pickup";
+  /** 배송이면 어느 갈래로 — 고르기 전(옛 작성 중 주문)은 비어 있다 */
+  carrier?: Carrier;
   /** 배송: 구 바로키친 AS DeliveryMethod 이름 그대로 */
   deliveryMethod?: string;
   deliveryMethodInput?: string;
