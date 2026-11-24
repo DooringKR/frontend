@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 
 import { Chips, MoneyChip, TimeChip } from "../_components/ConditionChips";
 import StepShell from "../_components/StepShell";
-import { dateOk, dateRangeOf, DELIVERY_METHODS, deliveryMethodOk, nextPathOf } from "../_lib/flow";
+import { carrierOk, dateOk, dateRangeOf, DELIVERY_METHODS, deliveryMethodOk, nextPathOf } from "../_lib/flow";
 import { CARRIER_LABEL, type Carrier, type ReceiveInput, useRequestStore } from "../_lib/requestStore";
 
 /**
@@ -42,7 +42,7 @@ export default function InstallPage() {
         : {
             install: true,
             // 배송은 갈래(퀵 트럭·택배)까지 골라야 고른 것
-            method: (!!r && (!delivery || !!r.carrier)) || PICK,
+            method: (!!r && (!delivery || carrierOk(r.carrier, s.urgent))) || PICK,
             how: !r
               ? true
               : delivery
@@ -114,7 +114,7 @@ export default function InstallPage() {
             <Choose<Carrier | "pickup">
               aria-invalid={!!req.error("method")}
               aria-label="받는 방법"
-              value={r?.method === "pickup" ? "pickup" : (r?.carrier ?? null)}
+              value={r?.method === "pickup" ? "pickup" : r?.carrier && carrierOk(r.carrier, s.urgent) ? r.carrier : null}
               onChange={v => setReceive(v === "pickup" ? { method: "pickup" } : { method: "delivery", carrier: v })}
               options={[
                 {
@@ -126,6 +126,8 @@ export default function InstallPage() {
                 {
                   value: "parcel",
                   label: CARRIER_LABEL.parcel,
+                  disabled: s.urgent,
+                  description: s.urgent ? "바로배송은 택배로 받을 수 없어요" : undefined,
                   image: <Pictogram name="delivery" />,
                   badge: (
                     <Chips>

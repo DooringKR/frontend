@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 
 import { dateLabel } from "@/components/form/DateField";
 
-import { CARRIER_LABEL, useRequestStore, type ReceiveInput, type RequestState } from "./requestStore";
+import { CARRIER_LABEL, useRequestStore, type Carrier, type ReceiveInput, type RequestState } from "./requestStore";
 import { situationOf, type SituationSlug } from "./situations";
 
 export type StepKey = "situation" | "install" | "site" | "recipient";
@@ -44,6 +44,9 @@ export const deliveryMethodOk = (r: ReceiveInput) =>
   DELIVERY_METHODS.includes(r.deliveryMethod as DeliveryMethod) &&
   (r.deliveryMethod !== DeliveryMethod.DIRECT_INPUT || !!r.deliveryMethodInput?.trim());
 
+/** 배송 갈래를 골랐는지 — 바로배송이면 택배(3일 이상 소요)는 고를 수 없다(2026-11-24 사용자 「같이 못 고르게 막아」). 먼저 택배를 고르고 바로배송을 켠 주문도 안 고른 것으로 본다 */
+export const carrierOk = (carrier: Carrier | null | undefined, urgent: boolean) => !!carrier && !(urgent && carrier === "parcel");
+
 /** 받는 방법 한 줄 — 「택배(경동화물) 배송 · 문 앞에 두면 가져갈게요 · 11월 27일(목) 14:00」. 확인 화면·주문 내역 상세가 같이 쓴다 */
 export const receiveLine = (r: ReceiveInput) => {
   const way = r.method === "pickup" ? "직접 픽업" : r.carrier ? CARRIER_LABEL[r.carrier] : "배송";
@@ -61,7 +64,7 @@ export const receiveLine = (r: ReceiveInput) => {
 export function receiveDone(r: ReceiveInput | null, urgent = false): boolean {
   if (!dateOk(urgent, r?.date) || !r?.time) return false;
   return r.method === "delivery"
-    ? !!r.carrier && deliveryMethodOk(r)
+    ? carrierOk(r.carrier, urgent) && deliveryMethodOk(r)
     : !!r.vehicle && (r.vehicle !== VehicleType.DIRECT_INPUT || !!r.vehicleInput?.trim());
 }
 
