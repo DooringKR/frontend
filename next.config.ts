@@ -20,12 +20,16 @@ const baseConfig: NextConfig = {
   },
   // 주소는 as.barogagu.com 하나(2026-11-23) — barogagu.com·www·옛 주소 baro.dooring.kr 로 오면 같은 경로로 넘긴다(알림톡·옛 링크 살림)
   async redirects() {
-    return ["barogagu.com", "www.barogagu.com", "baro.dooring.kr"].map((host) => ({
-      source: "/:path*",
-      has: [{ type: "host" as const, value: host }],
-      destination: "https://as.barogagu.com/:path*",
-      permanent: true,
-    }));
+    return [
+      ...["barogagu.com", "www.barogagu.com", "baro.dooring.kr"].map((host) => ({
+        source: "/:path*",
+        has: [{ type: "host" as const, value: host }],
+        destination: "https://as.barogagu.com/:path*",
+        permanent: true,
+      })),
+      // 짧은 주소: 오픈채팅 등 카카오톡에 붙이는 링크(as.barogagu.com/k)
+      { source: "/k", destination: "/?utm_source=kakaotalk", permanent: false },
+    ];
   },
   async rewrites() {
     return [
