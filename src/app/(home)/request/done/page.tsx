@@ -90,7 +90,12 @@ export default function RequestDonePage() {
     } catch {
       // 저장이 막혀도 카톡은 연다
     }
-    location.href = CHAT;
+    // 출처(Referer)를 넘기지 않는다 — 넘기면 카카오가 채팅방에 「이전 페이지: as.barogagu.com」 줄과 미리보기 카드를 붙인다(2026-11-24 사용자 「끄고」).
+    // 어디서 왔는지는 고객이 붙여넣는 첫 메시지 머리말로 가른다.
+    const a = document.createElement("a");
+    a.href = CHAT;
+    a.rel = "noreferrer";
+    a.click();
   };
 
   return (
