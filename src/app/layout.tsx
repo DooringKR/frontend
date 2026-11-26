@@ -63,7 +63,7 @@ function RootLayout({
         <meta property="og:url" content="https://as.barogagu.com/" />
         <meta property="og:title" content="바로키친 AS: 현장에서 필요한 가구, 오늘배송" />
         <meta property="og:description" content="가구 문짝 ∙ 가구 마감재 ∙ 부분장 ∙ 가구 부속 ∙ 가구 하드웨어 | 모바일로 쉽고 편리하게 주문하고, 정확한 맞춤 가구를 오늘배송 받으세요." />
-        <meta property="og:image" content="https://ltndnqysxsyldvkrbpfq.supabase.co/storage/v1/object/public/meta-tag/metatag-barokitchen-as.png" />
+        <meta property="og:image" content="https://as.barogagu.com/og-barokitchen-as.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="600" />
         <meta property="og:image:alt" content="바로키친 AS - 현장에서 필요한 가구, 오늘배송" />
@@ -73,13 +73,13 @@ function RootLayout({
 
         {/* 카카오톡 최적화 태그 */}
         <meta property="og:image:type" content="image/png" />
-        <meta property="og:image:secure_url" content="https://ltndnqysxsyldvkrbpfq.supabase.co/storage/v1/object/public/meta-tag/metatag-barokitchen-as.png" />
+        <meta property="og:image:secure_url" content="https://as.barogagu.com/og-barokitchen-as.png" />
 
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content="https://as.barogagu.com/" />
         <meta property="twitter:title" content="바로키친 AS: 현장에서 필요한 가구, 오늘배송" />
         <meta property="twitter:description" content="가구 문짝 ∙ 가구 마감재 ∙ 부분장 ∙ 가구 부속 ∙ 가구 하드웨어 | 모바일로 쉽고 편리하게 주문하고, 정확한 맞춤 가구를 오늘배송 받으세요." />
-        <meta property="twitter:image" content="https://ltndnqysxsyldvkrbpfq.supabase.co/storage/v1/object/public/meta-tag/metatag-barokitchen-as.png" />
+        <meta property="twitter:image" content="https://as.barogagu.com/og-barokitchen-as.png" />
 
 
         {/* Pretendard 폰트 preload */}
