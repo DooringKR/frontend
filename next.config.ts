@@ -27,8 +27,9 @@ const baseConfig: NextConfig = {
         destination: "https://as.barogagu.com/:path*",
         permanent: true,
       })),
-      // 짧은 주소: 오픈채팅 등 카카오톡에 붙이는 링크(as.barogagu.com/k)
-      { source: "/k", destination: "/?utm_source=kakaotalk", permanent: false },
+      // 짧은 주소: 카카오톡에 붙이는 링크. /k = 업체(b2b), /kc = 고객(b2c) — 경로엔 티 안 나게, 구분은 utm_medium 으로(2026-11-26 사용자)
+      { source: "/k", destination: "/?utm_source=kakaotalk&utm_medium=b2b", permanent: false },
+      { source: "/kc", destination: "/?utm_source=kakaotalk&utm_medium=b2c", permanent: false },
     ];
   },
   async rewrites() {
